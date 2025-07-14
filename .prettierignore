@@ -1,0 +1,12 @@
+node_modules
+vendor
+tmp
+log
+storage
+db
+public
+README.md
+config
+.github
+.gitignore
+.vscode

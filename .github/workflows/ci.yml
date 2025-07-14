@@ -53,6 +53,21 @@ jobs:
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Lint JS code (ESLint)
+        run: npx eslint .
+
+      - name: Check formatting (Prettier)
+        run: npx prettier . --check
+
   test:
     runs-on: ubuntu-latest
 
