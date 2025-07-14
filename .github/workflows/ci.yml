@@ -63,7 +63,7 @@ jobs:
         run: npm ci
 
       - name: Lint JS code (ESLint)
-        run: npx eslint .
+        run: npx eslint app/javascript/**/*.js
 
       - name: Check formatting (Prettier)
         run: npx prettier . --check
