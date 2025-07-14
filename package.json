@@ -1,0 +1,23 @@
+{
+  "name": "tenpai-speeder",
+  "version": "1.0.0",
+  "description": "tenpai-speederは、麻雀中級者以下向けの麻雀練習サービスです。麻雀で和了を目指すための打牌練習ができます。",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "eslint": "^9.31.0",
+    "eslint-config-prettier": "^10.1.5",
+    "globals": "^16.3.0",
+    "prettier": "3.6.2"
+  }
+}
