@@ -6,7 +6,7 @@ class Rule < ApplicationRecord
   validates :aka_dora, inclusion: { in: [ true, false ] }
   validates :round_type, presence: true
 
-  enum round_type: {
+  enum :round_type, {
     ikkyoku: 0,
     tonpuu: 1,
     tonnan: 2

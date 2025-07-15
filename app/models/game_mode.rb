@@ -5,7 +5,7 @@ class GameMode < ApplicationRecord
 
   validates :mode_type, presence: true
 
-  enum mode_type: {
+  enum :mode_type, {
     training: 0,
     match: 1
   }

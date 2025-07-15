@@ -11,7 +11,7 @@ class Action < ApplicationRecord
   validates :step, presence: true
   validates :player, presence: true
 
-  enum action_type: {
+  enum :action_type, {
     draw: 0,
     discard: 1,
     pon: 2,
