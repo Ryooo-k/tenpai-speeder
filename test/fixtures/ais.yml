@@ -1,7 +1,14 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+menzen_tenpai_speeder:
+  name: menzen_tenpai_speeder
+  version: "1.0"
+  description: 鳴き無しの面前で最速聴牌を目指すAIです。
 
-one:
-  name: MyString
+tenpai_speeder:
+  name: tenpai_speeder
+  version: "1.1"
+  description: 鳴き有りで最速聴牌を目指すAIです。
 
-two:
-  name: MyString
+high_pointer:
+  name: high_pointer
+  version: "2.0"
+  description: 高打点を目指すAIです。

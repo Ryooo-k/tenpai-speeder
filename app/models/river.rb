@@ -5,6 +5,6 @@ class River < ApplicationRecord
   belongs_to :tile
 
   validates :tsumogiri, inclusion: { in: [ true, false ] }
-  validates :player_states, presence: true
+  validates :player_state, presence: true
   validates :tile, presence: true
 end

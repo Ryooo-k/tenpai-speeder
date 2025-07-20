@@ -5,7 +5,7 @@ class Meld < ApplicationRecord
   belongs_to :tile
   belongs_to :action
 
-  validates :player_states, presence: true
+  validates :player_state, presence: true
   validates :tile, presence: true
   validates :action, presence: true
 

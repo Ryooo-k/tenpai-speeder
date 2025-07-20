@@ -4,7 +4,7 @@ class BaseTile < ApplicationRecord
   has_many :tiles
 
   validates :suit, presence: true
-  validates :number, presence: true
+  validates :number, presence: true, inclusion: { in: 1..9 }
   validates :name, presence: true
 
   enum :suit, {
