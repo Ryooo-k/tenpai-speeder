@@ -1,11 +1,815 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+first_manzu_1:
+  base_tile: manzu_1
+  game: tonpuu
+  code: 0
+  aka: false
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+second_manzu_1:
+  base_tile: manzu_1
+  game: tonpuu
+  code: 1
+  aka: false
+
+third_manzu_1:
+  base_tile: manzu_1
+  game: tonpuu
+  code: 2
+  aka: false
+
+fourth_manzu_1:
+  base_tile: manzu_1
+  game: tonpuu
+  code: 3
+  aka: false
+
+first_manzu_2:
+  base_tile: manzu_2
+  game: tonpuu
+  code: 4
+  aka: false
+
+second_manzu_2:
+  base_tile: manzu_2
+  game: tonpuu
+  code: 5
+  aka: false
+
+third_manzu_2:
+  base_tile: manzu_2
+  game: tonpuu
+  code: 6
+  aka: false
+
+fourth_manzu_2:
+  base_tile: manzu_2
+  game: tonpuu
+  code: 7
+  aka: false
+
+first_manzu_3:
+  base_tile: manzu_3
+  game: tonpuu
+  code: 8
+  aka: false
+
+second_manzu_3:
+  base_tile: manzu_3
+  game: tonpuu
+  code: 9
+  aka: false
+
+third_manzu_3:
+  base_tile: manzu_3
+  game: tonpuu
+  code: 10
+  aka: false
+
+fourth_manzu_3:
+  base_tile: manzu_3
+  game: tonpuu
+  code: 11
+  aka: false
+
+first_manzu_4:
+  base_tile: manzu_4
+  game: tonpuu
+  code: 12
+  aka: false
+
+second_manzu_4:
+  base_tile: manzu_4
+  game: tonpuu
+  code: 13
+  aka: false
+
+third_manzu_4:
+  base_tile: manzu_4
+  game: tonpuu
+  code: 14
+  aka: false
+
+fourth_manzu_4:
+  base_tile: manzu_4
+  game: tonpuu
+  code: 15
+  aka: false
+
+first_manzu_5:
+  base_tile: manzu_5
+  game: tonpuu
+  code: 16
+  aka: false
+
+second_manzu_5:
+  base_tile: manzu_5
+  game: tonpuu
+  code: 17
+  aka: false
+
+third_manzu_5:
+  base_tile: manzu_5
+  game: tonpuu
+  code: 18
+  aka: false
+
+fourth_manzu_5:
+  base_tile: manzu_5
+  game: tonpuu
+  code: 19
+  aka: true
+
+first_manzu_6:
+  base_tile: manzu_6
+  game: tonpuu
+  code: 20
+  aka: false
+
+second_manzu_6:
+  base_tile: manzu_6
+  game: tonpuu
+  code: 21
+  aka: false
+
+third_manzu_6:
+  base_tile: manzu_6
+  game: tonpuu
+  code: 22
+  aka: false
+
+fourth_manzu_6:
+  base_tile: manzu_6
+  game: tonpuu
+  code: 23
+  aka: false
+
+first_manzu_7:
+  base_tile: manzu_7
+  game: tonpuu
+  code: 24
+  aka: false
+
+second_manzu_7:
+  base_tile: manzu_7
+  game: tonpuu
+  code: 25
+  aka: false
+
+third_manzu_7:
+  base_tile: manzu_7
+  game: tonpuu
+  code: 26
+  aka: false
+
+fourth_manzu_7:
+  base_tile: manzu_7
+  game: tonpuu
+  code: 27
+  aka: false
+
+first_manzu_8:
+  base_tile: manzu_8
+  game: tonpuu
+  code: 28
+  aka: false
+
+second_manzu_8:
+  base_tile: manzu_8
+  game: tonpuu
+  code: 29
+  aka: false
+
+third_manzu_8:
+  base_tile: manzu_8
+  game: tonpuu
+  code: 30
+  aka: false
+
+fourth_manzu_8:
+  base_tile: manzu_8
+  game: tonpuu
+  code: 31
+  aka: false
+
+first_manzu_9:
+  base_tile: manzu_9
+  game: tonpuu
+  code: 32
+  aka: false
+
+second_manzu_9:
+  base_tile: manzu_9
+  game: tonpuu
+  code: 33
+  aka: false
+
+third_manzu_9:
+  base_tile: manzu_9
+  game: tonpuu
+  code: 34
+  aka: false
+
+fourth_manzu_9:
+  base_tile: manzu_9
+  game: tonpuu
+  code: 35
+  aka: false
+
+first_pinzu_1:
+  base_tile: pinzu_1
+  game: tonpuu
+  code: 36
+  aka: false
+
+second_pinzu_1:
+  base_tile: pinzu_1
+  game: tonpuu
+  code: 37
+  aka: false
+
+third_pinzu_1:
+  base_tile: pinzu_1
+  game: tonpuu
+  code: 38
+  aka: false
+
+fourth_pinzu_1:
+  base_tile: pinzu_1
+  game: tonpuu
+  code: 39
+  aka: false
+
+first_pinzu_2:
+  base_tile: pinzu_2
+  game: tonpuu
+  code: 40
+  aka: false
+
+second_pinzu_2:
+  base_tile: pinzu_2
+  game: tonpuu
+  code: 41
+  aka: false
+
+third_pinzu_2:
+  base_tile: pinzu_2
+  game: tonpuu
+  code: 42
+  aka: false
+
+fourth_pinzu_2:
+  base_tile: pinzu_2
+  game: tonpuu
+  code: 43
+  aka: false
+
+first_pinzu_3:
+  base_tile: pinzu_3
+  game: tonpuu
+  code: 44
+  aka: false
+
+second_pinzu_3:
+  base_tile: pinzu_3
+  game: tonpuu
+  code: 45
+  aka: false
+
+third_pinzu_3:
+  base_tile: pinzu_3
+  game: tonpuu
+  code: 46
+  aka: false
+
+fourth_pinzu_3:
+  base_tile: pinzu_3
+  game: tonpuu
+  code: 47
+  aka: false
+
+first_pinzu_4:
+  base_tile: pinzu_4
+  game: tonpuu
+  code: 48
+  aka: false
+
+second_pinzu_4:
+  base_tile: pinzu_4
+  game: tonpuu
+  code: 49
+  aka: false
+
+third_pinzu_4:
+  base_tile: pinzu_4
+  game: tonpuu
+  code: 50
+  aka: false
+
+fourth_pinzu_4:
+  base_tile: pinzu_4
+  game: tonpuu
+  code: 51
+  aka: false
+
+first_pinzu_5:
+  base_tile: pinzu_5
+  game: tonpuu
+  code: 52
+  aka: false
+
+second_pinzu_5:
+  base_tile: pinzu_5
+  game: tonpuu
+  code: 53
+  aka: false
+
+third_pinzu_5:
+  base_tile: pinzu_5
+  game: tonpuu
+  code: 54
+  aka: false
+
+fourth_pinzu_5:
+  base_tile: pinzu_5
+  game: tonpuu
+  code: 55
+  aka: true
+
+first_pinzu_6:
+  base_tile: pinzu_6
+  game: tonpuu
+  code: 56
+  aka: false
+
+second_pinzu_6:
+  base_tile: pinzu_6
+  game: tonpuu
+  code: 57
+  aka: false
+
+third_pinzu_6:
+  base_tile: pinzu_6
+  game: tonpuu
+  code: 58
+  aka: false
+
+fourth_pinzu_6:
+  base_tile: pinzu_6
+  game: tonpuu
+  code: 59
+  aka: false
+
+first_pinzu_7:
+  base_tile: pinzu_7
+  game: tonpuu
+  code: 60
+  aka: false
+
+second_pinzu_7:
+  base_tile: pinzu_7
+  game: tonpuu
+  code: 61
+  aka: false
+
+third_pinzu_7:
+  base_tile: pinzu_7
+  game: tonpuu
+  code: 62
+  aka: false
+
+fourth_pinzu_7:
+  base_tile: pinzu_7
+  game: tonpuu
+  code: 63
+  aka: false
+
+first_pinzu_8:
+  base_tile: pinzu_8
+  game: tonpuu
+  code: 64
+  aka: false
+
+second_pinzu_8:
+  base_tile: pinzu_8
+  game: tonpuu
+  code: 65
+  aka: false
+
+third_pinzu_8:
+  base_tile: pinzu_8
+  game: tonpuu
+  code: 66
+  aka: false
+
+fourth_pinzu_8:
+  base_tile: pinzu_8
+  game: tonpuu
+  code: 67
+  aka: false
+
+first_pinzu_9:
+  base_tile: pinzu_9
+  game: tonpuu
+  code: 68
+  aka: false
+
+second_pinzu_9:
+  base_tile: pinzu_9
+  game: tonpuu
+  code: 69
+  aka: false
+
+third_pinzu_9:
+  base_tile: pinzu_9
+  game: tonpuu
+  code: 70
+  aka: false
+
+fourth_pinzu_9:
+  base_tile: pinzu_9
+  game: tonpuu
+  code: 71
+  aka: false
+
+first_souzu_1:
+  base_tile: souzu_1
+  game: tonpuu
+  code: 72
+  aka: false
+
+second_souzu_1:
+  base_tile: souzu_1
+  game: tonpuu
+  code: 73
+  aka: false
+
+third_souzu_1:
+  base_tile: souzu_1
+  game: tonpuu
+  code: 74
+  aka: false
+
+fourth_souzu_1:
+  base_tile: souzu_1
+  game: tonpuu
+  code: 75
+  aka: false
+
+first_souzu_2:
+  base_tile: souzu_2
+  game: tonpuu
+  code: 76
+  aka: false
+
+second_souzu_2:
+  base_tile: souzu_2
+  game: tonpuu
+  code: 77
+  aka: false
+
+third_souzu_2:
+  base_tile: souzu_2
+  game: tonpuu
+  code: 78
+  aka: false
+
+fourth_souzu_2:
+  base_tile: souzu_2
+  game: tonpuu
+  code: 79
+  aka: false
+
+first_souzu_3:
+  base_tile: souzu_3
+  game: tonpuu
+  code: 80
+  aka: false
+
+second_souzu_3:
+  base_tile: souzu_3
+  game: tonpuu
+  code: 81
+  aka: false
+
+third_souzu_3:
+  base_tile: souzu_3
+  game: tonpuu
+  code: 82
+  aka: false
+
+fourth_souzu_3:
+  base_tile: souzu_3
+  game: tonpuu
+  code: 83
+  aka: false
+
+first_souzu_4:
+  base_tile: souzu_4
+  game: tonpuu
+  code: 84
+  aka: false
+
+second_souzu_4:
+  base_tile: souzu_4
+  game: tonpuu
+  code: 85
+  aka: false
+
+third_souzu_4:
+  base_tile: souzu_4
+  game: tonpuu
+  code: 86
+  aka: false
+
+fourth_souzu_4:
+  base_tile: souzu_4
+  game: tonpuu
+  code: 87
+  aka: false
+
+first_souzu_5:
+  base_tile: souzu_5
+  game: tonpuu
+  code: 88
+  aka: false
+
+second_souzu_5:
+  base_tile: souzu_5
+  game: tonpuu
+  code: 89
+  aka: false
+
+third_souzu_5:
+  base_tile: souzu_5
+  game: tonpuu
+  code: 90
+  aka: false
+
+fourth_souzu_5:
+  base_tile: souzu_5
+  game: tonpuu
+  code: 91
+  aka: true
+
+first_souzu_6:
+  base_tile: souzu_6
+  game: tonpuu
+  code: 92
+  aka: false
+
+second_souzu_6:
+  base_tile: souzu_6
+  game: tonpuu
+  code: 93
+  aka: false
+
+third_souzu_6:
+  base_tile: souzu_6
+  game: tonpuu
+  code: 94
+  aka: false
+
+fourth_souzu_6:
+  base_tile: souzu_6
+  game: tonpuu
+  code: 95
+  aka: false
+
+first_souzu_7:
+  base_tile: souzu_7
+  game: tonpuu
+  code: 96
+  aka: false
+
+second_souzu_7:
+  base_tile: souzu_7
+  game: tonpuu
+  code: 97
+  aka: false
+
+third_souzu_7:
+  base_tile: souzu_7
+  game: tonpuu
+  code: 98
+  aka: false
+
+fourth_souzu_7:
+  base_tile: souzu_7
+  game: tonpuu
+  code: 99
+  aka: false
+
+first_souzu_8:
+  base_tile: souzu_8
+  game: tonpuu
+  code: 100
+  aka: false
+
+second_souzu_8:
+  base_tile: souzu_8
+  game: tonpuu
+  code: 101
+  aka: false
+
+third_souzu_8:
+  base_tile: souzu_8
+  game: tonpuu
+  code: 102
+  aka: false
+
+fourth_souzu_8:
+  base_tile: souzu_8
+  game: tonpuu
+  code: 103
+  aka: false
+
+first_souzu_9:
+  base_tile: souzu_9
+  game: tonpuu
+  code: 104
+  aka: false
+
+second_souzu_9:
+  base_tile: souzu_9
+  game: tonpuu
+  code: 105
+  aka: false
+
+third_souzu_9:
+  base_tile: souzu_9
+  game: tonpuu
+  code: 106
+  aka: false
+
+fourth_souzu_9:
+  base_tile: souzu_9
+  game: tonpuu
+  code: 107
+  aka: false
+
+first_ton:
+  base_tile: ton
+  game: tonpuu
+  code: 108
+  aka: false
+
+second_ton:
+  base_tile: ton
+  game: tonpuu
+  code: 109
+  aka: false
+
+third_ton:
+  base_tile: ton
+  game: tonpuu
+  code: 110
+  aka: false
+
+fourth_ton:
+  base_tile: ton
+  game: tonpuu
+  code: 111
+  aka: false
+
+first_nan:
+  base_tile: nan
+  game: tonpuu
+  code: 112
+  aka: false
+
+second_nan:
+  base_tile: nan
+  game: tonpuu
+  code: 113
+  aka: false
+
+third_nan:
+  base_tile: nan
+  game: tonpuu
+  code: 114
+  aka: false
+
+fourth_nan:
+  base_tile: nan
+  game: tonpuu
+  code: 115
+  aka: false
+
+first_sha:
+  base_tile: sha
+  game: tonpuu
+  code: 116
+  aka: false
+
+second_sha:
+  base_tile: sha
+  game: tonpuu
+  code: 117
+  aka: false
+
+third_sha:
+  base_tile: sha
+  game: tonpuu
+  code: 118
+  aka: false
+
+fourth_sha:
+  base_tile: sha
+  game: tonpuu
+  code: 119
+  aka: false
+
+first_pei:
+  base_tile: pei
+  game: tonpuu
+  code: 120
+  aka: false
+
+second_pei:
+  base_tile: pei
+  game: tonpuu
+  code: 121
+  aka: false
+
+third_pei:
+  base_tile: pei
+  game: tonpuu
+  code: 122
+  aka: false
+
+fourth_pei:
+  base_tile: pei
+  game: tonpuu
+  code: 123
+  aka: false
+
+first_haku:
+  base_tile: haku
+  game: tonpuu
+  code: 124
+  aka: false
+
+second_haku:
+  base_tile: haku
+  game: tonpuu
+  code: 125
+  aka: false
+
+third_haku:
+  base_tile: haku
+  game: tonpuu
+  code: 126
+  aka: false
+
+fourth_haku:
+  base_tile: haku
+  game: tonpuu
+  code: 127
+  aka: false
+
+first_hatsu:
+  base_tile: hatsu
+  game: tonpuu
+  code: 128
+  aka: false
+
+second_hatsu:
+  base_tile: hatsu
+  game: tonpuu
+  code: 129
+  aka: false
+
+third_hatsu:
+  base_tile: hatsu
+  game: tonpuu
+  code: 130
+  aka: false
+
+fourth_hatsu:
+  base_tile: hatsu
+  game: tonpuu
+  code: 131
+  aka: false
+
+first_chun:
+  base_tile: chun
+  game: tonpuu
+  code: 132
+  aka: false
+
+second_chun:
+  base_tile: chun
+  game: tonpuu
+  code: 133
+  aka: false
+
+third_chun:
+  base_tile: chun
+  game: tonpuu
+  code: 134
+  aka: false
+
+fourth_chun:
+  base_tile: chun
+  game: tonpuu
+  code: 135
+  aka: false

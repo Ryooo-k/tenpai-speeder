@@ -1,11 +1,31 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+step_1:
+  turn: turn_1
+  number: 0
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+step_2:
+  turn: turn_1
+  number: 1
+
+step_3:
+  turn: turn_1
+  number: 2
+
+step_4:
+  turn: turn_1
+  number: 3
+
+step_5:
+  turn: turn_2
+  number: 4
+
+step_6:
+  turn: turn_2
+  number: 5
+
+step_7:
+  turn: turn_2
+  number: 6
+
+step_8:
+  turn: turn_2
+  number: 7

@@ -1,11 +1,15 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+training:
+  game_mode: training
+  rule: training
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+tonpuu:
+  game_mode: match
+  rule: tonpuu_with_aka_dora
+
+tonnan:
+  game_mode: match
+  rule: tonnan_with_aka_dora
+
+game_without_aka_dora:
+  game_mode: match
+  rule: tonpuu_without_aka_dora

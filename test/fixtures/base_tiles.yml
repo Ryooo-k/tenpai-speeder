@@ -1,11 +1,169 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+manzu_1:
+  suit: 0
+  number: 1
+  name: "1萬"
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+manzu_2:
+  suit: 0
+  number: 2
+  name: "2萬"
+
+manzu_3:
+  suit: 0
+  number: 3
+  name: "3萬"
+
+manzu_4:
+  suit: 0
+  number: 4
+  name: "4萬"
+
+manzu_5:
+  suit: 0
+  number: 5
+  name: "5萬"
+
+manzu_6:
+  suit: 0
+  number: 6
+  name: "6萬"
+
+manzu_7:
+  suit: 0
+  number: 7
+  name: "7萬"
+
+manzu_8:
+  suit: 0
+  number: 8
+  name: "8萬"
+
+manzu_9:
+  suit: 0
+  number: 9
+  name: "9萬"
+
+pinzu_1:
+  suit: 1
+  number: 1
+  name: "1筒"
+
+pinzu_2:
+  suit: 1
+  number: 2
+  name: "2筒"
+
+pinzu_3:
+  suit: 1
+  number: 3
+  name: "3筒"
+
+pinzu_4:
+  suit: 1
+  number: 4
+  name: "4筒"
+
+pinzu_5:
+  suit: 1
+  number: 5
+  name: "5筒"
+
+pinzu_6:
+  suit: 1
+  number: 6
+  name: "6筒"
+
+pinzu_7:
+  suit: 1
+  number: 7
+  name: "7筒"
+
+pinzu_8:
+  suit: 1
+  number: 8
+  name: "8筒"
+
+pinzu_9:
+  suit: 1
+  number: 9
+  name: "9筒"
+
+souzu_1:
+  suit: 2
+  number: 1
+  name: "1索"
+
+souzu_2:
+  suit: 2
+  number: 2
+  name: "2索"
+
+souzu_3:
+  suit: 2
+  number: 3
+  name: "3索"
+
+souzu_4:
+  suit: 2
+  number: 4
+  name: "4索"
+
+souzu_5:
+  suit: 2
+  number: 5
+  name: "5索"
+
+souzu_6:
+  suit: 2
+  number: 6
+  name: "6索"
+
+souzu_7:
+  suit: 2
+  number: 7
+  name: "7索"
+
+souzu_8:
+  suit: 2
+  number: 8
+  name: "8索"
+
+souzu_9:
+  suit: 2
+  number: 9
+  name: "9索"
+
+ton:
+  suit: 3
+  number: 1
+  name: "東"
+
+nan:
+  suit: 3
+  number: 2
+  name: "南"
+
+sha:
+  suit: 3
+  number: 3
+  name: "西"
+
+pei:
+  suit: 3
+  number: 4
+  name: "北"
+
+haku:
+  suit: 4
+  number: 5
+  name: "白"
+
+hatsu:
+  suit: 4
+  number: 6
+  name: "發"
+
+chun:
+  suit: 4
+  number: 7
+  name: "中"

@@ -8,7 +8,7 @@ class Player < ApplicationRecord
   has_many :results, dependent: :destroy
   has_many :scores, dependent: :destroy
   has_many :actions, dependent: :destroy
-  has_many :actions_from, class_name: 'Action', foreign_key: 'from_player_id', inverse_of: :from_player, dependent: :destroy
+  has_many :actions_from, class_name: 'Action', foreign_key: 'from_player_id', inverse_of: :from_player
   has_many :player_states, dependent: :destroy
 
   validates :seat_order, presence: true

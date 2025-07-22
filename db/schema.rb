@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_15_035629) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_16_211147) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -55,14 +55,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_035629) do
   end
 
   create_table "games", force: :cascade do |t|
-    t.integer "user_id", null: false
     t.integer "game_mode_id", null: false
     t.integer "rule_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_mode_id"], name: "index_games_on_game_mode_id"
     t.index ["rule_id"], name: "index_games_on_rule_id"
-    t.index ["user_id"], name: "index_games_on_user_id"
   end
 
   create_table "hands", force: :cascade do |t|
@@ -217,7 +215,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_035629) do
   add_foreign_key "favorites", "users"
   add_foreign_key "games", "game_modes"
   add_foreign_key "games", "rules"
-  add_foreign_key "games", "users"
   add_foreign_key "hands", "player_states"
   add_foreign_key "hands", "tiles"
   add_foreign_key "honbas", "rounds"

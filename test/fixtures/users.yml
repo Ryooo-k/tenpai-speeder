@@ -1,7 +1,8 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+guest:
+  name: guest
 
-one:
-  name: MyString
-
-two:
-  name: MyString
+ryo:
+  name: ryo
+  provider: twitter
+  uid: "1245678"
+  email: ryo@example.com

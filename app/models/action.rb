@@ -11,6 +11,8 @@ class Action < ApplicationRecord
   validates :step, presence: true
   validates :player, presence: true
 
+  validate :validate_from_player
+
   enum :action_type, {
     draw: 0,
     discard: 1,
@@ -24,4 +26,12 @@ class Action < ApplicationRecord
     ron: 9,
     pass: 10
   }
+
+  private
+
+    def validate_from_player
+      if action_type.in?(%w[pon chi daiminkan ron]) && from_player.nil?
+        errors.add(:from_player, "#{action_type}の時はfrom_playerが必要です")
+      end
+    end
 end

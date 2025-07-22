@@ -1,11 +1,51 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+ryo_hand_1:
+  player_state: ryo_step_1
+  tile: first_manzu_1
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+ryo_hand_2:
+  player_state: ryo_step_1
+  tile: second_manzu_1
+
+ryo_hand_3:
+  player_state: ryo_step_1
+  tile: first_manzu_2
+
+ryo_hand_4:
+  player_state: ryo_step_1
+  tile: second_manzu_2
+
+ryo_hand_5:
+  player_state: ryo_step_1
+  tile: first_manzu_3
+
+ryo_hand_6:
+  player_state: ryo_step_1
+  tile: second_manzu_3
+
+ryo_hand_7:
+  player_state: ryo_step_1
+  tile: first_manzu_5
+
+ryo_hand_8:
+  player_state: ryo_step_1
+  tile: second_manzu_5
+
+ryo_hand_9:
+  player_state: ryo_step_1
+  tile: fourth_manzu_5 # 赤5萬
+
+ryo_hand_10:
+  player_state: ryo_step_1
+  tile: first_manzu_7
+
+ryo_hand_11:
+  player_state: ryo_step_1
+  tile: first_manzu_8
+
+ryo_hand_12:
+  player_state: ryo_step_1
+  tile: first_ton
+
+ryo_hand_13:
+  player_state: ryo_step_1
+  tile: first_ton

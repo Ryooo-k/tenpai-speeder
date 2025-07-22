@@ -7,7 +7,5 @@ class Honba < ApplicationRecord
   has_many :tile_orders, dependent: :destroy
   has_many :scores, dependent: :destroy
 
-  validates :number, presence: true
-  validates :riichi_stick_count, presence: true
   validates :round, presence: true
 end
