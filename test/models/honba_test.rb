@@ -24,7 +24,7 @@ class HonbaTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with number and riichi_stick_count and round' do
+  test 'is valid with round' do
     round = rounds(:ton_1_kyoku)
     honba = Honba.new(round:)
     assert honba.valid?

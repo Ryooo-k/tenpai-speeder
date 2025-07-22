@@ -35,23 +35,23 @@ class ActionTest < ActiveSupport::TestCase
   test 'validate from_player' do
     step = steps(:step_1)
     player = players(:ryo)
-    pon = 2 # ponアクション
-    action = Action.new(step:, player:, action_type: pon)
+    action_type = 2 # ponアクション
+    action = Action.new(step:, player:, action_type:)
     assert action.invalid?
     assert_includes action.errors[:from_player], 'ponの時はfrom_playerが必要です'
 
-    chi = 3 # chiアクション
-    action = Action.new(step:, player:, action_type: chi)
+    action_type = 3 # chiアクション
+    action = Action.new(step:, player:, action_type:)
     assert action.invalid?
     assert_includes action.errors[:from_player], 'chiの時はfrom_playerが必要です'
 
-    daiminkan = 4 # daiminkanアクション
-    action = Action.new(step:, player:, action_type: daiminkan)
+    action_type = 4 # daiminkanアクション
+    action = Action.new(step:, player:, action_type:)
     assert action.invalid?
     assert_includes action.errors[:from_player], 'daiminkanの時はfrom_playerが必要です'
 
-    ron = 9 # ronアクション
-    action = Action.new(step:, player:, action_type: ron)
+    action_type = 9 # ronアクション
+    action = Action.new(step:, player:, action_type:)
     assert action.invalid?
     assert_includes action.errors[:from_player], 'ronの時はfrom_playerが必要です'
   end

@@ -29,9 +29,9 @@ class Action < ApplicationRecord
 
   private
 
-  def validate_from_player
-    if action_type.in?(%w[pon chi daiminkan ron]) && from_player.nil?
-      errors.add(:from_player, "#{action_type}の時はfrom_playerが必要です")
+    def validate_from_player
+      if action_type.in?(%w[pon chi daiminkan ron]) && from_player.nil?
+        errors.add(:from_player, "#{action_type}の時はfrom_playerが必要です")
+      end
     end
-  end
 end

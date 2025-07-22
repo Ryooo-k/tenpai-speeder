@@ -25,6 +25,13 @@ class MeldTest < ActiveSupport::TestCase
     assert meld.invalid?
   end
 
+  test 'is invalid without action' do
+    player_state = player_states(:ryo_step_1)
+    manzu_1 = tiles(:first_manzu_1)
+    meld = Meld.new(player_state:, tile: manzu_1)
+    assert meld.invalid?
+  end
+
   test 'validate_action_type' do
     player_state = player_states(:ryo_step_1)
     tile = tiles(:first_manzu_1)

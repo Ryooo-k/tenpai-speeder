@@ -14,8 +14,10 @@ class Meld < ApplicationRecord
   private
 
     def validate_action_type
-      action_type = %w[pon chi daiminkan kakan ankan]
-      return if action_type.include?(action.action_type)
+      return errors.add(:action, 'actionが存在しません') if action.nil?
+
+      allowed_action_types = %w[pon chi daiminkan kakan ankan]
+      return if allowed_action_types.include?(action.action_type)
       errors.add(:action, "#{action.action_type}は許可されていません")
     end
 end
