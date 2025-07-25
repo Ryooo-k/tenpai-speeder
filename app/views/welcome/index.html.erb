@@ -1,0 +1,23 @@
+<div class="container mx-auto px-4 py-10 bg-sky-100">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">
+      牌効率を上げたい人向けのサービスです
+    </h1>
+
+    <p class="text-gray-700 mb-6">
+      このサービスは、麻雀の手牌効率を視覚的に学べるツールです。
+    </p>
+
+    <ul class="text-gray-700 mb-6 list-disc list-inside space-y-1">
+      <li>登録不要ですぐに練習が可能です</li>
+      <li>牌効率を自動判定</li>
+      <li>打牌ミスを視覚的に学習</li>
+    </ul>
+
+    <div class="space-y-3">
+      <%= link_to '登録せずに利用開始', home_path,
+          class: 'flex justify-center items-center bg-gray-500 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700' %>
+
+      <%= link_to 'X（旧Twitter）でログイン', '/auth/twitter',
+          class: 'flex justify-center items-center bg-blue-400 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600' %>
+    </div>
+</div>
