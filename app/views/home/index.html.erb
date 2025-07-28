@@ -1,28 +1,6 @@
 <div class='container mx-auto px-10 py-10 bg-green-200'>
   <h1 class='text-xl font-bold mb-6'>モード選択</h1>
   <div class='grid grid-cols-1 gap-8'>
-    <%= render partial: 'mode_card',
-                locals: {
-                  title: 'トレーニング',
-                  description: '牌効率表が表示できるモードです。1局のみです。',
-                  mode: :training,
-                  round_type: :ikkyoku
-                } %>
-
-    <%= render partial: 'mode_card',
-                locals: {
-                  title: '東風戦',
-                  description: '実践ベースのモードです。',
-                  mode: :match,
-                  round_type: :tonpuu
-                } %>
-
-    <%= render partial: 'mode_card',
-                locals: {
-                  title: '東南戦',
-                  description: '実践ベースのモードです。',
-                  mode: :match,
-                  round_type: :tonnan
-                } %>
+    <%= render partial: 'mode_card', collection: @game_modes %>
   </div>
 </div>

@@ -1,7 +1,7 @@
 <div class='bg-white p-6 rounded-lg text-center'>
-  <h2 class='text-xl font-bold text-gray-800 mb-4'><%= title %></h2>
-  <p class='text-gray-600 mb-4'><%= description %></p>
-  <%= form_with url: games_path(mode:, round_type:), method: :post do |f| %>
+  <h2 class='text-xl font-bold text-gray-800 mb-4'><%= mode_card.name %></h2>
+  <p class='text-gray-600 mb-4'><%= mode_card.description %></p>
+  <%= form_with url: games_path(game_mode: mode_card.id), method: :post do |f| %>
     <%= f.submit 'ゲームを開始', class: 'bg-gray-600 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700' %>
   <% end %>
 </div>
