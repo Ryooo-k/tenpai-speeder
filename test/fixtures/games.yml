@@ -1,15 +1,8 @@
 training:
-  game_mode: training
-  rule: training
+  game_mode: training_mode
 
 tonpuu:
-  game_mode: match
-  rule: tonpuu_with_aka_dora
+  game_mode: tonpuu_mode
 
 tonnan:
-  game_mode: match
-  rule: tonnan_with_aka_dora
-
-game_without_aka_dora:
-  game_mode: match
-  rule: tonpuu_without_aka_dora
+  game_mode: tonnan_mode
