@@ -17,20 +17,20 @@ class StepTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with number and turn' do
+  test 'is valid with turn' do
     turn = turns(:turn_1)
-    step = Step.new(turn:, number: 0)
+    step = Step.new(turn:)
     assert step.valid?
   end
 
-  test 'is invalid with number' do
-    turn = turns(:turn_1)
-    step = Step.new(turn:)
+  test 'is invalid with turn' do
+    step = Step.new
     assert step.invalid?
   end
 
-  test 'is invalid with turn' do
-    step = Step.new(number: 0)
-    assert step.invalid?
+  test 'number default to 0' do
+    turn = turns(:turn_1)
+    step = Step.new(turn:)
+    assert_equal 0, step.number
   end
 end

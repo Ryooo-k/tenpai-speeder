@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_28_075631) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_28_085032) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -159,7 +159,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_075631) do
 
   create_table "steps", force: :cascade do |t|
     t.integer "turn_id", null: false
-    t.integer "number", null: false
+    t.integer "number", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["turn_id"], name: "index_steps_on_turn_id"
@@ -188,7 +188,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_075631) do
 
   create_table "turns", force: :cascade do |t|
     t.integer "honba_id", null: false
-    t.integer "number", null: false
+    t.integer "number", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["honba_id"], name: "index_turns_on_honba_id"

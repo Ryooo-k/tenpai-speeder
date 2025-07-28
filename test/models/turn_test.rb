@@ -10,20 +10,20 @@ class TurnTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with number and honba' do
+  test 'is valid with honba' do
     honba = honbas(:ton_1_kyoku_0_honba)
-    turn = Turn.new(honba:, number: 0)
+    turn = Turn.new(honba:)
     assert turn.valid?
   end
 
-  test 'is invalid without number' do
-    honba = honbas(:ton_1_kyoku_0_honba)
-    turn = Turn.new(honba:)
+  test 'is invalid without honba' do
+    turn = Turn.new
     assert turn.invalid?
   end
 
-  test 'is invalid without honba' do
-    turn = Turn.new(number: 0)
-    assert turn.invalid?
+  test 'number default to 0' do
+    honba = honbas(:ton_1_kyoku_0_honba)
+    turn = Turn.new(honba:)
+    assert_equal 0, turn.number
   end
 end
