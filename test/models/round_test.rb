@@ -10,26 +10,26 @@ class RoundTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with number and host_position and game' do
+  test 'is valid with game' do
     game = games(:tonpuu)
-    round = Round.new(game:, number: 0, host_position: 0)
+    round = Round.new(game:)
     assert round.valid?
   end
 
-  test 'is invalid without number' do
-    game = games(:tonpuu)
-    round = Round.new(game:, host_position: 0)
-    assert round.invalid?
-  end
-
-  test 'is invalid without host_position' do
-    game = games(:tonpuu)
-    round = Round.new(game:, number: 0)
-    assert round.invalid?
-  end
-
   test 'is invalid without game' do
-    round = Round.new(number: 0, host_position: 0)
+    round = Round.new
     assert round.invalid?
+  end
+
+  test 'number default to 0' do
+    game = games(:tonpuu)
+    round = Round.new(game:)
+    assert_equal 0, round.number
+  end
+
+  test 'host_position default to 0' do
+    game = games(:tonpuu)
+    round = Round.new(game:)
+    assert_equal 0, round.host_position
   end
 end
