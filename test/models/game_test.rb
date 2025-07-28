@@ -38,22 +38,14 @@ class GameTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with game_mode and rule' do
-    game_mode = game_modes(:match)
-    rule = rules(:tonpuu_with_aka_dora)
-    game = Game.new(game_mode:, rule:)
+  test 'is valid with game_mode' do
+    game_mode = game_modes(:tonpuu_mode)
+    game = Game.new(game_mode:)
     assert game.valid?
   end
 
   test 'is invalid without game_mode' do
-    rule = rules(:tonpuu_with_aka_dora)
-    game = Game.new(rule:)
-    assert game.invalid?
-  end
-
-  test 'is invalid without rule' do
-    game_mode = game_modes(:match)
-    game = Game.new(game_mode:)
+    game = Game.new
     assert game.invalid?
   end
 end

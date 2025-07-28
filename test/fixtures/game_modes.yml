@@ -1,5 +1,20 @@
-training:
-  mode_type: training
+training_mode:
+  name: トレーニング
+  description: 牌効率が表示される１局勝負の練習モードです。
+  round_type: 0 # 1局戦
+  mode_type: 0 # training
+  aka_dora: true
 
-match:
-  mode_type: match
+tonpuu_mode:
+  name: 東風戦
+  description: 東風戦の実践モードです。
+  round_type: 1 # 東風戦
+  mode_type: 1 # match
+  aka_dora: true
+
+tonnan_mode:
+  name: 東南戦
+  description: 東南戦の実践モードです。
+  round_type: 2 # 東南戦
+  mode_type: 1 # match
+  aka_dora: true

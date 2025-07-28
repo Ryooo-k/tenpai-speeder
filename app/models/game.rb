@@ -2,7 +2,6 @@
 
 class Game < ApplicationRecord
   belongs_to :game_mode
-  belongs_to :rule
 
   has_many :players, dependent: :destroy
   has_many :results, dependent: :destroy
@@ -11,5 +10,4 @@ class Game < ApplicationRecord
   has_many :tiles, dependent: :destroy
 
   validates :game_mode, presence: true
-  validates :rule, presence: true
 end

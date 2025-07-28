@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_16_211147) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_28_010231) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -49,18 +49,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_211147) do
   end
 
   create_table "game_modes", force: :cascade do |t|
-    t.integer "mode_type", null: false
+    t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description", null: false
+    t.integer "round_type", null: false
+    t.boolean "aka_dora", default: true, null: false
+    t.integer "mode_type", null: false
   end
 
   create_table "games", force: :cascade do |t|
-    t.integer "game_mode_id", null: false
-    t.integer "rule_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "game_mode_id", null: false
     t.index ["game_mode_id"], name: "index_games_on_game_mode_id"
-    t.index ["rule_id"], name: "index_games_on_rule_id"
   end
 
   create_table "hands", force: :cascade do |t|
@@ -144,13 +146,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_211147) do
     t.index ["game_id"], name: "index_rounds_on_game_id"
   end
 
-  create_table "rules", force: :cascade do |t|
-    t.boolean "aka_dora", default: true, null: false
-    t.integer "round_type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "scores", force: :cascade do |t|
     t.integer "player_id", null: false
     t.integer "honba_id", null: false
@@ -214,7 +209,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_211147) do
   add_foreign_key "favorites", "games"
   add_foreign_key "favorites", "users"
   add_foreign_key "games", "game_modes"
-  add_foreign_key "games", "rules"
   add_foreign_key "hands", "player_states"
   add_foreign_key "hands", "tiles"
   add_foreign_key "honbas", "rounds"
