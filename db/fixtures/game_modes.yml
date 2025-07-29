@@ -1,0 +1,35 @@
+mode1:
+  name: トレーニング
+  description: 牌効率が表示される１局勝負の練習モードです。
+  round_type: 0 # 1局戦
+  mode_type: 0 # training
+  aka_dora: true
+
+mode2:
+  name: 赤あり東風戦
+  description: 東風戦の実践モードです。
+  round_type: 1 # 東風戦
+  mode_type: 1 # match
+  aka_dora: true
+
+mode3:
+  name: 赤あり東南戦
+  description: 東南戦の実践モードです。
+  round_type: 2 # 東南戦
+  mode_type: 1 # match
+  aka_dora: true
+
+mode4:
+  name: 赤なし東風戦
+  description: 東風戦の実践モードです。
+  round_type: 1 # 東風戦
+  mode_type: 1 # match
+  aka_dora: false
+
+mode5:
+  name: 赤あり東南戦
+  description: 東南戦の実践モードです。
+  round_type: 2 # 東南戦
+  mode_type: 1 # match
+  aka_dora: false
+  

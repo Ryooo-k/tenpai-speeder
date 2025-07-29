@@ -1,0 +1,8 @@
+guest:
+  name: guest
+
+ryo:
+  name: ryo
+  provider: twitter
+  uid: "1245678"
+  email: ryo@example.com

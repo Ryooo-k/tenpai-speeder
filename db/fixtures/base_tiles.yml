@@ -1,0 +1,203 @@
+manzu_1:
+  suit: 0
+  number: 1
+  name: "1萬"
+  code: 0
+
+manzu_2:
+  suit: 0
+  number: 2
+  name: "2萬"
+  code: 1
+
+manzu_3:
+  suit: 0
+  number: 3
+  name: "3萬"
+  code: 2
+
+manzu_4:
+  suit: 0
+  number: 4
+  name: "4萬"
+  code: 3
+
+manzu_5:
+  suit: 0
+  number: 5
+  name: "5萬"
+  code: 4
+
+manzu_6:
+  suit: 0
+  number: 6
+  name: "6萬"
+  code: 5
+
+manzu_7:
+  suit: 0
+  number: 7
+  name: "7萬"
+  code: 6
+
+manzu_8:
+  suit: 0
+  number: 8
+  name: "8萬"
+  code: 7
+
+manzu_9:
+  suit: 0
+  number: 9
+  name: "9萬"
+  code: 8
+
+pinzu_1:
+  suit: 1
+  number: 1
+  name: "1筒"
+  code: 9
+
+pinzu_2:
+  suit: 1
+  number: 2
+  name: "2筒"
+  code: 10
+
+pinzu_3:
+  suit: 1
+  number: 3
+  name: "3筒"
+  code: 11
+
+pinzu_4:
+  suit: 1
+  number: 4
+  name: "4筒"
+  code: 12
+
+pinzu_5:
+  suit: 1
+  number: 5
+  name: "5筒"
+  code: 13
+
+pinzu_6:
+  suit: 1
+  number: 6
+  name: "6筒"
+  code: 14
+
+pinzu_7:
+  suit: 1
+  number: 7
+  name: "7筒"
+  code: 15
+
+pinzu_8:
+  suit: 1
+  number: 8
+  name: "8筒"
+  code: 16
+
+pinzu_9:
+  suit: 1
+  number: 9
+  name: "9筒"
+  code: 17
+
+souzu_1:
+  suit: 2
+  number: 1
+  name: "1索"
+  code: 18
+
+souzu_2:
+  suit: 2
+  number: 2
+  name: "2索"
+  code: 19
+
+souzu_3:
+  suit: 2
+  number: 3
+  name: "3索"
+  code: 20
+
+souzu_4:
+  suit: 2
+  number: 4
+  name: "4索"
+  code: 21
+
+souzu_5:
+  suit: 2
+  number: 5
+  name: "5索"
+  code: 22
+
+souzu_6:
+  suit: 2
+  number: 6
+  name: "6索"
+  code: 23
+
+souzu_7:
+  suit: 2
+  number: 7
+  name: "7索"
+  code: 24
+
+souzu_8:
+  suit: 2
+  number: 8
+  name: "8索"
+  code: 25
+
+souzu_9:
+  suit: 2
+  number: 9
+  name: "9索"
+  code: 26
+
+ton:
+  suit: 3
+  number: 1
+  name: "東"
+  code: 27
+
+nan:
+  suit: 3
+  number: 2
+  name: "南"
+  code: 28
+
+sha:
+  suit: 3
+  number: 3
+  name: "西"
+  code: 29
+
+pei:
+  suit: 3
+  number: 4
+  name: "北"
+  code: 30
+
+haku:
+  suit: 3
+  number: 5
+  name: "白"
+  code: 31
+
+hatsu:
+  suit: 3
+  number: 6
+  name: "發"
+  code: 32
+
+chun:
+  suit: 3
+  number: 7
+  name: "中"
+  code: 33

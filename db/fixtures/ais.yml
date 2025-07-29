@@ -1,0 +1,9 @@
+ai1:
+  name: menzen_tenpai_speeder
+  version: "1.0"
+  description: 鳴き無しの面前で最速聴牌を目指すAIです。
+
+ai2:
+  name: tenpai_speeder
+  version: "2.0"
+  description: 鳴き有りで最速聴牌を目指すAIです。
