@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_28_085032) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_28_212447) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -37,6 +37,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_085032) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "code", null: false
   end
 
   create_table "favorites", force: :cascade do |t|
@@ -178,7 +179,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_085032) do
   create_table "tiles", force: :cascade do |t|
     t.integer "base_tile_id", null: false
     t.integer "game_id", null: false
-    t.integer "code", null: false
+    t.integer "kind", null: false
     t.boolean "aka", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

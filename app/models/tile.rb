@@ -9,7 +9,7 @@ class Tile < ApplicationRecord
   has_many :rivers, dependent: :destroy
   has_many :melds, dependent: :destroy
 
-  validates :code, presence: true
+  validates :kind, presence: true
   validates :aka, inclusion: { in: [ true, false ] }
   validates :game, presence: true
   validates :base_tile, presence: true
