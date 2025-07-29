@@ -4,32 +4,37 @@ mode1:
   round_type: 0 # 1局戦
   mode_type: 0 # training
   aka_dora: true
+  created_at: "2025-01-01 00:00:00"
 
 mode2:
   name: 赤あり東風戦
-  description: 東風戦の実践モードです。
+  description: 赤ドラあり東風戦の実践モードです。
   round_type: 1 # 東風戦
   mode_type: 1 # match
   aka_dora: true
+  created_at: "2025-01-02 00:00:00"
 
 mode3:
   name: 赤あり東南戦
-  description: 東南戦の実践モードです。
+  description: 赤ドラあり東南戦の実践モードです。
   round_type: 2 # 東南戦
   mode_type: 1 # match
   aka_dora: true
+  created_at: "2025-01-03 00:00:00"
 
 mode4:
   name: 赤なし東風戦
-  description: 東風戦の実践モードです。
+  description: 赤ドラなし東風戦の実践モードです。
   round_type: 1 # 東風戦
   mode_type: 1 # match
   aka_dora: false
+  created_at: "2025-01-04 00:00:00"
 
 mode5:
-  name: 赤あり東南戦
-  description: 東南戦の実践モードです。
+  name: 赤なし東南戦
+  description: 赤ドラなし東南戦の実践モードです。
   round_type: 2 # 東南戦
   mode_type: 1 # match
   aka_dora: false
+  created_at: "2025-01-05 00:00:00"
   
