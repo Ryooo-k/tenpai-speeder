@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_28_212447) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_31_045038) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -150,7 +150,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_212447) do
   create_table "scores", force: :cascade do |t|
     t.integer "player_id", null: false
     t.integer "honba_id", null: false
-    t.integer "score", null: false
+    t.integer "score", default: 25000, null: false
     t.integer "point"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
