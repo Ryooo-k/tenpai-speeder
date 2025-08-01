@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_31_045038) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_01_214131) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -81,6 +81,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_045038) do
     t.integer "riichi_stick_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "draw_count", default: 0
+    t.integer "kan_count", default: 0
     t.index ["round_id"], name: "index_honbas_on_round_id"
   end
 
