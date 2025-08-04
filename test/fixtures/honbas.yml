@@ -2,8 +2,3 @@ ton_1_kyoku_0_honba:
   round: ton_1_kyoku
   number: 0
   riichi_stick_count: 0
-
-ton_1_kyoku_1_honba:
-  round: ton_1_kyoku
-  number: 1
-  riichi_stick_count: 2

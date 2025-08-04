@@ -5,27 +5,3 @@ step_1:
 step_2:
   turn: turn_1
   number: 1
-
-step_3:
-  turn: turn_1
-  number: 2
-
-step_4:
-  turn: turn_1
-  number: 3
-
-step_5:
-  turn: turn_2
-  number: 4
-
-step_6:
-  turn: turn_2
-  number: 5
-
-step_7:
-  turn: turn_2
-  number: 6
-
-step_8:
-  turn: turn_2
-  number: 7

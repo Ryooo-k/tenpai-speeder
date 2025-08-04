@@ -11,8 +11,7 @@ class TurnTest < ActiveSupport::TestCase
   end
 
   test 'is valid with honba' do
-    honba = honbas(:ton_1_kyoku_0_honba)
-    turn = Turn.new(honba:)
+    turn = Turn.new(honba: honbas(:ton_1_kyoku_0_honba))
     assert turn.valid?
   end
 
@@ -22,8 +21,14 @@ class TurnTest < ActiveSupport::TestCase
   end
 
   test 'number default to 0' do
-    honba = honbas(:ton_1_kyoku_0_honba)
-    turn = Turn.new(honba:)
+    turn = Turn.new(honba: honbas(:ton_1_kyoku_0_honba))
     assert_equal 0, turn.number
+  end
+
+  test 'create first step when after_create calls create_step' do
+    turn = Turn.new(honba: honbas(:ton_1_kyoku_0_honba))
+    assert_equal 0, turn.steps.count
+    turn.save
+    assert_equal 1, turn.steps.count
   end
 end

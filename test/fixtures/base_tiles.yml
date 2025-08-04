@@ -185,19 +185,19 @@ pei:
   code: 30
 
 haku:
-  suit: 4
+  suit: 3
   number: 5
   name: "白"
   code: 31
 
 hatsu:
-  suit: 4
+  suit: 3
   number: 6
   name: "發"
   code: 32
 
 chun:
-  suit: 4
+  suit: 3
   number: 7
   name: "中"
   code: 33

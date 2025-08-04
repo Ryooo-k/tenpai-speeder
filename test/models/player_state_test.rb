@@ -4,21 +4,21 @@ require 'test_helper'
 
 class PlayerStateTest < ActiveSupport::TestCase
   test 'destroying player_state should also destroy hands' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     assert_difference('Hand.count', -player_state.hands.count) do
       player_state.destroy
     end
   end
 
   test 'destroying player_state should also destroy rivers' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     assert_difference('River.count', -player_state.rivers.count) do
       player_state.destroy
     end
   end
 
   test 'destroying player_state should also destroy melds' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     assert_difference('Meld.count', -player_state.melds.count) do
       player_state.destroy
     end

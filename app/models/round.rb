@@ -8,4 +8,12 @@ class Round < ApplicationRecord
   validates :number, presence: true
   validates :host_position, presence: true
   validates :game, presence: true
+
+  after_create :create_honba
+
+  private
+
+  def create_honba
+    honbas.create!
+  end
 end

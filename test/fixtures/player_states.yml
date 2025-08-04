@@ -1,4 +1,19 @@
-ryo_step_1:
+ryo:
   step: step_1
   player: ryo
+  riichi: false
+
+menzen_tenpai_speeder:
+  step: step_1
+  player: menzen_tenpai_speeder
+  riichi: false
+
+tenpai_speeder:
+  step: step_1
+  player: tenpai_speeder
+  riichi: false
+
+high_pointer:
+  step: step_1
+  player: high_pointer
   riichi: false

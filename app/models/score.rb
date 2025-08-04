@@ -2,9 +2,9 @@
 
 class Score < ApplicationRecord
   belongs_to :player
-  belongs_to :honba
+  belongs_to :honba, optional: true
 
   validates :score, presence: true
   validates :player, presence: true
-  validates :honba, presence: true
+  validates :honba, presence: true, on: :update
 end

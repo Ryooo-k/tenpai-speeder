@@ -16,6 +16,29 @@ class Player < ApplicationRecord
 
   validate :validate_player_type
 
+  scope :ordered, -> { order(:seat_order) }
+
+  def create_score(honba)
+    scores.create!(honba:)
+  end
+
+  def create_state(step)
+    player_states.create!(step:)
+  end
+
+  def state
+    player_states.last
+  end
+
+  def hands
+    state.hands.all
+  end
+
+  def receive(tile)
+    state.hands.create!(tile:)
+    game.current_honba.increment!(:draw_count)
+  end
+
   private
 
     def validate_player_type
