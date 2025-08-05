@@ -15,8 +15,8 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test 'destroying player should also destroy scores' do
-    assert_difference('Score.count', -@ryo.scores.count) do
+  test 'destroying player should also destroy game_records' do
+    assert_difference('GameRecord.count', -@ryo.game_records.count) do
       @ryo.destroy
     end
   end
@@ -70,10 +70,10 @@ class PlayerTest < ActiveSupport::TestCase
     assert_includes player.errors[:base], 'UserとAIの両方を同時に指定することはできません'
   end
 
-  test '#create_score' do
-    assert_equal 1, @ryo.scores.count
-    @ryo.create_score(honbas(:ton_1_kyoku_0_honba))
-    assert_equal 2, @ryo.scores.count
+  test '#create_game_record' do
+    assert_equal 1, @ryo.game_records.count
+    @ryo.create_game_record(honbas(:ton_1_kyoku_0_honba))
+    assert_equal 2, @ryo.game_records.count
   end
 
   test '#create_state' do

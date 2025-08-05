@@ -5,7 +5,7 @@ class Honba < ApplicationRecord
 
   has_many :turns, dependent: :destroy
   has_many :tile_orders, dependent: :destroy
-  has_many :scores, dependent: :destroy
+  has_many :game_records, dependent: :destroy
 
   validates :round, presence: true
 

@@ -8,7 +8,7 @@ class Player < ApplicationRecord
   belongs_to :game
 
   has_many :results, dependent: :destroy
-  has_many :scores, dependent: :destroy
+  has_many :game_records, dependent: :destroy
   has_many :actions, dependent: :destroy
   has_many :actions_from, class_name: 'Action', foreign_key: 'from_player_id', inverse_of: :from_player
   has_many :player_states, dependent: :destroy
@@ -23,8 +23,8 @@ class Player < ApplicationRecord
   # ユーザー認証機能を実装後、削除する。
   scope :user, -> { where.not(user_id: nil).first }
 
-  def create_score(honba)
-    scores.create!(honba:)
+  def create_game_record(honba)
+    game_records.create!(honba:)
   end
 
   def create_state(step)

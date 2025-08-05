@@ -26,7 +26,7 @@ class Game < ApplicationRecord
       else
         players.create!(ai: player, seat_order:)
       end
-      new_player.create_score(current_honba)
+      new_player.create_game_record(current_honba)
       new_player.create_state(current_step)
     end
   end

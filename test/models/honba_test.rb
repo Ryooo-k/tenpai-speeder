@@ -19,8 +19,8 @@ class HonbaTest < ActiveSupport::TestCase
     end
   end
 
-  test 'destroying honba should also destroy scores' do
-    assert_difference('Score.count', -@honba.scores.count) do
+  test 'destroying honba should also destroy game_records' do
+    assert_difference('GameRecord.count', -@honba.game_records.count) do
       @honba.destroy
     end
   end
