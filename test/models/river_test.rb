@@ -4,14 +4,14 @@ require 'test_helper'
 
 class RiverTest < ActiveSupport::TestCase
   test 'is valid with tsumogiri and player_state and tile' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     tile = tiles(:first_manzu_1)
     river = River.new(player_state:, tile:, tsumogiri: false)
     assert river.valid?
   end
 
   test 'is invalid without tsumogiri' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     tile = tiles(:first_manzu_1)
     river = River.new(player_state:, tile:)
     assert river.invalid?
@@ -24,13 +24,13 @@ class RiverTest < ActiveSupport::TestCase
   end
 
   test 'is invalid without tile' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     river = River.new(player_state:, tsumogiri: false)
     assert river.invalid?
   end
 
   test 'tsumogiri must be true or false' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     tile = tiles(:first_manzu_1)
     river = River.new(player_state:, tile:, tsumogiri: nil)
     assert river.invalid?

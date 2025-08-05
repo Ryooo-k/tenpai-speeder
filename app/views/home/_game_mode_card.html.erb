@@ -1,0 +1,8 @@
+<div class='bg-white p-6 rounded-lg text-center'>
+  <h2 class='text-xl font-bold text-gray-800 mb-4'><%= game_mode_card.name %></h2>
+  <p class='text-gray-600 mb-4'><%= game_mode_card.description %></p>
+  <%= form_with url: games_path, method: :post do |f| %>
+    <%= f.hidden_field :game_mode_id, value: game_mode_card.id %>
+    <%= f.submit 'ゲームを開始', class: 'bg-gray-600 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700' %>
+  <% end %>
+</div>

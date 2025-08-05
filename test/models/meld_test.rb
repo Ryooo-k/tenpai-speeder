@@ -4,7 +4,7 @@ require 'test_helper'
 
 class MeldTest < ActiveSupport::TestCase
   test 'is valid with player_state and tile and pon action' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     manzu_1 = tiles(:first_manzu_1)
     action = actions(:pon)
     meld = Meld.new(player_state:, tile: manzu_1, action:)
@@ -19,21 +19,21 @@ class MeldTest < ActiveSupport::TestCase
   end
 
   test 'is invalid without tile' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     action = actions(:pon)
     meld = Meld.new(player_state:, action:)
     assert meld.invalid?
   end
 
   test 'is invalid without action' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     manzu_1 = tiles(:first_manzu_1)
     meld = Meld.new(player_state:, tile: manzu_1)
     assert meld.invalid?
   end
 
   test 'validate_action_type' do
-    player_state = player_states(:ryo_step_1)
+    player_state = player_states(:ryo)
     tile = tiles(:first_manzu_1)
 
     chi = actions(:chi)

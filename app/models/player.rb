@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Player < ApplicationRecord
+  PLAYERS_COUNT = 4
+
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
   belongs_to :game
@@ -15,6 +17,51 @@ class Player < ApplicationRecord
   validates :game, presence: true
 
   validate :validate_player_type
+
+  scope :ordered, -> { order(:seat_order) }
+
+  # ユーザー認証機能を実装後、削除する。
+  scope :user, -> { where.not(user_id: nil).first }
+
+  def create_score(honba)
+    scores.create!(honba:)
+  end
+
+  def create_state(step)
+    player_states.create!(step:)
+  end
+
+  def state
+    player_states.last
+  end
+
+  def hands
+    state.hands.all.map(&:tile).sort_by(&:code)
+  end
+
+  def receive(tile)
+    state.hands.create!(tile:)
+    game.current_honba.increment!(:draw_count)
+  end
+
+  def name
+    user&.name || ai&.name
+  end
+
+  def shimocha?(player)
+    shimocha_seat_order = (player.seat_order + 1) % PLAYERS_COUNT
+    seat_order == shimocha_seat_order
+  end
+
+  def toimen?(player)
+    toimen_seat_order = (player.seat_order + 2) % PLAYERS_COUNT
+    seat_order == toimen_seat_order
+  end
+
+  def kamicha?(player)
+    kamicha_seat_order = (player.seat_order + 3) % PLAYERS_COUNT
+    seat_order == kamicha_seat_order
+  end
 
   private
 

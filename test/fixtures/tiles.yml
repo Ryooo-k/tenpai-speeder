@@ -1,815 +1,815 @@
 first_manzu_1:
   base_tile: manzu_1
   game: tonpuu
-  code: 0
+  kind: 0
   aka: false
 
 second_manzu_1:
   base_tile: manzu_1
   game: tonpuu
-  code: 1
+  kind: 1
   aka: false
 
 third_manzu_1:
   base_tile: manzu_1
   game: tonpuu
-  code: 2
+  kind: 2
   aka: false
 
 fourth_manzu_1:
   base_tile: manzu_1
   game: tonpuu
-  code: 3
+  kind: 3
   aka: false
 
 first_manzu_2:
   base_tile: manzu_2
   game: tonpuu
-  code: 4
+  kind: 0
   aka: false
 
 second_manzu_2:
   base_tile: manzu_2
   game: tonpuu
-  code: 5
+  kind: 1
   aka: false
 
 third_manzu_2:
   base_tile: manzu_2
   game: tonpuu
-  code: 6
+  kind: 2
   aka: false
 
 fourth_manzu_2:
   base_tile: manzu_2
   game: tonpuu
-  code: 7
+  kind: 3
   aka: false
 
 first_manzu_3:
   base_tile: manzu_3
   game: tonpuu
-  code: 8
+  kind: 0
   aka: false
 
 second_manzu_3:
   base_tile: manzu_3
   game: tonpuu
-  code: 9
+  kind: 1
   aka: false
 
 third_manzu_3:
   base_tile: manzu_3
   game: tonpuu
-  code: 10
+  kind: 2
   aka: false
 
 fourth_manzu_3:
   base_tile: manzu_3
   game: tonpuu
-  code: 11
+  kind: 3
   aka: false
 
 first_manzu_4:
   base_tile: manzu_4
   game: tonpuu
-  code: 12
+  kind: 0
   aka: false
 
 second_manzu_4:
   base_tile: manzu_4
   game: tonpuu
-  code: 13
+  kind: 1
   aka: false
 
 third_manzu_4:
   base_tile: manzu_4
   game: tonpuu
-  code: 14
+  kind: 2
   aka: false
 
 fourth_manzu_4:
   base_tile: manzu_4
   game: tonpuu
-  code: 15
+  kind: 3
   aka: false
 
 first_manzu_5:
   base_tile: manzu_5
   game: tonpuu
-  code: 16
+  kind: 0
   aka: false
 
 second_manzu_5:
   base_tile: manzu_5
   game: tonpuu
-  code: 17
+  kind: 1
   aka: false
 
 third_manzu_5:
   base_tile: manzu_5
   game: tonpuu
-  code: 18
+  kind: 2
   aka: false
 
 fourth_manzu_5:
   base_tile: manzu_5
   game: tonpuu
-  code: 19
+  kind: 3
   aka: true
 
 first_manzu_6:
   base_tile: manzu_6
   game: tonpuu
-  code: 20
+  kind: 0
   aka: false
 
 second_manzu_6:
   base_tile: manzu_6
   game: tonpuu
-  code: 21
+  kind: 1
   aka: false
 
 third_manzu_6:
   base_tile: manzu_6
   game: tonpuu
-  code: 22
+  kind: 2
   aka: false
 
 fourth_manzu_6:
   base_tile: manzu_6
   game: tonpuu
-  code: 23
+  kind: 3
   aka: false
 
 first_manzu_7:
   base_tile: manzu_7
   game: tonpuu
-  code: 24
+  kind: 0
   aka: false
 
 second_manzu_7:
   base_tile: manzu_7
   game: tonpuu
-  code: 25
+  kind: 1
   aka: false
 
 third_manzu_7:
   base_tile: manzu_7
   game: tonpuu
-  code: 26
+  kind: 2
   aka: false
 
 fourth_manzu_7:
   base_tile: manzu_7
   game: tonpuu
-  code: 27
+  kind: 3
   aka: false
 
 first_manzu_8:
   base_tile: manzu_8
   game: tonpuu
-  code: 28
+  kind: 0
   aka: false
 
 second_manzu_8:
   base_tile: manzu_8
   game: tonpuu
-  code: 29
+  kind: 1
   aka: false
 
 third_manzu_8:
   base_tile: manzu_8
   game: tonpuu
-  code: 30
+  kind: 2
   aka: false
 
 fourth_manzu_8:
   base_tile: manzu_8
   game: tonpuu
-  code: 31
+  kind: 3
   aka: false
 
 first_manzu_9:
   base_tile: manzu_9
   game: tonpuu
-  code: 32
+  kind: 0
   aka: false
 
 second_manzu_9:
   base_tile: manzu_9
   game: tonpuu
-  code: 33
+  kind: 1
   aka: false
 
 third_manzu_9:
   base_tile: manzu_9
   game: tonpuu
-  code: 34
+  kind: 2
   aka: false
 
 fourth_manzu_9:
   base_tile: manzu_9
   game: tonpuu
-  code: 35
+  kind: 3
   aka: false
 
 first_pinzu_1:
   base_tile: pinzu_1
   game: tonpuu
-  code: 36
+  kind: 0
   aka: false
 
 second_pinzu_1:
   base_tile: pinzu_1
   game: tonpuu
-  code: 37
+  kind: 1
   aka: false
 
 third_pinzu_1:
   base_tile: pinzu_1
   game: tonpuu
-  code: 38
+  kind: 2
   aka: false
 
 fourth_pinzu_1:
   base_tile: pinzu_1
   game: tonpuu
-  code: 39
+  kind: 3
   aka: false
 
 first_pinzu_2:
   base_tile: pinzu_2
   game: tonpuu
-  code: 40
+  kind: 0
   aka: false
 
 second_pinzu_2:
   base_tile: pinzu_2
   game: tonpuu
-  code: 41
+  kind: 1
   aka: false
 
 third_pinzu_2:
   base_tile: pinzu_2
   game: tonpuu
-  code: 42
+  kind: 2
   aka: false
 
 fourth_pinzu_2:
   base_tile: pinzu_2
   game: tonpuu
-  code: 43
+  kind: 3
   aka: false
 
 first_pinzu_3:
   base_tile: pinzu_3
   game: tonpuu
-  code: 44
+  kind: 0
   aka: false
 
 second_pinzu_3:
   base_tile: pinzu_3
   game: tonpuu
-  code: 45
+  kind: 1
   aka: false
 
 third_pinzu_3:
   base_tile: pinzu_3
   game: tonpuu
-  code: 46
+  kind: 2
   aka: false
 
 fourth_pinzu_3:
   base_tile: pinzu_3
   game: tonpuu
-  code: 47
+  kind: 3
   aka: false
 
 first_pinzu_4:
   base_tile: pinzu_4
   game: tonpuu
-  code: 48
+  kind: 0
   aka: false
 
 second_pinzu_4:
   base_tile: pinzu_4
   game: tonpuu
-  code: 49
+  kind: 1
   aka: false
 
 third_pinzu_4:
   base_tile: pinzu_4
   game: tonpuu
-  code: 50
+  kind: 2
   aka: false
 
 fourth_pinzu_4:
   base_tile: pinzu_4
   game: tonpuu
-  code: 51
+  kind: 3
   aka: false
 
 first_pinzu_5:
   base_tile: pinzu_5
   game: tonpuu
-  code: 52
+  kind: 0
   aka: false
 
 second_pinzu_5:
   base_tile: pinzu_5
   game: tonpuu
-  code: 53
+  kind: 1
   aka: false
 
 third_pinzu_5:
   base_tile: pinzu_5
   game: tonpuu
-  code: 54
+  kind: 2
   aka: false
 
 fourth_pinzu_5:
   base_tile: pinzu_5
   game: tonpuu
-  code: 55
+  kind: 3
   aka: true
 
 first_pinzu_6:
   base_tile: pinzu_6
   game: tonpuu
-  code: 56
+  kind: 0
   aka: false
 
 second_pinzu_6:
   base_tile: pinzu_6
   game: tonpuu
-  code: 57
+  kind: 1
   aka: false
 
 third_pinzu_6:
   base_tile: pinzu_6
   game: tonpuu
-  code: 58
+  kind: 2
   aka: false
 
 fourth_pinzu_6:
   base_tile: pinzu_6
   game: tonpuu
-  code: 59
+  kind: 3
   aka: false
 
 first_pinzu_7:
   base_tile: pinzu_7
   game: tonpuu
-  code: 60
+  kind: 0
   aka: false
 
 second_pinzu_7:
   base_tile: pinzu_7
   game: tonpuu
-  code: 61
+  kind: 1
   aka: false
 
 third_pinzu_7:
   base_tile: pinzu_7
   game: tonpuu
-  code: 62
+  kind: 2
   aka: false
 
 fourth_pinzu_7:
   base_tile: pinzu_7
   game: tonpuu
-  code: 63
+  kind: 3
   aka: false
 
 first_pinzu_8:
   base_tile: pinzu_8
   game: tonpuu
-  code: 64
+  kind: 0
   aka: false
 
 second_pinzu_8:
   base_tile: pinzu_8
   game: tonpuu
-  code: 65
+  kind: 1
   aka: false
 
 third_pinzu_8:
   base_tile: pinzu_8
   game: tonpuu
-  code: 66
+  kind: 2
   aka: false
 
 fourth_pinzu_8:
   base_tile: pinzu_8
   game: tonpuu
-  code: 67
+  kind: 3
   aka: false
 
 first_pinzu_9:
   base_tile: pinzu_9
   game: tonpuu
-  code: 68
+  kind: 0
   aka: false
 
 second_pinzu_9:
   base_tile: pinzu_9
   game: tonpuu
-  code: 69
+  kind: 1
   aka: false
 
 third_pinzu_9:
   base_tile: pinzu_9
   game: tonpuu
-  code: 70
+  kind: 2
   aka: false
 
 fourth_pinzu_9:
   base_tile: pinzu_9
   game: tonpuu
-  code: 71
+  kind: 3
   aka: false
 
 first_souzu_1:
   base_tile: souzu_1
   game: tonpuu
-  code: 72
+  kind: 0
   aka: false
 
 second_souzu_1:
   base_tile: souzu_1
   game: tonpuu
-  code: 73
+  kind: 1
   aka: false
 
 third_souzu_1:
   base_tile: souzu_1
   game: tonpuu
-  code: 74
+  kind: 2
   aka: false
 
 fourth_souzu_1:
   base_tile: souzu_1
   game: tonpuu
-  code: 75
+  kind: 3
   aka: false
 
 first_souzu_2:
   base_tile: souzu_2
   game: tonpuu
-  code: 76
+  kind: 0
   aka: false
 
 second_souzu_2:
   base_tile: souzu_2
   game: tonpuu
-  code: 77
+  kind: 1
   aka: false
 
 third_souzu_2:
   base_tile: souzu_2
   game: tonpuu
-  code: 78
+  kind: 2
   aka: false
 
 fourth_souzu_2:
   base_tile: souzu_2
   game: tonpuu
-  code: 79
+  kind: 3
   aka: false
 
 first_souzu_3:
   base_tile: souzu_3
   game: tonpuu
-  code: 80
+  kind: 0
   aka: false
 
 second_souzu_3:
   base_tile: souzu_3
   game: tonpuu
-  code: 81
+  kind: 1
   aka: false
 
 third_souzu_3:
   base_tile: souzu_3
   game: tonpuu
-  code: 82
+  kind: 2
   aka: false
 
 fourth_souzu_3:
   base_tile: souzu_3
   game: tonpuu
-  code: 83
+  kind: 3
   aka: false
 
 first_souzu_4:
   base_tile: souzu_4
   game: tonpuu
-  code: 84
+  kind: 0
   aka: false
 
 second_souzu_4:
   base_tile: souzu_4
   game: tonpuu
-  code: 85
+  kind: 1
   aka: false
 
 third_souzu_4:
   base_tile: souzu_4
   game: tonpuu
-  code: 86
+  kind: 2
   aka: false
 
 fourth_souzu_4:
   base_tile: souzu_4
   game: tonpuu
-  code: 87
+  kind: 3
   aka: false
 
 first_souzu_5:
   base_tile: souzu_5
   game: tonpuu
-  code: 88
+  kind: 0
   aka: false
 
 second_souzu_5:
   base_tile: souzu_5
   game: tonpuu
-  code: 89
+  kind: 1
   aka: false
 
 third_souzu_5:
   base_tile: souzu_5
   game: tonpuu
-  code: 90
+  kind: 2
   aka: false
 
 fourth_souzu_5:
   base_tile: souzu_5
   game: tonpuu
-  code: 91
+  kind: 3
   aka: true
 
 first_souzu_6:
   base_tile: souzu_6
   game: tonpuu
-  code: 92
+  kind: 0
   aka: false
 
 second_souzu_6:
   base_tile: souzu_6
   game: tonpuu
-  code: 93
+  kind: 1
   aka: false
 
 third_souzu_6:
   base_tile: souzu_6
   game: tonpuu
-  code: 94
+  kind: 2
   aka: false
 
 fourth_souzu_6:
   base_tile: souzu_6
   game: tonpuu
-  code: 95
+  kind: 3
   aka: false
 
 first_souzu_7:
   base_tile: souzu_7
   game: tonpuu
-  code: 96
+  kind: 0
   aka: false
 
 second_souzu_7:
   base_tile: souzu_7
   game: tonpuu
-  code: 97
+  kind: 1
   aka: false
 
 third_souzu_7:
   base_tile: souzu_7
   game: tonpuu
-  code: 98
+  kind: 2
   aka: false
 
 fourth_souzu_7:
   base_tile: souzu_7
   game: tonpuu
-  code: 99
+  kind: 3
   aka: false
 
 first_souzu_8:
   base_tile: souzu_8
   game: tonpuu
-  code: 100
+  kind: 0
   aka: false
 
 second_souzu_8:
   base_tile: souzu_8
   game: tonpuu
-  code: 101
+  kind: 1
   aka: false
 
 third_souzu_8:
   base_tile: souzu_8
   game: tonpuu
-  code: 102
+  kind: 2
   aka: false
 
 fourth_souzu_8:
   base_tile: souzu_8
   game: tonpuu
-  code: 103
+  kind: 3
   aka: false
 
 first_souzu_9:
   base_tile: souzu_9
   game: tonpuu
-  code: 104
+  kind: 0
   aka: false
 
 second_souzu_9:
   base_tile: souzu_9
   game: tonpuu
-  code: 105
+  kind: 1
   aka: false
 
 third_souzu_9:
   base_tile: souzu_9
   game: tonpuu
-  code: 106
+  kind: 2
   aka: false
 
 fourth_souzu_9:
   base_tile: souzu_9
   game: tonpuu
-  code: 107
+  kind: 3
   aka: false
 
 first_ton:
   base_tile: ton
   game: tonpuu
-  code: 108
+  kind: 0
   aka: false
 
 second_ton:
   base_tile: ton
   game: tonpuu
-  code: 109
+  kind: 1
   aka: false
 
 third_ton:
   base_tile: ton
   game: tonpuu
-  code: 110
+  kind: 2
   aka: false
 
 fourth_ton:
   base_tile: ton
   game: tonpuu
-  code: 111
+  kind: 3
   aka: false
 
 first_nan:
   base_tile: nan
   game: tonpuu
-  code: 112
+  kind: 0
   aka: false
 
 second_nan:
   base_tile: nan
   game: tonpuu
-  code: 113
+  kind: 1
   aka: false
 
 third_nan:
   base_tile: nan
   game: tonpuu
-  code: 114
+  kind: 2
   aka: false
 
 fourth_nan:
   base_tile: nan
   game: tonpuu
-  code: 115
+  kind: 3
   aka: false
 
 first_sha:
   base_tile: sha
   game: tonpuu
-  code: 116
+  kind: 0
   aka: false
 
 second_sha:
   base_tile: sha
   game: tonpuu
-  code: 117
+  kind: 1
   aka: false
 
 third_sha:
   base_tile: sha
   game: tonpuu
-  code: 118
+  kind: 2
   aka: false
 
 fourth_sha:
   base_tile: sha
   game: tonpuu
-  code: 119
+  kind: 3
   aka: false
 
 first_pei:
   base_tile: pei
   game: tonpuu
-  code: 120
+  kind: 0
   aka: false
 
 second_pei:
   base_tile: pei
   game: tonpuu
-  code: 121
+  kind: 1
   aka: false
 
 third_pei:
   base_tile: pei
   game: tonpuu
-  code: 122
+  kind: 2
   aka: false
 
 fourth_pei:
   base_tile: pei
   game: tonpuu
-  code: 123
+  kind: 3
   aka: false
 
 first_haku:
   base_tile: haku
   game: tonpuu
-  code: 124
+  kind: 0
   aka: false
 
 second_haku:
   base_tile: haku
   game: tonpuu
-  code: 125
+  kind: 1
   aka: false
 
 third_haku:
   base_tile: haku
   game: tonpuu
-  code: 126
+  kind: 2
   aka: false
 
 fourth_haku:
   base_tile: haku
   game: tonpuu
-  code: 127
+  kind: 3
   aka: false
 
 first_hatsu:
   base_tile: hatsu
   game: tonpuu
-  code: 128
+  kind: 0
   aka: false
 
 second_hatsu:
   base_tile: hatsu
   game: tonpuu
-  code: 129
+  kind: 1
   aka: false
 
 third_hatsu:
   base_tile: hatsu
   game: tonpuu
-  code: 130
+  kind: 2
   aka: false
 
 fourth_hatsu:
   base_tile: hatsu
   game: tonpuu
-  code: 131
+  kind: 3
   aka: false
 
 first_chun:
   base_tile: chun
   game: tonpuu
-  code: 132
+  kind: 0
   aka: false
 
 second_chun:
   base_tile: chun
   game: tonpuu
-  code: 133
+  kind: 1
   aka: false
 
 third_chun:
   base_tile: chun
   game: tonpuu
-  code: 134
+  kind: 2
   aka: false
 
 fourth_chun:
   base_tile: chun
   game: tonpuu
-  code: 135
+  kind: 3
   aka: false

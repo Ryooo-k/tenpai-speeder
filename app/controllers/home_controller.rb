@@ -2,6 +2,6 @@
 
 class HomeController < ApplicationController
   def index
-    @game_modes = GameMode.order(:mode_type)
+    @game_modes = GameMode.order(:created_at)
   end
 end

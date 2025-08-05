@@ -8,4 +8,33 @@ class Honba < ApplicationRecord
   has_many :scores, dependent: :destroy
 
   validates :round, presence: true
+
+  after_create :create_tile_orders_and_turn
+
+  def top_tile
+    order = draw_count - kan_count
+    tile_orders.find_by(order:).tile
+  end
+
+  private
+
+    def create_tile_orders_and_turn
+      setup_tile_orders
+      turns.create!
+    end
+
+    def setup_tile_orders
+      shuffled_tiles = tiles.shuffle
+      shuffled_tiles.each_with_index do |tile, order|
+        tile_orders.create!(tile:, order:)
+      end
+    end
+
+    def tiles
+      round.game.tiles
+    end
+
+    def players
+      round.game.players.ordered
+    end
 end

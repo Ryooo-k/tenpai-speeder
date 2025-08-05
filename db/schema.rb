@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_28_010231) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_01_214131) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -37,6 +37,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_010231) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "code", null: false
   end
 
   create_table "favorites", force: :cascade do |t|
@@ -80,6 +81,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_010231) do
     t.integer "riichi_stick_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "draw_count", default: 0
+    t.integer "kan_count", default: 0
     t.index ["round_id"], name: "index_honbas_on_round_id"
   end
 
@@ -139,8 +142,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_010231) do
 
   create_table "rounds", force: :cascade do |t|
     t.integer "game_id", null: false
-    t.integer "number", null: false
-    t.integer "host_position", null: false
+    t.integer "number", default: 0, null: false
+    t.integer "host_position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_rounds_on_game_id"
@@ -149,7 +152,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_010231) do
   create_table "scores", force: :cascade do |t|
     t.integer "player_id", null: false
     t.integer "honba_id", null: false
-    t.integer "score", null: false
+    t.integer "score", default: 25000, null: false
     t.integer "point"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -159,7 +162,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_010231) do
 
   create_table "steps", force: :cascade do |t|
     t.integer "turn_id", null: false
-    t.integer "number", null: false
+    t.integer "number", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["turn_id"], name: "index_steps_on_turn_id"
@@ -178,7 +181,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_010231) do
   create_table "tiles", force: :cascade do |t|
     t.integer "base_tile_id", null: false
     t.integer "game_id", null: false
-    t.integer "code", null: false
+    t.integer "kind", null: false
     t.boolean "aka", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -188,7 +191,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_28_010231) do
 
   create_table "turns", force: :cascade do |t|
     t.integer "honba_id", null: false
-    t.integer "number", null: false
+    t.integer "number", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["honba_id"], name: "index_turns_on_honba_id"
