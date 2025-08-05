@@ -8,7 +8,7 @@ class GamePlaysController < ApplicationController
       { players: [
         :user,
         :ai,
-        { scores: :honba }
+        { game_records: :honba }
       ] },
       { rounds: [
         honbas: [

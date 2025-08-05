@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_01_214131) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_05_012204) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -57,6 +57,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_214131) do
     t.integer "round_type", null: false
     t.boolean "aka_dora", default: true, null: false
     t.integer "mode_type", null: false
+  end
+
+  create_table "game_records", force: :cascade do |t|
+    t.integer "player_id", null: false
+    t.integer "honba_id", null: false
+    t.integer "score", default: 25000, null: false
+    t.integer "point"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["honba_id"], name: "index_game_records_on_honba_id"
+    t.index ["player_id"], name: "index_game_records_on_player_id"
   end
 
   create_table "games", force: :cascade do |t|
@@ -149,17 +160,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_214131) do
     t.index ["game_id"], name: "index_rounds_on_game_id"
   end
 
-  create_table "scores", force: :cascade do |t|
-    t.integer "player_id", null: false
-    t.integer "honba_id", null: false
-    t.integer "score", default: 25000, null: false
-    t.integer "point"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["honba_id"], name: "index_scores_on_honba_id"
-    t.index ["player_id"], name: "index_scores_on_player_id"
-  end
-
   create_table "steps", force: :cascade do |t|
     t.integer "turn_id", null: false
     t.integer "number", default: 0, null: false
@@ -211,6 +211,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_214131) do
   add_foreign_key "actions", "steps"
   add_foreign_key "favorites", "games"
   add_foreign_key "favorites", "users"
+  add_foreign_key "game_records", "honbas"
+  add_foreign_key "game_records", "players"
   add_foreign_key "games", "game_modes"
   add_foreign_key "hands", "player_states"
   add_foreign_key "hands", "tiles"
@@ -228,8 +230,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_214131) do
   add_foreign_key "rivers", "player_states"
   add_foreign_key "rivers", "tiles"
   add_foreign_key "rounds", "games"
-  add_foreign_key "scores", "honbas"
-  add_foreign_key "scores", "players"
   add_foreign_key "steps", "turns"
   add_foreign_key "tile_orders", "honbas"
   add_foreign_key "tile_orders", "tiles"

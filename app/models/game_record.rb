@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Score < ApplicationRecord
+class GameRecord < ApplicationRecord
   belongs_to :player
   belongs_to :honba, optional: true
 

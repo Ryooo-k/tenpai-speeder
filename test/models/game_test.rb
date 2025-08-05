@@ -67,7 +67,7 @@ class GameTest < ActiveSupport::TestCase
     assert tallied_tile_names.values.all? { |count| count == 4 }
   end
 
-  test '#setup_players creates 4 players and score' do
+  test '#setup_players creates 4 players and game_record' do
     user = users(:ryo)
     ai = ais(:menzen_tenpai_speeder)
     game = Game.new(game_mode: game_modes(:tonpuu_mode))
@@ -77,7 +77,7 @@ class GameTest < ActiveSupport::TestCase
     game.setup_players(user, ai)
     assert_equal 4, game.players.count
     game.players.each do |player|
-      assert_equal 1, player.scores.count
+      assert_equal 1, player.game_records.count
     end
 
     user_players = game.players.where(user_id: user.id)
@@ -85,10 +85,6 @@ class GameTest < ActiveSupport::TestCase
 
     ai_players = game.players.where(ai_id: ai.id)
     assert_equal 3, ai_players.count
-
-    game.players.each do |player|
-      assert_equal 1, player.scores.count
-    end
   end
 
   test 'create aka_dora tiles with correct aka flag' do
