@@ -27,5 +27,7 @@ class GamePlaysController < ApplicationController
         ]
       ] }
     ).find(params[:id])
+
+    @viewer = @game.players.user
   end
 end

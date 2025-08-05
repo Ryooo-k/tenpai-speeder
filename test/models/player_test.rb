@@ -89,12 +89,15 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal new_state, @ryo.state
   end
 
-  test '#hands return latest hands' do
+  test '#hands return latest sorted tiles' do
     old_hands = @ryo.hands
+    manzu_1 = tiles(:first_manzu_1)
+    manzu_9 = tiles(:first_manzu_9)
     new_state = @ryo.player_states.create!(step: steps(:step_1))
-    new_hand = new_state.hands.create!(tile: tiles(:first_manzu_1))
+    new_state.hands.create!(tile: manzu_9)
+    new_state.hands.create!(tile: manzu_1)
     assert_not_equal old_hands, @ryo.hands
-    assert_equal [new_hand], @ryo.hands
+    assert_equal [manzu_1, manzu_9], @ryo.hands
   end
 
   test '#receive' do
@@ -104,5 +107,23 @@ class PlayerTest < ActiveSupport::TestCase
     @ryo.receive(tiles(:first_manzu_1))
     assert_equal 1, @ryo.hands.count
     assert_equal 1, @ryo.game.current_honba.draw_count
+  end
+
+  test '#shimocha?' do
+    main_player = Player.new(user: @user, game: @game, seat_order: 0)
+    shimocha_player = Player.new(user: @user, game: @game, seat_order: 1)
+    assert shimocha_player.shimocha?(main_player)
+  end
+
+  test '#toimen?' do
+    main_player = Player.new(user: @user, game: @game, seat_order: 0)
+    toimen_player = Player.new(user: @user, game: @game, seat_order: 2)
+    assert toimen_player.toimen?(main_player)
+  end
+
+  test '#kamicha?' do
+    main_player = Player.new(user: @user, game: @game, seat_order: 0)
+    kamicha_player = Player.new(user: @user, game: @game, seat_order: 3)
+    assert kamicha_player.kamicha?(main_player)
   end
 end
