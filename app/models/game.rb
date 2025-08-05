@@ -2,7 +2,7 @@
 
 class Game < ApplicationRecord
   TILES_PER_KIND = 4
-  AKA_DORA_TILE_CODES = [4, 13, 22] # 5萬、5筒、5索の牌コード
+  AKA_DORA_TILE_CODES = [ 4, 13, 22 ] # 5萬、5筒、5索の牌コード
   INITIAL_HAND_SIZE = 13
 
   belongs_to :game_mode
@@ -18,14 +18,14 @@ class Game < ApplicationRecord
   after_create :create_tiles_and_round
 
   def setup_players(user, ai)
-    all_players = [user, ai, ai, ai].shuffle
+    all_players = [ user, ai, ai, ai ].shuffle
 
     all_players.each_with_index do |player, seat_order|
       new_player = if user.id == player.id
-                      players.create!(user: player, seat_order:)
-                    else
-                      players.create!(ai: player, seat_order:)
-                    end
+        players.create!(user: player, seat_order:)
+      else
+        players.create!(ai: player, seat_order:)
+      end
       new_player.create_score(current_honba)
       new_player.create_state(current_step)
     end
@@ -46,10 +46,10 @@ class Game < ApplicationRecord
 
   private
 
-  def create_tiles_and_round
-    setup_tiles
-    rounds.create!
-  end
+    def create_tiles_and_round
+      setup_tiles
+      rounds.create!
+    end
 
   def setup_tiles
     base_tiles = BaseTile.all.index_by(&:code)

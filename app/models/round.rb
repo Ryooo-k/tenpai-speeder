@@ -13,7 +13,7 @@ class Round < ApplicationRecord
 
   private
 
-  def create_honba
-    honbas.create!
-  end
+    def create_honba
+      honbas.create!
+    end
 end

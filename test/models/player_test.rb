@@ -97,7 +97,7 @@ class PlayerTest < ActiveSupport::TestCase
     new_state.hands.create!(tile: manzu_9)
     new_state.hands.create!(tile: manzu_1)
     assert_not_equal old_hands, @ryo.hands
-    assert_equal [manzu_1, manzu_9], @ryo.hands
+    assert_equal [ manzu_1, manzu_9 ], @ryo.hands
   end
 
   test '#receive' do

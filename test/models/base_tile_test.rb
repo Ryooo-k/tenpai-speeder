@@ -4,7 +4,7 @@ require 'test_helper'
 
 class BaseTileTest < ActiveSupport::TestCase
   test 'is valid with suit and number and name and code' do
-    base_tile = BaseTile.new(suit:0, number: 1, name: '1萬', code: 0)
+    base_tile = BaseTile.new(suit: 0, number: 1, name: '1萬', code: 0)
     assert base_tile.valid?
   end
 
