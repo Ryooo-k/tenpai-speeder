@@ -1,18 +1,11 @@
-<div class="relative mx-auto w-[1000px] h-[700px] bg-emerald-600">
+<div class="relative mx-auto w-full aspect-[10/7] bg-emerald-600 @container">
   <% @game.players.each do |player| %>
-    <% player_position = if player == @viewer
-                            'bottom-3 left-1/2 -translate-x-1/2'
-                          elsif player.shimocha?(@viewer)
-                            'top-1/2 right-1 -translate-y-1/2 -rotate-90'
-                          elsif player.toimen?(@viewer)
-                            'top-3 left-1/2 -translate-x-1/2 rotate-180'
-                          elsif player.kamicha?(@viewer)
-                            'top-1/2 left-1 -translate-y-1/2 rotate-90'
-                          end %>
+    <% seat_placement_class = build_seat_placement_class(player, @viewer) %>
+    <% hand_offset_class = build_hand_offset_class(player, @viewer) %>
 
-    <div class="absolute text-white <%= player_position %>">
-      <div class="text-center text-sm">
-        <%= player.name %>
+    <div class="absolute <%= seat_placement_class %>">
+      <div class="flex <%= hand_offset_class %>">
+        <%= render partial: "tiles/tile", collection: player.hands %>
       </div>
     </div>
   <% end %>
