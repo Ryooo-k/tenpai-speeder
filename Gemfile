@@ -28,6 +28,7 @@ end
 
 group :development do
   gem 'web-console'
+  gem 'erb_lint', require: false
 end
 
 group :test do
