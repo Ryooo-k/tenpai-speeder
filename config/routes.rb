@@ -3,6 +3,11 @@ Rails.application.routes.draw do
 
   root "welcome#index"
   get "/home", to: "home#index", as: :home
-  resources :games, only: [:create]
-  get "/game/:id/play", to: "game_plays#show", as: :game_play
+
+  resources :games, only: :create do
+    scope module: :games do
+      resource :play,   only: :show
+      resource :action, only: :create
+    end
+  end
 end
