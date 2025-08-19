@@ -19,6 +19,8 @@ AllCops:
 
 Style/StringLiterals:
   EnforcedStyle: single_quotes
+  Exclude:
+    - "app/views/**/*"
 
 Layout/IndentationWidth:
   Enabled: true
@@ -42,6 +44,8 @@ Style/Lambda:
 Style/FrozenStringLiteralComment:
   Enabled: true
   EnforcedStyle: always
+  Exclude:
+    - "app/views/**/*"
 
 Style/HashSyntax:
   EnforcedStyle: ruby19_no_mixed_keys
@@ -50,3 +54,7 @@ Metrics/MethodLength:
   Max: 15
   Exclude:
     - "app/controllers/**/*"
+
+Layout/TrailingEmptyLines:
+  Exclude:
+    - "app/views/**/*"

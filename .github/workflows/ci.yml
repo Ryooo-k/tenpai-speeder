@@ -68,6 +68,9 @@ jobs:
       - name: Check formatting (Prettier)
         run: npx prettier . --check
 
+      - name: erb_lint
+        run: bundle exec erb_lint --lint-all
+
   test:
     runs-on: ubuntu-latest
 
