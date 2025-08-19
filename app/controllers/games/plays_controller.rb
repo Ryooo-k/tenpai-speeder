@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GamePlaysController < ApplicationController
+class Games::PlaysController < ApplicationController
   def show
     @game = Game.includes(
       :game_mode,
@@ -26,7 +26,7 @@ class GamePlaysController < ApplicationController
           } }
         ]
       ] }
-    ).find(params[:id])
+    ).find(params[:game_id])
 
     @viewer = @game.players.user
   end
