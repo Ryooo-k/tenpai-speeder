@@ -23,7 +23,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test 'is invalid long name' do
-    user = User.new(name: 'x' * 11)
+    user = User.new(name: 'x' * 13)
     assert user.invalid?
   end
 end

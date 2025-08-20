@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
-  get "up" => "rails/health#show", as: :rails_health_check
-
+  get 'auth/:provider/callback', to: 'sessions#create'
+  get '/login', to: 'sessions#new'
+  delete '/logout', to: 'sessions#destroy', as: :logout
+  resource :session, only: [:destroy]
+  post "/guest_login", to: "sessions#guest"
   root "welcome#index"
   get "/home", to: "home#index", as: :home
 
