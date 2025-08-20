@@ -4,5 +4,5 @@ class User < ApplicationRecord
   has_many :players, dependent: :destroy
   has_many :favorites, dependent: :destroy
 
-  validates :name, presence: true, length: { maximum: 10 }
+  validates :name, presence: true, length: { maximum: 12 }
 end
