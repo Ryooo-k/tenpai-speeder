@@ -1,6 +1,25 @@
 <div class="relative mx-auto w-full aspect-[10/7] bg-emerald-600 @container">
-  <% @game.players.each do |player| %>
-    <% view_position = determine_view_position(player, @viewer) %>
-    <%= render partial: "#{view_position}_player", locals: { player:, game: @game } %>
+  <%= render partial: 'main_player', locals: { player: @user_player, game: @game } %>
+  <% @opponents.each do |opponent| %>
+    <% view_position = determine_view_position(opponent, @user_player) %>
+    <%= render partial: "#{view_position}_player", locals: { player: opponent } %>
   <% end %>
 </div>
+
+<% if @auto_draw %>
+  <%= form_with url: game_action_draw_path(@game), method: :post, data: { turbo: true }, id: 'auto-form' %>
+<% elsif @auto_choose %>
+  <%= form_with url: game_action_choose_path(@game), method: :post, data: { turbo: true }, id: 'auto-form' %>
+<% elsif @auto_discard %>
+  <%= form_with url: game_action_discard_path(@game), method: :post, data: { turbo: true }, id: 'auto-form' do |form| %>
+    <%= form.hidden_field :selected_tile_id, value: @chosen_tile_id %>
+  <% end %>
+<% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+      document.getElementById('auto-form').submit();
+    }, 1000);
+  });
+</script>

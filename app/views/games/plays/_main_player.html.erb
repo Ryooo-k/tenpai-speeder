@@ -3,8 +3,8 @@
     <div class="flex">
       <% player.hands.each do |tile| %>
         <div class="relative">
-          <%= form.radio_button :selected_tile, tile.id, class: "hidden peer" %>
-          <%= form.label :selected_tile, value: tile.id, class: "block peer-checked:-translate-y-2" do %>
+          <%= form.radio_button :selected_tile_id, tile.id, class: "hidden peer" %>
+          <%= form.label :selected_tile_id, value: tile.id, class: "block peer-checked:-translate-y-2" do %>
             <%= render "games/plays/tile", tile: %>
           <% end %>
           <%= form.submit "", class: "absolute inset-0 hidden peer-checked:block" %>
