@@ -6,4 +6,9 @@ class Hand < ApplicationRecord
 
   validates :player_state, presence: true
   validates :tile, presence: true
+  validates :drawn, presence: true
+
+  def drawn?
+    drawn
+  end
 end
