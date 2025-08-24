@@ -6,7 +6,7 @@ class Hand < ApplicationRecord
 
   validates :player_state, presence: true
   validates :tile, presence: true
-  validates :drawn, presence: true
+  validates :drawn, inclusion: { in: [ true, false ] }
 
   def drawn?
     drawn
