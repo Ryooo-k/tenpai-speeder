@@ -20,9 +20,6 @@ class Player < ApplicationRecord
 
   scope :ordered, -> { order(:seat_order) }
 
-  # ユーザー認証機能を実装後、削除する。
-  scope :user, -> { where.not(user_id: nil).first }
-
   def create_game_record(honba)
     game_records.create!(honba:)
   end
@@ -31,21 +28,45 @@ class Player < ApplicationRecord
     player_states.create!(step:)
   end
 
-  def state
-    player_states.last
+  def hands
+    current_state.hands.all.map(&:tile).sort_by(&:code)
   end
 
-  def hands
-    state.hands.all.map(&:tile).sort_by(&:code)
+  def rivers
+    current_state.rivers.all.map(&:tile)
   end
 
   def receive(tile)
-    state.hands.create!(tile:)
-    game.current_honba.increment!(:draw_count)
+    current_state.hands.create!(tile:)
+  end
+
+  def draw(drawn_tile, step)
+    current_hands = hands
+    create_state(step)
+    create_drawn_hands(current_hands, drawn_tile)
+  end
+
+  def discard(discarded_tile_id, step)
+    hand = current_state.hands.find_by!(tile_id: discarded_tile_id)
+    current_hands = hands
+    current_rivers = rivers
+    create_state(step)
+    create_discarded_hands(current_hands, hand.tile)
+    create_rivers(current_rivers, hand)
+  end
+
+  # ai用打牌選択のメソッド
+  # 現状は手牌の中からランダムに選択。aiの実装は別issueで対応。
+  def choose
+    hands.sample.id
   end
 
   def name
     user&.name || ai&.name
+  end
+
+  def ai?
+    ai_id.present?
   end
 
   def shimocha?(player)
@@ -71,5 +92,24 @@ class Player < ApplicationRecord
       elsif user.present? && ai.present?
         errors.add(:base, 'UserとAIの両方を同時に指定することはできません')
       end
+    end
+
+    def current_state
+      player_states.last
+    end
+
+    def create_drawn_hands(hands, drawn_tile)
+      hands.each { |tile| current_state.hands.create!(tile:) }
+      current_state.hands.create!(tile: drawn_tile, drawn: true)
+    end
+
+    def create_discarded_hands(hands, discarded_tile)
+      new_hands = hands.select { |tile| tile.id != discarded_tile.id }
+      new_hands.each { |tile| current_state.hands.create!(tile:) }
+    end
+
+    def create_rivers(current_rivers, hand)
+      current_rivers.each { |tile| current_state.rivers.create!(tile:) }
+      current_state.rivers.create!(tile: hand.tile, tsumogiri: hand.drawn?)
     end
 end

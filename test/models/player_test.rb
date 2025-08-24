@@ -4,32 +4,33 @@ require 'test_helper'
 
 class PlayerTest < ActiveSupport::TestCase
   def setup
-    @ryo = players(:ryo)
+    @user_player = players(:ryo)
+    @ai_player = players(:menzen_tenpai_speeder)
     @user = users(:ryo)
     @game = games(:tonpuu)
   end
 
   test 'destroying player should also destroy results' do
-    assert_difference('Result.count', -@ryo.results.count) do
-      @ryo.destroy
+    assert_difference('Result.count', -@user_player.results.count) do
+      @user_player.destroy
     end
   end
 
   test 'destroying player should also destroy game_records' do
-    assert_difference('GameRecord.count', -@ryo.game_records.count) do
-      @ryo.destroy
+    assert_difference('GameRecord.count', -@user_player.game_records.count) do
+      @user_player.destroy
     end
   end
 
   test 'destroying player should also destroy actions' do
-    assert_difference('Action.count', -@ryo.actions.count) do
-      @ryo.destroy
+    assert_difference('Action.count', -@user_player.actions.count) do
+      @user_player.destroy
     end
   end
 
   test 'destroying player should also destroy player_states' do
-    assert_difference('PlayerState.count', -@ryo.player_states.count) do
-      @ryo.destroy
+    assert_difference('PlayerState.count', -@user_player.player_states.count) do
+      @user_player.destroy
     end
   end
 
@@ -71,42 +72,61 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#create_game_record' do
-    assert_equal 1, @ryo.game_records.count
-    @ryo.create_game_record(honbas(:ton_1_kyoku_0_honba))
-    assert_equal 2, @ryo.game_records.count
+    assert_equal 1, @user_player.game_records.count
+    @user_player.create_game_record(honbas(:ton_1_kyoku_0_honba))
+    assert_equal 2, @user_player.game_records.count
   end
 
   test '#create_state' do
-    assert_equal 1, @ryo.player_states.count
-    @ryo.create_state(steps(:step_1))
-    assert_equal 2, @ryo.player_states.count
-  end
-
-  test '#state return latest player_state' do
-    old_state = @ryo.player_states.create!(step: steps(:step_1), created_at: 1.hour.ago)
-    new_state = @ryo.player_states.create!(step: steps(:step_2), created_at: Time.current)
-    assert_not_equal old_state, @ryo.state
-    assert_equal new_state, @ryo.state
+    assert_equal 1, @user_player.player_states.count
+    @user_player.create_state(steps(:step_1))
+    assert_equal 2, @user_player.player_states.count
   end
 
   test '#hands return latest sorted tiles' do
-    old_hands = @ryo.hands
+    old_hands = @user_player.hands
     manzu_1 = tiles(:first_manzu_1)
     manzu_9 = tiles(:first_manzu_9)
-    new_state = @ryo.player_states.create!(step: steps(:step_1))
+    new_state = @user_player.player_states.create!(step: steps(:step_1))
     new_state.hands.create!(tile: manzu_9)
     new_state.hands.create!(tile: manzu_1)
-    assert_not_equal old_hands, @ryo.hands
-    assert_equal [ manzu_1, manzu_9 ], @ryo.hands
+    assert_not_equal old_hands, @user_player.hands
+    assert_equal [ manzu_1, manzu_9 ], @user_player.hands
   end
 
   test '#receive' do
-    assert_equal 0, @ryo.hands.count
-    assert_equal 0, @ryo.game.current_honba.draw_count
+    assert_equal 0, @user_player.hands.count
+    @user_player.receive(tiles(:first_manzu_1))
+    assert_equal 1, @user_player.hands.count
+  end
 
-    @ryo.receive(tiles(:first_manzu_1))
-    assert_equal 1, @ryo.hands.count
-    assert_equal 1, @ryo.game.current_honba.draw_count
+  test '#draw' do
+    before_hands = @user_player.hands
+    assert_equal [], before_hands
+
+    manzu_1 = tiles(:first_manzu_1)
+    @user_player.draw(manzu_1, steps(:step_1))
+    assert_equal [manzu_1], @user_player.hands
+
+    manzu_2 = tiles(:first_manzu_2)
+    @user_player.draw(manzu_2, steps(:step_2))
+    assert_equal [manzu_1, manzu_2], @user_player.hands
+  end
+
+  test '#discard' do
+    manzu_1 = tiles(:first_manzu_1)
+    @user_player.draw(manzu_1, steps(:step_1))
+    assert_equal [manzu_1], @user_player.hands
+    assert_equal [], @user_player.rivers
+
+    @user_player.discard(manzu_1, steps(:step_2))
+    assert_equal [], @user_player.hands
+    assert_equal [manzu_1], @user_player.rivers
+  end
+
+  test '#ai?' do
+    assert_not @user_player.ai?
+    assert @ai_player.ai?
   end
 
   test '#shimocha?' do
