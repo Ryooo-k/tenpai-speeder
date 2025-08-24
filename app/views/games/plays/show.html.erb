@@ -17,7 +17,7 @@
 <% end %>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('turbo:load', () => {
     setTimeout(() => {
       document.getElementById('auto-form').submit();
     }, 1000);
