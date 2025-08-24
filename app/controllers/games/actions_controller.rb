@@ -2,26 +2,25 @@
 
 class Games::ActionsController < ApplicationController
   before_action :set_game
+  before_action :action_params, only: :discard
 
   def draw
-    current_player.draw
-    auto_draw = false
-    auto_choose = true if current_player.ai?
-    redirect_to game_play_path(@game, auto_draw:, auto_choose:)
+    @game.draw_for_current_player
+    auto_choose = true if @game.current_player.ai?
+    redirect_to game_play_path(@game, auto_choose:)
   end
 
   # ai用打牌選択アクション
   def choose
-    chosen_tile_id = current_player.choose
-    auto_draw = false
-    auto_discard = true
-    redirect_to game_play_path(@game, auto_draw:, auto_discard:, chosen_tile_id:)
+    chosen_tile_id = @game.current_player.choose
+    redirect_to game_play_path(@game, auto_discard: true, chosen_tile_id:)
   end
 
   def discard
-    current_player.discard(action_params[:selected_tile_id])
+    puts action_params
+    @game.discard_for_current_player(action_params.to_i)
+    @game.advance_current_player!
     auto_draw = true
-    @game.advance
     redirect_to game_play_path(@game, auto_draw:)
   end
 
@@ -53,10 +52,6 @@ class Games::ActionsController < ApplicationController
           ]
         ] }
       ).find(params[:game_id])
-    end
-
-    def current_player
-      @game.current_player
     end
 
     def action_params
