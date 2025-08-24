@@ -16,9 +16,15 @@ class HandTest < ActiveSupport::TestCase
     assert hand.invalid?
   end
 
-test 'is invalid without tile' do
+  test 'is invalid without tile' do
     player_1_state = player_states(:ryo)
     hand = Hand.new(player_state: player_1_state)
     assert hand.invalid?
+  end
+
+  test 'drawn default to false' do
+    manzu_1 = tiles(:first_manzu_1)
+    hand = Hand.new(tile: manzu_1)
+    assert_equal false, hand.drawn
   end
 end
