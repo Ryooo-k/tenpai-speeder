@@ -47,6 +47,6 @@ class Games::PlaysController < ApplicationController
     end
 
     def play_params
-      params.expect([:auto_draw, :auto_choose, :chosen_tile_id])
+      params.permit(:auto_draw, :auto_choose, :auto_discard, :chosen_tile_id)
     end
 end
