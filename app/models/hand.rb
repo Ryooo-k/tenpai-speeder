@@ -7,4 +7,10 @@ class Hand < ApplicationRecord
   validates :player_state, presence: true
   validates :tile, presence: true
   validates :drawn, inclusion: { in: [ true, false ] }
+
+  scope :sorted, -> {
+    joins(tile: :base_tile)
+      .order(drawn: :asc)
+      .order('base_tiles.code ASC', 'tile.kind ASC')
+  }
 end

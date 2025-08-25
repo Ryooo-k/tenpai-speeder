@@ -27,4 +27,13 @@ class HandTest < ActiveSupport::TestCase
     hand = Hand.new(tile: manzu_1)
     assert_equal false, hand.drawn
   end
+
+  test '.sorted' do
+    state = players(:ryo).player_states.last
+    hand_1 = state.hands.create!(tile: tiles(:first_manzu_1), drawn: true)
+    hand_2 = state.hands.create!(tile: tiles(:first_manzu_2), drawn: false)
+    hand_second_3 = state.hands.create!(tile: tiles(:second_manzu_3), drawn: false)
+    hand_first_3 = state.hands.create!(tile: tiles(:first_manzu_3), drawn: false)
+    assert_equal [ hand_2, hand_first_3, hand_second_3, hand_1 ], state.hands.sorted
+  end
 end
