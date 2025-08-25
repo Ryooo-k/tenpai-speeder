@@ -27,7 +27,7 @@ class Player < ApplicationRecord
   end
 
   def rivers
-    current_state.rivers
+    current_state.rivers.ordered
   end
 
   def receive(tile)
@@ -35,15 +35,15 @@ class Player < ApplicationRecord
   end
 
   def draw(drawn_tile, step)
-    current_hand_tiles = current_state.hands.all.map(&:tile)
+    current_hand_tiles = current_state.hands.map(&:tile)
     player_states.create!(step:)
     create_drawn_hands(current_hand_tiles, drawn_tile)
   end
 
   def discard(chosen_hand_id, step)
     chosen_hand = current_state.hands.find(chosen_hand_id)
-    current_hands = current_state.hands.all
-    current_rivers = current_state.rivers.all
+    current_hands = current_state.hands
+    current_rivers = current_state.rivers
     player_states.create!(step:)
     create_discarded_hands(current_hands, chosen_hand)
     create_rivers(current_rivers, chosen_hand)
@@ -103,7 +103,7 @@ class Player < ApplicationRecord
     end
 
     def create_rivers(current_rivers, chosen_hand)
-      current_rivers.each { |river| current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?) }
+      current_rivers.each { |river| current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, created_at: river.created_at) }
       current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
     end
 end

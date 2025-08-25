@@ -75,14 +75,23 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#hands return sorted hands of current_state' do
-    @user_player.draw(@manzu_3, steps(:step_1))
-    assert_equal [ @manzu_3 ], @user_player.hands.all.map(&:tile)
+    current_state = @user_player.player_states.ordered.last
+    current_state.hands.delete_all
 
-    @user_player.draw(@manzu_1, steps(:step_2))
-    assert_equal [ @manzu_3, @manzu_1 ], @user_player.hands.all.map(&:tile)
+    drawn_hand = current_state.hands.create!(tile: @manzu_1, drawn: true)
+    hand_3 = current_state.hands.create!(tile: @manzu_3)
+    hand_2 = current_state.hands.create!(tile: @manzu_2)
+    assert_equal [ hand_2, hand_3, drawn_hand ], @user_player.hands
+  end
 
-    @user_player.draw(@manzu_2, steps(:step_3))
-    assert_equal [ @manzu_1, @manzu_3, @manzu_2 ], @user_player.hands.all.map(&:tile)
+  test '#rivers return ordered rivers of current_state' do
+    current_state = @user_player.player_states.ordered.last
+    current_state.rivers.delete_all
+
+    first_river = current_state.rivers.create!(tile: @manzu_3, tsumogiri: false)
+    second_river = current_state.rivers.create!(tile: @manzu_1, tsumogiri: false)
+    third_river = current_state.rivers.create!(tile: @manzu_2, tsumogiri: false)
+    assert_equal [ first_river, second_river, third_river ], current_state.rivers
   end
 
   test '#receive' do
