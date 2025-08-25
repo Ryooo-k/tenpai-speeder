@@ -89,7 +89,7 @@ class Player < ApplicationRecord
     end
 
     def current_state
-      player_states.last
+      player_states.ordered.last
     end
 
     def create_drawn_hands(hand_tiles, drawn_tile)

@@ -88,12 +88,12 @@ class PlayerTest < ActiveSupport::TestCase
   test '#receive' do
     before_state_count = @user_player.player_states.count
     @user_player.receive(@manzu_2)
-    current_hand_tiles = @user_player.player_states.last.hands.all.map(&:tile)
+    current_hand_tiles = @user_player.player_states.ordered.last.hands.all.map(&:tile)
     assert_equal [ @manzu_2 ], current_hand_tiles
     assert_equal before_state_count, @user_player.player_states.count
 
     @user_player.receive(@manzu_1)
-    current_hand_tiles = @user_player.player_states.last.hands.all.map(&:tile)
+    current_hand_tiles = @user_player.player_states.ordered.last.hands.all.map(&:tile)
     assert_equal [ @manzu_2, @manzu_1 ], current_hand_tiles
     assert_equal before_state_count, @user_player.player_states.count
   end
@@ -101,20 +101,20 @@ class PlayerTest < ActiveSupport::TestCase
   test '#draw' do
     before_state_count = @user_player.player_states.count
     @user_player.draw(@manzu_3, steps(:step_1))
-    step_1_hands = @user_player.player_states.last.hands.all
+    step_1_hands = @user_player.player_states.ordered.last.hands.all
     assert_equal [ @manzu_3 ], step_1_hands.map(&:tile)
     assert step_1_hands.last.drawn?
     assert_equal before_state_count + 1, @user_player.player_states.count
 
     @user_player.draw(@manzu_1, steps(:step_2))
-    step_2_hands = @user_player.player_states.last.hands.all
+    step_2_hands = @user_player.player_states.ordered.last.hands.all
     assert_equal [ @manzu_3, @manzu_1 ], step_2_hands.map(&:tile)
     assert step_2_hands.last.drawn?
     assert_not step_2_hands.first.drawn?
     assert_equal before_state_count + 2, @user_player.player_states.count
 
     @user_player.draw(@manzu_2, steps(:step_3))
-    step_3_hands = @user_player.player_states.last.hands.all
+    step_3_hands = @user_player.player_states.ordered.last.hands.all
     assert_equal [ @manzu_3, @manzu_1, @manzu_2 ], step_3_hands.map(&:tile)
     assert step_3_hands.last.drawn?
     step_3_hands[...-1].each { |hand| assert_not hand.drawn? }
