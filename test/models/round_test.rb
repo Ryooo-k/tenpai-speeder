@@ -3,10 +3,13 @@
 require 'test_helper'
 
 class RoundTest < ActiveSupport::TestCase
+  def setup
+    @round = rounds(:ton_1_kyoku)
+  end
+
   test 'destroying round should also destroy honbas' do
-    round = rounds(:ton_1_kyoku)
-    assert_difference('Honba.count', -round.honbas.count) do
-      round.destroy
+    assert_difference('Honba.count', -@round.honbas.count) do
+      @round.destroy
     end
   end
 
@@ -35,5 +38,11 @@ class RoundTest < ActiveSupport::TestCase
     assert_equal 0, round.honbas.count
     round.save
     assert_equal 1, round.honbas.count
+  end
+
+  test '#current_honba' do
+    max_number = @round.honbas.maximum(:number)
+    max_number_honba = @round.honbas.find_by(number: max_number)
+    assert_equal max_number_honba, @round.current_honba
   end
 end

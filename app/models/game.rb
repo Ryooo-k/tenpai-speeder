@@ -95,19 +95,19 @@ class Game < ApplicationRecord
     end
 
     def current_round
-      rounds.last
+      rounds.order(:number).last
     end
 
     def current_honba
-      current_round.honbas.last
+      current_round.current_honba
     end
 
     def current_turn
-      current_honba.turns.last
+      current_honba.current_turn
     end
 
     def current_step
-      current_turn.steps.last
+      current_turn.current_step
     end
 
     def next_step_number
@@ -128,6 +128,6 @@ class Game < ApplicationRecord
 
     def next_step
       next_step_number = current_step.number + 1
-      current_turn.create_next_step(next_step_number)
+      current_turn.steps.create!(number: next_step_number)
     end
 end
