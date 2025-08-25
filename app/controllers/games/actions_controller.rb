@@ -12,12 +12,11 @@ class Games::ActionsController < ApplicationController
 
   # ai用打牌選択アクション
   def choose
-    chosen_tile_id = @game.current_player.choose
-    redirect_to game_play_path(@game, auto_discard: true, chosen_tile_id:)
+    chosen_hand_id = @game.current_player.choose
+    redirect_to game_play_path(@game, auto_discard: true, chosen_hand_id:)
   end
 
   def discard
-    puts action_params
     @game.discard_for_current_player(action_params.to_i)
     @game.advance_current_player!
     auto_draw = true
@@ -55,6 +54,6 @@ class Games::ActionsController < ApplicationController
     end
 
     def action_params
-      params.expect(:selected_tile_id)
+      params.expect(:chosen_hand_id)
     end
 end

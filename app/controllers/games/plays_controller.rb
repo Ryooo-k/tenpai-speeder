@@ -8,7 +8,7 @@ class Games::PlaysController < ApplicationController
     @auto_draw = play_params[:auto_draw]
     @auto_choose = play_params[:auto_choose]
     @auto_discard = play_params[:auto_discard]
-    @chosen_tile_id = play_params[:chosen_tile_id]
+    @chosen_hand_id = play_params[:chosen_hand_id]
   end
 
   private
@@ -47,6 +47,6 @@ class Games::PlaysController < ApplicationController
     end
 
     def play_params
-      params.permit(:auto_draw, :auto_choose, :auto_discard, :chosen_tile_id)
+      params.permit(:auto_draw, :auto_choose, :auto_discard, :chosen_hand_id)
     end
 end
