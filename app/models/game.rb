@@ -42,11 +42,11 @@ class Game < ApplicationRecord
   end
 
   def user_player
-    players.where.not(user_id: nil).first
+    players.users.first
   end
 
   def opponents
-    players.where.not(ai_id: nil)
+    players.ais
   end
 
   def current_player

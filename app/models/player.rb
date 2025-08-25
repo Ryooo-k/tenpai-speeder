@@ -19,6 +19,8 @@ class Player < ApplicationRecord
   validate :validate_player_type
 
   scope :ordered, -> { order(:seat_order) }
+  scope :users, -> { where.not(user_id: nil) }
+  scope :ais, -> { where.not(ai_id: nil) }
 
   def create_game_record(honba)
     game_records.create!(honba:)
