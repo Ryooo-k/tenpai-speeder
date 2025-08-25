@@ -37,7 +37,7 @@ class TurnTest < ActiveSupport::TestCase
 
   test '#current_step' do
     max_number = @turn.steps.maximum(:number)
-    max_number_step = @turn.steps.find_by(number: max_number)
-    assert_equal max_number_step, @turn.current_step
+    expected = @turn.steps.find_by(number: max_number)
+    assert_equal expected, @turn.current_step
   end
 end
