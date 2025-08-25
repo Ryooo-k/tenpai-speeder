@@ -5,3 +5,11 @@ step_1:
 step_2:
   turn: turn_1
   number: 1
+
+step_3:
+  turn: turn_1
+  number: 2
+
+step_4:
+  turn: turn_1
+  number: 3

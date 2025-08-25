@@ -22,20 +22,12 @@ class Player < ApplicationRecord
   scope :users, -> { where.not(user_id: nil) }
   scope :ais, -> { where.not(ai_id: nil) }
 
-  def create_game_record(honba)
-    game_records.create!(honba:)
-  end
-
-  def create_state(step)
-    player_states.create!(step:)
-  end
-
   def hands
-    current_state.hands.all.map(&:tile).sort_by(&:code)
+    current_state.hands.sorted
   end
 
   def rivers
-    current_state.rivers.all.map(&:tile)
+    current_state.rivers
   end
 
   def receive(tile)
@@ -43,24 +35,24 @@ class Player < ApplicationRecord
   end
 
   def draw(drawn_tile, step)
-    current_hands = hands
-    create_state(step)
-    create_drawn_hands(current_hands, drawn_tile)
+    current_hand_tiles = current_state.hands.all.map(&:tile)
+    player_states.create!(step:)
+    create_drawn_hands(current_hand_tiles, drawn_tile)
   end
 
-  def discard(discarded_tile_id, step)
-    hand = current_state.hands.find_by!(tile_id: discarded_tile_id)
-    current_hands = hands
-    current_rivers = rivers
-    create_state(step)
-    create_discarded_hands(current_hands, hand.tile)
-    create_rivers(current_rivers, hand)
+  def discard(chosen_hand_id, step)
+    chosen_hand = current_state.hands.find(chosen_hand_id)
+    current_hands = current_state.hands.all
+    current_rivers = current_state.rivers.all
+    player_states.create!(step:)
+    create_discarded_hands(current_hands, chosen_hand)
+    create_rivers(current_rivers, chosen_hand)
   end
 
   # ai用打牌選択のメソッド
   # 現状は手牌の中からランダムに選択。aiの実装は別issueで対応。
   def choose
-    hands.sample.id
+    current_state.hands.sample.id
   end
 
   def name
@@ -100,18 +92,18 @@ class Player < ApplicationRecord
       player_states.last
     end
 
-    def create_drawn_hands(hands, drawn_tile)
-      hands.each { |tile| current_state.hands.create!(tile:) }
+    def create_drawn_hands(hand_tiles, drawn_tile)
+      hand_tiles.each { |tile| current_state.hands.create!(tile:) }
       current_state.hands.create!(tile: drawn_tile, drawn: true)
     end
 
-    def create_discarded_hands(hands, discarded_tile)
-      new_hands = hands.select { |tile| tile.id != discarded_tile.id }
-      new_hands.each { |tile| current_state.hands.create!(tile:) }
+    def create_discarded_hands(current_hands, chosen_hand)
+      new_hands = current_hands.select { |hand| hand.id != chosen_hand.id }
+      new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
     end
 
-    def create_rivers(current_rivers, hand)
-      current_rivers.each { |tile| current_state.rivers.create!(tile:) }
-      current_state.rivers.create!(tile: hand.tile, tsumogiri: hand.drawn?)
+    def create_rivers(current_rivers, chosen_hand)
+      current_rivers.each { |river| current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?) }
+      current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
     end
 end

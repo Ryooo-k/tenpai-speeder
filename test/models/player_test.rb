@@ -8,6 +8,9 @@ class PlayerTest < ActiveSupport::TestCase
     @ai_player = players(:menzen_tenpai_speeder)
     @user = users(:ryo)
     @game = games(:tonpuu)
+    @manzu_1 = tiles(:first_manzu_1)
+    @manzu_2 = tiles(:first_manzu_2)
+    @manzu_3 = tiles(:first_manzu_3)
   end
 
   test 'destroying player should also destroy results' do
@@ -71,57 +74,64 @@ class PlayerTest < ActiveSupport::TestCase
     assert_includes player.errors[:base], 'UserとAIの両方を同時に指定することはできません'
   end
 
-  test '#create_game_record' do
-    assert_equal 1, @user_player.game_records.count
-    @user_player.create_game_record(honbas(:ton_1_kyoku_0_honba))
-    assert_equal 2, @user_player.game_records.count
-  end
+  test '#hands return sorted hands of current_state' do
+    @user_player.draw(@manzu_3, steps(:step_1))
+    assert_equal [ @manzu_3 ], @user_player.hands.all.map(&:tile)
 
-  test '#create_state' do
-    assert_equal 1, @user_player.player_states.count
-    @user_player.create_state(steps(:step_1))
-    assert_equal 2, @user_player.player_states.count
-  end
+    @user_player.draw(@manzu_1, steps(:step_2))
+    assert_equal [ @manzu_3, @manzu_1 ], @user_player.hands.all.map(&:tile)
 
-  test '#hands return latest sorted tiles' do
-    old_hands = @user_player.hands
-    manzu_1 = tiles(:first_manzu_1)
-    manzu_9 = tiles(:first_manzu_9)
-    new_state = @user_player.player_states.create!(step: steps(:step_1))
-    new_state.hands.create!(tile: manzu_9)
-    new_state.hands.create!(tile: manzu_1)
-    assert_not_equal old_hands, @user_player.hands
-    assert_equal [ manzu_1, manzu_9 ], @user_player.hands
+    @user_player.draw(@manzu_2, steps(:step_3))
+    assert_equal [ @manzu_1, @manzu_3, @manzu_2 ], @user_player.hands.all.map(&:tile)
   end
 
   test '#receive' do
-    assert_equal 0, @user_player.hands.count
-    @user_player.receive(tiles(:first_manzu_1))
-    assert_equal 1, @user_player.hands.count
+    @user_player.receive(@manzu_2)
+    current_hand_tiles = @user_player.player_states.last.hands.all.map(&:tile)
+    assert_equal [ @manzu_2 ], current_hand_tiles
+
+    @user_player.receive(@manzu_1)
+    current_hand_tiles = @user_player.player_states.last.hands.all.map(&:tile)
+    assert_equal [ @manzu_2, @manzu_1 ], current_hand_tiles
   end
 
   test '#draw' do
-    before_hands = @user_player.hands
-    assert_equal [], before_hands
+    @user_player.draw(@manzu_3, steps(:step_1))
+    step_1_hands = @user_player.player_states.last.hands.all
+    assert_equal [ @manzu_3 ], step_1_hands.map(&:tile)
+    assert step_1_hands.last.drawn?
 
-    manzu_1 = tiles(:first_manzu_1)
-    @user_player.draw(manzu_1, steps(:step_1))
-    assert_equal [manzu_1], @user_player.hands
+    @user_player.draw(@manzu_1, steps(:step_2))
+    step_2_hands = @user_player.player_states.last.hands.all
+    assert_equal [ @manzu_3, @manzu_1 ], step_2_hands.map(&:tile)
+    assert step_2_hands.last.drawn?
+    step_2_hands[...-1].each { |hand| assert_not hand.drawn? }
 
-    manzu_2 = tiles(:first_manzu_2)
-    @user_player.draw(manzu_2, steps(:step_2))
-    assert_equal [manzu_1, manzu_2], @user_player.hands
+    @user_player.draw(@manzu_2, steps(:step_3))
+    step_3_hands = @user_player.player_states.last.hands.all
+    assert_equal [ @manzu_3, @manzu_1, @manzu_2 ], step_3_hands.map(&:tile)
+    assert step_3_hands.last.drawn?
+    step_3_hands[...-1].each { |hand| assert_not hand.drawn? }
   end
 
   test '#discard' do
-    manzu_1 = tiles(:first_manzu_1)
-    @user_player.draw(manzu_1, steps(:step_1))
-    assert_equal [manzu_1], @user_player.hands
+    @user_player.draw(@manzu_1, steps(:step_1))
+    @user_player.draw(@manzu_2, steps(:step_2))
+    assert_equal [ @manzu_1, @manzu_2 ], @user_player.hands.all.map(&:tile)
     assert_equal [], @user_player.rivers
 
-    @user_player.discard(manzu_1, steps(:step_2))
-    assert_equal [], @user_player.hands
-    assert_equal [manzu_1], @user_player.rivers
+    manzu_2_hand_id = @user_player.hands.last.id
+    @user_player.discard(manzu_2_hand_id, steps(:step_3))
+    assert_equal [ @manzu_1 ], @user_player.hands.all.map(&:tile)
+    assert_equal [ @manzu_2 ], @user_player.rivers.map(&:tile)
+    assert @user_player.rivers.first.tsumogiri?
+
+    manzu_1_hand_id = @user_player.hands.first.id
+    @user_player.discard(manzu_1_hand_id, steps(:step_4))
+    assert_equal [], @user_player.hands.all.map(&:tile)
+    assert_equal [ @manzu_2, @manzu_1 ], @user_player.rivers.map(&:tile)
+    assert @user_player.rivers.first.tsumogiri?
+    assert_not @user_player.rivers.last.tsumogiri?
   end
 
   test '#ai?' do
