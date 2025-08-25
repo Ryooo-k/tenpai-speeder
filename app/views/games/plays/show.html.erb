@@ -1,25 +1,22 @@
 <div class="relative mx-auto w-full aspect-[10/7] bg-emerald-600 @container">
-  <%= render partial: 'main_player', locals: { player: @user_player, game: @game } %>
-  <% @opponents.each do |opponent| %>
-    <% view_position = determine_view_position(opponent, @user_player) %>
-    <%= render partial: "#{view_position}_player", locals: { player: opponent } %>
-  <% end %>
+  <%= render partial: "user_player", locals: { player: @user_player, game: @game } %>
+  <%= render partial: "opponent", collection: @opponents, as: :player, locals: { user: @user_player } %>
 </div>
 
 <% if @auto_draw %>
-  <%= form_with url: game_action_draw_path(@game), method: :post, data: { turbo: true }, id: 'auto-form' %>
+  <%= form_with url: game_action_draw_path(@game), method: :post, data: { turbo: true }, id: "auto-form" %>
 <% elsif @auto_choose %>
-  <%= form_with url: game_action_choose_path(@game), method: :post, data: { turbo: true }, id: 'auto-form' %>
+  <%= form_with url: game_action_choose_path(@game), method: :post, data: { turbo: true }, id: "auto-form" %>
 <% elsif @auto_discard %>
-  <%= form_with url: game_action_discard_path(@game), method: :post, data: { turbo: true }, id: 'auto-form' do |form| %>
-    <%= form.hidden_field :selected_tile_id, value: @chosen_tile_id %>
+  <%= form_with url: game_action_discard_path(@game), method: :post, data: { turbo: true }, id: "auto-form" do |form| %>
+    <%= form.hidden_field :chosen_hand_id, value: @chosen_hand_id %>
   <% end %>
 <% end %>
 
 <script>
-  document.addEventListener('turbo:load', () => {
+  document.addEventListener("turbo:load", () => {
     setTimeout(() => {
-      document.getElementById('auto-form').submit();
+      document.getElementById("auto-form").submit();
     }, 1000);
   });
 </script>
