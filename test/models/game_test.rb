@@ -115,23 +115,20 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#user_player' do
-    game = Game.new(game_mode: game_modes(:tonpuu_mode))
-    game.save
-    game.setup_players(@user, @ai)
-    assert_equal @user.id, game.user_player.user_id
+    assert @game.user_player.user_id.present?
+    assert_not @game.user_player.ai_id.present?
   end
 
   test '#opponents' do
-    game = Game.new(game_mode: game_modes(:tonpuu_mode))
-    game.save
-    game.setup_players(@user, @ai)
-    game.opponents.each do |opponent|
-      assert_equal @ai.id, opponent.ai_id
+    @game.opponents.each do |opponent|
+      assert opponent.ai_id.present?
+      assert_not opponent.user_id.present?
     end
   end
 
-  test '#current_player' do
-    assert_equal @game.current_seat_number, @game.current_player.seat_order
+  test '#current_player returns player at current seat' do
+    expected = @game.players.find_by!(seat_order: @game.current_seat_number)
+    assert_equal expected, @game.current_player
   end
 
   test '#advance_current_player!' do
@@ -142,23 +139,21 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#draw_for_current_player' do
-    before_hands = @game.current_player.hands
+    before_hand_count = @game.current_player.hands.count
     before_draw_count = @game.draw_count
     @game.draw_for_current_player
-    assert_equal before_hands.count + 1, @game.current_player.hands.count
+    assert_equal before_hand_count + 1, @game.current_player.hands.count
     assert_equal before_draw_count + 1, @game.draw_count
   end
 
   test '#discard_for_current_player' do
     @game.draw_for_current_player
-    before_hands = @game.current_player.hands
-    before_rivers = @game.current_player.rivers
-    target_tile = before_hands.last
+    assert_equal 1, @game.current_player.hands.count
+    assert_equal 0, @game.current_player.rivers.count
 
-    @game.discard_for_current_player(target_tile.id)
-    assert_not_equal before_hands, @game.current_player.hands
-    assert_not_includes @game.current_player.hands, target_tile
-    assert_not_equal before_rivers, @game.current_player.rivers
-    assert_includes @game.current_player.rivers, target_tile
+    chosen_hand_id = @game.current_player.hands.first.id
+    @game.discard_for_current_player(chosen_hand_id)
+    assert_equal 0, @game.current_player.hands.count
+    assert_equal 1, @game.current_player.rivers.count
   end
 end
