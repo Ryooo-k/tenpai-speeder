@@ -10,7 +10,8 @@ class GamesController < ApplicationController
     if game.save
       game.setup_players(current_user, ai)
       game.deal_initial_hands
-      redirect_to game_play_path(game, auto_draw: true)
+      flash[:auto] = :draw
+      redirect_to game_play_path(game)
     else
       render :home
     end

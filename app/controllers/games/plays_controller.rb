@@ -2,13 +2,11 @@
 
 class Games::PlaysController < ApplicationController
   before_action :set_game
-  before_action :set_players, only: :show
+  before_action :set_players
 
   def show
-    @auto_draw = play_params[:auto_draw]
-    @auto_choose = play_params[:auto_choose]
-    @auto_discard = play_params[:auto_discard]
-    @chosen_hand_id = play_params[:chosen_hand_id]
+    @auto = flash[:auto]&.to_sym
+    @chosen_hand_id = flash[:chosen_hand_id]
   end
 
   private
@@ -44,9 +42,5 @@ class Games::PlaysController < ApplicationController
     def set_players
       @user_player = @game.user_player
       @opponents = @game.opponents
-    end
-
-    def play_params
-      params.permit(:auto_draw, :auto_choose, :auto_discard, :chosen_hand_id)
     end
 end
