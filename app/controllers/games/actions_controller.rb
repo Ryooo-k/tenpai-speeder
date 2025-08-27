@@ -38,7 +38,7 @@ class Games::ActionsController < ApplicationController
           { player_states: [
             { hands: { tile: :base_tile } },
             { melds:  [ { tile: :base_tile }, :action ] },
-            { rivers: { tile: :base_tile } },
+            { rivers: { tile: :base_tile } }
           ] }
         ] },
         { rounds: [

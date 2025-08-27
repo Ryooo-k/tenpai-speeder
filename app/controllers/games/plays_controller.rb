@@ -21,7 +21,7 @@ class Games::PlaysController < ApplicationController
           { player_states: [
             { hands: { tile: :base_tile } },
             { melds:  [ { tile: :base_tile }, :action ] },
-            { rivers: { tile: :base_tile } },
+            { rivers: { tile: :base_tile } }
           ] }
         ] },
         { rounds: [
