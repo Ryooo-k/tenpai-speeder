@@ -5,7 +5,7 @@ class Games::PlaysController < ApplicationController
   before_action :set_players
 
   def show
-    @auto = flash[:auto]&.to_sym
+    @next_action = flash[:next_action]&.to_sym
     @chosen_hand_id = flash[:chosen_hand_id]
   end
 

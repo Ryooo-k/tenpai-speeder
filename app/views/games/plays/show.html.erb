@@ -3,7 +3,7 @@
   <%= render partial: "opponent", collection: @opponents, as: :player, locals: { user: @user_player } %>
 </div>
 
-<% case @auto %>
+<% case @next_action %>
 <% when :draw %>
   <%= form_with url: game_action_draw_path(@game), method: :post, data: { turbo: true }, id: "auto-form" %>
 <% when :choose %>
