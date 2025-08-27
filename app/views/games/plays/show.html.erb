@@ -2,22 +2,4 @@
   <%= render partial: "user_player", locals: { player: @user_player, game: @game } %>
   <%= render partial: "opponent", collection: @opponents, as: :player, locals: { user: @user_player } %>
 </div>
-
-<% case @next_action %>
-<% when :draw %>
-  <%= form_with url: game_action_draw_path(@game), method: :post, data: { turbo: true }, id: "auto-form" %>
-<% when :choose %>
-  <%= form_with url: game_action_choose_path(@game), method: :post, data: { turbo: true }, id: "auto-form" %>
-<% when :discard %>
-  <%= form_with url: game_action_discard_path(@game), method: :post, data: { turbo: true }, id: "auto-form" do |form| %>
-    <%= form.hidden_field :chosen_hand_id, value: @chosen_hand_id %>
-  <% end %>
-<% end %>
-
-<script>
-  document.addEventListener("turbo:load", () => {
-    setTimeout(() => {
-      document.getElementById("auto-form").submit();
-    }, 1000);
-  });
-</script>
+<%= render partial: "next_action", locals: { next_action: @next_action, game: @game } %>
