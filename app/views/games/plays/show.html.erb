@@ -1,5 +1,5 @@
 <div class="relative mx-auto w-full aspect-[10/7] bg-emerald-600 @container">
-  <%= render partial: "user_player", locals: { player: @user_player, game: @game } %>
+  <%= render partial: "user_player", locals: { player: @user_player } %>
   <%= render partial: "opponent", collection: @opponents, as: :player, locals: { user: @user_player } %>
 </div>
-<%= render partial: "next_action", locals: { next_action: @next_action, game: @game } %>
+<%= render partial: "next_action" %>
