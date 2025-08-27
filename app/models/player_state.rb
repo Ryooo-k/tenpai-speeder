@@ -12,5 +12,5 @@ class PlayerState < ApplicationRecord
   validates :player, presence: true
   validates :step, presence: true
 
-  scope :ordered, -> { joins(:step).order(step_id: :asc) }
+  scope :ordered, -> { order(step_id: :asc) }
 end

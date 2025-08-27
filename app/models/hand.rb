@@ -10,7 +10,9 @@ class Hand < ApplicationRecord
 
   scope :sorted, -> {
     joins(tile: :base_tile)
+      .includes(tile: :base_tile)
       .order(drawn: :asc)
-      .order('base_tiles.code ASC', 'tile.kind ASC')
+      .order('base_tiles.code ASC')
+      .order('tile.kind ASC')
   }
 end

@@ -14,26 +14,20 @@ class Games::PlaysController < ApplicationController
     def set_game
       @game = Game.includes(
         :game_mode,
-        { tiles: :base_tile },
         { players: [
           :user,
           :ai,
-          { game_records: :honba }
+          { game_records: :honba },
+          { player_states: [
+            { hands: { tile: :base_tile } },
+            { melds:  [ { tile: :base_tile }, :action ] },
+            { rivers: { tile: :base_tile } },
+          ] }
         ] },
         { rounds: [
           honbas: [
             { tile_orders: { tile: :base_tile } },
-            { turns: {
-              steps: [
-                { actions: :player },
-                { player_states: [
-                  { hands: { tile: :base_tile } },
-                  { melds:  [ { tile: :base_tile }, :action ] },
-                  { rivers: { tile: :base_tile } },
-                  :player
-                ] }
-              ]
-            } }
+            { turns: :steps }
           ]
         ] }
       ).find(params[:game_id])
