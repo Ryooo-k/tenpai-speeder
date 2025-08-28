@@ -27,7 +27,7 @@ class Player < ApplicationRecord
   end
 
   def rivers
-    current_state.rivers.ordered
+    current_rivers&.ordered
   end
 
   def receive(tile)
@@ -43,10 +43,9 @@ class Player < ApplicationRecord
   def discard(chosen_hand_id, step)
     chosen_hand = current_state.hands.find(chosen_hand_id)
     current_hands = current_state.hands
-    current_rivers = current_state.rivers
     player_states.create!(step:)
     create_discarded_hands(current_hands, chosen_hand)
-    create_rivers(current_rivers, chosen_hand)
+    create_rivers(chosen_hand)
   end
 
   # ai用打牌選択のメソッド
@@ -92,6 +91,10 @@ class Player < ApplicationRecord
       player_states.ordered.last
     end
 
+    def current_rivers
+      player_states.with_rivers.last&.rivers
+    end
+
     def create_drawn_hands(current_hands, drawn_tile)
       current_hands.each { |hand| current_state.hands.create!(tile_id: hand.tile_id) }
       current_state.hands.create!(tile: drawn_tile, drawn: true)
@@ -102,8 +105,8 @@ class Player < ApplicationRecord
       new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
     end
 
-    def create_rivers(current_rivers, chosen_hand)
-      current_rivers.each { |river| current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, created_at: river.created_at) }
+    def create_rivers(chosen_hand)
+      current_rivers.each { |river| current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?) } if current_rivers
       current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
     end
 end
