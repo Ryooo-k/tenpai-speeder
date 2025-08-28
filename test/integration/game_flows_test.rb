@@ -1,0 +1,78 @@
+# frozen_string_literal: true
+
+require 'test_helper'
+require 'helpers/game_test_helper'
+
+class GameFlowsTest < ActionDispatch::IntegrationTest
+  include GameTestHelper
+
+  def setup
+    post '/guest_login'
+    post games_path, params: { game_mode_id: game_modes(:training_mode).id }
+    @game = find_game_from_url
+    follow_redirect!
+  end
+
+  test 'first visit renders draw auto-submit form' do
+    assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
+  end
+
+  test 'draw action increases current player hand' do
+    initial_hand_count = @game.current_player.hands.count
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    assert_equal initial_hand_count + 1, @game.current_player.hands.count
+  end
+
+  test 'discard action decrements current player hand' do
+    initial_hand_count = @game.current_player.hands.count
+    chosen_hand = @game.current_player.hands.sample
+    post game_action_discard_path, params: { game_id: @game.id, chosen_hand_id: chosen_hand.id }
+    assert_response :redirect
+    assert_equal initial_hand_count - 1, @game.current_player.hands.count
+  end
+
+  test 'AI player renders auto-submit forms in order: draw → choose → discard' do
+    @game.advance_current_player! unless @game.current_player.ai?
+    assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom "form[data-controller='auto-submit'][action='#{game_action_choose_path(@game)}']"
+    post game_action_choose_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom "form[data-controller='auto-submit'][action='#{game_action_discard_path(@game)}']"
+  end
+
+  test 'user player renders forms in order: draw → discard' do
+    @game.advance_current_player! while @game.current_player.ai?
+    assert_response :success
+    assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom "form[action='#{game_action_discard_path(@game)}']"
+    chosen_hand = @game.current_player.hands.sample
+    post game_action_discard_path, params: { game_id: @game.id, chosen_hand_id: chosen_hand.id  }
+    assert_response :redirect
+  end
+
+  test 'next player draws when current player discards' do
+    before_player = @game.current_player.dup
+    chosen_hand = @game.current_player.hands.sample
+    post game_action_discard_path, params: { game_id: @game.id, chosen_hand_id: chosen_hand.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
+    assert_not_equal before_player, @game.current_player
+  end
+end
