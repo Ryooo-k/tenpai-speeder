@@ -5,11 +5,15 @@ class Round < ApplicationRecord
 
   has_many :honbas, dependent: :destroy
 
+  validates :game, presence: true
   validates :number, presence: true
   validates :host_position, presence: true
-  validates :game, presence: true
 
   after_create :create_honba
+
+  def current_honba
+    honbas.order(:number).last
+  end
 
   private
 

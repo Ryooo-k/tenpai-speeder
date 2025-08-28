@@ -11,4 +11,6 @@ class PlayerState < ApplicationRecord
   validates :riichi, inclusion: { in: [ true, false ] }
   validates :player, presence: true
   validates :step, presence: true
+
+  scope :ordered, -> { order(step_id: :asc) }
 end

@@ -5,10 +5,14 @@ class Turn < ApplicationRecord
 
   has_many :steps, dependent: :destroy
 
-  validates :number, presence: true
   validates :honba, presence: true
+  validates :number, presence: true
 
   after_create :create_step
+
+  def current_step(number: nil)
+    steps.order(:number).last
+  end
 
   private
 

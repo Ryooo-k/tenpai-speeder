@@ -7,4 +7,6 @@ class River < ApplicationRecord
   validates :tsumogiri, inclusion: { in: [ true, false ] }
   validates :player_state, presence: true
   validates :tile, presence: true
+
+  scope :ordered, -> { order(:created_at) }
 end

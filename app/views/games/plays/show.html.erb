@@ -1,6 +1,5 @@
 <div class="relative mx-auto w-full aspect-[10/7] bg-emerald-600 @container">
-  <% @game.players.each do |player| %>
-    <% view_position = determine_view_position(player, @viewer) %>
-    <%= render partial: "#{view_position}_player", locals: { player:, game: @game } %>
-  <% end %>
+  <%= render partial: "user_player", locals: { player: @user_player } %>
+  <%= render partial: "opponent", collection: @opponents, as: :player, locals: { user: @user_player } %>
 </div>
+<%= render partial: "next_action" %>

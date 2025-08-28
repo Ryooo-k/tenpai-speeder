@@ -1,9 +1,8 @@
-<% flash.each do |type, message| %>
+<% flash.to_h.slice('notice', 'alert').each do |type, message| %>
   <% color =
     case type
     when 'notice' then 'bg-emerald-100 text-emerald-800'
     when 'alert'  then 'bg-red-100 text-red-800'
-    else               'bg-gray-100 text-gray-800'
     end %>
 
   <div class="mx-auto max-w-xl my-4 rounded p-3 <%= color %>">

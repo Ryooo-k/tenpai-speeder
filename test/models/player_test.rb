@@ -4,32 +4,36 @@ require 'test_helper'
 
 class PlayerTest < ActiveSupport::TestCase
   def setup
-    @ryo = players(:ryo)
+    @user_player = players(:ryo)
+    @ai_player = players(:menzen_tenpai_speeder)
     @user = users(:ryo)
     @game = games(:tonpuu)
+    @manzu_1 = tiles(:first_manzu_1)
+    @manzu_2 = tiles(:first_manzu_2)
+    @manzu_3 = tiles(:first_manzu_3)
   end
 
   test 'destroying player should also destroy results' do
-    assert_difference('Result.count', -@ryo.results.count) do
-      @ryo.destroy
+    assert_difference('Result.count', -@user_player.results.count) do
+      @user_player.destroy
     end
   end
 
   test 'destroying player should also destroy game_records' do
-    assert_difference('GameRecord.count', -@ryo.game_records.count) do
-      @ryo.destroy
+    assert_difference('GameRecord.count', -@user_player.game_records.count) do
+      @user_player.destroy
     end
   end
 
   test 'destroying player should also destroy actions' do
-    assert_difference('Action.count', -@ryo.actions.count) do
-      @ryo.destroy
+    assert_difference('Action.count', -@user_player.actions.count) do
+      @user_player.destroy
     end
   end
 
   test 'destroying player should also destroy player_states' do
-    assert_difference('PlayerState.count', -@ryo.player_states.count) do
-      @ryo.destroy
+    assert_difference('PlayerState.count', -@user_player.player_states.count) do
+      @user_player.destroy
     end
   end
 
@@ -70,43 +74,88 @@ class PlayerTest < ActiveSupport::TestCase
     assert_includes player.errors[:base], 'UserとAIの両方を同時に指定することはできません'
   end
 
-  test '#create_game_record' do
-    assert_equal 1, @ryo.game_records.count
-    @ryo.create_game_record(honbas(:ton_1_kyoku_0_honba))
-    assert_equal 2, @ryo.game_records.count
+  test '#hands return sorted hands of current_state' do
+    current_state = @user_player.player_states.ordered.last
+    current_state.hands.delete_all
+
+    drawn_hand = current_state.hands.create!(tile: @manzu_1, drawn: true)
+    hand_3 = current_state.hands.create!(tile: @manzu_3)
+    hand_2 = current_state.hands.create!(tile: @manzu_2)
+    assert_equal [ hand_2, hand_3, drawn_hand ], @user_player.hands
   end
 
-  test '#create_state' do
-    assert_equal 1, @ryo.player_states.count
-    @ryo.create_state(steps(:step_1))
-    assert_equal 2, @ryo.player_states.count
-  end
+  test '#rivers return ordered rivers of current_state' do
+    current_state = @user_player.player_states.ordered.last
+    current_state.rivers.delete_all
 
-  test '#state return latest player_state' do
-    old_state = @ryo.player_states.create!(step: steps(:step_1), created_at: 1.hour.ago)
-    new_state = @ryo.player_states.create!(step: steps(:step_2), created_at: Time.current)
-    assert_not_equal old_state, @ryo.state
-    assert_equal new_state, @ryo.state
-  end
-
-  test '#hands return latest sorted tiles' do
-    old_hands = @ryo.hands
-    manzu_1 = tiles(:first_manzu_1)
-    manzu_9 = tiles(:first_manzu_9)
-    new_state = @ryo.player_states.create!(step: steps(:step_1))
-    new_state.hands.create!(tile: manzu_9)
-    new_state.hands.create!(tile: manzu_1)
-    assert_not_equal old_hands, @ryo.hands
-    assert_equal [ manzu_1, manzu_9 ], @ryo.hands
+    first_river = current_state.rivers.create!(tile: @manzu_3, tsumogiri: false)
+    second_river = current_state.rivers.create!(tile: @manzu_1, tsumogiri: false)
+    third_river = current_state.rivers.create!(tile: @manzu_2, tsumogiri: false)
+    assert_equal [ first_river, second_river, third_river ], current_state.rivers
   end
 
   test '#receive' do
-    assert_equal 0, @ryo.hands.count
-    assert_equal 0, @ryo.game.current_honba.draw_count
+    before_state_count = @user_player.player_states.count
+    @user_player.receive(@manzu_2)
+    current_hand_tiles = @user_player.player_states.ordered.last.hands.all.map(&:tile)
+    assert_equal [ @manzu_2 ], current_hand_tiles
+    assert_equal before_state_count, @user_player.player_states.count
 
-    @ryo.receive(tiles(:first_manzu_1))
-    assert_equal 1, @ryo.hands.count
-    assert_equal 1, @ryo.game.current_honba.draw_count
+    @user_player.receive(@manzu_1)
+    current_hand_tiles = @user_player.player_states.ordered.last.hands.all.map(&:tile)
+    assert_equal [ @manzu_2, @manzu_1 ], current_hand_tiles
+    assert_equal before_state_count, @user_player.player_states.count
+  end
+
+  test '#draw' do
+    before_state_count = @user_player.player_states.count
+    @user_player.draw(@manzu_3, steps(:step_1))
+    step_1_hands = @user_player.player_states.ordered.last.hands.all
+    assert_equal [ @manzu_3 ], step_1_hands.map(&:tile)
+    assert step_1_hands.last.drawn?
+    assert_equal before_state_count + 1, @user_player.player_states.count
+
+    @user_player.draw(@manzu_1, steps(:step_2))
+    step_2_hands = @user_player.player_states.ordered.last.hands.all
+    assert_equal [ @manzu_3, @manzu_1 ], step_2_hands.map(&:tile)
+    assert step_2_hands.last.drawn?
+    assert_not step_2_hands.first.drawn?
+    assert_equal before_state_count + 2, @user_player.player_states.count
+
+    @user_player.draw(@manzu_2, steps(:step_3))
+    step_3_hands = @user_player.player_states.ordered.last.hands.all
+    assert_equal [ @manzu_3, @manzu_1, @manzu_2 ], step_3_hands.map(&:tile)
+    assert step_3_hands.last.drawn?
+    step_3_hands[...-1].each { |hand| assert_not hand.drawn? }
+    assert_equal before_state_count + 3, @user_player.player_states.count
+  end
+
+  test '#discard' do
+    @user_player.draw(@manzu_1, steps(:step_1))
+    @user_player.draw(@manzu_2, steps(:step_2))
+    assert_equal [ @manzu_1, @manzu_2 ], @user_player.hands.all.map(&:tile)
+    assert_equal [], @user_player.rivers
+
+    before_state_count = @user_player.player_states.count
+    manzu_2_hand_id = @user_player.hands.last.id
+    @user_player.discard(manzu_2_hand_id, steps(:step_3))
+    assert_equal [ @manzu_1 ], @user_player.hands.all.map(&:tile)
+    assert_equal [ @manzu_2 ], @user_player.rivers.map(&:tile)
+    assert @user_player.rivers.first.tsumogiri?
+    assert_equal before_state_count + 1, @user_player.player_states.count
+
+    manzu_1_hand_id = @user_player.hands.first.id
+    @user_player.discard(manzu_1_hand_id, steps(:step_4))
+    assert_equal [], @user_player.hands.all.map(&:tile)
+    assert_equal [ @manzu_2, @manzu_1 ], @user_player.rivers.map(&:tile)
+    assert @user_player.rivers.first.tsumogiri?
+    assert_not @user_player.rivers.last.tsumogiri?
+    assert_equal before_state_count + 2, @user_player.player_states.count
+  end
+
+  test '#ai?' do
+    assert_not @user_player.ai?
+    assert @ai_player.ai?
   end
 
   test '#shimocha?' do

@@ -3,10 +3,13 @@
 require 'test_helper'
 
 class TurnTest < ActiveSupport::TestCase
+  def setup
+    @turn = turns(:turn_1)
+  end
+
   test 'destroying turn should also destroy steps' do
-    turn = turns(:turn_1)
-    assert_difference('Step.count', -turn.steps.count) do
-      turn.destroy
+    assert_difference('Step.count', -@turn.steps.count) do
+      @turn.destroy
     end
   end
 
@@ -30,5 +33,11 @@ class TurnTest < ActiveSupport::TestCase
     assert_equal 0, turn.steps.count
     turn.save
     assert_equal 1, turn.steps.count
+  end
+
+  test '#current_step' do
+    max_number = @turn.steps.maximum(:number)
+    expected = @turn.steps.find_by(number: max_number)
+    assert_equal expected, @turn.current_step
   end
 end

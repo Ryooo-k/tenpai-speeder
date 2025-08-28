@@ -10,7 +10,10 @@ Rails.application.routes.draw do
   resources :games, only: :create do
     scope module: :games do
       resource :play,   only: :show
-      resource :action, only: :create
+
+      post 'action/draw',    to: 'actions#draw'
+      post 'action/choose',  to: 'actions#choose'
+      post 'action/discard', to: 'actions#discard'
     end
   end
 end

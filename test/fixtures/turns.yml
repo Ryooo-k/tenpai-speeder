@@ -1,3 +1,7 @@
 turn_1:
   honba: ton_1_kyoku_0_honba
   number: 0
+
+turn_2:
+  honba: ton_1_kyoku_0_honba
+  number: 1

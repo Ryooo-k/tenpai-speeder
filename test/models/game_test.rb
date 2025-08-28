@@ -5,6 +5,8 @@ require 'test_helper'
 class GameTest < ActiveSupport::TestCase
   def setup
     @game = games(:tonpuu)
+    @user = users(:ryo)
+    @ai = ais(:menzen_tenpai_speeder)
   end
 
   test 'destroying game should also destroy players' do
@@ -48,7 +50,11 @@ class GameTest < ActiveSupport::TestCase
     assert game.invalid?
   end
 
-  test 'creates first round and 136 tiles when after_create calls setup_initial_game' do
+  test 'current_seat_number default to 0' do
+    assert_equal 0, @game.current_seat_number
+  end
+
+  test 'creates first round and 136 tiles when after_create calls create_tiles_and_round' do
     game = Game.new(game_mode: game_modes(:tonpuu_mode))
     assert_equal 0, game.rounds.count
     assert_equal 0, game.tiles.count
@@ -68,22 +74,20 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#setup_players creates 4 players and game_record' do
-    user = users(:ryo)
-    ai = ais(:menzen_tenpai_speeder)
     game = Game.new(game_mode: game_modes(:tonpuu_mode))
     assert_equal 0, game.players.count
 
     game.save
-    game.setup_players(user, ai)
+    game.setup_players(@user, @ai)
     assert_equal 4, game.players.count
     game.players.each do |player|
       assert_equal 1, player.game_records.count
     end
 
-    user_players = game.players.where(user_id: user.id)
+    user_players = game.players.where(user_id: @user.id)
     assert_equal 1, user_players.count
 
-    ai_players = game.players.where(ai_id: ai.id)
+    ai_players = game.players.where(ai_id: @ai.id)
     assert_equal 3, ai_players.count
   end
 
@@ -98,14 +102,58 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#deal_initial_hands creates 13 hands for each player' do
-    game = games(:tonpuu)
-    game.players.each do |player|
+    @game.players.each do |player|
       assert_equal 0, player.hands.count
     end
+    assert_equal 0, @game.draw_count
 
-    game.deal_initial_hands
-    game.players.ordered.each do |player|
+    @game.deal_initial_hands
+    @game.players.ordered.each do |player|
       assert_equal 13, player.hands.count
     end
+    assert_equal 52, @game.draw_count
+  end
+
+  test '#user_player' do
+    assert @game.user_player.user_id.present?
+    assert_not @game.user_player.ai_id.present?
+  end
+
+  test '#opponents' do
+    @game.opponents.each do |opponent|
+      assert opponent.ai_id.present?
+      assert_not opponent.user_id.present?
+    end
+  end
+
+  test '#current_player returns player at current seat' do
+    expected = @game.players.find_by!(seat_order: @game.current_seat_number)
+    assert_equal expected, @game.current_player
+  end
+
+  test '#advance_current_player!' do
+    before_current_player = @game.current_player
+    @game.advance_current_player!
+    assert_not_equal before_current_player, @game.current_player
+    assert_equal @game.current_seat_number, @game.current_player.seat_order
+  end
+
+  test '#draw_for_current_player' do
+    before_hand_count = @game.current_player.hands.count
+    before_draw_count = @game.draw_count
+    @game.draw_for_current_player
+    assert_equal before_hand_count + 1, @game.current_player.hands.count
+    assert_equal before_draw_count + 1, @game.draw_count
+  end
+
+  test '#discard_for_current_player' do
+    @game.draw_for_current_player
+    assert_equal 1, @game.current_player.hands.count
+    assert_equal 0, @game.current_player.rivers.count
+
+    chosen_hand_id = @game.current_player.hands.first.id
+    @game.discard_for_current_player(chosen_hand_id)
+    assert_equal 0, @game.current_player.hands.count
+    assert_equal 1, @game.current_player.rivers.count
   end
 end
