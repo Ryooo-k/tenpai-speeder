@@ -1,13 +1,19 @@
 <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
-  <%= form_with url: game_action_discard_path(@game) do |form| %>
+  <% if user.drawn? %>
+    <%= form_with url: game_action_discard_path(@game) do |form| %>
+      <div class="flex">
+        <%= render partial: "games/hands/hand", collection: user.hands, locals: { form:, user_drawn: true } %>
+      </div>
+    <% end %>
+  <% else %>
     <div class="flex">
-      <%= render partial: "games/hands/user_hand", collection: player.hands, as: :hand, locals: { form: } %>
+      <%= render partial: "games/hands/hand", collection: user.hands, locals: { user_drawn: false } %>
     </div>
   <% end %>
-</div>
+</div> 
 
 <div class="absolute top-2/3 left-1/2 -translate-x-1/2">
   <div class="grid grid-cols-6 grid-rows-4 place-items-center">
-    <%= render partial: "games/rivers/river", collection: player.rivers %>
+    <%= render partial: "games/rivers/river", collection: user.rivers %>
   </div>
 </div>
