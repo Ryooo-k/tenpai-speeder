@@ -77,6 +77,10 @@ class Player < ApplicationRecord
     seat_order == kamicha_seat_order
   end
 
+  def drawn?
+    hands.any?(&:drawn?)
+  end
+
   private
 
     def validate_player_type
