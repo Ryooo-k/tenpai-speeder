@@ -131,22 +131,22 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#discard' do
-    @user_player.draw(@manzu_1, steps(:step_1))
-    @user_player.draw(@manzu_2, steps(:step_2))
-    assert_equal [ @manzu_1, @manzu_2 ], @user_player.hands.all.map(&:tile)
-    assert_equal [], @user_player.rivers
+    hand_1 = @user_player.hands.create!(tile: @manzu_1)
+    hand_2 = @user_player.hands.create!(tile: @manzu_2, drawn: true)
+    assert_equal [ hand_1, hand_2 ], @user_player.hands
+    assert_not @user_player.rivers
 
     before_state_count = @user_player.player_states.count
-    manzu_2_hand_id = @user_player.hands.last.id
-    @user_player.discard(manzu_2_hand_id, steps(:step_3))
-    assert_equal [ @manzu_1 ], @user_player.hands.all.map(&:tile)
+    @user_player.discard(hand_2.id, steps(:step_2))
+    assert_equal [ @manzu_1 ], @user_player.hands.map(&:tile)
     assert_equal [ @manzu_2 ], @user_player.rivers.map(&:tile)
     assert @user_player.rivers.first.tsumogiri?
     assert_equal before_state_count + 1, @user_player.player_states.count
+    assert_not_equal hand_1, @user_player.hands.first
 
-    manzu_1_hand_id = @user_player.hands.first.id
-    @user_player.discard(manzu_1_hand_id, steps(:step_4))
-    assert_equal [], @user_player.hands.all.map(&:tile)
+    manzu_1_hand_id = @user_player.hands.last.id
+    @user_player.discard(manzu_1_hand_id, steps(:step_3))
+    assert_equal [], @user_player.hands
     assert_equal [ @manzu_2, @manzu_1 ], @user_player.rivers.map(&:tile)
     assert @user_player.rivers.first.tsumogiri?
     assert_not @user_player.rivers.last.tsumogiri?
