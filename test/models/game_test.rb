@@ -147,12 +147,11 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#discard_for_current_player' do
-    @game.draw_for_current_player
+    hand = @game.current_player.hands.create!(tile: tiles(:first_manzu_1))
     assert_equal 1, @game.current_player.hands.count
-    assert_equal 0, @game.current_player.rivers.count
+    assert_not @game.current_player.rivers
 
-    chosen_hand_id = @game.current_player.hands.first.id
-    @game.discard_for_current_player(chosen_hand_id)
+    @game.discard_for_current_player(hand.id)
     assert_equal 0, @game.current_player.hands.count
     assert_equal 1, @game.current_player.rivers.count
   end

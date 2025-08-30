@@ -13,4 +13,5 @@ class PlayerState < ApplicationRecord
   validates :step, presence: true
 
   scope :ordered, -> { order(step_id: :asc) }
+  scope :with_rivers, -> { where.associated(:rivers) }
 end

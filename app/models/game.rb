@@ -67,8 +67,8 @@ class Game < ApplicationRecord
     increase_draw_count
   end
 
-  def discard_for_current_player(tile_id)
-    current_player.discard(tile_id, next_step)
+  def discard_for_current_player(hand_id)
+    current_player.discard(hand_id, next_step)
   end
 
   private

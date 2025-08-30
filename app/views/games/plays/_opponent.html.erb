@@ -3,3 +3,9 @@
     <%= render partial: "games/hands/opponent_hand", collection: player.hands, as: :hand %>
   </div>
 </div>
+
+<div class="<%= build_river_position_class(player, user) %>">
+  <div class="grid grid-cols-6 grid-rows-4 place-items-center">
+    <%= render partial: "games/rivers/river", collection: player.rivers %>
+  </div>
+</div>
