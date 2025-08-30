@@ -33,7 +33,7 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
   end
 
   test 'AI player renders auto-submit forms in order: draw → choose → discard' do
-    @game.advance_current_player! unless @game.current_player.ai?
+    set_opponent_turn(@game)
     assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
     post game_action_draw_path, params: { game_id: @game.id }
     assert_response :redirect
@@ -50,8 +50,7 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
   end
 
   test 'user player renders forms in order: draw → discard' do
-    @game.advance_current_player! while @game.current_player.ai?
-    assert_response :success
+    set_user_turn(@game)
     assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
     post game_action_draw_path, params: { game_id: @game.id }
     assert_response :redirect
@@ -74,5 +73,14 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
     assert_not_equal before_player, @game.current_player
+  end
+
+  test 'renders selectable hands only when drawn user turn' do
+    set_user_turn(@game)
+    assert_not_dom 'input[type=radio][name=?]', 'chosen_hand_id'
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_dom 'input[type=radio][name=chosen_hand_id]'
   end
 end

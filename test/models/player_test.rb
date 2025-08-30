@@ -175,4 +175,12 @@ class PlayerTest < ActiveSupport::TestCase
     kamicha_player = Player.new(user: @user, game: @game, seat_order: 3)
     assert kamicha_player.kamicha?(main_player)
   end
+
+  test 'drawn?' do
+    @user_player.hands.create!(tile: @manzu_1)
+    assert_not @user_player.drawn?
+
+    @user_player.hands.create!(tile: @manzu_2, drawn: true)
+    assert @user_player.drawn?
+  end
 end
