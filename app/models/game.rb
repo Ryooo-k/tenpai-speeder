@@ -71,6 +71,22 @@ class Game < ApplicationRecord
     current_player.discard(hand_id, next_step)
   end
 
+  def current_round_name
+    current_round.name
+  end
+
+  def current_honba_name
+    current_honba.name
+  end
+
+  def remaining_tile_count
+    current_honba.remaining_tile_count
+  end
+
+  def dora_indicator_tiles
+    current_honba.dora_indicator_tiles.values_at(..3)
+  end
+
   private
 
     def create_tiles_and_round

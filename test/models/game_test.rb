@@ -155,4 +155,56 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 0, @game.current_player.hands.count
     assert_equal 1, @game.current_player.rivers.count
   end
+
+  test '#current_round_name' do
+    current_round = @game.rounds.order(:number).last
+    current_round.update!(number: 0)
+    assert_equal '東一局', @game.current_round_name
+
+    current_round.update!(number: 1)
+    assert_equal '東二局', @game.current_round_name
+
+    current_round.update!(number: 4)
+    assert_equal '南一局', @game.current_round_name
+  end
+
+  test '#current_honba_name' do
+    current_honba = @game.rounds.order(:number).last.current_honba
+    current_honba.update!(number: 0)
+    assert_equal '〇本場', @game.current_honba_name
+
+    current_honba.update!(number: 1)
+    assert_equal '一本場', @game.current_honba_name
+
+    current_honba.update!(number: 4)
+    assert_equal '四本場', @game.current_honba_name
+  end
+
+  test '#current_remaining_tile_count' do
+    current_honba = @game.rounds.order(:number).last.current_honba
+    current_honba.update!(draw_count: 0)
+    current_honba.update!(kan_count: 0)
+    assert_equal 122, @game.remaining_tile_count
+
+    current_honba.update!(draw_count: 10)
+    assert_equal 112, @game.remaining_tile_count
+
+    current_honba.update!(kan_count: 2)
+    assert_equal 110, @game.remaining_tile_count
+  end
+
+  test '#dora_indicator_tiles' do
+    current_honba = @game.rounds.order(:number).last.current_honba
+    current_honba.update!(kan_count: 0)
+    assert_equal [ Tile, NilClass, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
+
+    current_honba.update!(kan_count: 1)
+    assert_equal [ Tile, Tile, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
+
+    current_honba.update!(kan_count: 2)
+    assert_equal [ Tile, Tile, Tile, NilClass ], @game.dora_indicator_tiles.map(&:class)
+
+    current_honba.update!(kan_count: 3)
+    assert_equal [ Tile, Tile, Tile, Tile ], @game.dora_indicator_tiles.map(&:class)
+  end
 end
