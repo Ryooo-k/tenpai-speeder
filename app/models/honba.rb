@@ -2,6 +2,7 @@
 
 class Honba < ApplicationRecord
   MAX_DRAW_COUNT = 122
+  DORA_INDICATOR_ORDER_RANGE = (122..126)
 
   belongs_to :round
 
@@ -35,7 +36,7 @@ class Honba < ApplicationRecord
   end
 
   def dora_indicator_tiles
-    dora_tiles = tile_orders.where(order: 122..125).order(:order).map(&:tile)
+    dora_tiles = tile_orders.where(order: DORA_INDICATOR_ORDER_RANGE).order(:order).map(&:tile)
     dora_tiles[..kan_count]
   end
 

@@ -133,5 +133,10 @@ class HonbaTest < ActiveSupport::TestCase
     fourth_dora_order = 125
     fourth_dora_tile = @honba.tile_orders.find_by(order: fourth_dora_order).tile
     assert_equal [ first_dora_tile, second_dora_tile, third_dora_tile, fourth_dora_tile ], @honba.dora_indicator_tiles
+
+    @honba.kan_count = 4
+    fifth_dora_order = 126
+    fifth_dora_tile = @honba.tile_orders.find_by(order: fifth_dora_order).tile
+    assert_equal [ first_dora_tile, second_dora_tile, third_dora_tile, fourth_dora_tile, fifth_dora_tile ], @honba.dora_indicator_tiles
   end
 end
