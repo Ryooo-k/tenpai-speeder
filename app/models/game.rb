@@ -91,6 +91,10 @@ class Game < ApplicationRecord
     players.find_by!(seat_order: current_round.host_seat_number)
   end
 
+  def riichi_stick_count
+    current_honba.riichi_stick_count
+  end
+
   private
 
     def create_tiles_and_round

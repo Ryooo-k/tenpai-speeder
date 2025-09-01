@@ -215,4 +215,13 @@ class GameTest < ActiveSupport::TestCase
     expected = @game.rounds.order(:number).last.host_seat_number
     assert_equal expected, @game.host_player.seat_order
   end
+
+  test '#riichi_stick_count' do
+    current_honba = @game.rounds.order(:number).last.current_honba
+    current_honba.update!(riichi_stick_count: 0)
+    assert_equal 0, @game.riichi_stick_count
+
+    current_honba.update!(riichi_stick_count: 1)
+    assert_equal 1, @game.riichi_stick_count
+  end
 end
