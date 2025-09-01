@@ -14,3 +14,11 @@
     <% end %>
   </div>
 </div>
+
+<% @game.players.each do |player| %>
+  <div class="absolute <%= build_player_info_class(player) %> text-center">
+    <div><%= player.name %></div>
+    <div><%= player.wind_name %></div>
+    <div><%= player.score %></div>
+  </div>
+<% end %>
