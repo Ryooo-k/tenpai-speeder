@@ -2,6 +2,10 @@
 
 class Player < ApplicationRecord
   PLAYERS_COUNT = 4
+  TON_TILE_CODE = 27
+  NAN_TILE_CODE = 28
+  SHA_TILE_CODE = 29
+  PEI_TILE_CODE = 30
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -62,23 +66,41 @@ class Player < ApplicationRecord
     ai_id.present?
   end
 
-  def shimocha?(player)
-    shimocha_seat_order = (player.seat_order + 1) % PLAYERS_COUNT
-    seat_order == shimocha_seat_order
-  end
+  def relation_from_user
+    relation_seat_number = (user_seat_number - seat_order) % PLAYERS_COUNT
 
-  def toimen?(player)
-    toimen_seat_order = (player.seat_order + 2) % PLAYERS_COUNT
-    seat_order == toimen_seat_order
-  end
-
-  def kamicha?(player)
-    kamicha_seat_order = (player.seat_order + 3) % PLAYERS_COUNT
-    seat_order == kamicha_seat_order
+    case relation_seat_number
+    when 0 then :self
+    when 1 then :kamicha
+    when 2 then :toimen
+    when 3 then :shimocha
+    end
   end
 
   def drawn?
     hands.any?(&:drawn?)
+  end
+
+  def score
+    game_records.ordered.last.score
+  end
+
+  def wind_name
+    case wind_seat_number
+    when 0 then '東'
+    when 1 then '北'
+    when 2 then '西'
+    when 3 then '南'
+    end
+  end
+
+  def wind_code
+    case wind_seat_number
+    when 0 then TON_TILE_CODE
+    when 1 then PEI_TILE_CODE
+    when 2 then SHA_TILE_CODE
+    when 3 then NAN_TILE_CODE
+    end
   end
 
   private
@@ -112,5 +134,17 @@ class Player < ApplicationRecord
     def create_rivers(chosen_hand)
       current_rivers.each { |river| current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?) } if current_rivers
       current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
+    end
+
+    def user_seat_number
+      game.user_player.seat_order
+    end
+
+    def host_seat_number
+      game.host_player.seat_order
+    end
+
+    def wind_seat_number
+      (host_seat_number - seat_order) % PLAYERS_COUNT
     end
 end

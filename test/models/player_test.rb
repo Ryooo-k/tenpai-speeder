@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'minitest/mock'
 
 class PlayerTest < ActiveSupport::TestCase
   def setup
     @user_player = players(:ryo)
     @ai_player = players(:menzen_tenpai_speeder)
     @user = users(:ryo)
+    @ai = ais(:tenpai_speeder)
     @game = games(:tonpuu)
     @manzu_1 = tiles(:first_manzu_1)
     @manzu_2 = tiles(:first_manzu_2)
@@ -158,29 +160,159 @@ class PlayerTest < ActiveSupport::TestCase
     assert @ai_player.ai?
   end
 
-  test '#shimocha?' do
-    main_player = Player.new(user: @user, game: @game, seat_order: 0)
-    shimocha_player = Player.new(user: @user, game: @game, seat_order: 1)
-    assert shimocha_player.shimocha?(main_player)
+  test 'relation_from_user' do
+    @ai_player.stub(:user_seat_number, 0) do
+      @ai_player.seat_order = 1
+      assert_equal :shimocha, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 2
+      assert_equal :toimen, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 3
+      assert_equal :kamicha, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 0
+      assert_equal :self, @ai_player.relation_from_user
+    end
+
+    @ai_player.stub(:user_seat_number, 1) do
+      @ai_player.seat_order = 2
+      assert_equal :shimocha, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 3
+      assert_equal :toimen, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 0
+      assert_equal :kamicha, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 1
+      assert_equal :self, @ai_player.relation_from_user
+    end
+
+    @ai_player.stub(:user_seat_number, 2) do
+      @ai_player.seat_order = 3
+      assert_equal :shimocha, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 0
+      assert_equal :toimen, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 1
+      assert_equal :kamicha, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 2
+      assert_equal :self, @ai_player.relation_from_user
+    end
+
+    @ai_player.stub(:user_seat_number, 3) do
+      @ai_player.seat_order = 0
+      assert_equal :shimocha, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 1
+      assert_equal :toimen, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 2
+      assert_equal :kamicha, @ai_player.relation_from_user
+
+      @ai_player.seat_order = 3
+      assert_equal :self, @ai_player.relation_from_user
+    end
   end
 
-  test '#toimen?' do
-    main_player = Player.new(user: @user, game: @game, seat_order: 0)
-    toimen_player = Player.new(user: @user, game: @game, seat_order: 2)
-    assert toimen_player.toimen?(main_player)
-  end
-
-  test '#kamicha?' do
-    main_player = Player.new(user: @user, game: @game, seat_order: 0)
-    kamicha_player = Player.new(user: @user, game: @game, seat_order: 3)
-    assert kamicha_player.kamicha?(main_player)
-  end
-
-  test 'drawn?' do
+  test '#drawn?' do
     @user_player.hands.create!(tile: @manzu_1)
     assert_not @user_player.drawn?
 
     @user_player.hands.create!(tile: @manzu_2, drawn: true)
     assert @user_player.drawn?
+  end
+
+  test '#score' do
+    ton_1 = Round.create!(game: @game, number: 0)
+    ton_1_honba_0 = Honba.create!(round: ton_1, number: 0)
+    @user_player.game_records.create!(honba: ton_1_honba_0, score: 25000)
+    assert_equal 25000, @user_player.score
+
+    ton_1_honba_1 = Honba.create!(round: ton_1, number: 1)
+    @user_player.game_records.create!(honba: ton_1_honba_1, score: 33000)
+    assert_equal 33000, @user_player.score
+
+    ton_2 = Round.create!(game: @game, number: 1)
+    ton_2_honba_0 = Honba.create!(round: ton_2, number: 0)
+    @user_player.game_records.create!(honba: ton_2_honba_0, score: 45000)
+    assert_equal 45000, @user_player.score
+  end
+
+  test '#wind_name and #wind_code' do
+    @user_player.stub(:host_seat_number, 0) do
+      @user_player.seat_order = 0
+      assert_equal '東', @user_player.wind_name
+      assert_equal base_tiles(:ton).code, @user_player.wind_code
+
+      @user_player.seat_order = 1
+      assert_equal '南', @user_player.wind_name
+      assert_equal base_tiles(:nan).code, @user_player.wind_code
+
+      @user_player.seat_order = 2
+      assert_equal '西', @user_player.wind_name
+      assert_equal base_tiles(:sha).code, @user_player.wind_code
+
+      @user_player.seat_order = 3
+      assert_equal '北', @user_player.wind_name
+      assert_equal base_tiles(:pei).code, @user_player.wind_code
+    end
+
+    @user_player.stub(:host_seat_number, 1) do
+      @user_player.seat_order = 0
+      assert_equal '北', @user_player.wind_name
+      assert_equal base_tiles(:pei).code, @user_player.wind_code
+
+      @user_player.seat_order = 1
+      assert_equal '東', @user_player.wind_name
+      assert_equal base_tiles(:ton).code, @user_player.wind_code
+
+      @user_player.seat_order = 2
+      assert_equal '南', @user_player.wind_name
+      assert_equal base_tiles(:nan).code, @user_player.wind_code
+
+      @user_player.seat_order = 3
+      assert_equal '西', @user_player.wind_name
+      assert_equal base_tiles(:sha).code, @user_player.wind_code
+    end
+
+    @user_player.stub(:host_seat_number, 2) do
+      @user_player.seat_order = 0
+      assert_equal '西', @user_player.wind_name
+      assert_equal base_tiles(:sha).code, @user_player.wind_code
+
+      @user_player.seat_order = 1
+      assert_equal '北', @user_player.wind_name
+      assert_equal base_tiles(:pei).code, @user_player.wind_code
+
+      @user_player.seat_order = 2
+      assert_equal '東', @user_player.wind_name
+      assert_equal base_tiles(:ton).code, @user_player.wind_code
+
+      @user_player.seat_order = 3
+      assert_equal '南', @user_player.wind_name
+      assert_equal base_tiles(:nan).code, @user_player.wind_code
+    end
+
+    @user_player.stub(:host_seat_number, 3) do
+      @user_player.seat_order = 0
+      assert_equal '南', @user_player.wind_name
+      assert_equal base_tiles(:nan).code, @user_player.wind_code
+
+      @user_player.seat_order = 1
+      assert_equal '西', @user_player.wind_name
+      assert_equal base_tiles(:sha).code, @user_player.wind_code
+
+      @user_player.seat_order = 2
+      assert_equal '北', @user_player.wind_name
+      assert_equal base_tiles(:pei).code, @user_player.wind_code
+
+      @user_player.seat_order = 3
+      assert_equal '東', @user_player.wind_name
+      assert_equal base_tiles(:ton).code, @user_player.wind_code
+    end
   end
 end
