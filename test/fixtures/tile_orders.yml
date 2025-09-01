@@ -4,82 +4,82 @@ order_0:
   order: 0
 
 order_1:
-  tile: first_manzu_2
+  tile: second_manzu_1
   honba: ton_1_kyoku_0_honba
   order: 1
 
 order_2:
-  tile: first_manzu_3
+  tile: third_manzu_1
   honba: ton_1_kyoku_0_honba
   order: 2
 
 order_3:
-  tile: first_manzu_4
+  tile: fourth_manzu_1
   honba: ton_1_kyoku_0_honba
   order: 3
 
 order_4:
-  tile: first_manzu_5
+  tile: first_manzu_2
   honba: ton_1_kyoku_0_honba
   order: 4
 
 order_5:
-  tile: first_manzu_6
+  tile: second_manzu_2
   honba: ton_1_kyoku_0_honba
   order: 5
 
 order_6:
-  tile: first_manzu_7
+  tile: third_manzu_2
   honba: ton_1_kyoku_0_honba
   order: 6
 
 order_7:
-  tile: first_manzu_8
+  tile: fourth_manzu_2
   honba: ton_1_kyoku_0_honba
   order: 7
 
 order_8:
-  tile: first_manzu_9
+  tile: first_manzu_3
   honba: ton_1_kyoku_0_honba
   order: 8
 
 order_9:
-  tile: first_ton
+  tile: second_manzu_3
   honba: ton_1_kyoku_0_honba
   order: 9
 
 order_10:
-  tile: first_nan
+  tile: third_manzu_3
   honba: ton_1_kyoku_0_honba
   order: 10
 
 order_11:
-  tile: first_sha
+  tile: fourth_manzu_3
   honba: ton_1_kyoku_0_honba
   order: 11
 
 order_12:
-  tile: first_pei
+  tile: first_manzu_4
   honba: ton_1_kyoku_0_honba
   order: 12
 
 order_13:
-  tile: second_manzu_1
+  tile: second_manzu_4
   honba: ton_1_kyoku_0_honba
   order: 13
 
 order_14:
-  tile: second_manzu_2
+  tile: third_manzu_4
   honba: ton_1_kyoku_0_honba
   order: 14
 
 order_15:
-  tile: second_manzu_3
+  tile: fourth_manzu_4
   honba: ton_1_kyoku_0_honba
   order: 15
 
 order_16:
-  tile: second_manzu_4
+  tile: first_manzu_5
   honba: ton_1_kyoku_0_honba
   order: 16
 
@@ -89,82 +89,82 @@ order_17:
   order: 17
 
 order_18:
-  tile: second_manzu_6
+  tile: third_manzu_5
   honba: ton_1_kyoku_0_honba
   order: 18
 
 order_19:
-  tile: second_manzu_7
+  tile: fourth_manzu_5
   honba: ton_1_kyoku_0_honba
   order: 19
 
 order_20:
-  tile: second_manzu_8
+  tile: first_manzu_6
   honba: ton_1_kyoku_0_honba
   order: 20
 
 order_21:
-  tile: second_manzu_9
+  tile: second_manzu_6
   honba: ton_1_kyoku_0_honba
   order: 21
 
 order_22:
-  tile: second_ton
+  tile: third_manzu_6
   honba: ton_1_kyoku_0_honba
   order: 22
 
 order_23:
-  tile: second_nan
+  tile: fourth_manzu_6
   honba: ton_1_kyoku_0_honba
   order: 23
 
 order_24:
-  tile: second_sha
+  tile: first_manzu_7
   honba: ton_1_kyoku_0_honba
   order: 24
 
 order_25:
-  tile: second_pei
+  tile: second_manzu_7
   honba: ton_1_kyoku_0_honba
   order: 25
 
 order_26:
-  tile: third_manzu_1
+  tile: third_manzu_7
   honba: ton_1_kyoku_0_honba
   order: 26
 
 order_27:
-  tile: third_manzu_2
+  tile: fourth_manzu_7
   honba: ton_1_kyoku_0_honba
   order: 27
 
 order_28:
-  tile: third_manzu_3
+  tile: first_manzu_8
   honba: ton_1_kyoku_0_honba
   order: 28
 
 order_29:
-  tile: third_manzu_4
+  tile: second_manzu_8
   honba: ton_1_kyoku_0_honba
   order: 29
 
 order_30:
-  tile: third_manzu_5
+  tile: third_manzu_8
   honba: ton_1_kyoku_0_honba
   order: 30
 
 order_31:
-  tile: third_manzu_6
+  tile: fourth_manzu_8
   honba: ton_1_kyoku_0_honba
   order: 31
 
 order_32:
-  tile: third_manzu_7
+  tile: first_manzu_9
   honba: ton_1_kyoku_0_honba
   order: 32
 
 order_33:
-  tile: third_manzu_8
+  tile: second_manzu_9
   honba: ton_1_kyoku_0_honba
   order: 33
 
@@ -174,86 +174,506 @@ order_34:
   order: 34
 
 order_35:
-  tile: third_ton
+  tile: fourth_manzu_9
   honba: ton_1_kyoku_0_honba
   order: 35
 
 order_36:
-  tile: third_nan
+  tile: first_pinzu_1
   honba: ton_1_kyoku_0_honba
   order: 36
 
 order_37:
-  tile: third_sha
+  tile: second_pinzu_1
   honba: ton_1_kyoku_0_honba
   order: 37
 
 order_38:
-  tile: third_pei
+  tile: third_pinzu_1
   honba: ton_1_kyoku_0_honba
   order: 38
 
 order_39:
-  tile: fourth_manzu_1
+  tile: fourth_pinzu_1
   honba: ton_1_kyoku_0_honba
   order: 39
 
 order_40:
-  tile: fourth_manzu_2
+  tile: first_pinzu_2
   honba: ton_1_kyoku_0_honba
   order: 40
 
 order_41:
-  tile: fourth_manzu_3
+  tile: second_pinzu_2
   honba: ton_1_kyoku_0_honba
   order: 41
 
 order_42:
-  tile: fourth_manzu_4
+  tile: third_pinzu_2
   honba: ton_1_kyoku_0_honba
   order: 42
 
 order_43:
-  tile: fourth_manzu_5
+  tile: fourth_pinzu_2
   honba: ton_1_kyoku_0_honba
   order: 43
 
 order_44:
-  tile: fourth_manzu_6
+  tile: first_pinzu_3
   honba: ton_1_kyoku_0_honba
   order: 44
 
 order_45:
-  tile: fourth_manzu_7
+  tile: second_pinzu_3
   honba: ton_1_kyoku_0_honba
   order: 45
 
 order_46:
-  tile: first_manzu_8
+  tile: third_pinzu_3
   honba: ton_1_kyoku_0_honba
   order: 46
 
 order_47:
-  tile: fourth_manzu_9
+  tile: fourth_pinzu_3
   honba: ton_1_kyoku_0_honba
   order: 47
 
 order_48:
-  tile: fourth_ton
+  tile: first_pinzu_4
   honba: ton_1_kyoku_0_honba
   order: 48
 
 order_49:
-  tile: fourth_nan
+  tile: second_pinzu_4
   honba: ton_1_kyoku_0_honba
   order: 49
 
 order_50:
-  tile: fourth_sha
+  tile: third_pinzu_4
   honba: ton_1_kyoku_0_honba
   order: 50
 
 order_51:
-  tile: fourth_pei
+  tile: fourth_pinzu_4
   honba: ton_1_kyoku_0_honba
   order: 51
+
+order_52:
+  tile: first_pinzu_5
+  honba: ton_1_kyoku_0_honba
+  order: 52
+
+order_53:
+  tile: second_pinzu_5
+  honba: ton_1_kyoku_0_honba
+  order: 53
+
+order_54:
+  tile: third_pinzu_5
+  honba: ton_1_kyoku_0_honba
+  order: 54
+
+order_55:
+  tile: fourth_pinzu_5
+  honba: ton_1_kyoku_0_honba
+  order: 55
+
+order_56:
+  tile: first_pinzu_6
+  honba: ton_1_kyoku_0_honba
+  order: 56
+
+order_57:
+  tile: second_pinzu_6
+  honba: ton_1_kyoku_0_honba
+  order: 57
+
+order_58:
+  tile: third_pinzu_6
+  honba: ton_1_kyoku_0_honba
+  order: 58
+
+order_59:
+  tile: fourth_pinzu_6
+  honba: ton_1_kyoku_0_honba
+  order: 59
+
+order_60:
+  tile: first_pinzu_7
+  honba: ton_1_kyoku_0_honba
+  order: 60
+
+order_61:
+  tile: second_pinzu_7
+  honba: ton_1_kyoku_0_honba
+  order: 61
+
+order_62:
+  tile: third_pinzu_7
+  honba: ton_1_kyoku_0_honba
+  order: 62
+
+order_63:
+  tile: fourth_pinzu_7
+  honba: ton_1_kyoku_0_honba
+  order: 63
+
+order_64:
+  tile: first_pinzu_8
+  honba: ton_1_kyoku_0_honba
+  order: 64
+
+order_65:
+  tile: second_pinzu_8
+  honba: ton_1_kyoku_0_honba
+  order: 65
+
+order_66:
+  tile: third_pinzu_8
+  honba: ton_1_kyoku_0_honba
+  order: 66
+
+order_67:
+  tile: fourth_pinzu_8
+  honba: ton_1_kyoku_0_honba
+  order: 67
+
+order_68:
+  tile: first_pinzu_9
+  honba: ton_1_kyoku_0_honba
+  order: 68
+
+order_69:
+  tile: second_pinzu_9
+  honba: ton_1_kyoku_0_honba
+  order: 69
+
+order_70:
+  tile: third_pinzu_9
+  honba: ton_1_kyoku_0_honba
+  order: 70
+
+order_71:
+  tile: fourth_pinzu_9
+  honba: ton_1_kyoku_0_honba
+  order: 71
+
+order_72:
+  tile: first_souzu_1
+  honba: ton_1_kyoku_0_honba
+  order: 72
+
+order_73:
+  tile: second_souzu_1
+  honba: ton_1_kyoku_0_honba
+  order: 73
+
+order_74:
+  tile: third_souzu_1
+  honba: ton_1_kyoku_0_honba
+  order: 74
+
+order_75:
+  tile: fourth_souzu_1
+  honba: ton_1_kyoku_0_honba
+  order: 75
+
+order_76:
+  tile: first_souzu_2
+  honba: ton_1_kyoku_0_honba
+  order: 76
+
+order_77:
+  tile: second_souzu_2
+  honba: ton_1_kyoku_0_honba
+  order: 77
+
+order_78:
+  tile: third_souzu_2
+  honba: ton_1_kyoku_0_honba
+  order: 78
+
+order_79:
+  tile: fourth_souzu_2
+  honba: ton_1_kyoku_0_honba
+  order: 79
+
+order_80:
+  tile: first_souzu_3
+  honba: ton_1_kyoku_0_honba
+  order: 80
+
+order_81:
+  tile: second_souzu_3
+  honba: ton_1_kyoku_0_honba
+  order: 81
+
+order_82:
+  tile: third_souzu_3
+  honba: ton_1_kyoku_0_honba
+  order: 82
+
+order_83:
+  tile: fourth_souzu_3
+  honba: ton_1_kyoku_0_honba
+  order: 83
+
+order_84:
+  tile: first_souzu_4
+  honba: ton_1_kyoku_0_honba
+  order: 84
+
+order_85:
+  tile: second_souzu_4
+  honba: ton_1_kyoku_0_honba
+  order: 85
+
+order_86:
+  tile: third_souzu_4
+  honba: ton_1_kyoku_0_honba
+  order: 86
+
+order_87:
+  tile: fourth_souzu_4
+  honba: ton_1_kyoku_0_honba
+  order: 87
+
+order_88:
+  tile: first_souzu_5
+  honba: ton_1_kyoku_0_honba
+  order: 88
+
+order_89:
+  tile: second_souzu_5
+  honba: ton_1_kyoku_0_honba
+  order: 89
+
+order_90:
+  tile: third_souzu_5
+  honba: ton_1_kyoku_0_honba
+  order: 90
+
+order_91:
+  tile: fourth_souzu_5
+  honba: ton_1_kyoku_0_honba
+  order: 91
+
+order_92:
+  tile: first_souzu_6
+  honba: ton_1_kyoku_0_honba
+  order: 92
+
+order_93:
+  tile: second_souzu_6
+  honba: ton_1_kyoku_0_honba
+  order: 93
+
+order_94:
+  tile: third_souzu_6
+  honba: ton_1_kyoku_0_honba
+  order: 94
+
+order_95:
+  tile: fourth_souzu_6
+  honba: ton_1_kyoku_0_honba
+  order: 95
+
+order_96:
+  tile: first_souzu_7
+  honba: ton_1_kyoku_0_honba
+  order: 96
+
+order_97:
+  tile: second_souzu_7
+  honba: ton_1_kyoku_0_honba
+  order: 97
+
+order_98:
+  tile: third_souzu_7
+  honba: ton_1_kyoku_0_honba
+  order: 98
+
+order_99:
+  tile: fourth_souzu_7
+  honba: ton_1_kyoku_0_honba
+  order: 99
+
+order_100:
+  tile: first_souzu_8
+  honba: ton_1_kyoku_0_honba
+  order: 100
+
+order_101:
+  tile: second_souzu_8
+  honba: ton_1_kyoku_0_honba
+  order: 101
+
+order_102:
+  tile: third_souzu_8
+  honba: ton_1_kyoku_0_honba
+  order: 102
+
+order_103:
+  tile: fourth_souzu_8
+  honba: ton_1_kyoku_0_honba
+  order: 103
+
+order_104:
+  tile: first_souzu_9
+  honba: ton_1_kyoku_0_honba
+  order: 104
+
+order_105:
+  tile: second_souzu_9
+  honba: ton_1_kyoku_0_honba
+  order: 105
+
+order_106:
+  tile: third_souzu_9
+  honba: ton_1_kyoku_0_honba
+  order: 106
+
+order_107:
+  tile: fourth_souzu_9
+  honba: ton_1_kyoku_0_honba
+  order: 107
+
+order_108:
+  tile: first_ton
+  honba: ton_1_kyoku_0_honba
+  order: 108
+
+order_109:
+  tile: second_ton
+  honba: ton_1_kyoku_0_honba
+  order: 109
+
+order_110:
+  tile: third_ton
+  honba: ton_1_kyoku_0_honba
+  order: 110
+
+order_111:
+  tile: fourth_ton
+  honba: ton_1_kyoku_0_honba
+  order: 111
+
+order_112:
+  tile: first_nan
+  honba: ton_1_kyoku_0_honba
+  order: 112
+
+order_113:
+  tile: second_nan
+  honba: ton_1_kyoku_0_honba
+  order: 113
+
+order_114:
+  tile: third_nan
+  honba: ton_1_kyoku_0_honba
+  order: 114
+
+order_115:
+  tile: fourth_nan
+  honba: ton_1_kyoku_0_honba
+  order: 115
+
+order_116:
+  tile: first_sha
+  honba: ton_1_kyoku_0_honba
+  order: 116
+
+order_117:
+  tile: second_sha
+  honba: ton_1_kyoku_0_honba
+  order: 117
+
+order_118:
+  tile: third_sha
+  honba: ton_1_kyoku_0_honba
+  order: 118
+
+order_119:
+  tile: fourth_sha
+  honba: ton_1_kyoku_0_honba
+  order: 119
+
+order_120:
+  tile: first_pei
+  honba: ton_1_kyoku_0_honba
+  order: 120
+
+order_121:
+  tile: second_pei
+  honba: ton_1_kyoku_0_honba
+  order: 121
+
+order_122:
+  tile: third_pei
+  honba: ton_1_kyoku_0_honba
+  order: 122
+
+order_123:
+  tile: fourth_pei
+  honba: ton_1_kyoku_0_honba
+  order: 123
+
+order_124:
+  tile: first_haku
+  honba: ton_1_kyoku_0_honba
+  order: 124
+
+order_125:
+  tile: second_haku
+  honba: ton_1_kyoku_0_honba
+  order: 125
+
+order_126:
+  tile: third_haku
+  honba: ton_1_kyoku_0_honba
+  order: 126
+
+order_127:
+  tile: fourth_haku
+  honba: ton_1_kyoku_0_honba
+  order: 127
+
+order_128:
+  tile: first_hatsu
+  honba: ton_1_kyoku_0_honba
+  order: 128
+
+order_129:
+  tile: second_hatsu
+  honba: ton_1_kyoku_0_honba
+  order: 129
+
+order_130:
+  tile: third_hatsu
+  honba: ton_1_kyoku_0_honba
+  order: 130
+
+order_131:
+  tile: fourth_hatsu
+  honba: ton_1_kyoku_0_honba
+  order: 131
+
+order_132:
+  tile: first_chun
+  honba: ton_1_kyoku_0_honba
+  order: 132
+
+order_133:
+  tile: second_chun
+  honba: ton_1_kyoku_0_honba
+  order: 133
+
+order_134:
+  tile: third_chun
+  honba: ton_1_kyoku_0_honba
+  order: 134
+
+order_135:
+  tile: fourth_chun
+  honba: ton_1_kyoku_0_honba
+  order: 135

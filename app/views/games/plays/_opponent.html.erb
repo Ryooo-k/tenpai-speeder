@@ -1,10 +1,10 @@
-<div class="<%= build_hand_position_class(player, user) %>">
-  <div class="flex <%= "-translate-y-1/2" if player.shimocha?(user) || player.kamicha?(user) %>">
+<div class="absolute <%= build_hand_position_class(player) %>">
+  <div class="flex <%= '-translate-y-1/2' if player.relation_from_user.in?([ :shimocha, :kamicha ]) %>">
     <%= render partial: "games/hands/hand", collection: player.hands, locals: { user_drawn: false } %>
   </div>
 </div>
 
-<div class="<%= build_river_position_class(player, user) %>">
+<div class="absolute <%= build_river_position_class(player) %>">
   <div class="grid grid-cols-6 grid-rows-4 place-items-center">
     <%= render partial: "games/rivers/river", collection: player.rivers %>
   </div>

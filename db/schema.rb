@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_24_063614) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -156,7 +156,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_24_063614) do
   create_table "rounds", force: :cascade do |t|
     t.integer "game_id", null: false
     t.integer "number", default: 0, null: false
-    t.integer "host_position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_rounds_on_game_id"

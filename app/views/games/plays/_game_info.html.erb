@@ -1,0 +1,25 @@
+<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl text-center">
+  <div class="flex justify-center gap-2">
+    <span><%= @game.current_round_name %></span>
+    <span><%= @game.current_honba_name %></span>
+  </div>
+  <div><%= "残#{@game.remaining_tile_count}" %></div>
+  <div class="flex justify-center">
+    <% @game.dora_indicator_tiles.each do |tile| %>
+      <% if tile %>
+        <%= inline_svg_tag("tiles/#{tile.suit}_#{tile.number}.svg", class: "w-[2.5cqw]") %>
+      <% else %>
+        <%= inline_svg_tag("tiles/back.svg", class: "w-[2.5cqw]") %>
+      <% end %>
+    <% end %>
+  </div>
+  <div>リーチ棒：<%= @game.riichi_stick_count %>本</div>
+</div>
+
+<% @game.players.each do |player| %>
+  <div class="absolute <%= build_player_info_class(player) %> text-center leading-tight">
+    <div><%= player.name %></div>
+    <div><%= player.wind_name %></div>
+    <div><%= player.score %></div>
+  </div>
+<% end %>
