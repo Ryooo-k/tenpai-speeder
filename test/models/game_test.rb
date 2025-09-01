@@ -180,7 +180,7 @@ class GameTest < ActiveSupport::TestCase
     assert_equal '四本場', @game.current_honba_name
   end
 
-  test '#current_remaining_tile_count' do
+  test '#remaining_tile_count' do
     current_honba = @game.rounds.order(:number).last.current_honba
     current_honba.update!(draw_count: 0)
     current_honba.update!(kan_count: 0)
@@ -196,15 +196,23 @@ class GameTest < ActiveSupport::TestCase
   test '#dora_indicator_tiles' do
     current_honba = @game.rounds.order(:number).last.current_honba
     current_honba.update!(kan_count: 0)
-    assert_equal [ Tile, NilClass, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
+    assert_equal [ Tile, NilClass, NilClass, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
 
     current_honba.update!(kan_count: 1)
-    assert_equal [ Tile, Tile, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
+    assert_equal [ Tile, Tile, NilClass, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
 
     current_honba.update!(kan_count: 2)
-    assert_equal [ Tile, Tile, Tile, NilClass ], @game.dora_indicator_tiles.map(&:class)
+    assert_equal [ Tile, Tile, Tile, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
 
     current_honba.update!(kan_count: 3)
-    assert_equal [ Tile, Tile, Tile, Tile ], @game.dora_indicator_tiles.map(&:class)
+    assert_equal [ Tile, Tile, Tile, Tile, NilClass ], @game.dora_indicator_tiles.map(&:class)
+
+    current_honba.update!(kan_count: 4)
+    assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.dora_indicator_tiles.map(&:class)
+  end
+
+  test '#host_player' do
+    expected = @game.rounds.order(:number).last.host_seat_number
+    assert_equal expected, @game.host_player.seat_order
   end
 end

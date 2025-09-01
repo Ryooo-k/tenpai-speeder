@@ -84,7 +84,11 @@ class Game < ApplicationRecord
   end
 
   def dora_indicator_tiles
-    current_honba.dora_indicator_tiles.values_at(..3)
+    current_honba.dora_indicator_tiles.values_at(..4)
+  end
+
+  def host_player
+    players.find_by!(seat_order: current_round.host_seat_number)
   end
 
   private
@@ -132,10 +136,6 @@ class Game < ApplicationRecord
 
     def top_tile
       current_honba.top_tile
-    end
-
-    def host
-      players.find_by(seat_order: current_round.host_position)
     end
 
     def increase_draw_count
