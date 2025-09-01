@@ -76,6 +76,16 @@ class PlayerTest < ActiveSupport::TestCase
     assert_includes player.errors[:base], 'UserとAIの両方を同時に指定することはできません'
   end
 
+  test '.ordered orders by seat_order' do
+    game = games(:training)
+    game.players.delete_all
+    player_4 = game.players.create!(user: @user, seat_order: 3)
+    player_3 = game.players.create!(ai: @ai, seat_order: 2)
+    player_2 = game.players.create!(ai: @ai, seat_order: 1)
+    player_1 = game.players.create!(ai: @ai, seat_order: 0)
+    assert_equal [ player_1, player_2, player_3, player_4 ], game.players.ordered.to_a
+  end
+
   test '#hands return sorted hands of current_state' do
     current_state = @user_player.player_states.ordered.last
     current_state.hands.delete_all
