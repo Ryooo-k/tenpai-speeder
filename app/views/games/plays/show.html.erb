@@ -1,9 +1,7 @@
 <div class="relative mx-auto w-full aspect-[10/7] bg-emerald-600 @container">
   <%= render partial: "user_player", locals: { user: @user_player } %>
   <%= render partial: "opponent", collection: @opponents, as: :player, locals: { user: @user_player } %>
-  <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-              w-[23cqw] aspect-[10/9] bg-white/90 relative">
-    <%= render partial: "game_info" %>
-  </div>
+  <%= render partial: "game_info" %>
 </div>
+
 <%= render partial: "next_action" %>
