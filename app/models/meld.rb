@@ -7,6 +7,7 @@ class Meld < ApplicationRecord
   validates :player_state, presence: true
   validates :tile, presence: true
   validates :kind, presence: true
+  validates :number, presence: true
 
   enum :kind, {
     pon: 0,
@@ -17,8 +18,10 @@ class Meld < ApplicationRecord
   }
   enum :from, {
     self: 0,
-    kamicha: 1,
+    shimocha: 1,
     toimen: 2,
-    shimocha: 3
+    kamicha: 3
   }
+
+  scope :ordered, -> { order(:number) }
 end
