@@ -3,13 +3,6 @@
 require 'test_helper'
 
 class StepTest < ActiveSupport::TestCase
-  test 'destroying step should also destroy actions' do
-    step = steps(:step_1)
-    assert_difference('Action.count', -step.actions.count) do
-      step.destroy
-    end
-  end
-
   test 'destroying step should also destroy player_states' do
     step = steps(:step_1)
     assert_difference('PlayerState.count', -step.player_states.count) do

@@ -15,12 +15,10 @@ class Player < ApplicationRecord
 
   has_many :results, dependent: :destroy
   has_many :game_records, dependent: :destroy
-  has_many :actions, dependent: :destroy
-  has_many :actions_from, class_name: 'Action', foreign_key: 'from_player_id', inverse_of: :from_player
   has_many :player_states, dependent: :destroy
 
-  validates :seat_order, presence: true
   validates :game, presence: true
+  validates :seat_order, presence: true
 
   validate :validate_player_type
 

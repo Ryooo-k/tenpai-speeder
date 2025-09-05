@@ -27,12 +27,6 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test 'destroying player should also destroy actions' do
-    assert_difference('Action.count', -@user_player.actions.count) do
-      @user_player.destroy
-    end
-  end
-
   test 'destroying player should also destroy player_states' do
     assert_difference('PlayerState.count', -@user_player.player_states.count) do
       @user_player.destroy
