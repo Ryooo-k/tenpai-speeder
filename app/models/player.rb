@@ -6,6 +6,8 @@ class Player < ApplicationRecord
   NAN_TILE_CODE = 28
   SHA_TILE_CODE = 29
   PEI_TILE_CODE = 30
+  KAN_REQUIRED_HAND_COUNT = 3
+  PON_REQUIRED_HAND_COUNT = 2
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -50,6 +52,7 @@ class Player < ApplicationRecord
     player_states.create!(step:)
     create_discarded_hands(current_hands, chosen_hand)
     create_rivers(chosen_hand)
+    chosen_hand.tile
   end
 
   # ai用打牌選択のメソッド
@@ -64,6 +67,10 @@ class Player < ApplicationRecord
 
   def ai?
     ai_id.present?
+  end
+
+  def user?
+    user_id.present?
   end
 
   def relation_from_user
@@ -86,7 +93,7 @@ class Player < ApplicationRecord
   end
 
   def wind_name
-    case wind_seat_number
+    case wind_number
     when 0 then '東'
     when 1 then '北'
     when 2 then '西'
@@ -95,12 +102,25 @@ class Player < ApplicationRecord
   end
 
   def wind_code
-    case wind_seat_number
+    case wind_number
     when 0 then TON_TILE_CODE
     when 1 then PEI_TILE_CODE
     when 2 then SHA_TILE_CODE
     when 3 then NAN_TILE_CODE
     end
+  end
+
+  def can_furo?(target_tile, target_player)
+    return if self == target_player
+    can_pon?(target_tile) || can_chi?(target_tile, target_player)
+  end
+
+  def find_furo_candidates(target_tile, target_player)
+    {
+      pon: find_pon_candidates(target_tile),
+      chi: find_chi_candidates(target_tile, target_player),
+      kan: find_kan_candidates(target_tile)
+    }.compact
   end
 
   private
@@ -144,7 +164,70 @@ class Player < ApplicationRecord
       game.host_player.seat_order
     end
 
-    def wind_seat_number
+    def wind_number
       (host_seat_number - seat_order) % PLAYERS_COUNT
+    end
+
+    def hand_tiles
+      hands.map(&:tile)
+    end
+
+    def find_kan_candidates(target_tile)
+      return unless can_kan?(target_tile)
+      hands.select { |hand| hand.tile.code == target_tile.code }
+    end
+
+    def can_kan?(target_tile)
+      hand_tiles.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
+    end
+
+    def find_pon_candidates(target_tile)
+      return unless can_pon?(target_tile)
+      hands.select { |hand| hand.tile.code == target_tile.code }[..1]
+    end
+
+    def can_pon?(target_tile)
+      codes = hand_tiles.map(&:code)
+      return unless codes.include?(target_tile.code)
+      codes.tally[target_tile.code] >= PON_REQUIRED_HAND_COUNT
+    end
+
+    def find_chi_candidates(target_tile, target_player)
+      return unless can_chi?(target_tile, target_player)
+
+      chi_candidates = []
+      hand_codes = hand_tiles.map(&:code)
+      possible_chi_table = build_possible_chi_table(target_tile)
+
+      possible_chi_table.each do |possible_chi_codes|
+        if possible_chi_codes.all? { |code| hand_codes.include?(code) }
+          chi_candidates << possible_chi_codes.map do |chi_code|
+                              hands.select { |hand| hand.tile.code == chi_code }.first
+                            end
+        end
+      end
+      chi_candidates.blank? ? nil : chi_candidates
+    end
+
+    def can_chi?(target_tile, target_player)
+      kamicha_seat_order = (target_player.seat_order + 1) % PLAYERS_COUNT
+      return if seat_order != kamicha_seat_order || target_tile.code >= TON_TILE_CODE
+
+      hand_codes = hand_tiles.map(&:code)
+      possible_chi_table = build_possible_chi_table(target_tile)
+      possible_chi_table.any? do |possible_chi_codes|
+        possible_chi_codes.all? { |code| hand_codes.include?(code) }
+      end
+    end
+
+    def build_possible_chi_table(tile)
+      number = tile.number
+      code = tile.code
+
+      candidates = []
+      candidates << [code - 2, code - 1] if number >= 3
+      candidates << [code - 1, code + 1] if (2..8).include?(number)
+      candidates << [code + 1, code + 2] if number <= 7
+      candidates
     end
 end

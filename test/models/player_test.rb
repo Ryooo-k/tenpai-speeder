@@ -149,25 +149,32 @@ class PlayerTest < ActiveSupport::TestCase
     assert_not @user_player.rivers
 
     before_state_count = @user_player.player_states.count
-    @user_player.discard(hand_2.id, steps(:step_2))
+    discarded_tile = @user_player.discard(hand_2.id, steps(:step_2))
     assert_equal [ @manzu_1 ], @user_player.hands.map(&:tile)
     assert_equal [ @manzu_2 ], @user_player.rivers.map(&:tile)
     assert @user_player.rivers.first.tsumogiri?
     assert_equal before_state_count + 1, @user_player.player_states.count
     assert_not_equal hand_1, @user_player.hands.first
+    assert_equal @manzu_2, discarded_tile
 
     manzu_1_hand_id = @user_player.hands.last.id
-    @user_player.discard(manzu_1_hand_id, steps(:step_3))
+    discarded_tile = @user_player.discard(manzu_1_hand_id, steps(:step_3))
     assert_equal [], @user_player.hands
     assert_equal [ @manzu_2, @manzu_1 ], @user_player.rivers.map(&:tile)
     assert @user_player.rivers.first.tsumogiri?
     assert_not @user_player.rivers.last.tsumogiri?
     assert_equal before_state_count + 2, @user_player.player_states.count
+    assert_equal @manzu_1, discarded_tile
   end
 
   test '#ai?' do
     assert_not @user_player.ai?
     assert @ai_player.ai?
+  end
+
+  test '#user?' do
+    assert_not @ai_player.user?
+    assert @user_player.user?
   end
 
   test 'relation_from_user' do
@@ -323,6 +330,219 @@ class PlayerTest < ActiveSupport::TestCase
       @user_player.seat_order = 3
       assert_equal '東', @user_player.wind_name
       assert_equal base_tiles(:ton).code, @user_player.wind_code
+    end
+  end
+
+  test '#can_furo? returns false when target_player is current_player' do
+    player_state = @user_player.player_states.ordered.last
+    hand_1_manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    hand_2_manzu_1 = Hand.create!(tile: tiles(:second_manzu_1), player_state:)
+    pon_hands = [ hand_1_manzu_1, hand_2_manzu_1 ]
+    target_player = @user_player
+
+    @user_player.stub(:hands, pon_hands) do
+      is_furo = @user_player.can_furo?(tiles(:third_manzu_1), target_player)
+      assert_not is_furo
+    end
+  end
+
+  test '#can_furo? returns true when user can pon' do
+    player_state = @user_player.player_states.ordered.last
+    hand_1_manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    hand_2_manzu_1 = Hand.create!(tile: tiles(:second_manzu_1), player_state:)
+    pon_hands = [ hand_1_manzu_1, hand_2_manzu_1 ]
+
+    @user_player.stub(:hands, pon_hands) do
+      is_furo = @user_player.can_furo?(tiles(:third_manzu_1), @ai_player)
+      assert is_furo
+    end
+  end
+
+  test '#can_furo? returns true when target_player is kamicha' do
+    player_state = @user_player.player_states.ordered.last
+    manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    manzu_2 = Hand.create!(tile: tiles(:first_manzu_2), player_state:)
+    chi_hands = [ manzu_1, manzu_2 ]
+    kamicha_player = @ai_player
+
+    kamicha_player.stub(:seat_order, 3) do
+      @user_player.stub(:seat_order, 0) do
+        @user_player.stub(:hands, chi_hands) do
+          is_furo = @user_player.can_furo?(tiles(:first_manzu_3), kamicha_player)
+          assert is_furo
+        end
+      end
+    end
+  end
+
+  test '#can_furo? returns false when target_player is shimocha' do
+    player_state = @user_player.player_states.ordered.last
+    manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    manzu_2 = Hand.create!(tile: tiles(:first_manzu_2), player_state:)
+    chi_hands = [ manzu_1, manzu_2 ]
+    shimocha_player = @ai_player
+
+    shimocha_player.stub(:seat_order, 1) do
+      @user_player.stub(:seat_order, 0) do
+        @user_player.stub(:hands, chi_hands) do
+          is_furo = @user_player.can_furo?(tiles(:first_manzu_3), shimocha_player)
+          assert_not is_furo
+        end
+      end
+    end
+  end
+
+  test '#can_furo? returns false when target_player is toimen' do
+    player_state = @user_player.player_states.ordered.last
+    manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    manzu_2 = Hand.create!(tile: tiles(:first_manzu_2), player_state:)
+    chi_hands = [ manzu_1, manzu_2 ]
+    toimen_player = @ai_player
+
+    toimen_player.stub(:seat_order, 2) do
+      @user_player.stub(:seat_order, 0) do
+        @user_player.stub(:hands, chi_hands) do
+          is_furo = @user_player.can_furo?(tiles(:first_manzu_3), toimen_player)
+          assert_not is_furo
+        end
+      end
+    end
+  end
+
+  test '#can_furo? returns false when user can not pon and chi' do
+    player_state = @user_player.player_states.ordered.last
+    manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    manzu_5 = Hand.create!(tile: tiles(:first_manzu_5), player_state:)
+    hands = [ manzu_1, manzu_5 ]
+    kamicha_player = @ai_player
+
+    kamicha_player.stub(:seat_order, 3) do
+      @user_player.stub(:seat_order, 0) do
+        @user_player.stub(:hands, hands) do
+          is_furo = @user_player.can_furo?(tiles(:first_manzu_3), kamicha_player)
+          assert_not is_furo
+        end
+      end
+    end
+  end
+
+  test 'player can not chi zihai' do
+    player_state = @user_player.player_states.ordered.last
+    ton = Hand.create!(tile: tiles(:first_ton), player_state:)
+    nan = Hand.create!(tile: tiles(:first_nan), player_state:)
+    haku = Hand.create!(tile: tiles(:first_haku), player_state:)
+    hatsu = Hand.create!(tile: tiles(:first_hatsu), player_state:)
+    zihai_hands = [ ton, nan, haku, hatsu ]
+    kamicha_player = @ai_player
+
+    kamicha_player.stub(:seat_order, 3) do
+      @user_player.stub(:seat_order, 0) do
+        @user_player.stub(:hands, zihai_hands) do
+          is_furo = @user_player.can_furo?(tiles(:first_sha), kamicha_player)
+          assert_not is_furo
+
+          is_furo = @user_player.can_furo?(tiles(:first_chun), kamicha_player)
+          assert_not is_furo
+        end
+      end
+    end
+  end
+
+  test '#find_furo_candidates only pon' do
+    player_state = @user_player.player_states.ordered.last
+    hand_1_manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    hand_2_manzu_1 = Hand.create!(tile: tiles(:second_manzu_1), player_state:)
+    pon_hands = [ hand_1_manzu_1, hand_2_manzu_1 ]
+
+    @user_player.stub(:hands, pon_hands) do
+      furo_candidates = @user_player.find_furo_candidates(tiles(:third_manzu_1), @ai_player)
+      assert_equal pon_hands, furo_candidates[:pon]
+      assert_nil furo_candidates[:chi]
+      assert_nil furo_candidates[:kan]
+    end
+  end
+
+  test '#find_furo_candidates only kan' do
+    player_state = @user_player.player_states.ordered.last
+    hand_1_manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    hand_2_manzu_1 = Hand.create!(tile: tiles(:second_manzu_1), player_state:)
+    hand_3_manzu_1 = Hand.create!(tile: tiles(:third_manzu_1), player_state:)
+    kan_hands = [ hand_1_manzu_1, hand_2_manzu_1, hand_3_manzu_1 ]
+
+    @user_player.stub(:hands, kan_hands) do
+      furo_candidates = @user_player.find_furo_candidates(tiles(:fourth_manzu_1), @ai_player)
+      assert_equal [ hand_1_manzu_1, hand_2_manzu_1 ], furo_candidates[:pon]
+      assert_nil furo_candidates[:chi]
+      assert_equal kan_hands, furo_candidates[:kan]
+    end
+  end
+
+  test '#find_furo_candidates only chi' do
+    player_state = @user_player.player_states.ordered.last
+    manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    manzu_2 = Hand.create!(tile: tiles(:first_manzu_2), player_state:)
+    manzu_4 = Hand.create!(tile: tiles(:first_manzu_4), player_state:)
+    manzu_5 = Hand.create!(tile: tiles(:first_manzu_5), player_state:)
+    manzu_6 = Hand.create!(tile: tiles(:first_manzu_6), player_state:)
+    manzu_8 = Hand.create!(tile: tiles(:first_manzu_8), player_state:)
+    manzu_9 = Hand.create!(tile: tiles(:first_manzu_9), player_state:)
+    chi_hands = [ manzu_1, manzu_2, manzu_4, manzu_5, manzu_6, manzu_8, manzu_9 ]
+    kamicha_player = @ai_player
+
+    kamicha_player.stub(:seat_order, 3) do
+      @user_player.stub(:seat_order, 0) do
+        @user_player.stub(:hands, chi_hands) do
+          furo_candidates = @user_player.find_furo_candidates(tiles(:first_manzu_3), kamicha_player)
+          assert_nil furo_candidates[:pon]
+          assert_equal [ [ manzu_1, manzu_2 ], [ manzu_2, manzu_4 ], [ manzu_4, manzu_5 ] ], furo_candidates[:chi]
+          assert_nil furo_candidates[:kan]
+
+          furo_candidates = @user_player.find_furo_candidates(tiles(:first_manzu_7), kamicha_player)
+          assert_nil furo_candidates[:pon]
+          assert_equal [ [ manzu_5, manzu_6 ], [ manzu_6, manzu_8 ], [ manzu_8, manzu_9 ] ], furo_candidates[:chi]
+          assert_nil furo_candidates[:kan]
+        end
+      end
+    end
+  end
+
+  test '#find_furo_candidates pon_and_chi_candidates' do
+    player_state = @user_player.player_states.ordered.last
+    manzu_1a = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    manzu_1b = Hand.create!(tile: tiles(:second_manzu_1), player_state:)
+    manzu_2a = Hand.create!(tile: tiles(:first_manzu_2), player_state:)
+    manzu_2b = Hand.create!(tile: tiles(:second_manzu_2), player_state:)
+    manzu_3a = Hand.create!(tile: tiles(:first_manzu_3), player_state:)
+    manzu_3b = Hand.create!(tile: tiles(:second_manzu_3), player_state:)
+    manzu_4a = Hand.create!(tile: tiles(:first_manzu_4), player_state:)
+    manzu_4b = Hand.create!(tile: tiles(:second_manzu_4), player_state:)
+    manzu_5a = Hand.create!(tile: tiles(:first_manzu_5), player_state:)
+    manzu_5b = Hand.create!(tile: tiles(:second_manzu_5), player_state:)
+    pon_and_chi_hands = [ manzu_1a, manzu_1b, manzu_2a, manzu_2b, manzu_3a, manzu_3b, manzu_4a, manzu_4b, manzu_5a, manzu_5b ]
+    kamicha_player = @ai_player
+
+    kamicha_player.stub(:seat_order, 3) do
+      @user_player.stub(:seat_order, 0) do
+        @user_player.stub(:hands, pon_and_chi_hands) do
+          furo_candidates = @user_player.find_furo_candidates(tiles(:third_manzu_3), kamicha_player)
+          assert_equal [ manzu_3a, manzu_3b ], furo_candidates[:pon]
+          assert_equal [ [ manzu_1a, manzu_2a ], [ manzu_2a, manzu_4a ], [ manzu_4a, manzu_5a ] ], furo_candidates[:chi]
+          assert_nil furo_candidates[:kan]
+        end
+      end
+    end
+  end
+
+  test '#find_furo_candidates nothing' do
+    player_state = @user_player.player_states.ordered.last
+    manzu_1 = Hand.create!(tile: tiles(:first_manzu_1), player_state:)
+    manzu_5 = Hand.create!(tile: tiles(:first_manzu_5), player_state:)
+    manzu_9 = Hand.create!(tile: tiles(:first_manzu_9), player_state:)
+    hands = [ manzu_1, manzu_5, manzu_9 ]
+
+    @user_player.stub(:hands, hands) do
+      furo_candidates = @user_player.find_furo_candidates(tiles(:second_manzu_1), @ai_player)
+      assert_equal({}, furo_candidates)
     end
   end
 end
