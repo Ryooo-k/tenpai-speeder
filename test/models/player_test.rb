@@ -167,6 +167,32 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal @manzu_1, discarded_tile
   end
 
+  test '#on_discard_called marks only the targeted river as called' do
+    river_1 = @ai_player.player_states.last.rivers.create!(tile: @manzu_1, tsumogiri: false)
+    river_2 = @ai_player.player_states.last.rivers.create!(tile: @manzu_2, tsumogiri: false)
+    before_state_count = @ai_player.player_states.count
+    assert_not river_1.called?
+    assert_not river_2.called?
+
+    @ai_player.on_discard_called(@manzu_1, steps(:step_2))
+    river_3 = @ai_player.rivers.first
+    river_4 = @ai_player.rivers.last
+    assert_equal @manzu_1, river_3.tile
+    assert_equal @manzu_2, river_4.tile
+    assert river_3.called?
+    assert_not river_4.called?
+    assert_equal before_state_count + 1, @ai_player.player_states.count
+
+    @ai_player.on_discard_called(@manzu_2, steps(:step_3))
+    river_5 = @ai_player.rivers.first
+    river_6 = @ai_player.rivers.last
+    assert_equal @manzu_1, river_5.tile
+    assert_equal @manzu_2, river_6.tile
+    assert river_5.called?
+    assert river_6.called?
+    assert_equal before_state_count + 2, @ai_player.player_states.count
+  end
+
   test '#ai?' do
     assert_not @user_player.ai?
     assert @ai_player.ai?

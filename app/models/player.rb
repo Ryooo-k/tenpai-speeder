@@ -51,8 +51,13 @@ class Player < ApplicationRecord
     current_hands = current_state.hands
     player_states.create!(step:)
     create_discarded_hands(current_hands, chosen_hand)
-    create_rivers(chosen_hand)
+    create_discarded_rivers(chosen_hand)
     chosen_hand.tile
+  end
+
+  def on_discard_called(discarded_tile, step)
+    player_states.create!(step:)
+    create_called_rivers(discarded_tile)
   end
 
   # ai用打牌選択のメソッド
@@ -151,9 +156,30 @@ class Player < ApplicationRecord
       new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
     end
 
-    def create_rivers(chosen_hand)
-      current_rivers.each { |river| current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?) } if current_rivers
+    def create_discarded_rivers(chosen_hand)
+      if current_rivers
+        current_rivers.each do |river|
+          current_state.rivers.create!(
+            tile: river.tile,
+            tsumogiri: river.tsumogiri?,
+            called: river.called,
+            created_at: river.created_at
+          )
+        end
+      end
       current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
+    end
+
+    def create_called_rivers(discarded_tile)
+      current_rivers.each do |river|
+        called = river.tile == discarded_tile || river.called?
+        current_state.rivers.create!(
+          tile: river.tile,
+          tsumogiri: river.tsumogiri?,
+          called:,
+          created_at: river.created_at
+        )
+      end
     end
 
     def user_seat_number
