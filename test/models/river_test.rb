@@ -38,6 +38,11 @@ class RiverTest < ActiveSupport::TestCase
     assert river.valid?
   end
 
+  test 'called default to false' do
+    river = River.new(player_state: @state, tile: @manzu_1, tsumogiri: false)
+    assert_not river.called
+  end
+
   test '.ordered' do
     @state.rivers.delete_all
     first_river = @state.rivers.create!(tile: @manzu_3, tsumogiri: false)

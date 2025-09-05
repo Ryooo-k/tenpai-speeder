@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_05_045331) do
   create_table "actions", force: :cascade do |t|
     t.integer "step_id", null: false
     t.integer "player_id", null: false
@@ -149,6 +149,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
     t.boolean "tsumogiri", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "called", default: false
     t.index ["player_state_id"], name: "index_rivers_on_player_state_id"
     t.index ["tile_id"], name: "index_rivers_on_tile_id"
   end
