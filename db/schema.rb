@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_05_071213) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_05_073527) do
   create_table "ais", force: :cascade do |t|
     t.string "name", null: false
     t.string "version", null: false
@@ -92,6 +92,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_05_071213) do
     t.integer "tile_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "from"
+    t.integer "kind", null: false
     t.index ["player_state_id"], name: "index_melds_on_player_state_id"
     t.index ["tile_id"], name: "index_melds_on_tile_id"
   end
