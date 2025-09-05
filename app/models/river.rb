@@ -10,4 +10,5 @@ class River < ApplicationRecord
   validates :called, inclusion: { in: [ true, false ] }
 
   scope :ordered, -> { order(:created_at) }
+  scope :uncalled, -> { where(called: false) }
 end

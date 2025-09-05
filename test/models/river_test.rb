@@ -50,4 +50,13 @@ class RiverTest < ActiveSupport::TestCase
     third_river = @state.rivers.create!(tile: @manzu_2, tsumogiri: false)
     assert_equal [ first_river, second_river, third_river ], @state.rivers.ordered
   end
+
+
+  test '.uncalled' do
+    @state.rivers.delete_all
+    called_river = @state.rivers.create!(tile: @manzu_1, tsumogiri: false, called: true)
+    @state.rivers.create!(tile: @manzu_2, tsumogiri: false, called: false)
+    @state.rivers.create!(tile: @manzu_3, tsumogiri: true, called: false)
+    assert_not_includes @state.rivers.uncalled, called_river
+  end
 end
