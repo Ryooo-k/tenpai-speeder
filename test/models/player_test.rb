@@ -276,20 +276,20 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test '#stolen marks only the targeted river as called' do
+  test '#stolen marks only the targeted river as stolen' do
     river_1 = @ai_player.player_states.last.rivers.create!(tile: @manzu_1, tsumogiri: false)
     river_2 = @ai_player.player_states.last.rivers.create!(tile: @manzu_2, tsumogiri: false)
     before_state_count = @ai_player.player_states.count
-    assert_not river_1.called?
-    assert_not river_2.called?
+    assert_not river_1.stolen?
+    assert_not river_2.stolen?
 
     @ai_player.stolen(@manzu_1, steps(:step_2))
     river_3 = @ai_player.rivers.first
     river_4 = @ai_player.rivers.last
     assert_equal @manzu_1, river_3.tile
     assert_equal @manzu_2, river_4.tile
-    assert river_3.called?
-    assert_not river_4.called?
+    assert river_3.stolen?
+    assert_not river_4.stolen?
     assert_equal before_state_count + 1, @ai_player.player_states.count
 
     @ai_player.stolen(@manzu_2, steps(:step_3))
@@ -297,8 +297,8 @@ class PlayerTest < ActiveSupport::TestCase
     river_6 = @ai_player.rivers.last
     assert_equal @manzu_1, river_5.tile
     assert_equal @manzu_2, river_6.tile
-    assert river_5.called?
-    assert river_6.called?
+    assert river_5.stolen?
+    assert river_6.stolen?
     assert_equal before_state_count + 2, @ai_player.player_states.count
   end
 

@@ -38,9 +38,9 @@ class RiverTest < ActiveSupport::TestCase
     assert river.valid?
   end
 
-  test 'called default to false' do
+  test 'stolen default to false' do
     river = River.new(player_state: @state, tile: @manzu_1, tsumogiri: false)
-    assert_not river.called
+    assert_not river.stolen
   end
 
   test '.ordered' do
@@ -52,11 +52,11 @@ class RiverTest < ActiveSupport::TestCase
   end
 
 
-  test '.uncalled' do
+  test '.not_stolen' do
     @state.rivers.delete_all
-    called_river = @state.rivers.create!(tile: @manzu_1, tsumogiri: false, called: true)
-    @state.rivers.create!(tile: @manzu_2, tsumogiri: false, called: false)
-    @state.rivers.create!(tile: @manzu_3, tsumogiri: true, called: false)
-    assert_not_includes @state.rivers.uncalled, called_river
+    stolen_river = @state.rivers.create!(tile: @manzu_1, tsumogiri: false, stolen: true)
+    @state.rivers.create!(tile: @manzu_2, tsumogiri: false, stolen: false)
+    @state.rivers.create!(tile: @manzu_3, tsumogiri: true, stolen: false)
+    assert_not_includes @state.rivers.not_stolen, stolen_river
   end
 end
