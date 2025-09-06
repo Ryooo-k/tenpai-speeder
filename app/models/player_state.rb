@@ -14,4 +14,5 @@ class PlayerState < ApplicationRecord
 
   scope :ordered, -> { order(step_id: :asc) }
   scope :with_rivers, -> { where.associated(:rivers) }
+  scope :with_melds, -> { where.associated(:melds) }
 end

@@ -8,6 +8,9 @@ class Player < ApplicationRecord
   PEI_TILE_CODE = 30
   KAN_REQUIRED_HAND_COUNT = 3
   PON_REQUIRED_HAND_COUNT = 2
+  SHIMOCHA_SEAT_NUMBER = 1
+  TOIMEN_SEAT_NUMBER = 2
+  KAMICHA_SEAT_NUMBER = 3
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -34,6 +37,10 @@ class Player < ApplicationRecord
     current_rivers&.ordered
   end
 
+  def melds
+    current_melds&.ordered
+  end
+
   def receive(tile)
     current_state.hands.create!(tile:)
   end
@@ -53,9 +60,17 @@ class Player < ApplicationRecord
     chosen_hand.tile
   end
 
-  def on_discard_called(discarded_tile, step)
+  def steal(target_player, furo_type, furo_tiles, discarded_tile, step)
+    current_hands = current_state.hands
+    current_melds = current_state.melds
     player_states.create!(step:)
-    create_called_rivers(discarded_tile)
+    create_stole_hands(current_hands, furo_tiles)
+    create_melds(current_melds, target_player, furo_type, furo_tiles, discarded_tile)
+  end
+
+  def stolen(discarded_tile, step)
+    player_states.create!(step:)
+    create_stolen_rivers(discarded_tile)
   end
 
   # ai用打牌選択のメソッド
@@ -144,6 +159,10 @@ class Player < ApplicationRecord
       player_states.with_rivers.last&.rivers
     end
 
+    def current_melds
+      player_states.with_melds.last&.melds
+    end
+
     def create_drawn_hands(current_hands, drawn_tile)
       current_hands.each { |hand| current_state.hands.create!(tile_id: hand.tile_id) }
       current_state.hands.create!(tile: drawn_tile, drawn: true)
@@ -152,6 +171,35 @@ class Player < ApplicationRecord
     def create_discarded_hands(current_hands, chosen_hand)
       new_hands = current_hands.select { |hand| hand.id != chosen_hand.id }
       new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
+    end
+
+    def create_stole_hands(current_hands, furo_tiles)
+      new_hands = current_hands.reject { |hand| furo_tiles.include?(hand.tile) }
+      new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
+    end
+
+    def create_melds(current_melds, target_player, furo_type, furo_tiles, discarded_tile)
+      current_melds.each { |meld| current_state.melds.create!(tile: meld.tile, from: meld&.from, kind: meld.kind, number: meld.number ) } if current_melds
+      relation_seat_number = (target_player.seat_order - seat_order) % PLAYERS_COUNT
+      melds_count = current_melds.count
+      melds = build_melds(relation_seat_number, furo_tiles, discarded_tile)
+      melds.each_with_index do |tile, i|
+        number = melds_count + i
+        from = tile == discarded_tile ? relation_seat_number : nil
+        current_state.melds.create!(tile:, kind: furo_type, number:, from:)
+      end
+    end
+
+    def build_melds(relation_seat_number, furo_tiles, discarded_tile)
+      case relation_seat_number
+      when SHIMOCHA_SEAT_NUMBER
+        furo_tiles << discarded_tile
+      when TOIMEN_SEAT_NUMBER
+        copied_furo_tiles = furo_tiles.dup
+        copied_furo_tiles.insert(1, discarded_tile)
+      when KAMICHA_SEAT_NUMBER
+        [ discarded_tile ] + furo_tiles
+      end
     end
 
     def create_discarded_rivers(chosen_hand)
@@ -168,7 +216,7 @@ class Player < ApplicationRecord
       current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
     end
 
-    def create_called_rivers(discarded_tile)
+    def create_stolen_rivers(discarded_tile)
       current_rivers.each do |river|
         called = river.tile == discarded_tile || river.called?
         current_state.rivers.create!(
