@@ -132,10 +132,21 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#advance_current_player!' do
-    before_current_player = @game.current_player
-    @game.advance_current_player!
-    assert_not_equal before_current_player, @game.current_player
-    assert_equal @game.current_seat_number, @game.current_player.seat_order
+    ordered_players =  @game.players.ordered
+    ordered_players.each_with_index do |player, seat_number|
+      assert_equal player, @game.current_player
+
+      @game.advance_current_player!
+      next_seat_number = (seat_number + 1) % ordered_players.count
+      assert_equal ordered_players[next_seat_number], @game.current_player
+    end
+  end
+
+  test '#advance_to_player!' do
+    @game.players.each do |player|
+      @game.advance_to_player!(player)
+      assert_equal player, @game.current_player
+    end
   end
 
   test '#draw_for_current_player' do
@@ -223,5 +234,30 @@ class GameTest < ActiveSupport::TestCase
 
     current_honba.update!(riichi_stick_count: 1)
     assert_equal 1, @game.riichi_stick_count
+  end
+
+  test '#apply_furo' do
+    furo_tile_1 = tiles(:first_manzu_1)
+    furo_tile_2 = tiles(:first_manzu_2)
+    discarded_tile = tiles(:first_manzu_3)
+    furo_type = :chi
+    step = steps(:step_2)
+
+    @game.stub(:next_step, step) do
+      current_player = Minitest::Mock.new
+      user_player = Minitest::Mock.new
+
+      current_player.expect(:stolen, nil, [discarded_tile, step])
+      user_player.expect(:steal,  nil, [current_player, furo_type, [ furo_tile_1, furo_tile_2 ], discarded_tile, step])
+
+      @game.stub(:current_player, current_player) do
+        @game.stub(:user_player, user_player) do
+          @game.apply_furo(furo_type, [ furo_tile_1.id, furo_tile_2.id ], discarded_tile.id)
+        end
+      end
+
+      assert_mock current_player
+      assert_mock user_player
+    end
   end
 end

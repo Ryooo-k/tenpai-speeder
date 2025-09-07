@@ -58,6 +58,10 @@ class Game < ApplicationRecord
     update!(current_seat_number: next_seat_number)
   end
 
+  def advance_to_player!(player)
+    update!(current_seat_number: player.seat_order)
+  end
+
   def draw_count
     current_honba.draw_count
   end
@@ -93,6 +97,13 @@ class Game < ApplicationRecord
 
   def riichi_stick_count
     current_honba.riichi_stick_count
+  end
+
+  def apply_furo(furo_type, furo_ids, discarded_tile_id)
+    furo_tiles = furo_ids.map { |furo_id| tiles.find(furo_id) }
+    discarded_tile = tiles.find(discarded_tile_id)
+    current_player.stolen(discarded_tile, next_step)
+    user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, next_step)
   end
 
   private
