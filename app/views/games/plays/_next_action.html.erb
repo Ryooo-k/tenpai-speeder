@@ -4,13 +4,17 @@
                 method: :post,
                 data: { controller: "auto-submit" } %>
 <% when :choose %>
-  <%= form_with url: game_action_choose_path(@game),
-                method: :post,
-                data: { controller: "auto-submit" } %>
+  <% if @game.current_player.ai? %>
+    <%= form_with url: game_action_choose_path(@game),
+                  method: :get,
+                  data: { controller: "auto-submit" } %>
+  <% end %>
 <% when :discard %>
   <%= form_with url: game_action_discard_path(@game),
                 method: :post,
                 data: { controller: "auto-submit" } do |form| %>
     <%= form.hidden_field :chosen_hand_id, value: @chosen_hand_id %>
   <% end %>
+<% when :furo %>
+    <%= render partial: "furos" %>
 <% end %>

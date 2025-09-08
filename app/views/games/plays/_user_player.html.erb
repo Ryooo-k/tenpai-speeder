@@ -1,13 +1,13 @@
 <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
-  <% if user.drawn? %>
+  <% if @next_action == :choose && @game.current_player.user? %>
     <%= form_with url: game_action_discard_path(@game) do |form| %>
       <div class="flex">
-        <%= render partial: "games/hands/hand", collection: user.hands, locals: { form:, user_drawn: true } %>
+        <%= render partial: "games/hands/hand_form", collection: user.hands, as: :hand, locals: { form: } %>
       </div>
     <% end %>
   <% else %>
     <div class="flex">
-      <%= render partial: "games/hands/hand", collection: user.hands, locals: { user_drawn: false } %>
+      <%= render partial: "games/hands/hand_plain", collection: user.hands, as: :hand %>
     </div>
   <% end %>
 </div>

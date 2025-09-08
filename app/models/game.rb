@@ -100,7 +100,7 @@ class Game < ApplicationRecord
   end
 
   def apply_furo(furo_type, furo_ids, discarded_tile_id)
-    furo_tiles = furo_ids.map { |furo_id| tiles.find(furo_id) }
+    furo_tiles = furo_ids.map { |furo_id| user_player.hands.find(furo_id).tile }
     discarded_tile = tiles.find(discarded_tile_id)
     current_player.stolen(discarded_tile, next_step)
     user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, next_step)

@@ -1,0 +1,38 @@
+<div class="absolute bottom-1/8 right-1/10">
+  <div class="flex gap-2">
+    <% @furo_candidates.each do |furo_name, furo_combinations| %>
+      <% case furo_name %>
+      <% when :chi %>
+        <% furo_combinations.each do |chi_combinations| %>
+          <%= button_to game_action_furo_path(@game),
+                        params: {
+                          discarded_tile_id: @discarded_tile_id,
+                          furo_type: furo_name,
+                          furo_ids: chi_combinations.map(&:id)
+                          },
+                        class: "inline-flex items-end gap-1 rounded border px-2 py-1" do %>
+            <% chi_combinations.each do |hand| %>
+              <%= inline_svg_tag("tiles/#{hand.tile.suit}_#{hand.tile.number}.svg", class: "w-[3.0cqw]") %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% when :pon, :kan %>
+        <%= button_to game_action_furo_path(@game),
+                      params: {
+                        discarded_tile_id: @discarded_tile_id,
+                        furo_type: furo_name,
+                        furo_ids: furo_combinations.map(&:id)
+                        },
+                      class: "inline-flex items-end gap-1 rounded border px-2 py-1" do %>
+          <% furo_combinations.each do |hand| %>
+            <%= inline_svg_tag("tiles/#{hand.tile.suit}_#{hand.tile.number}.svg", class: "w-[3.0cqw]") %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <%= button_to "スルー",
+                  game_action_through_path(@game),
+                  class: "rounded border px-2 py-1" %>
+  </div>
+</div>

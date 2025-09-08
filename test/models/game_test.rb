@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'helpers/game_test_helper'
 
 class GameTest < ActiveSupport::TestCase
+  include GameTestHelper
+
   def setup
     @game = games(:tonpuu)
     @user = users(:ryo)
@@ -131,7 +134,7 @@ class GameTest < ActiveSupport::TestCase
     assert_equal expected, @game.current_player
   end
 
-  test '#advance_current_player!' do
+  test '#advance_current_player! changes current_player to next_player' do
     ordered_players =  @game.players.ordered
     ordered_players.each_with_index do |player, seat_number|
       assert_equal player, @game.current_player
@@ -142,14 +145,14 @@ class GameTest < ActiveSupport::TestCase
     end
   end
 
-  test '#advance_to_player!' do
+  test '#advance_to_player! changes current_player to target_player' do
     @game.players.each do |player|
       @game.advance_to_player!(player)
       assert_equal player, @game.current_player
     end
   end
 
-  test '#draw_for_current_player' do
+  test '#draw_for_current_player adds tile in current_player hands and increments draw_count' do
     before_hand_count = @game.current_player.hands.count
     before_draw_count = @game.draw_count
     @game.draw_for_current_player
@@ -157,7 +160,7 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_draw_count + 1, @game.draw_count
   end
 
-  test '#discard_for_current_player' do
+  test '#discard_for_current_player moves tile from hands to rivers' do
     hand = @game.current_player.hands.create!(tile: tiles(:first_manzu_1))
     assert_equal 1, @game.current_player.hands.count
     assert_not @game.current_player.rivers
@@ -237,27 +240,29 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#apply_furo' do
-    furo_tile_1 = tiles(:first_manzu_1)
-    furo_tile_2 = tiles(:first_manzu_2)
+    set_opponent_turn(@game)
+    manzu_1 = tiles(:first_manzu_1)
+    manzu_2 = tiles(:first_manzu_2)
+    ton = tiles(:first_ton)
     discarded_tile = tiles(:first_manzu_3)
-    furo_type = :chi
-    step = steps(:step_2)
 
-    @game.stub(:next_step, step) do
-      current_player = Minitest::Mock.new
-      user_player = Minitest::Mock.new
+    current_player = @game.current_player
+    current_player_state = current_player.player_states.ordered.last
+    user_player = @game.user_player
+    user_state = user_player.player_states.ordered.last
 
-      current_player.expect(:stolen, nil, [discarded_tile, step])
-      user_player.expect(:steal,  nil, [current_player, furo_type, [ furo_tile_1, furo_tile_2 ], discarded_tile, step])
+    current_player_state.hands.create!(tile: ton)
+    current_player_state.rivers.create!(tile: discarded_tile, tsumogiri: false)
+    hand_1 = user_state.hands.create!(tile: manzu_1)
+    hand_2 = user_state.hands.create!(tile: manzu_2)
+    furo_ids = [ hand_1.id, hand_2.id ]
 
-      @game.stub(:current_player, current_player) do
-        @game.stub(:user_player, user_player) do
-          @game.apply_furo(furo_type, [ furo_tile_1.id, furo_tile_2.id ], discarded_tile.id)
-        end
-      end
+    @game.apply_furo(:chi, furo_ids, discarded_tile.id)
+    stolen_river = current_player.rivers.first
 
-      assert_mock current_player
-      assert_mock user_player
-    end
+    assert_equal [ ton ], current_player.hands.map(&:tile)
+    assert stolen_river.stolen?
+    assert_equal [], user_player.hands
+    assert_equal [ discarded_tile, manzu_1, manzu_2 ], user_player.melds.map(&:tile)
   end
 end
