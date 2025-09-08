@@ -6,7 +6,7 @@ class Honba < ApplicationRecord
 
   belongs_to :round
 
-  has_many :turns, dependent: :destroy
+  has_many :steps, dependent: :destroy
   has_many :tile_orders, dependent: :destroy
   has_many :game_records, dependent: :destroy
 
@@ -14,10 +14,10 @@ class Honba < ApplicationRecord
   validates :number, presence: true
   validates :riichi_stick_count, presence: true
 
-  after_create :create_tile_orders_and_turn
+  after_create :create_tile_orders_and_step
 
-  def current_turn
-    turns.order(:number).last
+  def current_step
+    steps.order(:number).last
   end
 
   def top_tile
@@ -42,9 +42,9 @@ class Honba < ApplicationRecord
 
   private
 
-    def create_tile_orders_and_turn
+    def create_tile_orders_and_step
       setup_tile_orders
-      turns.create!
+      steps.create!
     end
 
     def setup_tile_orders

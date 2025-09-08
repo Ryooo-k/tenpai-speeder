@@ -10,20 +10,20 @@ class StepTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with turn' do
-    turn = turns(:turn_1)
-    step = Step.new(turn:)
+  test 'is valid with honba' do
+    honba = honbas(:honba_0)
+    step = Step.new(honba:)
     assert step.valid?
   end
 
-  test 'is invalid with turn' do
+  test 'is invalid with honba' do
     step = Step.new
     assert step.invalid?
   end
 
   test 'number default to 0' do
-    turn = turns(:turn_1)
-    step = Step.new(turn:)
+    honba = honbas(:honba_0)
+    step = Step.new(honba:)
     assert_equal 0, step.number
   end
 end

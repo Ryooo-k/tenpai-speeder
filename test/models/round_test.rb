@@ -4,7 +4,7 @@ require 'test_helper'
 
 class RoundTest < ActiveSupport::TestCase
   def setup
-    @round = rounds(:ton_1_kyoku)
+    @round = rounds(:ton_1)
   end
 
   test 'destroying round should also destroy honbas' do

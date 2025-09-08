@@ -137,12 +137,8 @@ class Game < ApplicationRecord
       current_round.current_honba
     end
 
-    def current_turn
-      current_honba.current_turn
-    end
-
     def current_step
-      current_turn.current_step
+      current_honba.current_step
     end
 
     def next_step_number
@@ -159,6 +155,6 @@ class Game < ApplicationRecord
 
     def next_step
       next_step_number = current_step.number + 1
-      current_turn.steps.create!(number: next_step_number)
+      current_honba.steps.create!(number: next_step_number)
     end
 end

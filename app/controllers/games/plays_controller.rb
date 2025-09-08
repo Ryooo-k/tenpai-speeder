@@ -33,7 +33,7 @@ class Games::PlaysController < ApplicationController
         { rounds: [
           honbas: [
             { tile_orders: { tile: :base_tile } },
-            { turns: :steps }
+            :steps
           ]
         ] }
       ).find(params[:game_id])

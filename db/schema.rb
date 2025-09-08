@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_06_205735) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_08_071213) do
   create_table "ais", force: :cascade do |t|
     t.string "name", null: false
     t.string "version", null: false
@@ -152,11 +152,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_06_205735) do
   end
 
   create_table "steps", force: :cascade do |t|
-    t.integer "turn_id", null: false
     t.integer "number", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["turn_id"], name: "index_steps_on_turn_id"
+    t.integer "honba_id", null: false
+    t.index ["honba_id"], name: "index_steps_on_honba_id"
   end
 
   create_table "tile_orders", force: :cascade do |t|
@@ -178,14 +178,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_06_205735) do
     t.datetime "updated_at", null: false
     t.index ["base_tile_id"], name: "index_tiles_on_base_tile_id"
     t.index ["game_id"], name: "index_tiles_on_game_id"
-  end
-
-  create_table "turns", force: :cascade do |t|
-    t.integer "honba_id", null: false
-    t.integer "number", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["honba_id"], name: "index_turns_on_honba_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -217,10 +209,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_06_205735) do
   add_foreign_key "rivers", "player_states"
   add_foreign_key "rivers", "tiles"
   add_foreign_key "rounds", "games"
-  add_foreign_key "steps", "turns"
+  add_foreign_key "steps", "honbas"
   add_foreign_key "tile_orders", "honbas"
   add_foreign_key "tile_orders", "tiles"
   add_foreign_key "tiles", "base_tiles"
   add_foreign_key "tiles", "games"
-  add_foreign_key "turns", "honbas"
 end

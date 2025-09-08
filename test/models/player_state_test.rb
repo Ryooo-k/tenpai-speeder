@@ -57,10 +57,10 @@ class PlayerStateTest < ActiveSupport::TestCase
 
   test '.ordered' do
     @player.player_states.delete_all
-    fourth_state = @player.player_states.create!(step: steps(:turn_2_step_2), player: @player)
-    third_state = @player.player_states.create!(step: steps(:turn_2_step_1), player: @player)
-    second_state = @player.player_states.create!(step: steps(:turn_1_step_2), player: @player)
-    first_state = @player.player_states.create!(step: steps(:turn_1_step_1), player: @player)
+    fourth_state = @player.player_states.create!(step: steps(:step_4), player: @player)
+    third_state = @player.player_states.create!(step: steps(:step_3), player: @player)
+    second_state = @player.player_states.create!(step: steps(:step_2), player: @player)
+    first_state = @player.player_states.create!(step: steps(:step_1), player: @player)
     assert_equal [ first_state, second_state, third_state, fourth_state ], @player.player_states.ordered
   end
 end
