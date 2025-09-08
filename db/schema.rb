@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_08_071213) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_08_081519) do
   create_table "ais", force: :cascade do |t|
     t.string "name", null: false
     t.string "version", null: false
@@ -63,6 +63,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_071213) do
     t.datetime "updated_at", null: false
     t.integer "game_mode_id", null: false
     t.integer "current_seat_number", default: 0, null: false
+    t.integer "current_step_number", default: 0, null: false
     t.index ["game_mode_id"], name: "index_games_on_game_mode_id"
   end
 

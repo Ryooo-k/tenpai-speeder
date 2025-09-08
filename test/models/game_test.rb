@@ -57,6 +57,10 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 0, @game.current_seat_number
   end
 
+  test 'current_step_number default to 0' do
+    assert_equal 0, @game.current_step_number
+  end
+
   test 'creates first round and 136 tiles when after_create calls create_tiles_and_round' do
     game = Game.new(game_mode: game_modes(:tonpuu_mode))
     assert_equal 0, game.rounds.count
