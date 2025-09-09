@@ -30,15 +30,19 @@ class Player < ApplicationRecord
   scope :ais, -> { where.not(ai_id: nil) }
 
   def hands
-    current_state.hands.sorted
+    base_states.with_hands.ordered.last&.hands&.sorted || Hand.none
   end
 
   def rivers
-    current_rivers&.ordered
+    base_states.with_rivers.ordered.last&.rivers || River.none
   end
 
   def melds
-    current_melds&.ordered
+    base_states.with_melds.ordered.last&.melds || Meld.none
+  end
+
+  def current_state
+    base_states.ordered.last
   end
 
   def receive(tile)
@@ -46,26 +50,22 @@ class Player < ApplicationRecord
   end
 
   def draw(drawn_tile, step)
-    current_hands = current_state.hands
     player_states.create!(step:)
-    create_drawn_hands(current_hands, drawn_tile)
+    create_drawn_hands(drawn_tile)
   end
 
   def discard(chosen_hand_id, step)
-    chosen_hand = current_state.hands.find(chosen_hand_id)
-    current_hands = current_state.hands
+    chosen_hand = hands.find(chosen_hand_id)
     player_states.create!(step:)
-    create_discarded_hands(current_hands, chosen_hand)
+    create_discarded_hands(chosen_hand)
     create_discarded_rivers(chosen_hand)
     chosen_hand.tile
   end
 
   def steal(target_player, furo_type, furo_tiles, discarded_tile, step)
-    current_hands = current_state.hands
-    current_melds = current_state.melds
     player_states.create!(step:)
-    create_stole_hands(current_hands, furo_tiles)
-    create_melds(current_melds, target_player, furo_type, furo_tiles, discarded_tile)
+    create_stole_hands(furo_tiles)
+    create_stole_melds(target_player, furo_type, furo_tiles, discarded_tile)
   end
 
   def stolen(discarded_tile, step)
@@ -151,37 +151,33 @@ class Player < ApplicationRecord
       end
     end
 
-    def current_state
-      player_states.ordered.last
+    def current_step_number
+      game.current_step_number
     end
 
-    def current_rivers
-      player_states.with_rivers.last&.rivers
+    def base_states
+      player_states.up_to_step(current_step_number)
     end
 
-    def current_melds
-      player_states.with_melds.last&.melds
-    end
-
-    def create_drawn_hands(current_hands, drawn_tile)
-      current_hands.each { |hand| current_state.hands.create!(tile_id: hand.tile_id) }
+    def create_drawn_hands(drawn_tile)
+      hands.each { |hand| current_state.hands.create!(tile_id: hand.tile_id) }
       current_state.hands.create!(tile: drawn_tile, drawn: true)
     end
 
-    def create_discarded_hands(current_hands, chosen_hand)
-      new_hands = current_hands.select { |hand| hand.id != chosen_hand.id }
+    def create_discarded_hands(chosen_hand)
+      new_hands = hands.select { |hand| hand.id != chosen_hand.id }
       new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
     end
 
-    def create_stole_hands(current_hands, furo_tiles)
-      new_hands = current_hands.reject { |hand| furo_tiles.include?(hand.tile) }
+    def create_stole_hands(furo_tiles)
+      new_hands = hands.reject { |hand| furo_tiles.include?(hand.tile) }
       new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
     end
 
-    def create_melds(current_melds, target_player, furo_type, furo_tiles, discarded_tile)
-      current_melds.each { |meld| current_state.melds.create!(tile: meld.tile, from: meld&.from, kind: meld.kind, number: meld.number ) } if current_melds
+    def create_stole_melds(target_player, furo_type, furo_tiles, discarded_tile)
+      melds.each { |meld| current_state.melds.create!(tile: meld.tile, from: meld&.from, kind: meld.kind, number: meld.number ) } if melds
       relation_seat_number = (target_player.seat_order - seat_order) % PLAYERS_COUNT
-      melds_count = current_melds.count
+      melds_count = melds.count
       melds = build_melds(relation_seat_number, furo_tiles, discarded_tile)
       melds.each_with_index do |tile, i|
         number = melds_count + i
@@ -203,28 +199,18 @@ class Player < ApplicationRecord
     end
 
     def create_discarded_rivers(chosen_hand)
-      if current_rivers
-        current_rivers.each do |river|
-          current_state.rivers.create!(
-            tile: river.tile,
-            tsumogiri: river.tsumogiri?,
-            stolen: river.stolen,
-            created_at: river.created_at
-          )
+      if rivers
+        rivers.each do |river|
+          current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, stolen: river.stolen, created_at: river.created_at)
         end
       end
       current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
     end
 
     def create_stolen_rivers(discarded_tile)
-      current_rivers.each do |river|
+      rivers.each do |river|
         stolen = river.tile == discarded_tile || river.stolen?
-        current_state.rivers.create!(
-          tile: river.tile,
-          tsumogiri: river.tsumogiri?,
-          stolen:,
-          created_at: river.created_at
-        )
+        current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, stolen:, created_at: river.created_at)
       end
     end
 

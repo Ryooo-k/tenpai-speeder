@@ -67,14 +67,14 @@ class Game < ApplicationRecord
   end
 
   def draw_for_current_player
-    next_step = create_next_step
-    current_player.draw(top_tile, next_step)
+    advance_step!
+    current_player.draw(top_tile, current_step)
     increase_draw_count
   end
 
   def discard_for_current_player(hand_id)
-    next_step = create_next_step
-    current_player.discard(hand_id, next_step)
+    advance_step!
+    current_player.discard(hand_id, current_step)
   end
 
   def current_round_name
@@ -104,9 +104,9 @@ class Game < ApplicationRecord
   def apply_furo(furo_type, furo_ids, discarded_tile_id)
     furo_tiles = furo_ids.map { |furo_id| user_player.hands.find(furo_id).tile }
     discarded_tile = tiles.find(discarded_tile_id)
-    next_step = create_next_step
-    current_player.stolen(discarded_tile, next_step)
-    user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, next_step)
+    advance_step!
+    current_player.stolen(discarded_tile, current_step)
+    user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, current_step)
   end
 
   private
@@ -141,11 +141,7 @@ class Game < ApplicationRecord
     end
 
     def current_step
-      current_honba.current_step
-    end
-
-    def next_step_number
-      current_step.number + 1
+      current_honba.find_current_step(current_step_number)
     end
 
     def top_tile
@@ -156,8 +152,9 @@ class Game < ApplicationRecord
       current_honba.increment!(:draw_count)
     end
 
-    def create_next_step
-      next_step_number = current_step.number + 1
+    def advance_step!
+      next_step_number = current_step_number + 1
+      update!(current_step_number: next_step_number)
       current_honba.steps.create!(number: next_step_number)
     end
 end

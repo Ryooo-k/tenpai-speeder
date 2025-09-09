@@ -16,8 +16,8 @@ class Honba < ApplicationRecord
 
   after_create :create_tile_orders_and_step
 
-  def current_step
-    steps.order(:number).last
+  def find_current_step(step_number)
+    steps.find_by!(number: step_number)
   end
 
   def top_tile

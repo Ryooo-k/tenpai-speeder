@@ -65,10 +65,10 @@ class HonbaTest < ActiveSupport::TestCase
     assert_equal 136, honba.tile_orders.count
   end
 
-  test '#current_step' do
-    max_number = @honba.steps.maximum(:number)
-    max_number_turn = @honba.steps.find_by(number: max_number)
-    assert_equal max_number_turn, @honba.current_step
+  test '#find_current_step' do
+    step_number = 10
+    expected = @honba.steps.create!(number: step_number)
+    assert_equal expected, @honba.find_current_step(step_number)
   end
 
   test '#top_tile' do

@@ -10,7 +10,7 @@ class Games::ActionsController < ApplicationController
   end
 
   def choose
-    chosen_hand_id = params.permit(:chosen_hand_id).presence || @game.current_player.choose
+    chosen_hand_id = @game.current_player.choose
     flash[:next_action] = :discard
     flash[:chosen_hand_id] = chosen_hand_id
     redirect_to game_play_path(@game)
