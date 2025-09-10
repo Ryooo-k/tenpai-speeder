@@ -9,11 +9,13 @@ Rails.application.routes.draw do
 
   resources :games, only: :create do
     scope module: :games do
-      resource :play,   only: :show
+      resource :play, only: :show
 
       post 'action/draw',    to: 'actions#draw'
-      post 'action/choose',  to: 'actions#choose'
+      get 'action/choose',   to: 'actions#choose'
       post 'action/discard', to: 'actions#discard'
+      post 'action/furo',    to: 'actions#furo'
+      post 'action/through', to: 'actions#through'
     end
   end
 end

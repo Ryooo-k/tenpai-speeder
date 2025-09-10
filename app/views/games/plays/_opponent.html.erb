@@ -1,6 +1,6 @@
 <div class="absolute <%= build_hand_position_class(player) %>">
   <div class="flex <%= '-translate-y-1/2' if player.relation_from_user.in?([ :shimocha, :kamicha ]) %>">
-    <%= render partial: "games/hands/hand", collection: player.hands, locals: { user_drawn: false } %>
+    <%= render partial: "games/hands/hand_plain", collection: player.hands, as: :hand %>
   </div>
 </div>
 

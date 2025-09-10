@@ -3,83 +3,49 @@
 require 'test_helper'
 
 class MeldTest < ActiveSupport::TestCase
-  test 'is valid with player_state and tile and pon action' do
-    player_state = player_states(:ryo)
+  def setup
+    @state = player_states(:ryo)
+  end
+
+  test 'is valid with player_state and tile and kind and number' do
     manzu_1 = tiles(:first_manzu_1)
-    action = actions(:pon)
-    meld = Meld.new(player_state:, tile: manzu_1, action:)
+    meld = Meld.new(player_state: @state, tile: manzu_1, kind: :pon, number: 0)
     assert meld.valid?
   end
 
   test 'is invalid without player_state' do
     manzu_1 = tiles(:first_manzu_1)
-    action = actions(:pon)
-    meld = Meld.new(tile: manzu_1, action:)
+    meld = Meld.new(tile: manzu_1, kind: :pon, number: 0)
     assert meld.invalid?
   end
 
   test 'is invalid without tile' do
-    player_state = player_states(:ryo)
-    action = actions(:pon)
-    meld = Meld.new(player_state:, action:)
+    meld = Meld.new(player_state: @state, kind: :pon, number: 0)
     assert meld.invalid?
   end
 
-  test 'is invalid without action' do
-    player_state = player_states(:ryo)
+  test 'is invalid without kind' do
     manzu_1 = tiles(:first_manzu_1)
-    meld = Meld.new(player_state:, tile: manzu_1)
+    meld = Meld.new(player_state: @state, tile: manzu_1, number: 0)
     assert meld.invalid?
   end
 
-  test 'validate_action_type' do
-    player_state = player_states(:ryo)
-    tile = tiles(:first_manzu_1)
-
-    chi = actions(:chi)
-    meld = Meld.new(player_state:, tile:, action: chi)
-    assert meld.valid?
-
-    daiminkan = actions(:daiminkan)
-    meld = Meld.new(player_state:, tile:, action: daiminkan)
-    assert meld.valid?
-
-    kakan = actions(:kakan)
-    meld = Meld.new(player_state:, tile:, action: kakan)
-    assert meld.valid?
-
-    ankan = actions(:ankan)
-    meld = Meld.new(player_state:, tile:, action: ankan)
-    assert meld.valid?
-
-    draw = actions(:draw)
-    meld = Meld.new(player_state:, tile:, action: draw)
+  test 'is invalid without number' do
+    manzu_1 = tiles(:first_manzu_1)
+    meld = Meld.new(player_state: @state, tile: manzu_1, kind: :pon)
     assert meld.invalid?
-    assert_includes meld.errors[:action], 'drawは許可されていません'
+  end
 
-    discard = actions(:discard)
-    meld = Meld.new(player_state:, tile:, action: discard)
-    assert meld.invalid?
-    assert_includes meld.errors[:action], 'discardは許可されていません'
-
-    riichi = actions(:riichi)
-    meld = Meld.new(player_state:, tile:, action: riichi)
-    assert meld.invalid?
-    assert_includes meld.errors[:action], 'riichiは許可されていません'
-
-    tsumo = actions(:tsumo)
-    meld = Meld.new(player_state:, tile:, action: tsumo)
-    assert meld.invalid?
-    assert_includes meld.errors[:action], 'tsumoは許可されていません'
-
-    ron = actions(:ron)
-    meld = Meld.new(player_state:, tile:, action: ron)
-    assert meld.invalid?
-    assert_includes meld.errors[:action], 'ronは許可されていません'
-
-    pass = actions(:pass)
-    meld = Meld.new(player_state:, tile:, action: pass)
-    assert meld.invalid?
-    assert_includes meld.errors[:action], 'passは許可されていません'
+  test '.ordered sorts by player_state_id desc and number asc' do
+    player = players(:ryo)
+    state_1 = player.player_states.create!(player:, step: steps(:step_1))
+    state_2 = player.player_states.create!(player:, step: steps(:step_2))
+    state_1_meld_0 = Meld.create!(player_state: state_1, tile: tiles(:first_manzu_1), kind: :chi, number: 0)
+    state_1_meld_1 = Meld.create!(player_state: state_1, tile: tiles(:first_manzu_2), kind: :chi, number: 1)
+    state_1_meld_2 = Meld.create!(player_state: state_1, tile: tiles(:first_manzu_3), kind: :chi, number: 2)
+    state_2_meld_0 = Meld.create!(player_state: state_2, tile: tiles(:first_manzu_1), kind: :chi, number: 0)
+    state_2_meld_1 = Meld.create!(player_state: state_2, tile: tiles(:first_manzu_2), kind: :chi, number: 1)
+    state_2_meld_2 = Meld.create!(player_state: state_2, tile: tiles(:first_manzu_3), kind: :chi, number: 2)
+    assert_equal [ state_2_meld_0, state_2_meld_1, state_2_meld_2, state_1_meld_0, state_1_meld_1, state_1_meld_2 ], Meld.all.sorted.to_a
   end
 end

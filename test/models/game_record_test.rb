@@ -18,7 +18,7 @@ class GameRecordTest < ActiveSupport::TestCase
   end
 
   test 'record default to 25_000' do
-    record = GameRecord.new(player: @player, honba: honbas(:ton_1_kyoku_0_honba))
+    record = GameRecord.new(player: @player, honba: honbas(:honba_0))
     assert_equal 25_000, record.score
   end
 

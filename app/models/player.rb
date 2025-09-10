@@ -6,6 +6,11 @@ class Player < ApplicationRecord
   NAN_TILE_CODE = 28
   SHA_TILE_CODE = 29
   PEI_TILE_CODE = 30
+  KAN_REQUIRED_HAND_COUNT = 3
+  PON_REQUIRED_HAND_COUNT = 2
+  SHIMOCHA_SEAT_NUMBER = 1
+  TOIMEN_SEAT_NUMBER = 2
+  KAMICHA_SEAT_NUMBER = 3
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -13,12 +18,10 @@ class Player < ApplicationRecord
 
   has_many :results, dependent: :destroy
   has_many :game_records, dependent: :destroy
-  has_many :actions, dependent: :destroy
-  has_many :actions_from, class_name: 'Action', foreign_key: 'from_player_id', inverse_of: :from_player
   has_many :player_states, dependent: :destroy
 
-  validates :seat_order, presence: true
   validates :game, presence: true
+  validates :seat_order, presence: true
 
   validate :validate_player_type
 
@@ -27,11 +30,19 @@ class Player < ApplicationRecord
   scope :ais, -> { where.not(ai_id: nil) }
 
   def hands
-    current_state.hands.sorted
+    base_hands.present? ? base_hands.sorted : Hand.none
   end
 
   def rivers
-    current_rivers&.ordered
+    base_rivers.present? ? base_rivers.where(stolen: false) : River.none
+  end
+
+  def melds
+    base_melds.present? ? base_melds.sorted : Meld.none
+  end
+
+  def current_state
+    base_states.ordered.last
   end
 
   def receive(tile)
@@ -39,17 +50,27 @@ class Player < ApplicationRecord
   end
 
   def draw(drawn_tile, step)
-    current_hands = current_state.hands
     player_states.create!(step:)
-    create_drawn_hands(current_hands, drawn_tile)
+    create_drawn_hands(drawn_tile)
   end
 
   def discard(chosen_hand_id, step)
-    chosen_hand = current_state.hands.find(chosen_hand_id)
-    current_hands = current_state.hands
+    chosen_hand = hands.find(chosen_hand_id)
     player_states.create!(step:)
-    create_discarded_hands(current_hands, chosen_hand)
-    create_rivers(chosen_hand)
+    create_discarded_hands(chosen_hand)
+    create_discarded_rivers(chosen_hand)
+    chosen_hand.tile
+  end
+
+  def steal(target_player, furo_type, furo_tiles, discarded_tile, step)
+    player_states.create!(step:)
+    create_stole_hands(furo_tiles)
+    create_stole_melds(target_player, furo_type, furo_tiles, discarded_tile)
+  end
+
+  def stolen(discarded_tile, step)
+    player_states.create!(step:)
+    create_stolen_rivers(discarded_tile)
   end
 
   # ai用打牌選択のメソッド
@@ -64,6 +85,10 @@ class Player < ApplicationRecord
 
   def ai?
     ai_id.present?
+  end
+
+  def user?
+    user_id.present?
   end
 
   def relation_from_user
@@ -86,7 +111,7 @@ class Player < ApplicationRecord
   end
 
   def wind_name
-    case wind_seat_number
+    case wind_number
     when 0 then '東'
     when 1 then '北'
     when 2 then '西'
@@ -95,12 +120,25 @@ class Player < ApplicationRecord
   end
 
   def wind_code
-    case wind_seat_number
+    case wind_number
     when 0 then TON_TILE_CODE
     when 1 then PEI_TILE_CODE
     when 2 then SHA_TILE_CODE
     when 3 then NAN_TILE_CODE
     end
+  end
+
+  def can_furo?(target_tile, target_player)
+    return if self == target_player
+    can_pon?(target_tile) || can_chi?(target_tile, target_player)
+  end
+
+  def find_furo_candidates(target_tile, target_player)
+    {
+      pon: find_pon_candidates(target_tile),
+      chi: find_chi_candidates(target_tile, target_player),
+      kan: find_kan_candidates(target_tile)
+    }.compact
   end
 
   private
@@ -113,27 +151,76 @@ class Player < ApplicationRecord
       end
     end
 
-    def current_state
-      player_states.ordered.last
+    def current_step_number
+      game.current_step_number
     end
 
-    def current_rivers
-      player_states.with_rivers.last&.rivers
+    def base_states
+      player_states.up_to_step(current_step_number)
     end
 
-    def create_drawn_hands(current_hands, drawn_tile)
-      current_hands.each { |hand| current_state.hands.create!(tile_id: hand.tile_id) }
+    def base_hands
+      base_states.with_hands.ordered.last&.hands
+    end
+
+    def base_rivers
+      base_states.with_rivers.ordered.last&.rivers
+    end
+
+    def base_melds
+      Meld.where(player_state: base_states.with_melds)
+    end
+
+    def create_drawn_hands(drawn_tile)
+      hands.each { |hand| current_state.hands.create!(tile_id: hand.tile_id) }
       current_state.hands.create!(tile: drawn_tile, drawn: true)
     end
 
-    def create_discarded_hands(current_hands, chosen_hand)
-      new_hands = current_hands.select { |hand| hand.id != chosen_hand.id }
+    def create_discarded_hands(chosen_hand)
+      new_hands = hands.select { |hand| hand.id != chosen_hand.id }
       new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
     end
 
-    def create_rivers(chosen_hand)
-      current_rivers.each { |river| current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?) } if current_rivers
+    def create_stole_hands(furo_tiles)
+      new_hands = hands.reject { |hand| furo_tiles.include?(hand.tile) }
+      new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
+    end
+
+    def create_stole_melds(target_player, furo_type, furo_tiles, discarded_tile)
+      relation_seat_number = (target_player.seat_order - seat_order) % PLAYERS_COUNT
+      melds = build_melds(relation_seat_number, furo_tiles, discarded_tile)
+      melds.each_with_index do |tile, number|
+        from = tile == discarded_tile ? relation_seat_number : nil
+        current_state.melds.create!(tile:, kind: furo_type, number:, from:)
+      end
+    end
+
+    def build_melds(relation_seat_number, furo_tiles, discarded_tile)
+      case relation_seat_number
+      when SHIMOCHA_SEAT_NUMBER
+        furo_tiles + [ discarded_tile ]
+      when TOIMEN_SEAT_NUMBER
+        head, *tail = furo_tiles
+        [ head, discarded_tile, *tail ]
+      when KAMICHA_SEAT_NUMBER
+        [ discarded_tile ] + furo_tiles
+      end
+    end
+
+    def create_discarded_rivers(chosen_hand)
+      if rivers
+        rivers.each do |river|
+          current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, stolen: river.stolen, created_at: river.created_at)
+        end
+      end
       current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
+    end
+
+    def create_stolen_rivers(discarded_tile)
+      rivers.each do |river|
+        stolen = river.tile == discarded_tile || river.stolen?
+        current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, stolen:, created_at: river.created_at)
+      end
     end
 
     def user_seat_number
@@ -144,7 +231,70 @@ class Player < ApplicationRecord
       game.host_player.seat_order
     end
 
-    def wind_seat_number
+    def wind_number
       (host_seat_number - seat_order) % PLAYERS_COUNT
+    end
+
+    def hand_tiles
+      hands.map(&:tile)
+    end
+
+    def find_kan_candidates(target_tile)
+      return unless can_kan?(target_tile)
+      hands.select { |hand| hand.tile.code == target_tile.code }
+    end
+
+    def can_kan?(target_tile)
+      hand_tiles.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
+    end
+
+    def find_pon_candidates(target_tile)
+      return unless can_pon?(target_tile)
+      hands.select { |hand| hand.tile.code == target_tile.code }[..1]
+    end
+
+    def can_pon?(target_tile)
+      codes = hand_tiles.map(&:code)
+      return unless codes.include?(target_tile.code)
+      codes.tally[target_tile.code] >= PON_REQUIRED_HAND_COUNT
+    end
+
+    def find_chi_candidates(target_tile, target_player)
+      return unless can_chi?(target_tile, target_player)
+
+      chi_candidates = []
+      hand_codes = hand_tiles.map(&:code)
+      possible_chi_table = build_possible_chi_table(target_tile)
+
+      possible_chi_table.each do |possible_chi_codes|
+        if possible_chi_codes.all? { |code| hand_codes.include?(code) }
+          chi_candidates << possible_chi_codes.map do |chi_code|
+                              hands.select { |hand| hand.tile.code == chi_code }.first
+                            end
+        end
+      end
+      chi_candidates.blank? ? nil : chi_candidates
+    end
+
+    def can_chi?(target_tile, target_player)
+      kamicha_seat_order = (target_player.seat_order + 1) % PLAYERS_COUNT
+      return if seat_order != kamicha_seat_order || target_tile.code >= TON_TILE_CODE
+
+      hand_codes = hand_tiles.map(&:code)
+      possible_chi_table = build_possible_chi_table(target_tile)
+      possible_chi_table.any? do |possible_chi_codes|
+        possible_chi_codes.all? { |code| hand_codes.include?(code) }
+      end
+    end
+
+    def build_possible_chi_table(tile)
+      number = tile.number
+      code = tile.code
+
+      candidates = []
+      candidates << [ code - 2, code - 1 ] if number >= 3
+      candidates << [ code - 1, code + 1 ] if (2..8).include?(number)
+      candidates << [ code + 1, code + 2 ] if number <= 7
+      candidates
     end
 end

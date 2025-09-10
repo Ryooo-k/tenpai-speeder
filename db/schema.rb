@@ -10,19 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
-  create_table "actions", force: :cascade do |t|
-    t.integer "step_id", null: false
-    t.integer "player_id", null: false
-    t.integer "from_player_id"
-    t.integer "action_type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["from_player_id"], name: "index_actions_on_from_player_id"
-    t.index ["player_id"], name: "index_actions_on_player_id"
-    t.index ["step_id"], name: "index_actions_on_step_id"
-  end
-
+ActiveRecord::Schema[8.0].define(version: 2025_09_08_081519) do
   create_table "ais", force: :cascade do |t|
     t.string "name", null: false
     t.string "version", null: false
@@ -75,6 +63,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
     t.datetime "updated_at", null: false
     t.integer "game_mode_id", null: false
     t.integer "current_seat_number", default: 0, null: false
+    t.integer "current_step_number", default: 0, null: false
     t.index ["game_mode_id"], name: "index_games_on_game_mode_id"
   end
 
@@ -102,10 +91,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
   create_table "melds", force: :cascade do |t|
     t.integer "player_state_id", null: false
     t.integer "tile_id", null: false
-    t.integer "action_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["action_id"], name: "index_melds_on_action_id"
+    t.integer "from"
+    t.integer "kind", null: false
+    t.integer "number", null: false
     t.index ["player_state_id"], name: "index_melds_on_player_state_id"
     t.index ["tile_id"], name: "index_melds_on_tile_id"
   end
@@ -149,6 +139,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
     t.boolean "tsumogiri", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "stolen", default: false
     t.index ["player_state_id"], name: "index_rivers_on_player_state_id"
     t.index ["tile_id"], name: "index_rivers_on_tile_id"
   end
@@ -162,11 +153,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
   end
 
   create_table "steps", force: :cascade do |t|
-    t.integer "turn_id", null: false
     t.integer "number", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["turn_id"], name: "index_steps_on_turn_id"
+    t.integer "honba_id", null: false
+    t.index ["honba_id"], name: "index_steps_on_honba_id"
   end
 
   create_table "tile_orders", force: :cascade do |t|
@@ -190,14 +181,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
     t.index ["game_id"], name: "index_tiles_on_game_id"
   end
 
-  create_table "turns", force: :cascade do |t|
-    t.integer "honba_id", null: false
-    t.integer "number", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["honba_id"], name: "index_turns_on_honba_id"
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "provider"
@@ -207,9 +190,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "actions", "players"
-  add_foreign_key "actions", "players", column: "from_player_id"
-  add_foreign_key "actions", "steps"
   add_foreign_key "favorites", "games"
   add_foreign_key "favorites", "users"
   add_foreign_key "game_records", "honbas"
@@ -218,7 +198,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
   add_foreign_key "hands", "player_states"
   add_foreign_key "hands", "tiles"
   add_foreign_key "honbas", "rounds"
-  add_foreign_key "melds", "actions"
   add_foreign_key "melds", "player_states"
   add_foreign_key "melds", "tiles"
   add_foreign_key "player_states", "players"
@@ -231,10 +210,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_060904) do
   add_foreign_key "rivers", "player_states"
   add_foreign_key "rivers", "tiles"
   add_foreign_key "rounds", "games"
-  add_foreign_key "steps", "turns"
+  add_foreign_key "steps", "honbas"
   add_foreign_key "tile_orders", "honbas"
   add_foreign_key "tile_orders", "tiles"
   add_foreign_key "tiles", "base_tiles"
   add_foreign_key "tiles", "games"
-  add_foreign_key "turns", "honbas"
 end

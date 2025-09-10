@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 class Step < ApplicationRecord
-  belongs_to :turn
+  belongs_to :honba
 
-  has_many :actions, dependent: :destroy
   has_many :player_states, dependent: :destroy
 
+  validates :honba, presence: true
   validates :number, presence: true
-  validates :turn, presence: true
 end

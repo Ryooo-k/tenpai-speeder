@@ -2,15 +2,13 @@
 
 class Games::ActionsController < ApplicationController
   before_action :set_game
-  before_action :action_params, only: :discard
 
   def draw
     @game.draw_for_current_player
-    flash[:next_action] = :choose if @game.current_player.ai?
+    flash[:next_action] = :choose
     redirect_to game_play_path(@game)
   end
 
-  # ai用打牌選択アクション
   def choose
     chosen_hand_id = @game.current_player.choose
     flash[:next_action] = :discard
@@ -19,8 +17,36 @@ class Games::ActionsController < ApplicationController
   end
 
   def discard
-    chosen_hand_id = action_params.to_i
-    @game.discard_for_current_player(chosen_hand_id)
+    chosen_hand_id = params.expect(:chosen_hand_id).to_i
+    discarded_tile = @game.discard_for_current_player(chosen_hand_id)
+
+    # 現状aiは副露を学習していないため、
+    # userが打牌した際のai_player副露はせずdrawアクションに移行する。
+    # aiが副露を学習後、ai用副露処理の実装を行う。
+    is_user_furo = @game.user_player.can_furo?(discarded_tile, @game.current_player)
+    if is_user_furo
+      flash[:next_action] = :furo
+      flash[:discarded_tile_id] = discarded_tile.id
+    else
+      @game.advance_current_player!
+      flash[:next_action] = :draw
+    end
+
+    redirect_to game_play_path(@game)
+  end
+
+  def furo
+    furo_type = params.expect(:furo_type)
+    furo_ids = params.expect(furo_ids: []).map(&:to_i)
+    discarded_tile_id = params.expect(:discarded_tile_id).to_i
+
+    @game.apply_furo(furo_type, furo_ids, discarded_tile_id)
+    @game.advance_to_player!(@game.user_player)
+    flash[:next_action] = :choose
+    redirect_to game_play_path(@game)
+  end
+
+  def through
     @game.advance_current_player!
     flash[:next_action] = :draw
     redirect_to game_play_path(@game)
@@ -37,20 +63,16 @@ class Games::ActionsController < ApplicationController
           { game_records: :honba },
           { player_states: [
             { hands: { tile: :base_tile } },
-            { melds:  [ { tile: :base_tile }, :action ] },
+            { melds:  [ { tile: :base_tile } ] },
             { rivers: { tile: :base_tile } }
           ] }
         ] },
         { rounds: [
           honbas: [
             { tile_orders: { tile: :base_tile } },
-            { turns: :steps }
+            :steps
           ]
         ] }
       ).find(params[:game_id])
-    end
-
-    def action_params
-      params.expect(:chosen_hand_id)
     end
 end

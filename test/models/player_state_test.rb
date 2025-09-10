@@ -55,12 +55,26 @@ class PlayerStateTest < ActiveSupport::TestCase
     assert player_state.valid?
   end
 
-  test '.ordered' do
+  test '.ordered orders step_id' do
     @player.player_states.delete_all
-    fourth_state = @player.player_states.create!(step: steps(:turn_2_step_2), player: @player)
-    third_state = @player.player_states.create!(step: steps(:turn_2_step_1), player: @player)
-    second_state = @player.player_states.create!(step: steps(:turn_1_step_2), player: @player)
-    first_state = @player.player_states.create!(step: steps(:turn_1_step_1), player: @player)
-    assert_equal [ first_state, second_state, third_state, fourth_state ], @player.player_states.ordered
+    state_4 = @player.player_states.create!(step: steps(:step_4))
+    state_3 = @player.player_states.create!(step: steps(:step_3))
+    state_2 = @player.player_states.create!(step: steps(:step_2))
+    state_1 = @player.player_states.create!(step: steps(:step_1))
+    assert_equal [ state_1, state_2, state_3, state_4 ], @player.player_states.ordered
+  end
+
+  test '.up_to_steps' do
+    @player.player_states.delete_all
+    step_1 = steps(:step_1)
+    step_2 = steps(:step_2)
+    step_3 = steps(:step_3)
+    state_1 = @player.player_states.create!(step: step_1)
+    state_2 = @player.player_states.create!(step: step_2)
+    state_3 = @player.player_states.create!(step: step_3)
+
+    assert_equal [ state_1 ], @player.player_states.up_to_step(step_1.number)
+    assert_equal [ state_1, state_2 ], @player.player_states.up_to_step(step_2.number)
+    assert_equal [ state_1, state_2, state_3 ], @player.player_states.up_to_step(step_3.number)
   end
 end

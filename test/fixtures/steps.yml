@@ -1,35 +1,15 @@
 step_1:
-  turn: turn_1
+  honba: honba_0
   number: 0
 
 step_2:
-  turn: turn_1
+  honba: honba_0
   number: 1
 
 step_3:
-  turn: turn_1
+  honba: honba_0
   number: 2
 
 step_4:
-  turn: turn_1
+  honba: honba_0
   number: 3
-
-turn_1_step_1:
-  id: 1
-  turn: turn_1
-  number: 0
-
-turn_1_step_2:
-  id: 2
-  turn: turn_1
-  number: 1
-
-turn_2_step_1:
-  id: 3
-  turn: turn_2
-  number: 0
-
-turn_2_step_2:
-  id: 4
-  turn: turn_2
-  number: 1

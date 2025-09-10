@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'helpers/game_test_helper'
 
 class GameTest < ActiveSupport::TestCase
+  include GameTestHelper
+
   def setup
     @game = games(:tonpuu)
     @user = users(:ryo)
@@ -52,6 +55,10 @@ class GameTest < ActiveSupport::TestCase
 
   test 'current_seat_number default to 0' do
     assert_equal 0, @game.current_seat_number
+  end
+
+  test 'current_step_number default to 0' do
+    assert_equal 0, @game.current_step_number
   end
 
   test 'creates first round and 136 tiles when after_create calls create_tiles_and_round' do
@@ -131,29 +138,60 @@ class GameTest < ActiveSupport::TestCase
     assert_equal expected, @game.current_player
   end
 
-  test '#advance_current_player!' do
-    before_current_player = @game.current_player
-    @game.advance_current_player!
-    assert_not_equal before_current_player, @game.current_player
-    assert_equal @game.current_seat_number, @game.current_player.seat_order
+  test '#advance_current_player! changes current_player to next_player' do
+    ordered_players = @game.players.ordered
+    ordered_players.each_with_index do |player, seat_number|
+      assert_equal player, @game.current_player
+
+      @game.advance_current_player!
+      next_seat_number = (seat_number + 1) % ordered_players.count
+      assert_equal ordered_players[next_seat_number], @game.current_player
+    end
   end
 
-  test '#draw_for_current_player' do
+  test '#advance_to_player! changes current_player to target_player' do
+    @game.players.each do |player|
+      @game.advance_to_player!(player)
+      assert_equal player, @game.current_player
+    end
+  end
+
+  test '#draw_for_current_player increments current_player hand count' do
     before_hand_count = @game.current_player.hands.count
-    before_draw_count = @game.draw_count
     @game.draw_for_current_player
     assert_equal before_hand_count + 1, @game.current_player.hands.count
+  end
+
+  test '#draw_for_current_player increments draw_count' do
+    before_draw_count = @game.draw_count
+    @game.draw_for_current_player
     assert_equal before_draw_count + 1, @game.draw_count
   end
 
-  test '#discard_for_current_player' do
-    hand = @game.current_player.hands.create!(tile: tiles(:first_manzu_1))
-    assert_equal 1, @game.current_player.hands.count
-    assert_not @game.current_player.rivers
+  test '#draw_for_current_player increments current_step_number and creates new step' do
+    before_step_number = @game.current_step_number
+    @game.draw_for_current_player
+    assert_equal before_step_number + 1, @game.current_step_number
+  end
 
+  test '#discard_for_current_player moves tile from hands to rivers' do
+    manzu_1 = tiles(:first_manzu_1)
+    manzu_2 = tiles(:first_manzu_2)
+    hand_1 = @game.current_player.current_state.hands.create!(tile: manzu_1)
+    @game.current_player.current_state.hands.create!(tile: manzu_2)
+    assert_equal [ manzu_1, manzu_2 ], @game.current_player.hands.map(&:tile)
+    assert_equal [], @game.current_player.rivers
+
+    @game.discard_for_current_player(hand_1.id)
+    assert_equal [ manzu_2 ], @game.current_player.hands.map(&:tile)
+    assert_equal [ manzu_1 ], @game.current_player.rivers.map(&:tile)
+  end
+
+  test '#discard_for_current_player increments current_step_number and creates new step' do
+    hand = @game.current_player.current_state.hands.create!(tile: tiles(:first_manzu_1))
+    before_step_number = @game.current_step_number
     @game.discard_for_current_player(hand.id)
-    assert_equal 0, @game.current_player.hands.count
-    assert_equal 1, @game.current_player.rivers.count
+    assert_equal before_step_number + 1, @game.current_step_number
   end
 
   test '#current_round_name' do
@@ -223,5 +261,35 @@ class GameTest < ActiveSupport::TestCase
 
     current_honba.update!(riichi_stick_count: 1)
     assert_equal 1, @game.riichi_stick_count
+  end
+
+  test '#apply_furo moves tile from hands to melds' do
+    set_opponent_turn(@game)
+    manzu_1 = tiles(:first_manzu_1)
+    manzu_2 = tiles(:first_manzu_2)
+    haku = tiles(:first_haku)
+    discarded_tile = tiles(:first_manzu_3)
+
+    @game.current_player.current_state.rivers.create!(tile: discarded_tile, tsumogiri: false)
+    hand_1 = @game.user_player.current_state.hands.create!(tile: manzu_1)
+    hand_2 = @game.user_player.current_state.hands.create!(tile: manzu_2)
+    @game.user_player.current_state.hands.create!(tile: haku)
+    assert_equal [ manzu_1, manzu_2, haku ], @game.user_player.hands.map(&:tile)
+    assert_equal [], @game.user_player.melds.map(&:tile)
+
+    furo_ids = [ hand_1.id, hand_2.id ]
+    @game.apply_furo(:chi, furo_ids, discarded_tile.id)
+    assert_equal [ haku ], @game.user_player.hands.map(&:tile)
+    assert_equal [ manzu_1, manzu_2, discarded_tile ], @game.user_player.melds.map(&:tile)
+  end
+
+  test '#apply_furo increments current_step_number and creates new step' do
+    set_opponent_turn(@game)
+    before_step_number = @game.current_step_number
+    hand_1 = @game.user_player.current_state.hands.create!(tile: tiles(:first_manzu_1))
+    hand_2 = @game.user_player.current_state.hands.create!(tile: tiles(:first_manzu_2))
+    furo_ids = [ hand_1.id, hand_2.id ]
+    @game.apply_furo(:chi, furo_ids, tiles(:first_manzu_3).id)
+    assert_equal before_step_number + 1, @game.current_step_number
   end
 end
