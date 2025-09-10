@@ -125,6 +125,14 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal [ @manzu_2, @manzu_1 ], @user_player.rivers.map(&:tile)
   end
 
+  test '#rivers not includes stolen river' do
+    @user_player.current_state.rivers.delete_all
+    assert_equal [], @user_player.rivers
+
+    @user_player.current_state.rivers.create!(tile: @manzu_2, tsumogiri: false, stolen: true)
+    assert_equal [], @user_player.rivers
+  end
+
   test '#melds returns ordered melds from latest state with melds' do
     @user_player.current_state.melds.delete_all
     assert_equal [], @user_player.melds
@@ -169,15 +177,12 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal state_count, @user_player.player_states.count
   end
 
-  test '#draw adds drawn tile to hands in new player_state' do
-    before_state_count = @user_player.player_states.count
-
+  test '#draw adds drawn tile to hands' do
     step_1 = steps(:step_1)
     @user_player.stub(:current_step_number, step_1.number) do 
       @user_player.draw(@manzu_3, step_1)
       assert_equal [ @manzu_3 ], @user_player.hands.map(&:tile)
       assert @user_player.hands.first.drawn?
-      assert_equal before_state_count + 1, @user_player.player_states.count
     end
 
     step_2 = steps(:step_2)
@@ -186,7 +191,6 @@ class PlayerTest < ActiveSupport::TestCase
       assert_equal [ @manzu_3, @manzu_1 ], @user_player.hands.map(&:tile)
       assert @user_player.hands.last.drawn?
       assert_not @user_player.hands.first.drawn?
-      assert_equal before_state_count + 2, @user_player.player_states.count
     end
 
     step_3 = steps(:step_3)
@@ -195,18 +199,31 @@ class PlayerTest < ActiveSupport::TestCase
       assert_equal [ @manzu_1, @manzu_3, @manzu_2 ], @user_player.hands.map(&:tile)
       assert @user_player.hands.last.drawn?
       @user_player.hands[...-1].each { |hand| assert_not hand.drawn? }
-      assert_equal before_state_count + 3, @user_player.player_states.count
     end
   end
 
-  test '#discard moves target tile from hands to rivers in new player_state' do
+  test '#draw creates player_state' do
+    before_state_count = @user_player.player_states.count
+
+    step_1 = steps(:step_1)
+    @user_player.stub(:current_step_number, step_1.number) do 
+      @user_player.draw(@manzu_3, step_1)
+      assert_equal before_state_count + 1, @user_player.player_states.count
+    end
+
+    step_2 = steps(:step_2)
+    @user_player.stub(:current_step_number, step_2.number) do 
+      @user_player.draw(@manzu_1, step_2)
+      assert_equal before_state_count + 2, @user_player.player_states.count
+    end
+  end
+
+  test '#discard moves target tile from hands to rivers' do
     hand_1 = @user_player.current_state.hands.create!(tile: @manzu_1)
     hand_2 = @user_player.current_state.hands.create!(tile: @manzu_2)
     hand_3 = @user_player.current_state.hands.create!(tile: @manzu_3, drawn: true)
     assert_equal [ hand_1, hand_2, hand_3 ], @user_player.hands
     assert_equal [], @user_player.rivers
-
-    before_state_count = @user_player.player_states.count
 
     step_2 = steps(:step_2)
     @user_player.stub(:current_step_number, step_2.number) do 
@@ -214,7 +231,6 @@ class PlayerTest < ActiveSupport::TestCase
       assert_equal [ @manzu_1, @manzu_2 ], @user_player.hands.map(&:tile)
       assert_equal [ @manzu_3 ], @user_player.rivers.map(&:tile)
       assert @user_player.rivers.first.tsumogiri?
-      assert_equal before_state_count + 1, @user_player.player_states.count
       assert_not_equal hand_1, @user_player.hands.first
       assert_equal @manzu_3, discarded_tile
     end
@@ -227,8 +243,27 @@ class PlayerTest < ActiveSupport::TestCase
       assert_equal [ @manzu_3, @manzu_1 ], @user_player.rivers.map(&:tile)
       assert @user_player.rivers.first.tsumogiri?
       assert_not @user_player.rivers.last.tsumogiri?
-      assert_equal before_state_count + 2, @user_player.player_states.count
       assert_equal @manzu_1, discarded_tile
+    end
+  end
+
+  test '#discard creates player_state' do
+    hand_1 = @user_player.current_state.hands.create!(tile: @manzu_1)
+    hand_2 = @user_player.current_state.hands.create!(tile: @manzu_2)
+    hand_3 = @user_player.current_state.hands.create!(tile: @manzu_3, drawn: true)
+    before_state_count = @user_player.player_states.count
+
+    step_2 = steps(:step_2)
+    @user_player.stub(:current_step_number, step_2.number) do 
+      discarded_tile = @user_player.discard(hand_3.id, step_2)
+      assert_equal before_state_count + 1, @user_player.player_states.count
+    end
+
+    step_3 = steps(:step_3)
+    @user_player.stub(:current_step_number, step_3.number) do 
+      manzu_1_hand_id = @user_player.hands.first.id
+      discarded_tile = @user_player.discard(manzu_1_hand_id, step_3)
+      assert_equal before_state_count + 2, @user_player.player_states.count
     end
   end
 
@@ -237,7 +272,6 @@ class PlayerTest < ActiveSupport::TestCase
     @user_player.current_state.hands.create!(tile: @manzu_2)
     @user_player.current_state.hands.create!(tile: @haku)
     kamicha_player = @ai_player
-    before_state_count = @user_player.player_states.count
     step_2 = steps(:step_2)
 
     kamicha_player.stub(:seat_order, 3) do
@@ -250,7 +284,6 @@ class PlayerTest < ActiveSupport::TestCase
           assert_equal [ 'kamicha', nil, nil ], @user_player.melds.map(&:from)
           assert_equal [ 'chi', 'chi', 'chi' ], @user_player.melds.map(&:kind)
           assert_equal [ @haku ], @user_player.hands.map(&:tile)
-          assert_equal before_state_count + 1, @user_player.player_states.count
         end
       end
     end
@@ -261,7 +294,6 @@ class PlayerTest < ActiveSupport::TestCase
     @user_player.current_state.hands.create!(tile: @ton_2)
     @user_player.current_state.hands.create!(tile: @haku)
     shimocha_player = @ai_player
-    before_state_count = @user_player.player_states.count
     step_2 = steps(:step_2)
 
     shimocha_player.stub(:seat_order, 0) do
@@ -274,7 +306,6 @@ class PlayerTest < ActiveSupport::TestCase
           assert_equal [ nil, nil, 'shimocha' ], @user_player.melds.map(&:from)
           assert_equal [ 'pon', 'pon', 'pon' ], @user_player.melds.map(&:kind)
           assert_equal [ @haku ], @user_player.hands.map(&:tile)
-          assert_equal before_state_count + 1, @user_player.player_states.count
         end
       end
     end
@@ -286,7 +317,6 @@ class PlayerTest < ActiveSupport::TestCase
     @user_player.current_state.hands.create!(tile: @ton_3)
     @user_player.current_state.hands.create!(tile: @haku)
     toimen_player = @ai_player
-    before_state_count = @user_player.player_states.count
     step_2 = steps(:step_2)
 
     toimen_player.stub(:seat_order, 2) do
@@ -299,7 +329,6 @@ class PlayerTest < ActiveSupport::TestCase
           assert_equal [ nil, 'toimen', nil, nil ], @user_player.melds.map(&:from)
           assert_equal [ 'daiminkan', 'daiminkan', 'daiminkan', 'daiminkan' ], @user_player.melds.map(&:kind)
           assert_equal [ @haku ], @user_player.hands.map(&:tile)
-          assert_equal before_state_count + 1, @user_player.player_states.count
         end
       end
     end
@@ -313,7 +342,6 @@ class PlayerTest < ActiveSupport::TestCase
     @user_player.current_state.hands.create!(tile: @haku)
     toimen_player = @ai_player
     kamicha_player = players(:tenpai_speeder)
-    before_state_count = @user_player.player_states.count
     step_2 = steps(:step_2)
     step_3 = steps(:step_3)
 
@@ -326,7 +354,6 @@ class PlayerTest < ActiveSupport::TestCase
             assert_equal [ nil, 'toimen', nil ], @user_player.melds.map(&:from)
             assert_equal [ 'pon', 'pon', 'pon' ], @user_player.melds.map(&:kind)
             assert_equal [ @manzu_1, @manzu_2, @haku ], @user_player.hands.map(&:tile)
-            assert_equal before_state_count + 1, @user_player.player_states.count
           end
 
           @user_player.stub(:current_step_number, step_3.number) do
@@ -335,8 +362,25 @@ class PlayerTest < ActiveSupport::TestCase
             assert_equal [ nil, 'toimen', nil, 'kamicha', nil, nil ], @user_player.melds.map(&:from)
             assert_equal [ 'pon', 'pon', 'pon', 'chi', 'chi', 'chi' ], @user_player.melds.map(&:kind)
             assert_equal [ @haku ], @user_player.hands.map(&:tile)
-            assert_equal before_state_count + 2, @user_player.player_states.count
           end
+        end
+      end
+    end
+  end
+
+  test '#steal creates player_state' do
+    @user_player.current_state.hands.create!(tile: @manzu_1)
+    @user_player.current_state.hands.create!(tile: @manzu_2)
+    @user_player.current_state.hands.create!(tile: @haku)
+    kamicha_player = @ai_player
+    before_state_count = @user_player.player_states.count
+    step_2 = steps(:step_2)
+
+    kamicha_player.stub(:seat_order, 3) do
+      @user_player.stub(:seat_order, 0) do
+        @user_player.stub(:current_step_number, step_2.number) do
+          @user_player.steal(kamicha_player, :chi, [ @manzu_1, @manzu_2 ], @manzu_3, step_2)
+          assert_equal before_state_count + 1, @user_player.player_states.count
         end
       end
     end
@@ -352,24 +396,36 @@ class PlayerTest < ActiveSupport::TestCase
     step_2 = steps(:step_2)
     @ai_player.stub(:current_step_number, step_2.number) do
       @ai_player.stolen(@manzu_1, step_2)
-      river_3 = @ai_player.rivers.first
-      river_4 = @ai_player.rivers.last
-      assert_equal @manzu_1, river_3.tile
-      assert_equal @manzu_2, river_4.tile
-      assert river_3.stolen?
-      assert_not river_4.stolen?
+      manzu_1 = @ai_player.current_state.rivers.first
+      manzu_2 = @ai_player.current_state.rivers.last
+      assert manzu_1.stolen?
+      assert_not manzu_2.stolen?
+    end
+
+    step_3 = steps(:step_3)
+    @ai_player.stub(:current_step_number, step_3.number) do
+      @ai_player.stolen(@manzu_2, steps(:step_3))
+      manzu_1 = @ai_player.current_state.rivers.first
+      manzu_2 = @ai_player.current_state.rivers.last
+      assert manzu_1.stolen?
+      assert manzu_2.stolen?
+    end
+  end
+
+  test '#stolen creates player_state' do
+    river_1 = @ai_player.player_states.last.rivers.create!(tile: @manzu_1, tsumogiri: false)
+    river_2 = @ai_player.player_states.last.rivers.create!(tile: @manzu_2, tsumogiri: false)
+    before_state_count = @ai_player.player_states.count
+
+    step_2 = steps(:step_2)
+    @ai_player.stub(:current_step_number, step_2.number) do
+      @ai_player.stolen(@manzu_1, step_2)
       assert_equal before_state_count + 1, @ai_player.player_states.count
     end
 
     step_3 = steps(:step_3)
     @ai_player.stub(:current_step_number, step_3.number) do
       @ai_player.stolen(@manzu_2, steps(:step_3))
-      river_5 = @ai_player.rivers.first
-      river_6 = @ai_player.rivers.last
-      assert_equal @manzu_1, river_5.tile
-      assert_equal @manzu_2, river_6.tile
-      assert river_5.stolen?
-      assert river_6.stolen?
       assert_equal before_state_count + 2, @ai_player.player_states.count
     end
   end

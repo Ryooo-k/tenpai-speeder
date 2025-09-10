@@ -30,15 +30,15 @@ class Player < ApplicationRecord
   scope :ais, -> { where.not(ai_id: nil) }
 
   def hands
-    base_states.with_hands.ordered.last&.hands&.sorted || Hand.none
+    base_hands.present? ? base_hands.sorted : Hand.none
   end
 
   def rivers
-    base_states.with_rivers.ordered.last&.rivers || River.none
+    base_rivers.present? ? base_rivers.where(stolen: false) : River.none
   end
 
   def melds
-    base_states.with_melds.ordered.last&.melds || Meld.none
+    base_melds.present? ? base_melds.ordered : Meld.none
   end
 
   def current_state
@@ -157,6 +157,18 @@ class Player < ApplicationRecord
 
     def base_states
       player_states.up_to_step(current_step_number)
+    end
+
+    def base_hands
+      base_states.with_hands.ordered.last&.hands
+    end
+
+    def base_rivers
+      base_states.with_rivers.ordered.last&.rivers
+    end
+
+    def base_melds
+      base_states.with_melds.ordered.last&.melds
     end
 
     def create_drawn_hands(drawn_tile)
