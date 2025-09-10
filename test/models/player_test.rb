@@ -179,14 +179,14 @@ class PlayerTest < ActiveSupport::TestCase
 
   test '#draw adds drawn tile to hands' do
     step_1 = steps(:step_1)
-    @user_player.stub(:current_step_number, step_1.number) do 
+    @user_player.stub(:current_step_number, step_1.number) do
       @user_player.draw(@manzu_3, step_1)
       assert_equal [ @manzu_3 ], @user_player.hands.map(&:tile)
       assert @user_player.hands.first.drawn?
     end
 
     step_2 = steps(:step_2)
-    @user_player.stub(:current_step_number, step_2.number) do 
+    @user_player.stub(:current_step_number, step_2.number) do
       @user_player.draw(@manzu_1, step_2)
       assert_equal [ @manzu_3, @manzu_1 ], @user_player.hands.map(&:tile)
       assert @user_player.hands.last.drawn?
@@ -194,7 +194,7 @@ class PlayerTest < ActiveSupport::TestCase
     end
 
     step_3 = steps(:step_3)
-    @user_player.stub(:current_step_number, step_3.number) do 
+    @user_player.stub(:current_step_number, step_3.number) do
       @user_player.draw(@manzu_2, step_3)
       assert_equal [ @manzu_1, @manzu_3, @manzu_2 ], @user_player.hands.map(&:tile)
       assert @user_player.hands.last.drawn?
@@ -206,13 +206,13 @@ class PlayerTest < ActiveSupport::TestCase
     before_state_count = @user_player.player_states.count
 
     step_1 = steps(:step_1)
-    @user_player.stub(:current_step_number, step_1.number) do 
+    @user_player.stub(:current_step_number, step_1.number) do
       @user_player.draw(@manzu_3, step_1)
       assert_equal before_state_count + 1, @user_player.player_states.count
     end
 
     step_2 = steps(:step_2)
-    @user_player.stub(:current_step_number, step_2.number) do 
+    @user_player.stub(:current_step_number, step_2.number) do
       @user_player.draw(@manzu_1, step_2)
       assert_equal before_state_count + 2, @user_player.player_states.count
     end
@@ -226,7 +226,7 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal [], @user_player.rivers
 
     step_2 = steps(:step_2)
-    @user_player.stub(:current_step_number, step_2.number) do 
+    @user_player.stub(:current_step_number, step_2.number) do
       discarded_tile = @user_player.discard(hand_3.id, step_2)
       assert_equal [ @manzu_1, @manzu_2 ], @user_player.hands.map(&:tile)
       assert_equal [ @manzu_3 ], @user_player.rivers.map(&:tile)
@@ -236,7 +236,7 @@ class PlayerTest < ActiveSupport::TestCase
     end
 
     step_3 = steps(:step_3)
-    @user_player.stub(:current_step_number, step_3.number) do 
+    @user_player.stub(:current_step_number, step_3.number) do
       manzu_1_hand_id = @user_player.hands.first.id
       discarded_tile = @user_player.discard(manzu_1_hand_id, step_3)
       assert_equal [ @manzu_2 ], @user_player.hands.map(&:tile)
@@ -254,13 +254,13 @@ class PlayerTest < ActiveSupport::TestCase
     before_state_count = @user_player.player_states.count
 
     step_2 = steps(:step_2)
-    @user_player.stub(:current_step_number, step_2.number) do 
+    @user_player.stub(:current_step_number, step_2.number) do
       discarded_tile = @user_player.discard(hand_3.id, step_2)
       assert_equal before_state_count + 1, @user_player.player_states.count
     end
 
     step_3 = steps(:step_3)
-    @user_player.stub(:current_step_number, step_3.number) do 
+    @user_player.stub(:current_step_number, step_3.number) do
       manzu_1_hand_id = @user_player.hands.first.id
       discarded_tile = @user_player.discard(manzu_1_hand_id, step_3)
       assert_equal before_state_count + 2, @user_player.player_states.count
@@ -358,7 +358,7 @@ class PlayerTest < ActiveSupport::TestCase
 
           @user_player.stub(:current_step_number, step_3.number) do
             @user_player.steal(kamicha_player, :chi, [ @manzu_1, @manzu_2 ], @manzu_3, step_3)
-            assert_equal [ @manzu_3, @manzu_1, @manzu_2 , @ton_1, @ton_3, @ton_2], @user_player.melds.map(&:tile)
+            assert_equal [ @manzu_3, @manzu_1, @manzu_2, @ton_1, @ton_3, @ton_2 ], @user_player.melds.map(&:tile)
             assert_equal [ 'kamicha', nil, nil, nil, 'toimen', nil ], @user_player.melds.map(&:from)
             assert_equal [ 'chi', 'chi', 'chi', 'pon', 'pon', 'pon' ], @user_player.melds.map(&:kind)
             assert_equal [ @haku ], @user_player.hands.map(&:tile)

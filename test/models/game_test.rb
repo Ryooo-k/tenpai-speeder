@@ -139,7 +139,7 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#advance_current_player! changes current_player to next_player' do
-    ordered_players =  @game.players.ordered
+    ordered_players = @game.players.ordered
     ordered_players.each_with_index do |player, seat_number|
       assert_equal player, @game.current_player
 

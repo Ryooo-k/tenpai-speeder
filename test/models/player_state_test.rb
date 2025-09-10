@@ -72,7 +72,7 @@ class PlayerStateTest < ActiveSupport::TestCase
     state_1 = @player.player_states.create!(step: step_1)
     state_2 = @player.player_states.create!(step: step_2)
     state_3 = @player.player_states.create!(step: step_3)
-    
+
     assert_equal [ state_1 ], @player.player_states.up_to_step(step_1.number)
     assert_equal [ state_1, state_2 ], @player.player_states.up_to_step(step_2.number)
     assert_equal [ state_1, state_2, state_3 ], @player.player_states.up_to_step(step_3.number)

@@ -169,7 +169,6 @@ class Player < ApplicationRecord
 
     def base_melds
       Meld.where(player_state: base_states.with_melds)
-
     end
 
     def create_drawn_hands(drawn_tile)
@@ -199,10 +198,10 @@ class Player < ApplicationRecord
     def build_melds(relation_seat_number, furo_tiles, discarded_tile)
       case relation_seat_number
       when SHIMOCHA_SEAT_NUMBER
-        furo_tiles + [discarded_tile]
+        furo_tiles + [ discarded_tile ]
       when TOIMEN_SEAT_NUMBER
         head, *tail = furo_tiles
-        [head, discarded_tile, *tail]
+        [ head, discarded_tile, *tail ]
       when KAMICHA_SEAT_NUMBER
         [ discarded_tile ] + furo_tiles
       end
@@ -293,9 +292,9 @@ class Player < ApplicationRecord
       code = tile.code
 
       candidates = []
-      candidates << [code - 2, code - 1] if number >= 3
-      candidates << [code - 1, code + 1] if (2..8).include?(number)
-      candidates << [code + 1, code + 2] if number <= 7
+      candidates << [ code - 2, code - 1 ] if number >= 3
+      candidates << [ code - 1, code + 1 ] if (2..8).include?(number)
+      candidates << [ code + 1, code + 2 ] if number <= 7
       candidates
     end
 end
