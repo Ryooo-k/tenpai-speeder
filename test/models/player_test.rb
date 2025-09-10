@@ -358,9 +358,9 @@ class PlayerTest < ActiveSupport::TestCase
 
           @user_player.stub(:current_step_number, step_3.number) do
             @user_player.steal(kamicha_player, :chi, [ @manzu_1, @manzu_2 ], @manzu_3, step_3)
-            assert_equal [ @ton_1, @ton_3, @ton_2, @manzu_3, @manzu_1, @manzu_2 ], @user_player.melds.map(&:tile)
-            assert_equal [ nil, 'toimen', nil, 'kamicha', nil, nil ], @user_player.melds.map(&:from)
-            assert_equal [ 'pon', 'pon', 'pon', 'chi', 'chi', 'chi' ], @user_player.melds.map(&:kind)
+            assert_equal [ @manzu_3, @manzu_1, @manzu_2 , @ton_1, @ton_3, @ton_2], @user_player.melds.map(&:tile)
+            assert_equal [ 'kamicha', nil, nil, nil, 'toimen', nil ], @user_player.melds.map(&:from)
+            assert_equal [ 'chi', 'chi', 'chi', 'pon', 'pon', 'pon' ], @user_player.melds.map(&:kind)
             assert_equal [ @haku ], @user_player.hands.map(&:tile)
           end
         end

@@ -36,11 +36,16 @@ class MeldTest < ActiveSupport::TestCase
     assert meld.invalid?
   end
 
-  test '.ordered orders number' do
-    @state.melds.delete_all
-    third_meld = @state.melds.create!(tile: tiles(:first_manzu_3), kind: :chi, number: 2)
-    second_meld = @state.melds.create!(tile: tiles(:first_manzu_2), kind: :chi, number: 1)
-    first_meld = @state.melds.create!(tile: tiles(:first_manzu_1), kind: :chi, number: 0)
-    assert_equal [ first_meld, second_meld, third_meld ], @state.melds.ordered
+  test '.ordered sorts by player_state_id desc and number asc' do
+    player = players(:ryo)
+    state_1 = player.player_states.create!(player:, step: steps(:step_1))
+    state_2 = player.player_states.create!(player:, step: steps(:step_2))
+    state_1_meld_0 = Meld.create!(player_state: state_1, tile: tiles(:first_manzu_1), kind: :chi, number: 0)
+    state_1_meld_1 = Meld.create!(player_state: state_1, tile: tiles(:first_manzu_2), kind: :chi, number: 1)
+    state_1_meld_2 = Meld.create!(player_state: state_1, tile: tiles(:first_manzu_3), kind: :chi, number: 2)
+    state_2_meld_0 = Meld.create!(player_state: state_2, tile: tiles(:first_manzu_1), kind: :chi, number: 0)
+    state_2_meld_1 = Meld.create!(player_state: state_2, tile: tiles(:first_manzu_2), kind: :chi, number: 1)
+    state_2_meld_2 = Meld.create!(player_state: state_2, tile: tiles(:first_manzu_3), kind: :chi, number: 2)
+    assert_equal [ state_2_meld_0, state_2_meld_1, state_2_meld_2, state_1_meld_0, state_1_meld_1, state_1_meld_2 ], Meld.all.sorted.to_a
   end
 end

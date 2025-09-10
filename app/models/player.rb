@@ -38,7 +38,7 @@ class Player < ApplicationRecord
   end
 
   def melds
-    base_melds.present? ? base_melds.ordered : Meld.none
+    base_melds.present? ? base_melds.sorted : Meld.none
   end
 
   def current_state
@@ -168,7 +168,8 @@ class Player < ApplicationRecord
     end
 
     def base_melds
-      base_states.with_melds.ordered.last&.melds
+      Meld.where(player_state: base_states.with_melds)
+
     end
 
     def create_drawn_hands(drawn_tile)
@@ -187,12 +188,9 @@ class Player < ApplicationRecord
     end
 
     def create_stole_melds(target_player, furo_type, furo_tiles, discarded_tile)
-      melds.each { |meld| current_state.melds.create!(tile: meld.tile, from: meld&.from, kind: meld.kind, number: meld.number ) } if melds
       relation_seat_number = (target_player.seat_order - seat_order) % PLAYERS_COUNT
-      melds_count = melds.count
       melds = build_melds(relation_seat_number, furo_tiles, discarded_tile)
-      melds.each_with_index do |tile, i|
-        number = melds_count + i
+      melds.each_with_index do |tile, number|
         from = tile == discarded_tile ? relation_seat_number : nil
         current_state.melds.create!(tile:, kind: furo_type, number:, from:)
       end
@@ -201,10 +199,10 @@ class Player < ApplicationRecord
     def build_melds(relation_seat_number, furo_tiles, discarded_tile)
       case relation_seat_number
       when SHIMOCHA_SEAT_NUMBER
-        furo_tiles << discarded_tile
+        furo_tiles + [discarded_tile]
       when TOIMEN_SEAT_NUMBER
-        copied_furo_tiles = furo_tiles.dup
-        copied_furo_tiles.insert(1, discarded_tile)
+        head, *tail = furo_tiles
+        [head, discarded_tile, *tail]
       when KAMICHA_SEAT_NUMBER
         [ discarded_tile ] + furo_tiles
       end

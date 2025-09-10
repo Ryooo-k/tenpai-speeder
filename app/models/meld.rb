@@ -23,5 +23,5 @@ class Meld < ApplicationRecord
     kamicha: 3
   }
 
-  scope :ordered, -> { order(:number) }
+  scope :sorted, -> { order(player_state_id: :desc).order(:number) }
 end
