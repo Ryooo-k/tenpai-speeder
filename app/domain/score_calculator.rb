@@ -27,10 +27,11 @@ module ScoreCalculator
   def self.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     agari_all_patterns = build_agari_all_patters(hands, melds, agari_tile)
     scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
-    scoring_state_table.map do |scoring_states|
+    all_yaku_list = scoring_state_table.map do |scoring_states|
       yaku_list = build_yaku_list(scoring_states, situational_list)
       yaku_list.flatten
     end
+    all_yaku_list.max_by { |yaku_list| yaku_list.sum { |yaku| yaku[:han].to_i } }
   end
 
   private
@@ -550,9 +551,9 @@ module ScoreCalculator
         return [] if state[:mentsu_count] != 13
 
         if state[:tanki]
-          { name: '国士無双十三面', han: '役満' }
+          { name: '国士無双十三面', han: 13 }
         else
-          { name: '国士無双', han: '役満' }
+          { name: '国士無双', han: 13 }
         end
       end
 
@@ -560,16 +561,16 @@ module ScoreCalculator
         return [] if state[:anko_or_ankan_count] != 4
 
         if state[:tanki]
-          { name: '四暗刻単騎', han: '役満' }
+          { name: '四暗刻単騎', han: 13 }
         else
-          { name: '四暗刻', han: '役満' }
+          { name: '四暗刻', han: 13 }
         end
       end
 
       def build_daisangen_yaku(state)
         dragons_triplets = state[:kotsu][:z][4].to_i + state[:kotsu][:z][5].to_i + state[:kotsu][:z][6].to_i
         return [] if dragons_triplets != 3
-        { name: '大三元', han: '役満' }
+        { name: '大三元', han: 13 }
       end
 
       def build_shousuushi_yaku(state)
@@ -577,40 +578,40 @@ module ScoreCalculator
         winds_triplets = z_kotsu[0].to_i + z_kotsu[1].to_i + z_kotsu[2].to_i + z_kotsu[3].to_i
 
         if winds_triplets == 4
-          { name: '大四喜', han: '役満' }
+          { name: '大四喜', han: 13 }
         elsif winds_triplets == 3 && state[:jantou].start_with?(ZIHAI_SUIT)
-          { name: '小四喜', han: '役満' }
+          { name: '小四喜', han: 13 }
         else
           []
         end
       end
 
       def build_tsuuiisou_yaku(state)
-        state[:zihai_count] == state[:mentsu_count] ? { name: '字一色', han: '役満' } : []
+        state[:zihai_count] == state[:mentsu_count] ? { name: '字一色', han: 13 } : []
       end
 
       def build_ryuuiisou_yaku(state)
         return [] if state[:mentsu].match?(/[mp]/)
         return [] if state[:mentsu].match?(/z[^6]/)
         return [] if state[:mentsu].match?(/s.*[1579]/)
-        [ { name: '緑一色', han: '役満' } ]
+        [ { name: '緑一色', han: 13 } ]
       end
 
       def build_chinroutou_yaku(state)
         if state[:kotsu_or_kantsu_count] == 4 && state[:yaochu_count] == 5 && state[:zihai_count].zero?
-          { name: '清老頭', han: '役満' }
+          { name: '清老頭', han: 13 }
         else
           []
         end
       end
 
       def build_suukantsu_yaku(state)
-        state[:kantsu_count] == 4 ? { name: '四槓子', han: '役満' } : []
+        state[:kantsu_count] == 4 ? { name: '四槓子', han: 13 } : []
       end
 
       def build_chuurenpoutou_yaku(state)
         return [] if state[:mentsu_count] != 1
-        { name: '九蓮宝燈', han: '役満' }
+        { name: '九蓮宝燈', han: 13 }
       end
 
       def build_yaku_list(scoring_states, situational_list)
