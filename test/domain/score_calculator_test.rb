@@ -12,8 +12,124 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     ScoreCalculator.private_class_method(*@privates)
   end
 
-  # get_yaku_list
-  test '#get_yaku_list：門前清自摸和' do
+  # get_score_summaries
+  test '#get_score_summaries：天和' do
+    # m111 p234567 s23455
+    hands = {
+      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+    }
+    melds = []
+    agari_tile = 'm1_'
+    situational_list = {
+      tenhou: true,
+      chiihou: false,
+      riichi: 0,
+      ippatsu: false,
+      haitei: 0,
+      rinshan: false,
+      chankan: false
+    }
+    round_wind = 0
+    player_wind = 0
+
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    expected = [ { name: '天和', han: 13 } ]
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
+  end
+
+  test '#get_score_summaries：地和' do
+    # m111 p234567 s23455
+    hands = {
+      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+    }
+    melds = []
+    agari_tile = 'm1_'
+    situational_list = {
+      tenhou: false,
+      chiihou: true,
+      riichi: 0,
+      ippatsu: false,
+      haitei: 0,
+      rinshan: false,
+      chankan: false
+    }
+    round_wind = 0
+    player_wind = 0
+
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    expected = [ { name: '地和', han: 13 } ]
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
+  end
+
+  test '#get_score_summaries：立直(1) 一発 海底摸月' do
+    # m111 p234567 s23455
+    hands = {
+      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+    }
+    melds = []
+    agari_tile = 'm1_'
+    situational_list = {
+      tenhou: false,
+      chiihou: false,
+      riichi: 1,
+      ippatsu: true,
+      haitei: 1,
+      rinshan: false,
+      chankan: false
+    }
+    round_wind = 0
+    player_wind = 0
+
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    expected = [ { name: '立直', han: 1 }, { name: '一発', han: 1 }, { name: '海底摸月', han: 1 }, { name: '門前清自摸和', han: 1 } ]
+    assert_equal expected, result[:yaku_list]
+    assert_equal 4, result[:han_total]
+  end
+
+  test '#get_score_summaries：ダブル立直(2) 河底撈魚 槍槓' do
+    # m111 p234567 s23455
+    hands = {
+      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+    }
+    melds = []
+    agari_tile = 'm1='
+    situational_list = {
+      tenhou: false,
+      chiihou: false,
+      riichi: 2,
+      ippatsu: false,
+      haitei: 2,
+      rinshan: false,
+      chankan: true
+    }
+    round_wind = 0
+    player_wind = 0
+
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    expected = [ { name: 'ダブル立直', han: 2 }, { name: '河底撈魚', han: 1 }, { name: '槍槓', han: 1 } ]
+    assert_equal expected, result[:yaku_list]
+    assert_equal 4, result[:han_total]
+  end
+
+
+
+
+
+  test '#get_score_summaries：門前清自摸和 嶺上開花' do
     # m111 p234567 s23455
     hands = {
       'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -29,18 +145,19 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       riichi: 0,
       ippatsu: false,
       haitei: 0,
-      rinshan: false,
+      rinshan: true,
       chankan: false
     }
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
-    expected = [ { name: '門前清自摸和', han: 1 } ]
-    assert_equal expected, result
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    expected = [ { name: '嶺上開花', han: 1 }, { name: '門前清自摸和', han: 1 } ]
+    assert_equal expected, result[:yaku_list]
+    assert_equal 2, result[:han_total]
   end
 
-  test '#get_yaku_list：場風 東' do
+  test '#get_score_summaries：場風 東' do
     # p234567 s23455 z111 ※z1:東
     hands = {
       'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -62,12 +179,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0 # 東
     player_wind = 1 # 南
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '場風 東', han: 1 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 1, result[:han_total]
   end
 
-  test '#get_yaku_list：自風 南' do
+  test '#get_score_summaries：自風 南' do
     # p234567 s23455 z222 ※z2:南
     hands = {
       'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -89,12 +207,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0 # 東
     player_wind = 1 # 南
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '自風 南', han: 1 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 1, result[:han_total]
   end
 
-  test '#get_yaku_list：翻牌 白' do
+  test '#get_score_summaries：翻牌 白' do
     # p234567 s23455 z444 ※z4:白
     hands = {
       'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -116,12 +235,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0 # 東
     player_wind = 1 # 南
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '翻牌 白', han: 1 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 1, result[:han_total]
   end
 
-  test '#get_yaku_list：平和' do
+  test '#get_score_summaries：平和' do
     # m123 p123456 s789 z11　※z1:南
     hands = {
       'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
@@ -143,12 +263,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '平和', han: 1 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 1, result[:han_total]
   end
 
-  test '#get_yaku_list：タンヤオ' do
+  test '#get_score_summaries：タンヤオ' do
     # m222 p234567 s23455
     hands = {
       'm' => [ 0, 3, 0, 0, 0, 0, 0, 0, 0 ],
@@ -170,12 +291,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '断幺九', han: 1 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 1, result[:han_total]
   end
 
-  test '#get_yaku_list：一盃口' do
+  test '#get_score_summaries：一盃口' do
     # m112233 p234567 s55
     hands = {
       'm' => [ 2, 2, 2, 0, 0, 0, 0, 0, 0 ],
@@ -197,12 +319,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '一盃口', han: 1 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 1, result[:han_total]
   end
 
-  test '#get_yaku_list：三色同順(面前 han = 2)' do
+  test '#get_score_summaries：三色同順(面前 han = 2)' do
     # m123 p123 s123567 z22
     hands = {
       'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
@@ -224,12 +347,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三色同順', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 2, result[:han_total]
   end
 
-  test '#get_yaku_list：三色同順(鳴き han = 1)' do
+  test '#get_score_summaries：三色同順(鳴き han = 1)' do
     # m123 p123 s123567 z22
     hands = {
       'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
@@ -251,12 +375,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三色同順', han: 1 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 1, result[:han_total]
   end
 
-  test '#get_yaku_list：一気通貫(面前 han = 2)' do
+  test '#get_score_summaries：一気通貫(面前 han = 2)' do
     # m123456789 p234 z22
     hands = {
       'm' => [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
@@ -278,12 +403,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '一気通貫', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 2, result[:han_total]
   end
 
-  test '#get_yaku_list：一気通貫(鳴き han =1)' do
+  test '#get_score_summaries：一気通貫(鳴き han =1)' do
     # m123456789 p234 z22
     hands = {
       'm' => [ 1, 1, 1, 0, 0, 0, 1, 1, 1 ],
@@ -305,12 +431,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '一気通貫', han: 1 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 1, result[:han_total]
   end
 
-  test '#get_yaku_list：混全帯幺九(面前 han = 2)' do
+  test '#get_score_summaries：混全帯幺九(面前 han = 2)' do
     # m123789 p111999 z22
     hands = {
       'm' => [ 1, 1, 1, 0, 0, 0, 1, 1, 1 ],
@@ -332,12 +459,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '混全帯幺九', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 2, result[:han_total]
   end
 
-  test '#get_yaku_list：混全帯幺九(鳴き han =1)' do
+  test '#get_score_summaries：混全帯幺九(鳴き han =1)' do
     # m123789 p111999 z22
     hands = {
       'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
@@ -359,12 +487,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '混全帯幺九', han: 1 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 1, result[:han_total]
   end
 
-  test '#get_yaku_list：七対子' do
+  test '#get_score_summaries：七対子' do
     # m1133557799 p1199
     hands = {
       'm' => [ 2, 0, 2, 0, 2, 0, 2, 0, 2 ],
@@ -386,12 +515,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 2, result[:han_total]
   end
 
-  test '#get_yaku_list：七対子 混一色' do
+  test '#get_score_summaries：七対子 混一色' do
     # m1133557799 z1122
     hands = {
       'm' => [ 2, 0, 2, 0, 2, 0, 2, 0, 2 ],
@@ -413,12 +543,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 }, { name: '混一色', han: 3 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 5, result[:han_total]
   end
 
-  test '#get_yaku_list：七対子 清一色' do
+  test '#get_score_summaries：七対子 清一色' do
     # m11223355667799
     hands = {
       'm' => [ 2, 2, 2, 0, 2, 2, 0, 2, 2 ],
@@ -440,13 +571,14 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 }, { name: '清一色', han: 6 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 8, result[:han_total]
   end
 
 
-  test '#get_yaku_list：対々和' do
+  test '#get_score_summaries：対々和' do
     # m111333 p111 p222 z22
     hands = {
       'm' => [ 3, 0, 3, 0, 0, 0, 0, 0, 0 ],
@@ -468,12 +600,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '対々和', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 2, result[:han_total]
   end
 
-  test '#get_yaku_list：三暗刻' do
+  test '#get_score_summaries：三暗刻' do
     # m111333444 p123 z22
     hands = {
       'm' => [ 3, 0, 3, 3, 0, 0, 0, 0, 0 ],
@@ -495,12 +628,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三暗刻', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 2, result[:han_total]
   end
 
-  test '#get_yaku_list：三槓子' do
+  test '#get_score_summaries：三槓子' do
     # m1111 2222 3333 p123 z22
     hands = {
       'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -522,12 +656,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三槓子', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 2, result[:han_total]
   end
 
-  test '#get_yaku_list：三色同刻' do
+  test '#get_score_summaries：三色同刻' do
     # m111 p111 s111 p234 z22
     hands = {
       'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -549,12 +684,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三色同刻', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 2, result[:han_total]
   end
 
-  test '#get_yaku_list：混老頭 対々和' do
+  test '#get_score_summaries：混老頭 対々和' do
     # m111999 p111 z22233
     hands = {
       'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
@@ -576,12 +712,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '対々和', han: 2 }, { name: '混老頭', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 4, result[:han_total]
   end
 
-  test '#get_yaku_list：混老頭 七対子' do
+  test '#get_score_summaries：混老頭 七対子' do
     # m1199 p1199 s1199 z11
     hands = {
       'm' => [ 2, 0, 0, 0, 0, 0, 0, 0, 2 ],
@@ -603,12 +740,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 }, { name: '混老頭', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 4, result[:han_total]
   end
 
-  test '#get_yaku_list：小三元' do
+  test '#get_score_summaries：小三元' do
     # m234 p234 z44455566
     hands = {
       'm' => [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
@@ -630,12 +768,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '翻牌 白', han: 1 }, { name: '翻牌 發', han: 1 }, { name: '小三元', han: 2 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 4, result[:han_total]
   end
 
-  test '#get_yaku_list：純全帯幺九' do
+  test '#get_score_summaries：純全帯幺九' do
     # m111789 p123789 s11
     hands = {
       'm' => [ 3, 0, 0, 0, 0, 0, 1, 1, 1 ],
@@ -657,12 +796,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '純全帯幺九', han: 3 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 3, result[:han_total]
   end
 
-  test '#get_yaku_list：二盃口' do
+  test '#get_score_summaries：二盃口' do
     # m112233 p445566 s11
     hands = {
       'm' => [ 2, 2, 2, 0, 0, 0, 0, 0, 0 ],
@@ -684,12 +824,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '二盃口', han: 3 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 3, result[:han_total]
   end
 
-  test '#get_yaku_list：清一色' do
+  test '#get_score_summaries：清一色' do
     # m11122245678999
     hands = {
       'm' => [ 3, 3, 0, 1, 1, 1, 1, 1, 3 ],
@@ -711,12 +852,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '清一色', han: 6 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 6, result[:han_total]
   end
 
-  test '#get_yaku_list：国士無双' do
+  test '#get_score_summaries：国士無双' do
     hands = {
       'm' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
       'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
@@ -737,12 +879,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '国士無双', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：国士無双十三面' do
+  test '#get_score_summaries：国士無双十三面' do
     hands = {
       'm' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
       'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
@@ -763,12 +906,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '国士無双十三面', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：四暗刻単騎' do
+  test '#get_score_summaries：四暗刻単騎' do
     # m111222 p333444 s55
     hands = {
       'm' => [ 3, 3, 0, 0, 0, 0, 0, 0, 0 ],
@@ -790,12 +934,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '四暗刻単騎', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：四暗刻' do
+  test '#get_score_summaries：四暗刻' do
     # m111222 p333444 s55
     hands = {
       'm' => [ 3, 3, 0, 0, 0, 0, 0, 0, 0 ],
@@ -817,12 +962,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '四暗刻', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：大三元' do
+  test '#get_score_summaries：大三元' do
     # m234 p22 z555666777
     hands = {
       'm' => [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
@@ -844,12 +990,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '大三元', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：大四喜' do
+  test '#get_score_summaries：大四喜' do
     # m11 z111222333444
     hands = {
       'm' => [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -871,12 +1018,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '大四喜', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：小四喜' do
+  test '#get_score_summaries：小四喜' do
     # m111 z11122233344
     hands = {
       'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -898,12 +1046,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '小四喜', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：字一色' do
+  test '#get_score_summaries：字一色' do
     # m111 z11122233344
     hands = {
       'm' => zero9.dup,
@@ -925,12 +1074,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '小四喜', han: 13 }, { name: '字一色', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 26, result[:han_total]
   end
 
-  test '#get_yaku_list：緑一色' do
+  test '#get_score_summaries：緑一色' do
     # s22334466688 z66
     hands = {
       'm' => zero9.dup,
@@ -952,12 +1102,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '緑一色', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：清老頭' do
+  test '#get_score_summaries：清老頭' do
     # m111999 p111 p999 s11
     hands = {
       'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
@@ -979,12 +1130,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '清老頭', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：四槓子' do
+  test '#get_score_summaries：四槓子' do
     # m1111 p2222 s3333 z4444 m22
     hands = {
       'm' => [ 0, 2, 0, 0, 0, 0, 0, 0, 0 ],
@@ -1006,12 +1158,13 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '四槓子', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
 
-  test '#get_yaku_list：九蓮宝燈' do
+  test '#get_score_summaries：九蓮宝燈' do
     # m11112345678999
     hands = {
       'm' => [ 4, 1, 1, 1, 1, 1, 1, 1, 3 ],
@@ -1033,11 +1186,11 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '九蓮宝燈', han: 13 } ]
-    assert_equal expected, result
+    assert_equal expected, result[:yaku_list]
+    assert_equal 13, result[:han_total]
   end
-
 
   # コアとなるprivateメソッドを個別にテストを行う。
   # build_agari_mentsu

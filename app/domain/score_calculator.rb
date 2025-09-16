@@ -24,14 +24,21 @@ module ScoreCalculator
   SOUZU_SUIT = 's'
   ZIHAI_SUIT = 'z'
 
-  def self.get_yaku_list(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+  def self.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     agari_all_patterns = build_agari_all_patters(hands, melds, agari_tile)
     scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
-    all_yaku_list = scoring_state_table.map do |scoring_states|
+    all_score_summaries = scoring_state_table.map do |scoring_states|
       yaku_list = build_yaku_list(scoring_states, situational_list)
-      yaku_list.flatten
+      han_total = yaku_list.empty? ? 0 : yaku_list.sum { |yaku| yaku[:han].to_i }
+
+      {
+        fu_total: scoring_states[:fu_total],
+        fu_components: scoring_states[:fu_components],
+        han_total:,
+        yaku_list:
+      }
     end
-    all_yaku_list.max_by { |yaku_list| yaku_list.sum { |yaku| yaku[:han].to_i } }
+    all_score_summaries.max_by { |score_summary| score_summary[:han_total] }
   end
 
   private
@@ -626,7 +633,8 @@ module ScoreCalculator
         yakuman_list << build_chinroutou_yaku(scoring_states)
         yakuman_list << build_suukantsu_yaku(scoring_states)
         yakuman_list << build_chuurenpoutou_yaku(scoring_states)
-        return yakuman_list if yakuman_list.flatten.present?
+        flattened_yakuman_list = yakuman_list.flatten
+        return flattened_yakuman_list if flattened_yakuman_list.present?
 
         yaku_list = []
         yaku_list << bonus_yaku_list
@@ -649,7 +657,7 @@ module ScoreCalculator
         yaku_list << build_zyunchan_yaku(scoring_states)
         yaku_list << build_ryanpeikou_yaku(scoring_states)
         yaku_list << build_chinitsu_yaku(scoring_states)
-        yaku_list
+        yaku_list.flatten
       end
     end
 end
