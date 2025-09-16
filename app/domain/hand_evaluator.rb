@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ScoreCalculator
+module HandEvaluator
   HAND_MAX_COUNT = 14
   NORMAL_AGARI_MENTSU_COUNT     = 5
   CHIITOITSU_AGARI_MENTSU_COUNT = 7

@@ -2,14 +2,14 @@
 
 require 'test_helper'
 
-class ScoreCalculatorTest < ActiveSupport::TestCase
+class HandEvaluatorTest < ActiveSupport::TestCase
   def setup
-    @privates = ScoreCalculator.private_methods(false)
-    ScoreCalculator.public_class_method(*@privates)
+    @privates = HandEvaluator.private_methods(false)
+    HandEvaluator.public_class_method(*@privates)
   end
 
   def teardown
-    ScoreCalculator.private_class_method(*@privates)
+    HandEvaluator.private_class_method(*@privates)
   end
 
   # get_score_summaries
@@ -35,7 +35,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '天和', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -63,7 +63,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '地和', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -91,7 +91,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '立直', han: 1 }, { name: '一発', han: 1 }, { name: '海底摸月', han: 1 }, { name: '門前清自摸和', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -119,7 +119,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: 'ダブル立直', han: 2 }, { name: '河底撈魚', han: 1 }, { name: '槍槓', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -151,7 +151,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '嶺上開花', han: 1 }, { name: '門前清自摸和', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -179,7 +179,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0 # 東
     player_wind = 1 # 南
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '場風 東', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -207,7 +207,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0 # 東
     player_wind = 1 # 南
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '自風 南', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -235,7 +235,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0 # 東
     player_wind = 1 # 南
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '翻牌 白', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -263,7 +263,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '平和', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -291,7 +291,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '断幺九', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -319,7 +319,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '一盃口', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -347,7 +347,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三色同順', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -375,7 +375,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三色同順', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -403,7 +403,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '一気通貫', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -431,7 +431,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '一気通貫', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -459,7 +459,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '混全帯幺九', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -487,7 +487,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '混全帯幺九', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -515,7 +515,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -543,7 +543,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 }, { name: '混一色', han: 3 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 5, result[:han_total]
@@ -571,7 +571,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 }, { name: '清一色', han: 6 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 8, result[:han_total]
@@ -600,7 +600,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '対々和', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -628,7 +628,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三暗刻', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -656,7 +656,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三槓子', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -684,7 +684,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '三色同刻', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -712,7 +712,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '対々和', han: 2 }, { name: '混老頭', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -740,7 +740,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 }, { name: '混老頭', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -768,7 +768,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '翻牌 白', han: 1 }, { name: '翻牌 發', han: 1 }, { name: '小三元', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -796,7 +796,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '純全帯幺九', han: 3 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 3, result[:han_total]
@@ -824,7 +824,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '二盃口', han: 3 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 3, result[:han_total]
@@ -852,7 +852,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '清一色', han: 6 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 6, result[:han_total]
@@ -879,7 +879,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '国士無双', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -906,7 +906,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '国士無双十三面', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -934,7 +934,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '四暗刻単騎', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -962,7 +962,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '四暗刻', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -990,7 +990,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '大三元', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1018,7 +1018,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '大四喜', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1046,7 +1046,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '小四喜', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1074,7 +1074,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '小四喜', han: 13 }, { name: '字一色', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 26, result[:han_total]
@@ -1102,7 +1102,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '緑一色', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1130,7 +1130,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '清老頭', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1158,7 +1158,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '四槓子', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1186,7 +1186,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = ScoreCalculator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
     expected = [ { name: '九蓮宝燈', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1196,44 +1196,44 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
   # build_agari_mentsu
   test 'empty counts returns one empty meld list' do
     counts = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-    result = ScoreCalculator.build_agari_mentsu('m', counts, 0)
+    result = HandEvaluator.build_agari_mentsu('m', counts, 0)
     assert_equal [ [] ], result
     assert_equal [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ], counts
   end
 
   test 'sequence only: 123' do
     counts = [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ]
-    result = ScoreCalculator.build_agari_mentsu('m', counts, 0)
+    result = HandEvaluator.build_agari_mentsu('m', counts, 0)
     assert_equal [ [ 'm123' ] ], result
   end
 
   test 'triplet only: 111' do
     counts = [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ]
-    result = ScoreCalculator.build_agari_mentsu('m', counts, 0)
+    result = HandEvaluator.build_agari_mentsu('m', counts, 0)
     assert_equal [ [ 'm111' ] ], result
   end
 
   test 'returns empty when sum is not a multiple of 3' do
     counts = [ 3, 2, 2, 0, 0, 0, 0, 0, 0 ]
-    result = ScoreCalculator.build_agari_mentsu('m', counts, 0)
+    result = HandEvaluator.build_agari_mentsu('m', counts, 0)
     assert_equal [], result
   end
 
   test 'i=3: either sequences 456*3 or triplets 444/555/666' do
     counts = [ 0, 0, 0, 3, 3, 3, 0, 0, 0 ]
-    result = ScoreCalculator.build_agari_mentsu('m', counts, 0)
+    result = HandEvaluator.build_agari_mentsu('m', counts, 0)
     assert_equal [ [ 'm456', 'm456', 'm456' ], [ 'm444', 'm555', 'm666' ] ], result
   end
 
   test 'no sequence on honors (z): 1-2-3 is invalid' do
     counts = [ 1, 1, 1, 0, 0, 0, 0 ]
-    result = ScoreCalculator.build_agari_mentsu('z', counts, 0)
+    result = HandEvaluator.build_agari_mentsu('z', counts, 0)
     assert_equal [], result
   end
 
   test 'boundary sequence 789' do
     counts = [ 0, 0, 0, 0, 0, 0, 1, 1, 1 ]
-    result = ScoreCalculator.build_agari_mentsu('s', counts, 0)
+    result = HandEvaluator.build_agari_mentsu('s', counts, 0)
     assert_equal [ [ 's789' ] ], result
   end
 
@@ -1250,7 +1250,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = []
 
-    result = ScoreCalculator.build_agari_mentsu_all(hands, melds)
+    result = HandEvaluator.build_agari_mentsu_all(hands, melds)
     assert_equal [ [] ], result
   end
 
@@ -1263,7 +1263,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = []
 
-    result = ScoreCalculator.build_agari_mentsu_all(hands, melds)
+    result = HandEvaluator.build_agari_mentsu_all(hands, melds)
     assert_equal [ [ 'm123' ] ], result
   end
 
@@ -1276,7 +1276,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = []
 
-    result = ScoreCalculator.build_agari_mentsu_all(hands, melds)
+    result = HandEvaluator.build_agari_mentsu_all(hands, melds)
     assert_equal [ [ 'm123', 'p123' ] ], result
   end
 
@@ -1289,7 +1289,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = []
 
-    result = ScoreCalculator.build_agari_mentsu_all(hands, melds)
+    result = HandEvaluator.build_agari_mentsu_all(hands, melds)
     assert_equal [ [ 'z111' ] ], result
   end
 
@@ -1302,7 +1302,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = []
 
-    result = ScoreCalculator.build_agari_mentsu_all(hands, melds)
+    result = HandEvaluator.build_agari_mentsu_all(hands, melds)
     assert_equal [], result
   end
 
@@ -1315,7 +1315,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = [ 'p789-' ]
 
-    result = ScoreCalculator.build_agari_mentsu_all(hands, melds)
+    result = HandEvaluator.build_agari_mentsu_all(hands, melds)
     assert_equal [ [ 'm123', 'p789-' ] ], result
   end
 
@@ -1328,7 +1328,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = []
 
-    result = ScoreCalculator.build_agari_mentsu_all(hands, melds)
+    result = HandEvaluator.build_agari_mentsu_all(hands, melds)
     expected = [
       [ 'm123', 'm123', 'm123' ],
       [ 'm111', 'm222', 'm333' ]
@@ -1341,7 +1341,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     melds = [ 'm777' ]
     hands = { 'm' => m, 'p' => p, 's' => s, 'z' => z }
 
-    _ = ScoreCalculator.build_agari_mentsu_all(hands, melds)
+    _ = HandEvaluator.build_agari_mentsu_all(hands, melds)
 
     assert_equal [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ], m
     assert_equal zero9, p
@@ -1359,7 +1359,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = []
 
-    result = ScoreCalculator.build_agari_mentsu_all(hands, melds)
+    result = HandEvaluator.build_agari_mentsu_all(hands, melds)
     assert_equal [], result
   end
 
@@ -1367,40 +1367,40 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
   # agari_tile：1萬のツモ和了は 'm1_', 下家からの出和了は 'm1+', 対面からの出上がり 'm1=', 上家からの出和了は 'm1-'
   test 'marks matching meld with ! (sequence)' do
     mentsu_list = [ 'm123', 'p123' ]
-    result  = ScoreCalculator.add_agari_mark(mentsu_list, 'm2_')
+    result  = HandEvaluator.add_agari_mark(mentsu_list, 'm2_')
     assert_equal [ [ 'm12_!3', 'p123' ] ], result
   end
 
   test 'marks matching meld with ! (triplet)' do
     mentsu_list = [ 'm111', 'p123' ]
-    result  = ScoreCalculator.add_agari_mark(mentsu_list, 'm1_')
+    result  = HandEvaluator.add_agari_mark(mentsu_list, 'm1_')
     assert_equal [ [ 'm111_!', 'p123' ] ], result
     assert_equal [ 'm111', 'p123' ], mentsu_list
   end
 
   test 'skips open-meld strings containing -, +, =' do
     mentsu_list = [ 'm123-', 'm123', 'p1+23', 's555=' ]
-    result  = ScoreCalculator.add_agari_mark(mentsu_list, 'm2=')
+    result  = HandEvaluator.add_agari_mark(mentsu_list, 'm2=')
     # マッチするのは "m123" のみ → "m12_3"
     assert_equal [ [ 'm123-', 'm12=!3', 'p1+23', 's555=' ] ], result
   end
 
   test 'skips consecutive duplicates to avoid duplicate results' do
     mentsu_list = [ 'm123', 'm123', 's789' ]
-    result  = ScoreCalculator.add_agari_mark(mentsu_list, 'm2_')
+    result  = HandEvaluator.add_agari_mark(mentsu_list, 'm2_')
     # 先頭だけ置換し、2つめの同一要素はスキップ
     assert_equal [ [ 'm12_!3', 'm123', 's789' ] ], result
   end
 
   test "returns [] when regex doesn't match any meld (wrong suit/number)" do
     mentsu_list = [ 'p111', 's789' ]
-    result  = ScoreCalculator.add_agari_mark(mentsu_list, 'm2_')
+    result  = HandEvaluator.add_agari_mark(mentsu_list, 'm2_')
     assert_equal [],  result
   end
 
   test 'produces one result per different matching position (no duplicates)' do
     mentsu_list = [ 'm123', 'm111', 'p777' ]
-    result = ScoreCalculator.add_agari_mark(mentsu_list, 'm1_')
+    result = HandEvaluator.add_agari_mark(mentsu_list, 'm1_')
     # i=0 を置換した配列 と i=1 を置換した配列 の2通り
     expected = [
       [ 'm1_!23', 'm111', 'p777' ],
@@ -1412,7 +1412,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
   test 'does not mutate strings or the input array (non-destructive)' do
     mentsu_list = [ 'm123', 'm456' ]
     clones = mentsu_list.map(&:dup)
-    _ = ScoreCalculator.add_agari_mark(mentsu_list, 'm2_')
+    _ = HandEvaluator.add_agari_mark(mentsu_list, 'm2_')
     assert_equal clones,  mentsu_list
   end
 
@@ -1421,7 +1421,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       [ 'm22', 'm33', 'm44', 'p55', 'p66', 'p77', 's88' ],
       [ 'm234', 'm234', 'p567', 'p567', 's88' ]
     ]
-    result = nested_mentsu_list.flat_map { |mentsu_list| ScoreCalculator.add_agari_mark(mentsu_list, 's8=') }
+    result = nested_mentsu_list.flat_map { |mentsu_list| HandEvaluator.add_agari_mark(mentsu_list, 's8=') }
 
     expected = [
       [ 'm22', 'm33', 'm44', 'p55', 'p66', 'p77', 's88=!' ],
@@ -1436,7 +1436,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       [ 'p99', 'm123', 'm123', 'm123', 'p789' ],
       [ 'p99', 'm111', 'm222', 'm333', 'p789' ]
     ]
-    result = nested_mentsu_list.flat_map { |mentsu_list| ScoreCalculator.add_agari_mark(mentsu_list, 'p9=') }
+    result = nested_mentsu_list.flat_map { |mentsu_list| HandEvaluator.add_agari_mark(mentsu_list, 'p9=') }
 
     expected = [
       [ 'p99=!', 'm123', 'm123', 'm123', 'p789' ],
@@ -1452,7 +1452,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       [ 'm22', 'm345', 'm345', 'p234', 's234' ],  # 片方の m345 にだけマーク（同一要素の2つ目はスキップ）
       [ 'm55', 'm234', 'm234', 'p234', 's234' ]   # 片方の m234 にだけマーク
     ]
-    result = nested_mentsu_list.flat_map { |mentsu_list| ScoreCalculator.add_agari_mark(mentsu_list, 'm3=') }
+    result = nested_mentsu_list.flat_map { |mentsu_list| HandEvaluator.add_agari_mark(mentsu_list, 'm3=') }
 
     expected = [
       [ 'm22', 'm3=!45', 'm345', 'p234', 's234' ],
@@ -1463,7 +1463,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
 
   test 'm2 from opponent, can belong to either m123 or m234' do
     mentsu_list = [ 's88', 'm123', 'm234', 'p567', 'z777' ]
-    result  = ScoreCalculator.add_agari_mark(mentsu_list, 'm2=')
+    result  = HandEvaluator.add_agari_mark(mentsu_list, 'm2=')
 
     expected = [
       [ 's88', 'm12=!3', 'm234', 'p567', 'z777' ],
@@ -1483,7 +1483,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = []
 
-    result = ScoreCalculator.build_normal_agari_patterns(hands, melds, 'm2')
+    result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'm2')
     assert_equal [], result
   end
 
@@ -1497,7 +1497,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     }
     melds = []
 
-    result = ScoreCalculator.build_normal_agari_patterns(hands, melds, 'm2_')
+    result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'm2_')
     expected = [ [ 'p44', 'm12_!3', 'm456', 'm789', 'p123' ] ]
     assert_equal expected, result
   end
@@ -1511,7 +1511,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'z' => zero7.dup
     }
     melds = []
-    result = ScoreCalculator.build_normal_agari_patterns(hands, melds, 's8=')
+    result = HandEvaluator.build_normal_agari_patterns(hands, melds, 's8=')
     expected = [ [ 's88=!', 'm234', 'm234', 'p567', 'p567' ] ]
     assert_equal expected, result
   end
@@ -1525,7 +1525,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'z' => zero7.dup
     }
     melds = []
-    result = ScoreCalculator.build_normal_agari_patterns(hands, melds, 'p9+')
+    result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'p9+')
 
     expected = [
       [ 'p99+!', 'm123', 'm123', 'm123', 'p789' ],
@@ -1545,7 +1545,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'z' => [ 0, 0, 0, 0, 0, 0, 3 ]
     }
     melds = []
-    result = ScoreCalculator.build_normal_agari_patterns(hands, melds, 'm2-')
+    result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'm2-')
 
     expected = [
       [ 's88', 'm12-!3', 'm234', 'p567', 'z777' ],
@@ -1563,7 +1563,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'z' => zero7.dup
     }
     melds = [ 'm1-23' ] # 下家から1萬チー
-    result = ScoreCalculator.build_normal_agari_patterns(hands, melds, 'm1-')
+    result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'm1-')
 
     # 和了マークはhands内の面子 "m123" 側につく
     expected = [ [ 'p99', 'm1-!23', 'm456', 'm789', 'm1-23' ] ]
@@ -1579,7 +1579,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     melds = []
-    result = ScoreCalculator.build_normal_agari_patterns(hands, melds, 'm1=')
+    result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'm1=')
 
     # m111 に対して貪欲一致
     expected = [ [ 'z77', 'm111=!', 'm333', 'm555', 'm999' ] ]
@@ -1598,7 +1598,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     melds = [ 'p789' ]
     melds_clone = melds.dup
 
-    _ = ScoreCalculator.build_normal_agari_patterns(hands, melds, 'm2_')
+    _ = HandEvaluator.build_normal_agari_patterns(hands, melds, 'm2_')
     assert_equal hands_clone, hands
     assert_equal melds_clone, melds
   end
@@ -1613,7 +1613,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
     }
 
-    result = ScoreCalculator.build_chiitoitsu_agari_patterns(hands, 's6_')
+    result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 's6_')
     expected = [ [ 'm11', 'm22', 'p33', 'p44', 's55', 's66_!', 'z77' ] ]
     assert_equal expected, result
   end
@@ -1626,7 +1626,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
       'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
     }
-    result = ScoreCalculator.build_chiitoitsu_agari_patterns(hands, 'm2+')
+    result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm2+')
     expected = [ [ 'm11', 'm22+!', 'p33', 'p44', 's55', 's66', 'z77' ] ]
     assert_equal expected, result
   end
@@ -1639,7 +1639,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
       'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
     }
-    result = ScoreCalculator.build_chiitoitsu_agari_patterns(hands, 'p3=')
+    result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'p3=')
     expected = [ [ 'm11', 'm22', 'p33=!', 'p44', 's55', 's66', 'z77' ] ]
     assert_equal expected, result
   end
@@ -1652,7 +1652,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
       'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
     }
-    result = ScoreCalculator.build_chiitoitsu_agari_patterns(hands, 'm2')
+    result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm2')
     assert_equal [], result
   end
 
@@ -1664,7 +1664,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
       'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
     }
-    result = ScoreCalculator.build_chiitoitsu_agari_patterns(hands, 'm1')
+    result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm1')
     assert_equal [], result
   end
 
@@ -1676,7 +1676,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 0, 0, 0, 0, 2, 0, 0, 0, 0 ],
       'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
     }
-    result = ScoreCalculator.build_chiitoitsu_agari_patterns(hands, 'm2')
+    result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm2')
     assert_equal [], result
   end
 
@@ -1688,7 +1688,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
       'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
     }
-    result = ScoreCalculator.build_chiitoitsu_agari_patterns(hands, 'm9')
+    result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm9')
     expected = [ [ 'm11', 'm22', 'p33', 'p44', 's55', 's66', 'z77' ] ]
     assert_equal expected, result
   end
@@ -1702,7 +1702,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     clone = hands.dup
-    _ = ScoreCalculator.build_chiitoitsu_agari_patterns(hands, 's6')
+    _ = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 's6')
     assert_equal clone, hands
   end
 
@@ -1715,7 +1715,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
       'z' => [ 1, 1, 1, 1, 1, 1, 1 ]
     }
-    result = ScoreCalculator.build_kokushi_agari_patterns(hands, 'm1_')
+    result = HandEvaluator.build_kokushi_agari_patterns(hands, 'm1_')
     expected = [ [
       'm11_!',
       'm9', 'p1', 'p9', 's1', 's9',
@@ -1732,7 +1732,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
       'z' => [ 1, 1, 1, 1, 1, 1, 1 ]
     }
-    result = ScoreCalculator.build_kokushi_agari_patterns(hands, 'p9+')
+    result = HandEvaluator.build_kokushi_agari_patterns(hands, 'p9+')
     expected = [ [
       'm11',
       'm9', 'p1', 'p9+!', 's1', 's9',
@@ -1749,7 +1749,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
       'z' => [ 1, 1, 2, 1, 1, 1, 1 ]
     }
-    result = ScoreCalculator.build_kokushi_agari_patterns(hands, 'z3=')
+    result = HandEvaluator.build_kokushi_agari_patterns(hands, 'z3=')
     expected = [ [
       'z33=!',
       'm1', 'm9', 'p1', 'p9', 's1', 's9',
@@ -1766,7 +1766,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
       'z' => [ 1, 1, 1, 1, 1, 1, 0 ]
     }
-    result = ScoreCalculator.build_kokushi_agari_patterns(hands, 'm1')
+    result = HandEvaluator.build_kokushi_agari_patterns(hands, 'm1')
     assert_equal [], result
   end
 
@@ -1777,7 +1777,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => [ 3, 0, 0, 0, 0, 0, 0, 0, 1 ],
       'z' => [ 1, 1, 1, 1, 1, 1, 1 ]
     }
-    result = ScoreCalculator.build_kokushi_agari_patterns(hands, 's1')
+    result = HandEvaluator.build_kokushi_agari_patterns(hands, 's1')
     assert_equal [], result
   end
 
@@ -1789,7 +1789,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'z' => [ 1, 1, 1, 1, 1, 1, 1 ]
     }
     hands_clone = hands.dup
-    _ = ScoreCalculator.build_kokushi_agari_patterns(hands, 'm1')
+    _ = HandEvaluator.build_kokushi_agari_patterns(hands, 'm1')
     assert_equal hands_clone, hands
   end
 
@@ -1801,7 +1801,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => zero9.dup,
       'z' => zero9.dup
     }
-    result = ScoreCalculator.build_chuurenpoutou_agari_patterns(hands, 'm1=')
+    result = HandEvaluator.build_chuurenpoutou_agari_patterns(hands, 'm1=')
     assert_equal [ [ 'm11123456789991=!' ] ], result
   end
 
@@ -1812,7 +1812,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => zero9.dup,
       'z' => [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ]
     }
-    result = ScoreCalculator.build_chuurenpoutou_agari_patterns(hands, 'm1=')
+    result = HandEvaluator.build_chuurenpoutou_agari_patterns(hands, 'm1=')
     assert_equal [], result
   end
 
@@ -1823,7 +1823,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => zero9.dup,
       'z' => zero9.dup
     }
-    result = ScoreCalculator.build_chuurenpoutou_agari_patterns(hands, 'm1=')
+    result = HandEvaluator.build_chuurenpoutou_agari_patterns(hands, 'm1=')
     assert_equal [], result
   end
 
@@ -1842,38 +1842,38 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     normal_expected = [ 's88', 'm23=!4', 'm234', 'p567', 'p567' ]
     chiitoitsu_expected = [ 'm22', 'm33=!', 'm44', 'p55', 'p66', 'p77', 's88' ]
 
-    result = ScoreCalculator.build_agari_all_patters(hands, melds, agari_tile)
+    result = HandEvaluator.build_agari_all_patters(hands, melds, agari_tile)
     assert_equal [ normal_expected, chiitoitsu_expected ], result
   end
 
   # build_bonus_yaku_list
   test 'tenhou overrides everything' do
     situational_list = { tenhou: true, chiihou: false, riichi: 2, ippatsu: true, haitei: 2, rinshan: true, chankan: true }
-    result = ScoreCalculator.build_bonus_yaku_list(situational_list)
+    result = HandEvaluator.build_bonus_yaku_list(situational_list)
     assert_equal [ { name: '天和', han: 13 } ], result
   end
 
   test 'chiihou overrides everything when no tenhou' do
     situational_list = { tenhou: false, chiihou: true, riichi: 1, ippatsu: true, haitei: 1, rinshan: true, chankan: true }
-    result  = ScoreCalculator.build_bonus_yaku_list(situational_list)
+    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
     assert_equal [ { name: '地和', han: 13 } ], result
   end
 
   test 'riichi single adds 立直(1) only' do
     situational_list = { tenhou: false, chiihou: false, riichi: 1 }
-    result  = ScoreCalculator.build_bonus_yaku_list(situational_list)
+    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
     assert_equal [ { name: '立直', han: 1 } ], result
   end
 
   test 'riichi double adds 立直(2) only' do
     situational_list = { tenhou: false, chiihou: false, riichi: 2 }
-    result  = ScoreCalculator.build_bonus_yaku_list(situational_list)
+    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
     assert_equal [ { name: 'ダブル立直', han: 2 } ], result
   end
 
   test 'ippatsu adds 一発(1)' do
     situational_list = { tenhou: false, chiihou: false, riichi: 1, ippatsu: true }
-    result  = ScoreCalculator.build_bonus_yaku_list(situational_list)
+    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
     assert_equal [ { name: '立直', han: 1 }, { name: '一発', han: 1 } ], result
   end
 
@@ -1881,8 +1881,8 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
     situ1 = { tenhou: false, chiihou: false, riichi: 1, haitei: 1 }
     situ2 = { tenhou: false, chiihou: false, riichi: 1, haitei: 2 }
 
-    result_1 = ScoreCalculator.build_bonus_yaku_list(situ1)
-    result_2 = ScoreCalculator.build_bonus_yaku_list(situ2)
+    result_1 = HandEvaluator.build_bonus_yaku_list(situ1)
+    result_2 = HandEvaluator.build_bonus_yaku_list(situ2)
 
     assert_equal [ { name: '立直', han: 1 }, { name: '海底摸月', han: 1 } ], result_1
     assert_equal [ { name: '立直', han: 1 }, { name: '河底撈魚', han: 1 } ], result_2
@@ -1890,7 +1890,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
 
   test 'rinshan adds 嶺上開花(1), chankan adds 槍槓(1)' do
     situational_list = { tenhou: false, chiihou: false, rinshan: true, chankan: true }
-    result  = ScoreCalculator.build_bonus_yaku_list(situational_list)
+    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
     assert_equal [
       { name: '嶺上開花', han: 1 },
       { name: '槍槓',    han: 1 }
@@ -1907,7 +1907,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       rinshan: false,
       chankan: true
     }
-    result = ScoreCalculator.build_bonus_yaku_list(situational_list)
+    result = HandEvaluator.build_bonus_yaku_list(situational_list)
     assert_equal [
       { name: 'ダブル立直',   han: 2 },
       { name: '一発',        han: 1 },
@@ -1918,29 +1918,29 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
 
   test 'no flags returns empty list' do
     situational_list = { tenhou: false, chiihou: false }
-    result  = ScoreCalculator.build_bonus_yaku_list(situational_list)
+    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
     assert_equal [], result
   end
 
   # build_dora_yaku_list
   test 'returns empty array when all counts are zero' do
-    assert_equal [], ScoreCalculator.build_dora_yaku_list(0, 0, 0)
+    assert_equal [], HandEvaluator.build_dora_yaku_list(0, 0, 0)
   end
 
   test 'returns only Dora when dora > 0' do
-    assert_equal [ { name: 'ドラ', han: 2 } ], ScoreCalculator.build_dora_yaku_list(2, 0, 0)
+    assert_equal [ { name: 'ドラ', han: 2 } ], HandEvaluator.build_dora_yaku_list(2, 0, 0)
   end
 
   test 'returns only Aka Dora when aka_dora > 0' do
-    assert_equal [ { name: '赤ドラ', han: 3 } ], ScoreCalculator.build_dora_yaku_list(0, 0, 3)
+    assert_equal [ { name: '赤ドラ', han: 3 } ], HandEvaluator.build_dora_yaku_list(0, 0, 3)
   end
 
   test 'returns only Ura Dora when ura_dora > 0' do
-    assert_equal [ { name: '裏ドラ', han: 1 } ], ScoreCalculator.build_dora_yaku_list(0, 1, 0)
+    assert_equal [ { name: '裏ドラ', han: 1 } ], HandEvaluator.build_dora_yaku_list(0, 1, 0)
   end
 
   test 'returns all three in fixed order: Dora, Aka Dora, Ura Dora' do
-    result = ScoreCalculator.build_dora_yaku_list(2, 1, 3)
+    result = HandEvaluator.build_dora_yaku_list(2, 1, 3)
     expected = [
       { name: 'ドラ',  han: 2 },
       { name: '赤ドラ', han: 3 },
@@ -1950,7 +1950,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
   end
 
   test 'skips zero counts and preserves the order of remaining items' do
-    result = ScoreCalculator.build_dora_yaku_list(1, 0, 2)   # ドラ1、裏0、赤2
+    result = HandEvaluator.build_dora_yaku_list(1, 0, 2)   # ドラ1、裏0、赤2
     expected = [
       { name: 'ドラ',  han: 1 },
       { name: '赤ドラ', han: 2 }
@@ -1967,7 +1967,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p567',
       's345'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 20,
@@ -2002,7 +2002,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p567',
       's345=!'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 30,
@@ -2037,7 +2037,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p567',
       's678_!'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 30,
@@ -2072,7 +2072,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p567=!',
       's678'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 30,
@@ -2107,7 +2107,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p567=!',
       's678'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 30,
@@ -2136,7 +2136,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
 
   test '七対子ロン：25符固定' do
     agari = [ 'm11=!', 'm99', 'p22', 's33', 's77', 'z55', 'p55' ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 25,
@@ -2165,7 +2165,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
 
   test '七対子ツモ：25符固定' do
     agari = [ 'm11_!', 'm99', 'p22', 's33', 's77', 'z55', 'p55' ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 25,
@@ -2200,7 +2200,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's12_!3',
       's345'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 30,
@@ -2235,7 +2235,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p456',
       's678'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 30,
@@ -2270,7 +2270,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p444',
       's345'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 40,
@@ -2305,7 +2305,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p111',
       's111'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 60,
@@ -2340,7 +2340,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p234',
       's567'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 40,
@@ -2376,7 +2376,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       'p234',
       's567'
     ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 60,
@@ -2405,7 +2405,7 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
 
   test '九蓮宝燈：mentsu_count = 1, fu = 0' do
     agari = [ 'm11112345678999=!' ]
-    result = ScoreCalculator.build_scoring_states(agari, 0, 0)
+    result = HandEvaluator.build_scoring_states(agari, 0, 0)
     assert_equal(
       {
         fu_total: 0,
