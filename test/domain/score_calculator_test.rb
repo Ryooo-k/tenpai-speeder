@@ -1313,10 +1313,10 @@ class ScoreCalculatorTest < ActiveSupport::TestCase
       's' => zero9.dup,
       'z' => zero7.dup
     }
-    melds = [ 'p789' ]
+    melds = [ 'p789-' ]
 
     result = ScoreCalculator.build_agari_mentsu_all(hands, melds)
-    assert_equal [ [ 'm123', 'p789' ] ], result
+    assert_equal [ [ 'm123', 'p789-' ] ], result
   end
 
   test 'both branches in one suit: m(333,222,111) -> either sequences x3 or triplets x3' do
