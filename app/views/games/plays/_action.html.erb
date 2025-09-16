@@ -1,4 +1,4 @@
-<% case @next_action %>
+<% case @action %>
 <% when :draw %>
   <%= form_with url: game_action_draw_path(@game),
                 method: :post,
