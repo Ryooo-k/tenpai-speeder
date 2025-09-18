@@ -9,6 +9,13 @@ module ScoreInputNormalizer
   }
 
   class << self
+    def normalize(hands, melds, agari_tile, relation)
+      normalized_hands = ScoreInputNormalizer.normalize_hands(hands)
+      normalized_melds = ScoreInputNormalizer.normalize_melds(melds)
+      normalized_agari_tile = ScoreInputNormalizer.normalize_agari_tile(agari_tile, relation)
+      [ normalized_hands, normalized_melds, normalized_agari_tile ]
+    end
+
     def normalize_hands(hands)
       normalized_hands = {
         m: Array.new(9, 0),
