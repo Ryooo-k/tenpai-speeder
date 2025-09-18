@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'helpers/game_test_helper'
 
 class HandEvaluatorTest < ActiveSupport::TestCase
   include GameTestHelper
