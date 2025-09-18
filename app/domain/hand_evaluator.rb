@@ -37,8 +37,9 @@ module HandEvaluator
       yaku_list.present?
     end
 
-    def get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
-      agari_all_patterns = build_agari_all_patters(hands, melds, agari_tile)
+    def get_score_summaries(hands, melds, agari_tile, relation, situational_yaku_list, round_wind, player_wind)
+      normalized_hands, normalized_melds, normalized_agari_tile = ScoreInputNormalizer.normalize(hands, melds, agari_tile, relation)
+      agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_agari_tile)
       scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
       all_score_summaries = scoring_state_table.map do |scoring_states|
         yaku_list = build_yaku_list(scoring_states, situational_yaku_list)
@@ -282,7 +283,7 @@ module HandEvaluator
         round_wind_re  = /\Az#{round_wind + 1}.*\z/
         player_wind_re = /\Az#{player_wind + 1}.*\z/
         scoring_states = build_initial_scoring_state(round_wind, player_wind)
-        scoring_states[:jantou] = agari_patterns[0][..2]
+        scoring_states[:jantou] = agari_patterns[0]
         scoring_states[:mentsu] = agari_patterns.join
         scoring_states[:mentsu_count] = agari_patterns.length
 
