@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-
+require 'debug'
 class HandEvaluatorTest < ActiveSupport::TestCase
   def setup
     @privates = HandEvaluator.private_methods(false)
@@ -12,18 +12,123 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     HandEvaluator.private_class_method(*@privates)
   end
 
-  # get_score_summaries
+  test '#can_tsumo? returns true when menzen and tsumo completes 4-sets-and-a-pair' do
+    # m123 p456 s999 z11122
+    hands = [
+      Hand.create!(tile: tiles(:first_manzu_1), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_manzu_2), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_manzu_3), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pinzu_4), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pinzu_5), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pinzu_6), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_souzu_9), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:second_souzu_9), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:third_souzu_9), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_ton), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:second_ton), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:third_ton), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_nan), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:second_nan), player_state: player_states(:ryo), drawn: true)
+    ]
+    melds = []
+    round_wind = 0
+    player_wind = 0
+    situational_yaku_list = {
+      tenhou: false,
+      chiihou: false,
+      riichi: 0,
+      ippatsu: false,
+      haitei: 0,
+      rinshan: false,
+      chankan: false
+    }
+
+    result = HandEvaluator.can_tsumo?(hands, melds, round_wind, player_wind, situational_yaku_list)
+    assert result
+  end
+
+  test '#can_tsumo? returns true when tsumo completes hands with open player_wind tile' do
+    # m123 p456 s999 z22、melds:z111
+    hands = [
+      Hand.create!(tile: tiles(:first_manzu_1), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_manzu_2), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_manzu_3), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pinzu_4), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pinzu_5), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pinzu_6), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_souzu_9), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:second_souzu_9), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:third_souzu_9), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_nan), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:second_nan), player_state: player_states(:ryo), drawn: true)
+    ]
+    melds = [
+      Meld.create!(tile: tiles(:first_ton), player_state: player_states(:ryo), kind: :pon, number: 0),
+      Meld.create!(tile: tiles(:second_ton), player_state: player_states(:ryo), kind: :pon, number: 1),
+      Meld.create!(tile: tiles(:third_ton), player_state: player_states(:ryo), kind: :pon, number: 2)
+    ]
+    round_wind = 0  # 東
+    player_wind = 0 # 東
+    situational_yaku_list = {
+      tenhou: false,
+      chiihou: false,
+      riichi: 0,
+      ippatsu: false,
+      haitei: 0,
+      rinshan: false,
+      chankan: false
+    }
+
+    result = HandEvaluator.can_tsumo?(hands, melds, round_wind, player_wind, situational_yaku_list)
+    assert result
+  end
+
+  test '#can_tsumo? returns false when not completes hands' do
+    # m123 p456 s999 z12345
+    hands = [
+      Hand.create!(tile: tiles(:first_manzu_1), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_manzu_2), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_manzu_3), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pinzu_4), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pinzu_5), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pinzu_6), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_souzu_9), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:second_souzu_9), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:third_souzu_9), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_ton), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_nan), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_sha), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_pei), player_state: player_states(:ryo)),
+      Hand.create!(tile: tiles(:first_haku), player_state: player_states(:ryo), drawn: true)
+    ]
+    melds = []
+    round_wind = 0
+    player_wind = 0
+    situational_yaku_list = {
+      tenhou: false,
+      chiihou: false,
+      riichi: 0,
+      ippatsu: false,
+      haitei: 0,
+      rinshan: false,
+      chankan: false
+    }
+
+    result = HandEvaluator.can_tsumo?(hands, melds, round_wind, player_wind, situational_yaku_list)
+    assert_not result
+  end
+
   test '#get_score_summaries：天和' do
     # m111 p234567 s23455
     hands = {
-      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+      m: [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm1_'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: true,
       chiihou: false,
       riichi: 0,
@@ -35,7 +140,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '天和', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -44,14 +149,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：地和' do
     # m111 p234567 s23455
     hands = {
-      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+      m: [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm1_'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: true,
       riichi: 0,
@@ -63,7 +168,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '地和', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -72,14 +177,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：立直(1) 一発 海底摸月' do
     # m111 p234567 s23455
     hands = {
-      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+      m: [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm1_'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 1,
@@ -91,7 +196,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '立直', han: 1 }, { name: '一発', han: 1 }, { name: '海底摸月', han: 1 }, { name: '門前清自摸和', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -100,14 +205,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：ダブル立直(2) 河底撈魚 槍槓' do
     # m111 p234567 s23455
     hands = {
-      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+      m: [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm1='
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 2,
@@ -119,7 +224,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: 'ダブル立直', han: 2 }, { name: '河底撈魚', han: 1 }, { name: '槍槓', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -132,14 +237,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：門前清自摸和 嶺上開花' do
     # m111 p234567 s23455
     hands = {
-      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+      m: [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm1_'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -151,7 +256,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '嶺上開花', han: 1 }, { name: '門前清自摸和', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -160,14 +265,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：場風 東' do
     # p234567 s23455 z111 ※z1:東
     hands = {
-      'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
-      'z' => [ 3, 0, 0, 0, 0, 0, 0 ]
+      m: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      z: [ 3, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'p2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -179,7 +284,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0 # 東
     player_wind = 1 # 南
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '場風 東', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -188,14 +293,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：自風 南' do
     # p234567 s23455 z222 ※z2:南
     hands = {
-      'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 3, 0, 0, 0, 0, 0 ]
+      m: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      z: [ 0, 3, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'p2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -207,7 +312,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0 # 東
     player_wind = 1 # 南
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '自風 南', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -216,14 +321,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：翻牌 白' do
     # p234567 s23455 z444 ※z4:白
     hands = {
-      'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 3, 0, 0 ]
+      m: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 3, 0, 0 ]
     }
     melds = []
     agari_tile = 'p2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -235,7 +340,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0 # 東
     player_wind = 1 # 南
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '翻牌 白', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -244,14 +349,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：平和' do
     # m123 p123456 s789 z11　※z1:南
     hands = {
-      'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 0, 0, 1, 1, 1 ],
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      p: [ 1, 1, 1, 1, 1, 1, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 0, 0, 1, 1, 1 ],
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 's9-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -263,7 +368,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '平和', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -272,14 +377,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：タンヤオ' do
     # m222 p234567 s23455
     hands = {
-      'm' => [ 0, 3, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+      m: [ 0, 3, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 1, 1, 1, 2, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'p2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -291,7 +396,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '断幺九', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -300,14 +405,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：一盃口' do
     # m112233 p234567 s55
     hands = {
-      'm' => [ 2, 2, 2, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 0 ]
+      m: [ 2, 2, 2, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 1, 1, 1, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -319,7 +424,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '一盃口', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -328,14 +433,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：三色同順(面前 han = 2)' do
     # m123 p123 s123567 z22
     hands = {
-      'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      's' => [ 1, 1, 1, 0, 1, 1, 1, 0, 0 ],
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      p: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      s: [ 1, 1, 1, 0, 1, 1, 1, 0, 0 ],
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -347,7 +452,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '三色同順', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -356,14 +461,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：三色同順(鳴き han = 1)' do
     # m123 p123 s123567 z22
     hands = {
-      'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      's' => [ 1, 1, 1, 0, 1, 1, 1, 0, 0 ],
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      s: [ 1, 1, 1, 0, 1, 1, 1, 0, 0 ],
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = [ 'p123-' ]
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -375,7 +480,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '三色同順', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -384,14 +489,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：一気通貫(面前 han = 2)' do
     # m123456789 p234 z22
     hands = {
-      'm' => [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-      'p' => [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+      p: [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -403,7 +508,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '一気通貫', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -412,14 +517,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：一気通貫(鳴き han =1)' do
     # m123456789 p234 z22
     hands = {
-      'm' => [ 1, 1, 1, 0, 0, 0, 1, 1, 1 ],
-      'p' => [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 1, 1, 1, 0, 0, 0, 1, 1, 1 ],
+      p: [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = [ 'm456-' ]
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -431,7 +536,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '一気通貫', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -440,14 +545,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：混全帯幺九(面前 han = 2)' do
     # m123789 p111999 z22
     hands = {
-      'm' => [ 1, 1, 1, 0, 0, 0, 1, 1, 1 ],
-      'p' => [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
-      's' => zero9.dup,
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 1, 1, 1, 0, 0, 0, 1, 1, 1 ],
+      p: [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
+      s: zero9.dup,
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -459,7 +564,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '混全帯幺九', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -468,14 +573,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：混全帯幺九(鳴き han =1)' do
     # m123789 p111999 z22
     hands = {
-      'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
-      's' => zero9.dup,
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      p: [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
+      s: zero9.dup,
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = [ 'm789-' ]
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -487,7 +592,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '混全帯幺九', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -496,14 +601,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：七対子' do
     # m1133557799 p1199
     hands = {
-      'm' => [ 2, 0, 2, 0, 2, 0, 2, 0, 2 ],
-      'p' => [ 2, 0, 0, 0, 0, 0, 0, 0, 2 ],
-      's' => zero9.dup,
-      'z' => zero9.dup
+      m: [ 2, 0, 2, 0, 2, 0, 2, 0, 2 ],
+      p: [ 2, 0, 0, 0, 0, 0, 0, 0, 2 ],
+      s: zero9.dup,
+      z: zero9.dup
     }
     melds = []
     agari_tile = 'm1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -515,7 +620,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -524,14 +629,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：七対子 混一色' do
     # m1133557799 z1122
     hands = {
-      'm' => [ 2, 0, 2, 0, 2, 0, 2, 0, 2 ],
-      'p' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => [ 2, 2, 0, 0, 0, 0, 0 ]
+      m: [ 2, 0, 2, 0, 2, 0, 2, 0, 2 ],
+      p: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: [ 2, 2, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -543,7 +648,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 }, { name: '混一色', han: 3 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 5, result[:han_total]
@@ -552,14 +657,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：七対子 清一色' do
     # m11223355667799
     hands = {
-      'm' => [ 2, 2, 2, 0, 2, 2, 0, 2, 2 ],
-      'p' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => zero9.dup
+      m: [ 2, 2, 2, 0, 2, 2, 0, 2, 2 ],
+      p: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: zero9.dup
     }
     melds = []
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -571,7 +676,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 }, { name: '清一色', han: 6 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 8, result[:han_total]
@@ -581,14 +686,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：対々和' do
     # m111333 p111 p222 z22
     hands = {
-      'm' => [ 3, 0, 3, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 3, 0, 3, 0, 0, 0, 0, 0, 0 ],
+      p: [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = [ 'p222=' ]
     agari_tile = 'm1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -600,7 +705,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '対々和', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -609,14 +714,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：三暗刻' do
     # m111333444 p123 z22
     hands = {
-      'm' => [ 3, 0, 3, 3, 0, 0, 0, 0, 0 ],
-      'p' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 3, 0, 3, 3, 0, 0, 0, 0, 0 ],
+      p: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'p1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -628,7 +733,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '三暗刻', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -637,14 +742,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：三槓子' do
     # m1111 2222 3333 p123 z22
     hands = {
-      'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = [ 'm1111', 'm2222-', 'm3333' ]
     agari_tile = 'p1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -656,7 +761,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '三槓子', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -665,14 +770,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：三色同刻' do
     # m111 p111 s111 p234 z22
     hands = {
-      'm' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = [ 'm111-', 'p111-', 's111-' ]
     agari_tile = 'p2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -684,7 +789,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '三色同刻', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -693,14 +798,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：混老頭 対々和' do
     # m111999 p111 z22233
     hands = {
-      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
-      'p' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => [ 0, 3, 2, 0, 0, 0, 0 ]
+      m: [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
+      p: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: [ 0, 3, 2, 0, 0, 0, 0 ]
     }
     melds = [ 'p111-' ]
     agari_tile = 'm1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -712,7 +817,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '対々和', han: 2 }, { name: '混老頭', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -721,14 +826,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：混老頭 七対子' do
     # m1199 p1199 s1199 z11
     hands = {
-      'm' => [ 2, 0, 0, 0, 0, 0, 0, 0, 2 ],
-      'p' => [ 2, 0, 0, 0, 0, 0, 0, 0, 2 ],
-      's' => [ 2, 0, 0, 0, 0, 0, 0, 0, 2 ],
-      'z' => [ 2, 0, 0, 0, 0, 0, 0 ]
+      m: [ 2, 0, 0, 0, 0, 0, 0, 0, 2 ],
+      p: [ 2, 0, 0, 0, 0, 0, 0, 0, 2 ],
+      s: [ 2, 0, 0, 0, 0, 0, 0, 0, 2 ],
+      z: [ 2, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'm1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -740,7 +845,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '七対子', han: 2 }, { name: '混老頭', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -749,14 +854,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：小三元' do
     # m234 p234 z44455566
     hands = {
-      'm' => [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => [ 0, 0, 0, 0, 3, 3, 2 ]
+      m: [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
+      p: [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: [ 0, 0, 0, 0, 3, 3, 2 ]
     }
     melds = []
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -768,7 +873,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '翻牌 白', han: 1 }, { name: '翻牌 發', han: 1 }, { name: '小三元', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -777,14 +882,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：純全帯幺九' do
     # m111789 p123789 s11
     hands = {
-      'm' => [ 3, 0, 0, 0, 0, 0, 1, 1, 1 ],
-      'p' => [ 1, 1, 1, 0, 0, 0, 1, 1, 1 ],
-      's' => [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'z' => zero7.dup
+      m: [ 3, 0, 0, 0, 0, 0, 1, 1, 1 ],
+      p: [ 1, 1, 1, 0, 0, 0, 1, 1, 1 ],
+      s: [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      z: zero7.dup
     }
     melds = []
     agari_tile = 'm1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -796,7 +901,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '純全帯幺九', han: 3 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 3, result[:han_total]
@@ -805,14 +910,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：二盃口' do
     # m112233 p445566 s11
     hands = {
-      'm' => [ 2, 2, 2, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 0, 2, 2, 2, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 0, 0, 2, 0, 0 ],
-      'z' => zero7.dup
+      m: [ 2, 2, 2, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 0, 2, 2, 2, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 0, 0, 2, 0, 0 ],
+      z: zero7.dup
     }
     melds = []
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -824,7 +929,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '二盃口', han: 3 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 3, result[:han_total]
@@ -833,14 +938,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：清一色' do
     # m11122245678999
     hands = {
-      'm' => [ 3, 3, 0, 1, 1, 1, 1, 1, 3 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 3, 3, 0, 1, 1, 1, 1, 1, 3 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
     agari_tile = 'm1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -852,7 +957,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '清一色', han: 6 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 6, result[:han_total]
@@ -860,14 +965,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test '#get_score_summaries：国士無双' do
     hands = {
-      'm' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'z' => [ 2, 1, 1, 1, 1, 1, 1 ]
+      m: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      p: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      s: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      z: [ 2, 1, 1, 1, 1, 1, 1 ]
     }
     melds = []
     agari_tile = 'm1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -879,7 +984,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '国士無双', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -887,14 +992,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test '#get_score_summaries：国士無双十三面' do
     hands = {
-      'm' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'z' => [ 2, 1, 1, 1, 1, 1, 1 ]
+      m: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      p: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      s: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      z: [ 2, 1, 1, 1, 1, 1, 1 ]
     }
     melds = []
     agari_tile = 'z1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -906,7 +1011,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '国士無双十三面', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -915,14 +1020,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：四暗刻単騎' do
     # m111222 p333444 s55
     hands = {
-      'm' => [ 3, 3, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 3, 3, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 0, 0, 0, 0 ],
-      'z' => zero7.dup
+      m: [ 3, 3, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 3, 3, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 0, 0, 0, 0 ],
+      z: zero7.dup
     }
     melds = []
     agari_tile = 's5-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -934,7 +1039,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '四暗刻単騎', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -943,14 +1048,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：四暗刻' do
     # m111222 p333444 s55
     hands = {
-      'm' => [ 3, 3, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 3, 3, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 0, 0, 0, 0 ],
-      'z' => zero7.dup
+      m: [ 3, 3, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 3, 3, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 0, 0, 0, 0 ],
+      z: zero7.dup
     }
     melds = []
     agari_tile = 'm1_'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -962,7 +1067,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '四暗刻', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -971,14 +1076,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：大三元' do
     # m234 p22 z555666777
     hands = {
-      'm' => [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 2, 0, 0, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 3, 3, 3 ]
+      m: [ 0, 1, 1, 1, 0, 0, 0, 0, 0 ],
+      p: [ 0, 2, 0, 0, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 3, 3, 3 ]
     }
     melds = []
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -990,7 +1095,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '大三元', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -999,14 +1104,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：大四喜' do
     # m11 z111222333444
     hands = {
-      'm' => [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => [ 3, 3, 3, 3, 0, 0, 0 ]
+      m: [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: [ 3, 3, 3, 3, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'z1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -1018,7 +1123,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '大四喜', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1027,14 +1132,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：小四喜' do
     # m111 z11122233344
     hands = {
-      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => [ 3, 3, 3, 2, 0, 0, 0 ]
+      m: [ 3, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: [ 3, 3, 3, 2, 0, 0, 0 ]
     }
     melds = []
     agari_tile = 'z1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -1046,7 +1151,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '小四喜', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1055,14 +1160,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：字一色' do
     # m111 z11122233344
     hands = {
-      'm' => zero9.dup,
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => [ 3, 3, 3, 2, 3, 0, 0 ]
+      m: zero9.dup,
+      p: zero9.dup,
+      s: zero9.dup,
+      z: [ 3, 3, 3, 2, 3, 0, 0 ]
     }
     melds = []
     agari_tile = 'z1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -1074,7 +1179,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '小四喜', han: 13 }, { name: '字一色', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 26, result[:han_total]
@@ -1083,14 +1188,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：緑一色' do
     # s22334466688 z66
     hands = {
-      'm' => zero9.dup,
-      'p' => zero9.dup,
-      's' => [ 0, 2, 2, 2, 0, 3, 0, 2, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 3, 0 ]
+      m: zero9.dup,
+      p: zero9.dup,
+      s: [ 0, 2, 2, 2, 0, 3, 0, 2, 0 ],
+      z: [ 0, 0, 0, 0, 0, 3, 0 ]
     }
     melds = []
     agari_tile = 's2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -1102,7 +1207,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '緑一色', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1111,14 +1216,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：清老頭' do
     # m111999 p111 p999 s11
     hands = {
-      'm' => [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
-      'p' => [ 0, 0, 0, 0, 0, 0, 0, 0, 3 ],
-      's' => [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'z' => zero7.dup
+      m: [ 3, 0, 0, 0, 0, 0, 0, 0, 3 ],
+      p: [ 0, 0, 0, 0, 0, 0, 0, 0, 3 ],
+      s: [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      z: zero7.dup
     }
     melds = [ 'p111-' ]
     agari_tile = 'm1-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -1130,7 +1235,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '清老頭', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1139,14 +1244,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：四槓子' do
     # m1111 p2222 s3333 z4444 m22
     hands = {
-      'm' => [ 0, 2, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 0, 2, 0, 0, 0, 0, 0, 0, 0 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = [ 'm1111', 'p2222-', 's3333-', 'z4444' ]
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -1158,7 +1263,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '四槓子', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1167,14 +1272,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：九蓮宝燈' do
     # m11112345678999
     hands = {
-      'm' => [ 4, 1, 1, 1, 1, 1, 1, 1, 3 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 4, 1, 1, 1, 1, 1, 1, 1, 3 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
     agari_tile = 'm2-'
-    situational_list = {
+    situational_yaku_list = {
       tenhou: false,
       chiihou: false,
       riichi: 0,
@@ -1186,7 +1291,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     round_wind = 0
     player_wind = 0
 
-    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
+    result = HandEvaluator.get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
     expected = [ { name: '九蓮宝燈', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -1243,10 +1348,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'empty hand returns one empty meld set' do
     hands = {
-      'm' => zero9.dup,
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: zero9.dup,
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
 
@@ -1256,10 +1361,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'single suit sequence only (m123)' do
     hands = {
-      'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
 
@@ -1269,10 +1374,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'combine suits: m123 + p123' do
     hands = {
-      'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      p: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
 
@@ -1282,10 +1387,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'honors: z111 only' do
     hands = {
-      'm' => zero9.dup,
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => [ 3, 0, 0, 0, 0, 0, 0 ]
+      m: zero9.dup,
+      p: zero9.dup,
+      s: zero9.dup,
+      z: [ 3, 0, 0, 0, 0, 0, 0 ]
     }
     melds = []
 
@@ -1295,10 +1400,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'honors invalid (count 1 or 2) returns []' do
     hands = {
-      'm' => zero9.dup,
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => [ 0, 2, 0, 0, 0, 0, 0 ]
+      m: zero9.dup,
+      p: zero9.dup,
+      s: zero9.dup,
+      z: [ 0, 2, 0, 0, 0, 0, 0 ]
     }
     melds = []
 
@@ -1308,10 +1413,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'existing meld list is appended to every result' do
     hands = {
-      'm' => [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = [ 'p789-' ]
 
@@ -1321,10 +1426,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'both branches in one suit: m(333,222,111) -> either sequences x3 or triplets x3' do
     hands = {
-      'm' => [ 3, 3, 3, 0, 0, 0, 0, 0, 0 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 3, 3, 3, 0, 0, 0, 0, 0, 0 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
 
@@ -1339,7 +1444,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'non-destructive: counts and meld arrays unchanged' do
     m = [ 1, 1, 1, 0, 0, 0, 0, 0, 0 ]; p = zero9.dup; s = zero9.dup; z = zero7.dup
     melds = [ 'm777' ]
-    hands = { 'm' => m, 'p' => p, 's' => s, 'z' => z }
+    hands = { m: m, p: p, s: s, z: z }
 
     _ = HandEvaluator.build_agari_mentsu_all(hands, melds)
 
@@ -1352,10 +1457,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'sum not multiple of 3 in a suit leads to [] overall' do
     hands = {
-      'm' => [ 3, 2, 2, 0, 0, 0, 0, 0, 0 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 3, 2, 2, 0, 0, 0, 0, 0, 0 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
 
@@ -1476,10 +1581,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'returns [] when no jantou exists anywhere' do
     # m123456789, p12345
     hands = {
-      'm' => [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-      'p' => [ 1, 1, 1, 1, 1, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+      p: [ 1, 1, 1, 1, 1, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
 
@@ -1490,10 +1595,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'one simple pattern: jantou p99 and agari on m123' do
     # m123456789, p12344
     hands = {
-      'm' => [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-      'p' => [ 1, 1, 1, 2, 0, 0, 0, 0, 0 ],
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+      p: [ 1, 1, 1, 2, 0, 0, 0, 0, 0 ],
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
 
@@ -1505,10 +1610,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'pattern 1 (normal-hand row): s8 from opponent goes to the pair' do
     # m223344, p556677, s88
     hands = {
-      'm' => [ 0, 2, 2, 2, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 0, 0, 2, 2, 2, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 0, 0, 0, 2, 0 ],
-      'z' => zero7.dup
+      m: [ 0, 2, 2, 2, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 0, 0, 2, 2, 2, 0, 0 ],
+      s: [ 0, 0, 0, 0, 0, 0, 0, 2, 0 ],
+      z: zero7.dup
     }
     melds = []
     result = HandEvaluator.build_normal_agari_patterns(hands, melds, 's8=')
@@ -1519,10 +1624,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'pattern 2: two decompositions x two placements (p9 from opponent)' do
     # m111222333, p78999
     hands = {
-      'm' => [ 3, 3, 3, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 0, 0, 0, 0, 1, 1, 3 ],
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 3, 3, 3, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 0, 0, 0, 0, 1, 1, 3 ],
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = []
     result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'p9+')
@@ -1539,10 +1644,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'pattern 4: m2 from opponent can belong to either m123 or m234' do
     # m122334, p567, s88, z777
     hands = {
-      'm' => [ 1, 2, 2, 1, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 0, 0, 1, 1, 1, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 0, 0, 0, 2, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 3 ]
+      m: [ 1, 2, 2, 1, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 0, 0, 1, 1, 1, 0, 0 ],
+      s: [ 0, 0, 0, 0, 0, 0, 0, 2, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 3 ]
     }
     melds = []
     result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'm2-')
@@ -1557,10 +1662,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'open melds are not marked (skip strings containing -/=/+)' do
     # m123456789, p99, meld:m123
     hands = {
-      'm' => [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-      'p' => [ 0, 0, 0, 0, 0, 0, 0, 0, 2 ],
-      's' => zero9.dup,
-      'z' => zero7.dup
+      m: [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+      p: [ 0, 0, 0, 0, 0, 0, 0, 0, 2 ],
+      s: zero9.dup,
+      z: zero7.dup
     }
     melds = [ 'm1-23' ] # 下家から1萬チー
     result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'm1-')
@@ -1573,10 +1678,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'greedy marking for duplicates: m1 on m111 becomes m111_' do
     # m111333555999, z77
     hands = {
-      'm' => [ 3, 0, 3, 0, 3, 0, 0, 0, 3 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 3, 0, 3, 0, 3, 0, 0, 0, 3 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     melds = []
     result = HandEvaluator.build_normal_agari_patterns(hands, melds, 'm1=')
@@ -1589,10 +1694,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'does not mutate inputs (hands and melds remain unchanged)' do
     # m111333555999, z77
     hands = {
-      'm' => [ 3, 0, 3, 0, 3, 0, 0, 0, 3 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 3, 0, 3, 0, 3, 0, 0, 0, 3 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     hands_clone = hands.dup
     melds = [ 'p789' ]
@@ -1607,10 +1712,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'tsumo: marks the winning pair with underscore only' do
     # m1122, p3344, s5566, z77
     hands = {
-      'm' => [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
 
     result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 's6_')
@@ -1621,10 +1726,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test "ron from shimocha (+): marks pair with '+!'" do
     # m1122, p3344, s5566, z77
     hands = {
-      'm' => [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm2+')
     expected = [ [ 'm11', 'm22+!', 'p33', 'p44', 's55', 's66', 'z77' ] ]
@@ -1634,10 +1739,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test "ron from toimen (=): marks pair with '=!'" do
     # m1122, p3344, s5566, z77
     hands = {
-      'm' => [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'p3=')
     expected = [ [ 'm11', 'm22', 'p33=!', 'p44', 's55', 's66', 'z77' ] ]
@@ -1647,10 +1752,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'invalid: contains a singleton tile' do
     # m1223, p3344, s5566, z77
     hands = {
-      'm' => [ 1, 2, 1, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 1, 2, 1, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm2')
     assert_equal [], result
@@ -1659,10 +1764,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'invalid: contains a non-pair count (count 4)' do
     # m1111, p3344, s5566, z77
     hands = {
-      'm' => [ 4, 0, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 4, 0, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm1')
     assert_equal [], result
@@ -1671,10 +1776,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'invalid: total tile count != 14' do
     # m1122, p3344, s55, z77
     hands = {
-      'm' => [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 0, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 0, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm2')
     assert_equal [], result
@@ -1683,10 +1788,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'no matching agari_tile: returns unmarked seven pairs in order m->p->s->z' do
     # m1122, p3344, s5566, z77
     hands = {
-      'm' => [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     result = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 'm9')
     expected = [ [ 'm11', 'm22', 'p33', 'p44', 's55', 's66', 'z77' ] ]
@@ -1696,10 +1801,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'does not mutate input hands' do
     # m1122, p3344, s5566, z77
     hands = {
-      'm' => [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
-      'z' => [ 0, 0, 0, 0, 0, 0, 2 ]
+      m: [ 2, 2, 0, 0, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 2, 2, 0, 0, 0, 0, 0 ],
+      s: [ 0, 0, 0, 0, 2, 2, 0, 0, 0 ],
+      z: [ 0, 0, 0, 0, 0, 0, 2 ]
     }
     clone = hands.dup
     _ = HandEvaluator.build_chiitoitsu_agari_patterns(hands, 's6')
@@ -1710,10 +1815,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'tsumo on the pair: m1 as pair, returns pair first then all singles' do
     # m119, p19, s19, z1234567
     hands = {
-      'm' => [ 2, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'z' => [ 1, 1, 1, 1, 1, 1, 1 ]
+      m: [ 2, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      p: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      s: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      z: [ 1, 1, 1, 1, 1, 1, 1 ]
     }
     result = HandEvaluator.build_kokushi_agari_patterns(hands, 'm1_')
     expected = [ [
@@ -1727,10 +1832,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'ron from shimocha on a single: p9+' do
     # m119, p19, s19, z1234567
     hands = {
-      'm' => [ 2, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'z' => [ 1, 1, 1, 1, 1, 1, 1 ]
+      m: [ 2, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      p: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      s: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      z: [ 1, 1, 1, 1, 1, 1, 1 ]
     }
     result = HandEvaluator.build_kokushi_agari_patterns(hands, 'p9+')
     expected = [ [
@@ -1744,10 +1849,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'ron from toimen on the pair: z3= as pair' do
     # m19, p19, s19, z12334567
     hands = {
-      'm' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'z' => [ 1, 1, 2, 1, 1, 1, 1 ]
+      m: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      p: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      s: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      z: [ 1, 1, 2, 1, 1, 1, 1 ]
     }
     result = HandEvaluator.build_kokushi_agari_patterns(hands, 'z3=')
     expected = [ [
@@ -1761,10 +1866,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'invalid: a required tile is missing (z7=0) → returns []' do
     # m119, p19, s19, z123456
     hands = {
-      'm' => [ 2, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'z' => [ 1, 1, 1, 1, 1, 1, 0 ]
+      m: [ 2, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      p: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      s: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      z: [ 1, 1, 1, 1, 1, 1, 0 ]
     }
     result = HandEvaluator.build_kokushi_agari_patterns(hands, 'm1')
     assert_equal [], result
@@ -1772,10 +1877,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'invalid: a required tile has count >=3 (s1=3) → returns []' do
     hands = {
-      'm' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      's' => [ 3, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'z' => [ 1, 1, 1, 1, 1, 1, 1 ]
+      m: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      p: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      s: [ 3, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      z: [ 1, 1, 1, 1, 1, 1, 1 ]
     }
     result = HandEvaluator.build_kokushi_agari_patterns(hands, 's1')
     assert_equal [], result
@@ -1783,10 +1888,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'does not mutate input' do
     hands = {
-      'm' => [ 2, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'p' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      's' => [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
-      'z' => [ 1, 1, 1, 1, 1, 1, 1 ]
+      m: [ 2, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      p: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      s: [ 1, 0, 0, 0, 0, 0, 0, 0, 1 ],
+      z: [ 1, 1, 1, 1, 1, 1, 1 ]
     }
     hands_clone = hands.dup
     _ = HandEvaluator.build_kokushi_agari_patterns(hands, 'm1')
@@ -1796,10 +1901,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   # build_chuurenpoutou_agari_patterns
   test 'returns chuurenpoutou pattern for a valid manzu hand (winning 1m)' do
     hands = {
-      'm' => [ 4, 1, 1, 1, 1, 1, 1, 1, 3 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero9.dup
+      m: [ 4, 1, 1, 1, 1, 1, 1, 1, 3 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero9.dup
     }
     result = HandEvaluator.build_chuurenpoutou_agari_patterns(hands, 'm1=')
     assert_equal [ [ 'm11123456789991=!' ] ], result
@@ -1807,10 +1912,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'invalid: tiles are not all in one suit' do
     hands = {
-      'm' => [ 2, 1, 1, 1, 1, 1, 1, 1, 3 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ]
+      m: [ 2, 1, 1, 1, 1, 1, 1, 1, 3 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: [ 2, 0, 0, 0, 0, 0, 0, 0, 0 ]
     }
     result = HandEvaluator.build_chuurenpoutou_agari_patterns(hands, 'm1=')
     assert_equal [], result
@@ -1818,10 +1923,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test 'invalid: middle tile (2..8) is zero ' do
     hands = {
-      'm' => [ 4, 1, 1, 0, 1, 1, 1, 1, 4 ],
-      'p' => zero9.dup,
-      's' => zero9.dup,
-      'z' => zero9.dup
+      m: [ 4, 1, 1, 0, 1, 1, 1, 1, 4 ],
+      p: zero9.dup,
+      s: zero9.dup,
+      z: zero9.dup
     }
     result = HandEvaluator.build_chuurenpoutou_agari_patterns(hands, 'm1=')
     assert_equal [], result
@@ -1831,10 +1936,10 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test 'returns both normal and chiitoitsu patterns' do
     # m223344, p556677, s88
     hands = {
-      'm' => [ 0, 2, 2, 2, 0, 0, 0, 0, 0 ],
-      'p' => [ 0, 0, 0, 0, 2, 2, 2, 0, 0 ],
-      's' => [ 0, 0, 0, 0, 0, 0, 0, 2, 0 ],
-      'z' => zero7
+      m: [ 0, 2, 2, 2, 0, 0, 0, 0, 0 ],
+      p: [ 0, 0, 0, 0, 2, 2, 2, 0, 0 ],
+      s: [ 0, 0, 0, 0, 0, 0, 0, 2, 0 ],
+      z: zero7
     }
     melds = []
     agari_tile = 'm3='
@@ -1848,32 +1953,32 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   # build_bonus_yaku_list
   test 'tenhou overrides everything' do
-    situational_list = { tenhou: true, chiihou: false, riichi: 2, ippatsu: true, haitei: 2, rinshan: true, chankan: true }
-    result = HandEvaluator.build_bonus_yaku_list(situational_list)
+    situational_yaku_list = { tenhou: true, chiihou: false, riichi: 2, ippatsu: true, haitei: 2, rinshan: true, chankan: true }
+    result = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: '天和', han: 13 } ], result
   end
 
   test 'chiihou overrides everything when no tenhou' do
-    situational_list = { tenhou: false, chiihou: true, riichi: 1, ippatsu: true, haitei: 1, rinshan: true, chankan: true }
-    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
+    situational_yaku_list = { tenhou: false, chiihou: true, riichi: 1, ippatsu: true, haitei: 1, rinshan: true, chankan: true }
+    result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: '地和', han: 13 } ], result
   end
 
   test 'riichi single adds 立直(1) only' do
-    situational_list = { tenhou: false, chiihou: false, riichi: 1 }
-    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
+    situational_yaku_list = { tenhou: false, chiihou: false, riichi: 1 }
+    result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: '立直', han: 1 } ], result
   end
 
   test 'riichi double adds 立直(2) only' do
-    situational_list = { tenhou: false, chiihou: false, riichi: 2 }
-    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
+    situational_yaku_list = { tenhou: false, chiihou: false, riichi: 2 }
+    result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: 'ダブル立直', han: 2 } ], result
   end
 
   test 'ippatsu adds 一発(1)' do
-    situational_list = { tenhou: false, chiihou: false, riichi: 1, ippatsu: true }
-    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
+    situational_yaku_list = { tenhou: false, chiihou: false, riichi: 1, ippatsu: true }
+    result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: '立直', han: 1 }, { name: '一発', han: 1 } ], result
   end
 
@@ -1889,8 +1994,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test 'rinshan adds 嶺上開花(1), chankan adds 槍槓(1)' do
-    situational_list = { tenhou: false, chiihou: false, rinshan: true, chankan: true }
-    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
+    situational_yaku_list = { tenhou: false, chiihou: false, rinshan: true, chankan: true }
+    result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [
       { name: '嶺上開花', han: 1 },
       { name: '槍槓',    han: 1 }
@@ -1898,7 +2003,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test 'combined order: riichi -> ippatsu -> haitei/houtei -> rinshan -> chankan' do
-    situational_list = {
+    situational_yaku_list = {
       tenhou:  false,
       chiihou: false,
       riichi:  2,
@@ -1907,7 +2012,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
       rinshan: false,
       chankan: true
     }
-    result = HandEvaluator.build_bonus_yaku_list(situational_list)
+    result = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [
       { name: 'ダブル立直',   han: 2 },
       { name: '一発',        han: 1 },
@@ -1917,8 +2022,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test 'no flags returns empty list' do
-    situational_list = { tenhou: false, chiihou: false }
-    result  = HandEvaluator.build_bonus_yaku_list(situational_list)
+    situational_yaku_list = { tenhou: false, chiihou: false }
+    result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [], result
   end
 

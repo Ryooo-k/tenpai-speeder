@@ -24,21 +24,34 @@ module HandEvaluator
   SOUZU_SUIT = 's'
   ZIHAI_SUIT = 'z'
 
-  def self.get_score_summaries(hands, melds, agari_tile, situational_list, round_wind, player_wind)
-    agari_all_patterns = build_agari_all_patters(hands, melds, agari_tile)
-    scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
-    all_score_summaries = scoring_state_table.map do |scoring_states|
-      yaku_list = build_yaku_list(scoring_states, situational_list)
-      han_total = yaku_list.empty? ? 0 : yaku_list.sum { |yaku| yaku[:han].to_i }
+  class << self
+    def can_tsumo?(hands, melds, round_wind, player_wind, situational_yaku_list)
+      drawn_tile = hands.find { |hand| hand.drawn? }.tile
+      normalized_hands, normalized_melds, normalized_drawn_tile = ScoreInputNormalizer.normalize(hands, melds, drawn_tile, :self)
+      agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_drawn_tile)
+      return true if agari_all_patterns.present? && normalized_melds.empty?
 
-      {
-        fu_total: scoring_states[:fu_total],
-        fu_components: scoring_states[:fu_components],
-        han_total:,
-        yaku_list:
-      }
+      scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
+      yaku_list = scoring_state_table.map { |scoring_states| build_yaku_list(scoring_states, situational_yaku_list) }
+      yaku_list.present?
     end
-    all_score_summaries.max_by { |score_summary| score_summary[:han_total] }
+
+    def get_score_summaries(hands, melds, agari_tile, situational_yaku_list, round_wind, player_wind)
+      agari_all_patterns = build_agari_all_patters(hands, melds, agari_tile)
+      scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
+      all_score_summaries = scoring_state_table.map do |scoring_states|
+        yaku_list = build_yaku_list(scoring_states, situational_yaku_list)
+        han_total = yaku_list.empty? ? 0 : yaku_list.sum { |yaku| yaku[:han].to_i }
+
+        {
+          fu_total: scoring_states[:fu_total],
+          fu_components: scoring_states[:fu_components],
+          han_total:,
+          yaku_list:
+        }
+      end
+      all_score_summaries.max_by { |score_summary| score_summary[:han_total] }
+    end
   end
 
   private
@@ -85,7 +98,7 @@ module HandEvaluator
         agari_mentsu_list = [ [] ]
 
         SUUHAI_SUITS.each do |suit|
-          counts = hands[suit]
+          counts = hands[suit.to_sym]
           suuhai_agari_mentsu = build_agari_mentsu(suit, counts, 0)
 
           new_agari_mentsu = []
@@ -97,7 +110,7 @@ module HandEvaluator
           agari_mentsu_list = new_agari_mentsu
         end
 
-        zihai_counts = hands[ZIHAI_SUIT]
+        zihai_counts = hands[ZIHAI_SUIT.to_sym]
         zihai_agari_mentsu = []
         (1..7).each do |n|
           count = zihai_counts[n - 1]
@@ -189,7 +202,7 @@ module HandEvaluator
         agari_mark = '!'
 
         hands.each do |suit, counts|
-          target_numbers = (suit == ZIHAI_SUIT) ? (1..7).to_a : [ 1, 9 ]
+          target_numbers = (suit.to_s == ZIHAI_SUIT) ? (1..7).to_a : [ 1, 9 ]
 
           target_numbers.each do |number|
             count = counts[number - 1]
@@ -213,7 +226,7 @@ module HandEvaluator
       def build_chuurenpoutou_agari_patterns(hands, agari_tile)
         suit, hand_counts = hands.find { |_, values| values.sum == 14 }
         return [] unless suit && hand_counts
-        mentsu = suit.dup
+        mentsu = suit.to_s.dup
 
         9.times do |index|
           count = hand_counts[index]
@@ -238,21 +251,21 @@ module HandEvaluator
         normal_agari_patterns + chiitoitsu_agari_patterns + kokushi_agari_patterns + chuurenpoutou_agari_patterns
       end
 
-      def build_bonus_yaku_list(situational_list)
-        if situational_list[:tenhou]
+      def build_bonus_yaku_list(situational_yaku_list)
+        if situational_yaku_list[:tenhou]
           return [ { name: '天和', han: 13 } ]
-        elsif situational_list[:chiihou]
+        elsif situational_yaku_list[:chiihou]
           return [ { name: '地和', han: 13 } ]
         end
 
         bonus_yaku_list = []
-        bonus_yaku_list << { name: '立直',      han: 1 } if situational_list[:riichi] == 1
-        bonus_yaku_list << { name: 'ダブル立直', han: 2 } if situational_list[:riichi] == 2
-        bonus_yaku_list << { name: '一発',      han: 1 } if situational_list[:ippatsu]
-        bonus_yaku_list << { name: '海底摸月',  han: 1 } if situational_list[:haitei] == 1
-        bonus_yaku_list << { name: '河底撈魚',  han: 1 } if situational_list[:haitei] == 2
-        bonus_yaku_list << { name: '嶺上開花',  han: 1 } if situational_list[:rinshan]
-        bonus_yaku_list << { name: '槍槓',      han: 1 } if situational_list[:chankan]
+        bonus_yaku_list << { name: '立直',      han: 1 } if situational_yaku_list[:riichi] == 1
+        bonus_yaku_list << { name: 'ダブル立直', han: 2 } if situational_yaku_list[:riichi] == 2
+        bonus_yaku_list << { name: '一発',      han: 1 } if situational_yaku_list[:ippatsu]
+        bonus_yaku_list << { name: '海底摸月',  han: 1 } if situational_yaku_list[:haitei] == 1
+        bonus_yaku_list << { name: '河底撈魚',  han: 1 } if situational_yaku_list[:haitei] == 2
+        bonus_yaku_list << { name: '嶺上開花',  han: 1 } if situational_yaku_list[:rinshan]
+        bonus_yaku_list << { name: '槍槓',      han: 1 } if situational_yaku_list[:chankan]
         bonus_yaku_list
       end
 
@@ -621,9 +634,9 @@ module HandEvaluator
         { name: '九蓮宝燈', han: 13 }
       end
 
-      def build_yaku_list(scoring_states, situational_list)
-        bonus_yaku_list = build_bonus_yaku_list(situational_list)
-        yakuman_list = situational_list[:tenhou] || situational_list[:chiihou] ? bonus_yaku_list : []
+      def build_yaku_list(scoring_states, situational_yaku_list)
+        bonus_yaku_list = build_bonus_yaku_list(situational_yaku_list)
+        yakuman_list = situational_yaku_list[:tenhou] || situational_yaku_list[:chiihou] ? bonus_yaku_list : []
         yakuman_list << build_kokushi_yaku(scoring_states)
         yakuman_list << build_suuankou_yaku(scoring_states)
         yakuman_list << build_daisangen_yaku(scoring_states)
