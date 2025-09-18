@@ -26,8 +26,9 @@ module HandEvaluator
 
   class << self
     def can_tsumo?(hands, melds, round_wind, player_wind, situational_yaku_list)
-      drawn_tile = hands.find { |hand| hand.drawn? }.tile
-      normalized_hands, normalized_melds, normalized_drawn_tile = ScoreInputNormalizer.normalize(hands, melds, drawn_tile, :self)
+      drawn_hand = hands.find { |hand| hand.drawn? }
+      return false unless drawn_hand
+      normalized_hands, normalized_melds, normalized_drawn_tile = ScoreInputNormalizer.normalize(hands, melds, drawn_hand.tile, :self)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_drawn_tile)
       return true if agari_all_patterns.present? && normalized_melds.empty?
 
