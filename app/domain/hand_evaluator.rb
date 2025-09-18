@@ -23,6 +23,155 @@ module HandEvaluator
   PINZU_SUIT = 'p'
   SOUZU_SUIT = 's'
   ZIHAI_SUIT = 'z'
+  AGARI_DISTANCE_MAP = JSON.parse(Rails.root.join("app/domain", "agari_distance_map.json").read).freeze
+  CHIITOITSU_PAIR_COUNT = 7
+  KOKUSHI_TILE_CODES = [0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33].to_set.freeze
+  MAX_SHANTEN_COUNT = 13
+
+  # 通常手の向聴数を計算するのに使用するリスト
+  # [ manzu, pinzu, souzu, zihai ] の和了枚数テーブル
+  NORMAL_AGARI_PATTERNS = [
+    [0, 0, 0, 14],
+    [0, 0, 2, 12],
+    [0, 0, 3, 11],
+    [0, 0, 5, 9],
+    [0, 0, 6, 8],
+    [0, 0, 8, 6],
+    [0, 0, 9, 5],
+    [0, 0, 11, 3],
+    [0, 0, 12, 2],
+    [0, 0, 14, 0],
+    [0, 2, 0, 12],
+    [0, 2, 3, 9],
+    [0, 2, 6, 6],
+    [0, 2, 9, 3],
+    [0, 2, 12, 0],
+    [0, 3, 0, 11],
+    [0, 3, 2, 9],
+    [0, 3, 3, 8],
+    [0, 3, 5, 6],
+    [0, 3, 6, 5],
+    [0, 3, 8, 3],
+    [0, 3, 9, 2],
+    [0, 3, 11, 0],
+    [0, 5, 0, 9],
+    [0, 5, 3, 6],
+    [0, 5, 6, 3],
+    [0, 5, 9, 0],
+    [0, 6, 0, 8],
+    [0, 6, 2, 6],
+    [0, 6, 3, 5],
+    [0, 6, 5, 3],
+    [0, 6, 6, 2],
+    [0, 6, 8, 0],
+    [0, 8, 0, 6],
+    [0, 8, 3, 3],
+    [0, 8, 6, 0],
+    [0, 9, 0, 5],
+    [0, 9, 2, 3],
+    [0, 9, 3, 2],
+    [0, 9, 5, 0],
+    [0, 11, 0, 3],
+    [0, 11, 3, 0],
+    [0, 12, 0, 2],
+    [0, 12, 2, 0],
+    [0, 14, 0, 0],
+    [2, 0, 0, 12],
+    [2, 0, 3, 9],
+    [2, 0, 6, 6],
+    [2, 0, 9, 3],
+    [2, 0, 12, 0],
+    [2, 3, 0, 9],
+    [2, 3, 3, 6],
+    [2, 3, 6, 3],
+    [2, 3, 9, 0],
+    [2, 6, 0, 6],
+    [2, 6, 3, 3],
+    [2, 6, 6, 0],
+    [2, 9, 0, 3],
+    [2, 9, 3, 0],
+    [2, 12, 0, 0],
+    [3, 0, 0, 11],
+    [3, 0, 2, 9],
+    [3, 0, 3, 8],
+    [3, 0, 5, 6],
+    [3, 0, 6, 5],
+    [3, 0, 8, 3],
+    [3, 0, 9, 2],
+    [3, 0, 11, 0],
+    [3, 2, 0, 9],
+    [3, 2, 3, 6],
+    [3, 2, 6, 3],
+    [3, 2, 9, 0],
+    [3, 3, 0, 8],
+    [3, 3, 2, 6],
+    [3, 3, 3, 5],
+    [3, 3, 5, 3],
+    [3, 3, 6, 2],
+    [3, 3, 8, 0],
+    [3, 5, 0, 6],
+    [3, 5, 3, 3],
+    [3, 5, 6, 0],
+    [3, 6, 0, 5],
+    [3, 6, 2, 3],
+    [3, 6, 3, 2],
+    [3, 6, 5, 0],
+    [3, 8, 0, 3],
+    [3, 8, 3, 0],
+    [3, 9, 0, 2],
+    [3, 9, 2, 0],
+    [3, 11, 0, 0],
+    [5, 0, 0, 9],
+    [5, 0, 3, 6],
+    [5, 0, 6, 3],
+    [5, 0, 9, 0],
+    [5, 3, 0, 6],
+    [5, 3, 3, 3],
+    [5, 3, 6, 0],
+    [5, 6, 0, 3],
+    [5, 6, 3, 0],
+    [5, 9, 0, 0],
+    [6, 0, 0, 8],
+    [6, 0, 2, 6],
+    [6, 0, 3, 5],
+    [6, 0, 5, 3],
+    [6, 0, 6, 2],
+    [6, 0, 8, 0],
+    [6, 2, 0, 6],
+    [6, 2, 3, 3],
+    [6, 2, 6, 0],
+    [6, 3, 0, 5],
+    [6, 3, 2, 3],
+    [6, 3, 3, 2],
+    [6, 3, 5, 0],
+    [6, 5, 0, 3],
+    [6, 5, 3, 0],
+    [6, 6, 0, 2],
+    [6, 6, 2, 0],
+    [6, 8, 0, 0],
+    [8, 0, 0, 6],
+    [8, 0, 3, 3],
+    [8, 0, 6, 0],
+    [8, 3, 0, 3],
+    [8, 3, 3, 0],
+    [8, 6, 0, 0],
+    [9, 0, 0, 5],
+    [9, 0, 2, 3],
+    [9, 0, 3, 2],
+    [9, 0, 5, 0],
+    [9, 2, 0, 3],
+    [9, 2, 3, 0],
+    [9, 3, 0, 2],
+    [9, 3, 2, 0],
+    [9, 5, 0, 0],
+    [11, 0, 0, 3],
+    [11, 0, 3, 0],
+    [11, 3, 0, 0],
+    [12, 0, 0, 2],
+    [12, 0, 2, 0],
+    [12, 2, 0, 0],
+    [14, 0, 0, 0]
+  ].freeze
 
   class << self
     def can_tsumo?(hands, melds, round_wind, player_wind, situational_yaku_list)
@@ -53,6 +202,13 @@ module HandEvaluator
         }
       end
       all_score_summaries.max_by { |score_summary| score_summary[:han_total] }
+    end
+
+    def calculate_shanten(hands, melds)
+      normal_shanten = calculate_normal_shanten(hands, melds)
+      chiitoitsu_shanten = calculate_chiitoitsu_shanten(hands, melds)
+      kokushi_shanten = calculate_kokushi_shanten(hands, melds)
+      [normal_shanten, chiitoitsu_shanten, kokushi_shanten].min
     end
   end
 
@@ -673,6 +829,38 @@ module HandEvaluator
         yaku_list << build_ryanpeikou_yaku(scoring_states)
         yaku_list << build_chinitsu_yaku(scoring_states)
         yaku_list.flatten
+      end
+
+      def calculate_normal_shanten(hands, melds)
+        manzu_code, pinzu_code, souzu_code, zihai_code = ShantenInputNormalizer.normalize(hands, melds)
+
+        min_distance = Float::INFINITY
+        NORMAL_AGARI_PATTERNS.each do |m_pattern, p_pattern, s_pattern, z_pattern|
+          distance =
+            AGARI_DISTANCE_MAP['suuhai'][manzu_code][m_pattern.to_s] +
+            AGARI_DISTANCE_MAP['suuhai'][pinzu_code][p_pattern.to_s] +
+            AGARI_DISTANCE_MAP['suuhai'][souzu_code][s_pattern.to_s] +
+            AGARI_DISTANCE_MAP['zihai'][zihai_code][z_pattern.to_s]
+          min_distance = distance if distance < min_distance
+        end
+        min_distance - 1
+      end
+
+      def calculate_chiitoitsu_shanten(hands, melds)
+        return 7 if melds.present?
+        code_counts = hands.map(&:tile).map(&:code).tally
+        pair_count = 0
+        code_counts.each_value { |count| pair_count += 1 if count >= 2 }
+        CHIITOITSU_PAIR_COUNT - pair_count - 1
+      end
+
+      def calculate_kokushi_shanten(hands, melds)
+        return 13 if melds.present?
+        code_counts = hands.map(&:tile).map(&:code).tally
+        used_kokushi_codes = code_counts.select { |code, _| KOKUSHI_TILE_CODES.include?(code) }
+        unique_count = used_kokushi_codes.keys.size
+        has_head = used_kokushi_codes.values.any? { |count| count >= 2 }
+        MAX_SHANTEN_COUNT - unique_count - (has_head ? 1 : 0)
       end
     end
 end

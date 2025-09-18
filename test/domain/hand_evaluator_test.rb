@@ -23,14 +23,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     { tenhou:, chiihou:, riichi:, ippatsu:, haitei:, rinshan:, chankan: }
   end
 
-  test '#can_tsumo? returns true when menzen and tsumo completes 4-sets-and-a-pair' do
+  test '#can_tsumo? returns true：メンゼン4面子1雀頭の場合' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     situational_yaku_list = build_situational_yaku_list
     result = HandEvaluator.can_tsumo?(hands, @empty_melds, @round_wind, @player_wind, situational_yaku_list)
     assert result
   end
 
-  test '#can_tsumo? returns true when tsumo completes hands with open player_wind tile' do
+  test '#can_tsumo? returns true：役あり1副露の4面子1雀頭の場合' do
     hands = create_hands('z22 m123 p456 s999', player: player_states(:ryo))
     melds = create_melds('z111=', player: player_states(:ryo))
     situational_yaku_list = build_situational_yaku_list
@@ -38,14 +38,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert result
   end
 
-  test '#can_tsumo? returns false when not completes hands' do
+  test '#can_tsumo? returns false：メンゼン4面子 雀頭無しの場合' do
     hands = create_hands('m123 p456 s999 z12345', player: player_states(:ryo))
     situational_yaku_list = build_situational_yaku_list
     result = HandEvaluator.can_tsumo?(hands, @empty_melds, @round_wind, @player_wind, situational_yaku_list)
     assert_not result
   end
 
-  test '#get_score_summaries：天和' do
+  test '#get_score_summaries：天和 → 13飜' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(tenhou: true)
@@ -57,7 +57,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：地和' do
+  test '#get_score_summaries：地和 → 13飜' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(chiihou: true)
@@ -69,7 +69,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：立直(1) 一発 海底摸月' do
+  test '#get_score_summaries：立直(1) 一発 海底摸月 門前清自摸和 → 合計4飜' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(ippatsu: true, riichi: 1, haitei: 1)
@@ -81,7 +81,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_summaries：ダブル立直(2) 河底撈魚 槍槓' do
+  test '#get_score_summaries：ダブル立直(2) 河底撈魚 槍槓 → 合計4飜' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(riichi: 2, haitei: 2, chankan: true)
@@ -93,7 +93,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_summaries：門前清自摸和 嶺上開花' do
+  test '#get_score_summaries：門前清自摸和 嶺上開花 → 合計2飜' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(rinshan: true)
@@ -105,7 +105,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_summaries：場風 東' do
+  test '#get_score_summaries：場風 東 → 合計1飜' do
     # z1：東
     hands = create_hands('p234567 s23455', player: player_states(:ryo))
     melds = create_melds('z111=', player: player_states(:ryo))
@@ -120,7 +120,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_summaries：自風 南' do
+  test '#get_score_summaries：自風 南 → 合計1飜' do
     # z2:南
     hands = create_hands('p234567 s23455', player: player_states(:ryo))
     melds = create_melds('z222=', player: player_states(:ryo))
@@ -135,7 +135,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_summaries：翻牌 白' do
+  test '#get_score_summaries：翻牌 白 → 合計1飜' do
     # z5:白
     hands = create_hands('p234567 s23455', player: player_states(:ryo))
     melds = create_melds('z555=', player: player_states(:ryo))
@@ -149,7 +149,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_summaries：平和' do
+  test '#get_score_summaries：平和 → 合計1飜' do
     hands = create_hands('m123 p123456 s789 z22', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_souzu_9)
     relation = :toimen
@@ -161,7 +161,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_summaries：タンヤオ' do
+  test '#get_score_summaries：タンヤオ → 合計1飜' do
     hands = create_hands('m222 p234567 s23455', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -173,7 +173,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_summaries：一盃口' do
+  test '#get_score_summaries：一盃口 → 合計1飜' do
     hands = create_hands('m112233 p234567 s55', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -185,7 +185,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_summaries：三色同順(面前 han = 2)' do
+  test '#get_score_summaries：三色同順(面前) → 合計2飜' do
     hands = create_hands('m123 p123 s123567 z22', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -197,7 +197,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_summaries：三色同順(鳴き han = 1)' do
+  test '#get_score_summaries：三色同順(鳴き) → 合計1飜' do
     hands = create_hands('m123 s123567 z22', player: player_states(:ryo), drawn: false)
     melds = create_melds('p123+', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_2)
@@ -210,7 +210,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_summaries：一気通貫(面前 han = 2)' do
+  test '#get_score_summaries：一気通貫(面前) → 合計2飜' do
     hands = create_hands('m123456789 p234 z22', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -222,7 +222,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_summaries：一気通貫(鳴き han =1)' do
+  test '#get_score_summaries：一気通貫(鳴き) → 合計1飜' do
     hands = create_hands('m456789 p234 z22', player: player_states(:ryo), drawn: false)
     melds = create_melds('m123+', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_4)
@@ -235,7 +235,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_summaries：混全帯幺九(面前 han = 2)' do
+  test '#get_score_summaries：混全帯幺九(面前) → 合計2飜' do
     hands = create_hands('m123789 p111999 z22', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -247,7 +247,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_summaries：混全帯幺九(鳴き han =1)' do
+  test '#get_score_summaries：混全帯幺九(鳴き) → 合計1飜' do
     hands = create_hands('m789 p111999 z22', player: player_states(:ryo), drawn: false)
     melds = create_melds('m123+', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_9)
@@ -260,7 +260,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_summaries：七対子' do
+  test '#get_score_summaries：七対子 → 合計2飜' do
     hands = create_hands('m1133557799 p1199', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -272,7 +272,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_summaries：七対子 混一色' do
+  test '#get_score_summaries：七対子 混一色 → 合計5飜' do
     hands = create_hands('m1133557799 z1122', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -284,7 +284,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 5, result[:han_total]
   end
 
-  test '#get_score_summaries：七対子 清一色' do
+  test '#get_score_summaries：七対子 清一色 → 合計8飜' do
     hands = create_hands('m11223355668899', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -297,7 +297,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
 
-  test '#get_score_summaries：対々和' do
+  test '#get_score_summaries：対々和 → 合計2飜' do
     hands = create_hands('m333 p111222 z22', player: player_states(:ryo), drawn: false)
     melds = create_melds('m111+', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_3)
@@ -310,7 +310,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_summaries：三暗刻' do
+  test '#get_score_summaries：三暗刻 → 合計2飜' do
     hands = create_hands('m111333444 z22', player: player_states(:ryo))
     melds = create_melds('p123+', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
@@ -323,7 +323,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_summaries：三槓子' do
+  test '#get_score_summaries：三槓子 → 合計2飜' do
     hands = create_hands('p123 z22', player: player_states(:ryo))
     melds = create_melds('m1111 m2222= m3333', player: player_states(:ryo))
     agari_tile = tiles(:first_pinzu_1)
@@ -336,7 +336,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_summaries：三色同刻' do
+  test '#get_score_summaries：三色同刻 → 合計2飜' do
     hands = create_hands('p123 z22', player: player_states(:ryo))
     melds = create_melds('m222- p222= s222+', player: player_states(:ryo))
     agari_tile = tiles(:first_pinzu_1)
@@ -349,7 +349,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_summaries：混老頭 対々和' do
+  test '#get_score_summaries：混老頭 対々和 → 合計4飜' do
     hands = create_hands('m999 z22233', player: player_states(:ryo))
     melds = create_melds('m111= p111=', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_9)
@@ -362,7 +362,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_summaries：混老頭 七対子' do
+  test '#get_score_summaries：混老頭 七対子 → 合計4飜' do
     hands = create_hands('m1199 p1199 s1199 z11', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -374,7 +374,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_summaries：小三元' do
+  test '#get_score_summaries：小三元 → 合計4飜' do
     hands = create_hands('p234 z55566677', player: player_states(:ryo), drawn: false)
     melds = create_melds('m234+', player: player_states(:ryo))
     agari_tile = tiles(:first_chun)
@@ -387,7 +387,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_summaries：純全帯幺九' do
+  test '#get_score_summaries：純全帯幺九 → 合計3飜' do
     hands = create_hands('m111789 p123789 s11', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -411,7 +411,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 3, result[:han_total]
   end
 
-  test '#get_score_summaries：清一色' do
+  test '#get_score_summaries：清一色 → 合計6飜' do
     hands = create_hands('m11122245678999', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -423,7 +423,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 6, result[:han_total]
   end
 
-  test '#get_score_summaries：国士無双' do
+  test '#get_score_summaries：国士無双 → 合計13飜' do
     hands = create_hands('m19 p19 s19 z12345677', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -435,7 +435,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：国士無双十三面' do
+  test '#get_score_summaries：国士無双十三面 → 合計13飜' do
     hands = create_hands('m119 p19 s19 z1234567', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -447,7 +447,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：四暗刻単騎' do
+  test '#get_score_summaries：四暗刻単騎 → 合計13飜' do
     hands = create_hands('m111222 p333444 s55', player: player_states(:ryo))
     agari_tile = tiles(:first_souzu_5)
     relation = :self
@@ -459,7 +459,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：四暗刻' do
+  test '#get_score_summaries：四暗刻 → 合計13飜' do
     hands = create_hands('m111222 p333444 s55', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
     relation = :self
@@ -471,7 +471,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：大三元' do
+  test '#get_score_summaries：大三元 → 合計13飜' do
     hands = create_hands('m234 p22 z555666777', player: player_states(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -483,7 +483,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：大四喜' do
+  test '#get_score_summaries：大四喜 → 合計13飜' do
     hands = create_hands('m11', player: player_states(:ryo))
     melds = create_melds('z111= z222= z333= z444=', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
@@ -496,7 +496,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：小四喜' do
+  test '#get_score_summaries：小四喜 → 合計13飜' do
     hands = create_hands('z11', player: player_states(:ryo))
     melds = create_melds('m111= z222= z333= z444=', player: player_states(:ryo))
     agari_tile = tiles(:first_ton)
@@ -509,7 +509,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：字一色' do
+  test '#get_score_summaries：字一色 → 合計13飜' do
     hands = create_hands('z66', player: player_states(:ryo))
     melds = create_melds('z222= z333= z444= z555=', player: player_states(:ryo))
     agari_tile = tiles(:first_hatsu)
@@ -522,7 +522,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 26, result[:han_total]
   end
 
-  test '#get_score_summaries：緑一色' do
+  test '#get_score_summaries：緑一色 → 合計13飜' do
     hands = create_hands('s223344666888 z66', player: player_states(:ryo))
     agari_tile = tiles(:first_hatsu)
     relation = :toimen
@@ -534,7 +534,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：清老頭' do
+  test '#get_score_summaries：清老頭 → 合計13飜' do
     hands = create_hands('m111999 p111 s11', player: player_states(:ryo))
     melds = create_melds('p999=', player: player_states(:ryo))
     agari_tile = tiles(:first_souzu_1)
@@ -547,8 +547,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：四槓子' do
-    # m1111 p2222 s3333 z4444 m22
+  test '#get_score_summaries：四槓子 → 合計13飜' do
     hands = create_hands('s11', player: player_states(:ryo))
     melds = create_melds('m1111 p2222= s3333 z4444=', player: player_states(:ryo))
     agari_tile = tiles(:first_souzu_1)
@@ -561,7 +560,57 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_summaries：九蓮宝燈' do
+  test '#calculate_shanten：m111222333 p259 z1（メンゼン通常手ノーテン） の向聴数 → 2' do
+    hands = create_hands('m111222333 p259 z1', player: player_states(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 2, result
+  end
+
+  test '#calculate_shanten：m111222333 p45 z11（メンゼン通常手 聴牌） の向聴数 → 0' do
+    hands = create_hands('m111222333 p45 z11', player: player_states(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 0, result
+  end
+
+  test '#calculate_shanten：m111222333 p259 z1（鳴き通常手ノーテン） の向聴数 → 2' do
+    hands = create_hands('m333 p259 z1', player: player_states(:ryo))
+    melds = create_melds('m111- m2222-', player: player_states(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, melds)
+    assert_equal 2, result
+  end
+
+  test '#calculate_shanten：m111222333 p45 z11（鳴き通常手 聴牌） の向聴数 → 0' do
+    hands = create_hands('m333 p45 z11', player: player_states(:ryo))
+    melds = create_melds('m111- m2222-', player: player_states(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, melds)
+    assert_equal 0, result
+  end
+
+  test '#calculate_shanten：m159 p159 s159 z1234（国士無双ノーテン）の向聴数 → 3' do
+    hands = create_hands('m159 p159 s159 z1234', player: player_states(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 3, result
+  end
+
+  test '#calculate_shanten：m19 p19 s19 z1234567（国士無双 聴牌）の向聴数 → 0' do
+    hands = create_hands('m19 p19 s19 z1234567', player: player_states(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 0, result
+  end
+
+  test '#calculate_shanten：m11335577 p19 s19 z1（七対子ノーテン）の向聴数 → 4' do
+    hands = create_hands('m1133579 p159 s19 z1', player: player_states(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 4, result
+  end
+
+  test '#calculate_shanten：m1133577 p1199 s11 z1（七対子 聴牌）の向聴数 → 0' do
+    hands = create_hands('m1133577 p1199 s11 z1', player: player_states(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 0, result
+  end
+
+  test '#get_score_summaries：九蓮宝燈 → 合計13飜' do
     # m11112345678999
     hands = create_hands('m11112345678999', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
