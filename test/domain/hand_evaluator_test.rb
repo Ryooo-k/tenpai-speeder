@@ -2,7 +2,7 @@
 
 require 'test_helper'
 require 'helpers/game_test_helper'
-require 'debug'
+
 class HandEvaluatorTest < ActiveSupport::TestCase
   include GameTestHelper
 
