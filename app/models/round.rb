@@ -2,6 +2,8 @@
 
 class Round < ApplicationRecord
   PLAYERS_COUNT = 4
+  TON_WIND_NUMBER = 0
+  NAN_WIND_NUMBER = 1
 
   belongs_to :game
 
@@ -26,6 +28,13 @@ class Round < ApplicationRecord
     when 5 then '南二局'
     when 6 then '南三局'
     when 7 then '南四局'
+    end
+  end
+
+  def wind_number
+    case number
+    when 0..3 then TON_WIND_NUMBER
+    when 4..7 then NAN_WIND_NUMBER
     end
   end
 
