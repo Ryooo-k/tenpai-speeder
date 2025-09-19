@@ -24,7 +24,7 @@ module GameTestHelper
     game.advance_current_player! unless game.current_player.ai?
   end
 
-  def create_hands(pattern, player:, drawn: :last)
+  def create_hands(pattern, player:, drawn: :last, rinshan: false)
     tile_fixture_names = []
 
     pattern.delete(' ').scan(/([mpsz])([0-9]+)/) do |suit, numbers|
@@ -48,10 +48,13 @@ module GameTestHelper
     end
 
     tile_fixture_names.map.with_index do |name, index|
+      is_drawn = drawn == :last && index == tile_fixture_names.length - 1
+
       Hand.create!(
-        tile:         tiles(name),
+        tile: tiles(name),
         player_state: player,
-        drawn:        (drawn == :last && index == tile_fixture_names.length - 1)
+        drawn: is_drawn,
+        rinshan: is_drawn && rinshan
       )
     end
   end
