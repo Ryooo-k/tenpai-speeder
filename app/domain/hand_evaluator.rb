@@ -177,6 +177,8 @@ module HandEvaluator
     def can_tsumo?(hands, melds, round_wind, player_wind, situational_yaku_list)
       drawn_hand = hands.find { |hand| hand.drawn? }
       return false unless drawn_hand
+      return true if situational_yaku_list.any? { |_, v|  v }
+
       normalized_hands, normalized_melds, normalized_drawn_tile = ScoreInputNormalizer.normalize(hands, melds, drawn_hand.tile, :self)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_drawn_tile)
       return true if agari_all_patterns.present? && normalized_melds.empty?
@@ -417,11 +419,11 @@ module HandEvaluator
         end
 
         bonus_yaku_list = []
-        bonus_yaku_list << { name: '立直',      han: 1 } if situational_yaku_list[:riichi] == 1
-        bonus_yaku_list << { name: 'ダブル立直', han: 2 } if situational_yaku_list[:riichi] == 2
+        bonus_yaku_list << { name: '立直',      han: 1 } if situational_yaku_list[:riichi] && !situational_yaku_list[:double_riichi]
+        bonus_yaku_list << { name: 'ダブル立直', han: 2 } if situational_yaku_list[:double_riichi]
         bonus_yaku_list << { name: '一発',      han: 1 } if situational_yaku_list[:ippatsu]
-        bonus_yaku_list << { name: '海底摸月',  han: 1 } if situational_yaku_list[:haitei] == 1
-        bonus_yaku_list << { name: '河底撈魚',  han: 1 } if situational_yaku_list[:haitei] == 2
+        bonus_yaku_list << { name: '海底摸月',  han: 1 } if situational_yaku_list[:haitei]
+        bonus_yaku_list << { name: '河底撈魚',  han: 1 } if situational_yaku_list[:houtei]
         bonus_yaku_list << { name: '嶺上開花',  han: 1 } if situational_yaku_list[:rinshan]
         bonus_yaku_list << { name: '槍槓',      han: 1 } if situational_yaku_list[:chankan]
         bonus_yaku_list

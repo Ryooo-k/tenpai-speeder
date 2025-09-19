@@ -18,11 +18,11 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     HandEvaluator.private_class_method(*@privates)
   end
 
-  def build_situational_yaku_list(tenhou: false, chiihou: false, riichi: 0, ippatsu: false, haitei: 0, rinshan: false, chankan: false)
-    { tenhou:, chiihou:, riichi:, ippatsu:, haitei:, rinshan:, chankan: }
+  def build_situational_yaku_list(tenhou: false, chiihou: false, riichi: false, double_riichi: false, ippatsu: false, haitei: false, houtei: false, rinshan: false, chankan: false)
+    { tenhou:, chiihou:, riichi:, double_riichi:, ippatsu:, haitei:, houtei:, rinshan:, chankan: }
   end
 
-  test '#can_tsumo? returns true：メンゼン4面子1雀頭の場合' do
+  test '#can_tsumo? returns true：役無しメンゼン4面子1雀頭の場合' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     situational_yaku_list = build_situational_yaku_list
     result = HandEvaluator.can_tsumo?(hands, @empty_melds, @round_wind, @player_wind, situational_yaku_list)
@@ -42,6 +42,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     situational_yaku_list = build_situational_yaku_list
     result = HandEvaluator.can_tsumo?(hands, @empty_melds, @round_wind, @player_wind, situational_yaku_list)
     assert_not result
+  end
+
+  test '#can_tsumo? returns true：形式聴牌+状況役がある場合' do
+    hands = create_hands('m123 p456 s999 z44455', player: player_states(:ryo), rinshan: true)
+    melds = create_melds('z333=', player: player_states(:ryo))
+    situational_yaku_list = build_situational_yaku_list(haitei: true)
+    result = HandEvaluator.can_tsumo?(hands, melds, @round_wind, @player_wind, situational_yaku_list)
+    assert result
   end
 
   test '#get_score_summaries：天和 → 13飜' do
@@ -71,7 +79,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：立直(1) 一発 海底摸月 門前清自摸和 → 合計4飜' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
-    situational_yaku_list = build_situational_yaku_list(ippatsu: true, riichi: 1, haitei: 1)
+    situational_yaku_list = build_situational_yaku_list(ippatsu: true, riichi: true, haitei: true)
     relation = :self
 
     result = HandEvaluator.get_score_summaries(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
@@ -83,7 +91,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#get_score_summaries：ダブル立直(2) 河底撈魚 槍槓 → 合計4飜' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)
-    situational_yaku_list = build_situational_yaku_list(riichi: 2, haitei: 2, chankan: true)
+    situational_yaku_list = build_situational_yaku_list(double_riichi: true, houtei: true, chankan: true)
     relation = :toimen
 
     result = HandEvaluator.get_score_summaries(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
@@ -1278,76 +1286,62 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   # build_bonus_yaku_list
   test 'tenhou overrides everything' do
-    situational_yaku_list = { tenhou: true, chiihou: false, riichi: 2, ippatsu: true, haitei: 2, rinshan: true, chankan: true }
+    situational_yaku_list = build_situational_yaku_list(tenhou: true, riichi: true, haitei: true)
     result = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: '天和', han: 13 } ], result
   end
 
-  test 'chiihou overrides everything when no tenhou' do
-    situational_yaku_list = { tenhou: false, chiihou: true, riichi: 1, ippatsu: true, haitei: 1, rinshan: true, chankan: true }
+  test 'chiihou overrides everything' do
+    situational_yaku_list = build_situational_yaku_list(chiihou: true, riichi: true, haitei: true)
     result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: '地和', han: 13 } ], result
   end
 
-  test 'riichi single adds 立直(1) only' do
-    situational_yaku_list = { tenhou: false, chiihou: false, riichi: 1 }
+  test 'riichi adds 立直(1) only' do
+    situational_yaku_list = build_situational_yaku_list(riichi: true)
     result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: '立直', han: 1 } ], result
   end
 
-  test 'riichi double adds 立直(2) only' do
-    situational_yaku_list = { tenhou: false, chiihou: false, riichi: 2 }
+  test 'double_riichi adds 立直(2) only' do
+    situational_yaku_list = build_situational_yaku_list(double_riichi: true)
     result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: 'ダブル立直', han: 2 } ], result
   end
 
   test 'ippatsu adds 一発(1)' do
+    situational_yaku_list = build_situational_yaku_list(riichi: true, ippatsu: true)
     situational_yaku_list = { tenhou: false, chiihou: false, riichi: 1, ippatsu: true }
     result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [ { name: '立直', han: 1 }, { name: '一発', han: 1 } ], result
   end
 
-  test 'haitei=1 adds 海底摸月(1), haitei=2 adds 河底撈魚(1)' do
-    situ1 = { tenhou: false, chiihou: false, riichi: 1, haitei: 1 }
-    situ2 = { tenhou: false, chiihou: false, riichi: 1, haitei: 2 }
-
-    result_1 = HandEvaluator.build_bonus_yaku_list(situ1)
-    result_2 = HandEvaluator.build_bonus_yaku_list(situ2)
-
-    assert_equal [ { name: '立直', han: 1 }, { name: '海底摸月', han: 1 } ], result_1
-    assert_equal [ { name: '立直', han: 1 }, { name: '河底撈魚', han: 1 } ], result_2
-  end
-
-  test 'rinshan adds 嶺上開花(1), chankan adds 槍槓(1)' do
-    situational_yaku_list = { tenhou: false, chiihou: false, rinshan: true, chankan: true }
-    result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
-    assert_equal [
-      { name: '嶺上開花', han: 1 },
-      { name: '槍槓',    han: 1 }
-    ], result
-  end
-
-  test 'combined order: riichi -> ippatsu -> haitei/houtei -> rinshan -> chankan' do
-    situational_yaku_list = {
-      tenhou:  false,
-      chiihou: false,
-      riichi:  2,
-      ippatsu: true,
-      haitei:  2,
-      rinshan: false,
-      chankan: true
-    }
+  test 'haitei adds 海底摸月(1)' do
+    situational_yaku_list = build_situational_yaku_list(haitei: true)
     result = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
-    assert_equal [
-      { name: 'ダブル立直',   han: 2 },
-      { name: '一発',        han: 1 },
-      { name: '河底撈魚',     han: 1 },
-      { name: '槍槓',        han: 1 }
-    ], result
+    assert_equal [ { name: '海底摸月', han: 1 } ], result
+  end
+
+  test 'houtei adds 河底撈魚(1)' do
+    situational_yaku_list = build_situational_yaku_list(houtei: true)
+    result = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
+    assert_equal [ { name: '河底撈魚', han: 1 } ], result
+  end
+
+  test 'rinshan adds 嶺上開花(1)' do
+    situational_yaku_list = build_situational_yaku_list(rinshan: true)
+    result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
+    assert_equal [ { name: '嶺上開花', han: 1 } ], result
+  end
+
+  test 'chankan adds 槍槓(1)' do
+    situational_yaku_list = build_situational_yaku_list(chankan: true)
+    result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
+    assert_equal [ { name: '槍槓',    han: 1 } ], result
   end
 
   test 'no flags returns empty list' do
-    situational_yaku_list = { tenhou: false, chiihou: false }
+    situational_yaku_list = build_situational_yaku_list
     result  = HandEvaluator.build_bonus_yaku_list(situational_yaku_list)
     assert_equal [], result
   end
