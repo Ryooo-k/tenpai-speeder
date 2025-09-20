@@ -184,7 +184,7 @@ module HandEvaluator
       return true if agari_all_patterns.present? && normalized_melds.empty?
 
       scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
-      yaku_list = scoring_state_table.map { |scoring_states| build_yaku_list(scoring_states, situational_yaku_list) }
+      yaku_list = scoring_state_table.map { |scoring_states| build_yaku_list(scoring_states, situational_yaku_list) }.flatten
       yaku_list.present?
     end
 
