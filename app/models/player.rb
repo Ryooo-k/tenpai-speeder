@@ -110,21 +110,26 @@ class Player < ApplicationRecord
     game_records.ordered.last.score
   end
 
+  def wind_number
+    wind_number = seat_order - host_seat_number
+    wind_number.positive? || wind_number.zero? ? wind_number : wind_number + PLAYERS_COUNT
+  end
+
   def wind_name
     case wind_number
     when 0 then '東'
-    when 1 then '北'
+    when 1 then '南'
     when 2 then '西'
-    when 3 then '南'
+    when 3 then '北'
     end
   end
 
   def wind_code
     case wind_number
     when 0 then TON_TILE_CODE
-    when 1 then PEI_TILE_CODE
+    when 1 then NAN_TILE_CODE
     when 2 then SHA_TILE_CODE
-    when 3 then NAN_TILE_CODE
+    when 3 then PEI_TILE_CODE
     end
   end
 
@@ -139,6 +144,10 @@ class Player < ApplicationRecord
       chi: find_chi_candidates(target_tile, target_player),
       kan: find_kan_candidates(target_tile)
     }.compact
+  end
+
+  def can_tsumo?
+    HandEvaluator.can_tsumo?(hands, melds, game.round_wind_number, wind_number, situational_tsumo_yaku_list)
   end
 
   private
@@ -231,17 +240,13 @@ class Player < ApplicationRecord
       game.host_player.seat_order
     end
 
-    def wind_number
-      (host_seat_number - seat_order) % PLAYERS_COUNT
-    end
-
     def hand_tiles
       hands.map(&:tile)
     end
 
     def find_kan_candidates(target_tile)
       return unless can_kan?(target_tile)
-      hands.select { |hand| hand.tile.code == target_tile.code }
+      hands.select { |hand| hand.code == target_tile.code }
     end
 
     def can_kan?(target_tile)
@@ -250,7 +255,7 @@ class Player < ApplicationRecord
 
     def find_pon_candidates(target_tile)
       return unless can_pon?(target_tile)
-      hands.select { |hand| hand.tile.code == target_tile.code }[..1]
+      hands.select { |hand| hand.code == target_tile.code }[..1]
     end
 
     def can_pon?(target_tile)
@@ -269,7 +274,7 @@ class Player < ApplicationRecord
       possible_chi_table.each do |possible_chi_codes|
         if possible_chi_codes.all? { |code| hand_codes.include?(code) }
           chi_candidates << possible_chi_codes.map do |chi_code|
-                              hands.select { |hand| hand.tile.code == chi_code }.first
+                              hands.select { |hand| hand.code == chi_code }.first
                             end
         end
       end
@@ -296,5 +301,36 @@ class Player < ApplicationRecord
       candidates << [ code - 1, code + 1 ] if (2..8).include?(number)
       candidates << [ code + 1, code + 2 ] if number <= 7
       candidates
+    end
+
+    def shanten
+      HandEvaluator.calculate_shanten(hands, melds)
+    end
+
+    def complete?
+      shanten.negative?
+    end
+
+    def can_haitei_tsumo?
+      game.remaining_tile_count.zero? && complete?
+    end
+
+    def can_rinshan_tsumo?
+      return false unless complete?
+      hands.any? { |hand| hand.drawn && hand.rinshan }
+    end
+
+    def situational_tsumo_yaku_list
+      {
+        riichi: current_state.riichi?,
+        haitei: can_haitei_tsumo?,
+        rinshan: can_rinshan_tsumo?,
+        double_riichi: false, # ツモ可否判定では不要のため false で固定
+        tenhou: false,        # 同上
+        ippatsu: false,       # 同上
+        chiihou: false,       # ロン和了の状況役のため false で固定
+        houtei: false,        # 同上
+        chankan: false        # 同上
+      }
     end
 end

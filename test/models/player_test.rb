@@ -4,6 +4,8 @@ require 'test_helper'
 require 'minitest/mock'
 
 class PlayerTest < ActiveSupport::TestCase
+  include GameTestHelper
+
   def setup
     @user_player = players(:ryo)
     @ai_player = players(:menzen_tenpai_speeder)
@@ -522,75 +524,91 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 45000, @user_player.score
   end
 
-  test '#wind_name and #wind_code' do
+  test '#wind_number and wind_name and #wind_code' do
     @user_player.stub(:host_seat_number, 0) do
       @user_player.seat_order = 0
+      assert_equal 0, @user_player.wind_number
       assert_equal '東', @user_player.wind_name
       assert_equal base_tiles(:ton).code, @user_player.wind_code
 
       @user_player.seat_order = 1
+      assert_equal 1, @user_player.wind_number
       assert_equal '南', @user_player.wind_name
       assert_equal base_tiles(:nan).code, @user_player.wind_code
 
       @user_player.seat_order = 2
+      assert_equal 2, @user_player.wind_number
       assert_equal '西', @user_player.wind_name
       assert_equal base_tiles(:sha).code, @user_player.wind_code
 
       @user_player.seat_order = 3
+      assert_equal 3, @user_player.wind_number
       assert_equal '北', @user_player.wind_name
       assert_equal base_tiles(:pei).code, @user_player.wind_code
     end
 
     @user_player.stub(:host_seat_number, 1) do
       @user_player.seat_order = 0
+      assert_equal 3, @user_player.wind_number
       assert_equal '北', @user_player.wind_name
       assert_equal base_tiles(:pei).code, @user_player.wind_code
 
       @user_player.seat_order = 1
+      assert_equal 0, @user_player.wind_number
       assert_equal '東', @user_player.wind_name
       assert_equal base_tiles(:ton).code, @user_player.wind_code
 
       @user_player.seat_order = 2
+      assert_equal 1, @user_player.wind_number
       assert_equal '南', @user_player.wind_name
       assert_equal base_tiles(:nan).code, @user_player.wind_code
 
       @user_player.seat_order = 3
+      assert_equal 2, @user_player.wind_number
       assert_equal '西', @user_player.wind_name
       assert_equal base_tiles(:sha).code, @user_player.wind_code
     end
 
     @user_player.stub(:host_seat_number, 2) do
       @user_player.seat_order = 0
+      assert_equal 2, @user_player.wind_number
       assert_equal '西', @user_player.wind_name
       assert_equal base_tiles(:sha).code, @user_player.wind_code
 
       @user_player.seat_order = 1
+      assert_equal 3, @user_player.wind_number
       assert_equal '北', @user_player.wind_name
       assert_equal base_tiles(:pei).code, @user_player.wind_code
 
       @user_player.seat_order = 2
+      assert_equal 0, @user_player.wind_number
       assert_equal '東', @user_player.wind_name
       assert_equal base_tiles(:ton).code, @user_player.wind_code
 
       @user_player.seat_order = 3
+      assert_equal 1, @user_player.wind_number
       assert_equal '南', @user_player.wind_name
       assert_equal base_tiles(:nan).code, @user_player.wind_code
     end
 
     @user_player.stub(:host_seat_number, 3) do
       @user_player.seat_order = 0
+      assert_equal 1, @user_player.wind_number
       assert_equal '南', @user_player.wind_name
       assert_equal base_tiles(:nan).code, @user_player.wind_code
 
       @user_player.seat_order = 1
+      assert_equal 2, @user_player.wind_number
       assert_equal '西', @user_player.wind_name
       assert_equal base_tiles(:sha).code, @user_player.wind_code
 
       @user_player.seat_order = 2
+      assert_equal 3, @user_player.wind_number
       assert_equal '北', @user_player.wind_name
       assert_equal base_tiles(:pei).code, @user_player.wind_code
 
       @user_player.seat_order = 3
+      assert_equal 0, @user_player.wind_number
       assert_equal '東', @user_player.wind_name
       assert_equal base_tiles(:ton).code, @user_player.wind_code
     end
@@ -794,6 +812,53 @@ class PlayerTest < ActiveSupport::TestCase
     @user_player.stub(:hands, hands) do
       furo_candidates = @user_player.find_furo_candidates(tiles(:second_manzu_1), @ai_player)
       assert_equal({}, furo_candidates)
+    end
+  end
+
+  test '#can_tsumo? returns true：4面子1雀頭の和了形の場合' do
+    hands = create_hands('m111 p222 s333 z444 m99', player: player_states(:ryo))
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, []) do
+        result = @user_player.can_tsumo?
+        assert result
+      end
+    end
+  end
+
+  test '#can_tsumo? returns false：ノーテンの場合' do
+    hands = create_hands('m123456789 p19 s19', player: player_states(:ryo))
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, []) do
+        result = @user_player.can_tsumo?
+        assert_not result
+      end
+    end
+  end
+
+  test '#can_tsumo? returns false：役無しの形式聴牌かつ状況役が鳴い場合' do
+    hands = create_hands('m123 p222 s333 m99', player: player_states(:ryo))
+    melds = create_melds('m888-', player: player_states(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        result = @user_player.can_tsumo?
+        assert_not result
+      end
+    end
+  end
+
+  test '#can_tsumo? returns true：役無しの形式聴牌かつ状況役がある場合' do
+    hands = create_hands('m123 p222 s333 m99', player: player_states(:ryo))
+    melds = create_melds('m888-', player: player_states(:ryo))
+    situational_yaku_list = build_situational_yaku_list(rinshan: true)
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:situational_tsumo_yaku_list, situational_yaku_list) do
+          result = @user_player.can_tsumo?
+          assert result
+        end
+      end
     end
   end
 end
