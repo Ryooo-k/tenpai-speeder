@@ -14,6 +14,6 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
-    Dir[Rails.root.join("test", "helpers", "**", "*.rb")].each { |file| require file }
+    Dir[Rails.root.join('test', 'helpers', '**', '*.rb')].each { |file| require file }
   end
 end
