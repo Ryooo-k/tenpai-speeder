@@ -101,23 +101,23 @@ class ScoreInputNormalizerTest < ActiveSupport::TestCase
     assert_equal [ 'z1111' ], result
   end
 
-  test '#normalize_agari_tile returns "m1_" when manzu_1 (tsumo)' do
-    result = ScoreInputNormalizer.normalize_agari_tile(tiles(:first_manzu_1), :self)
+  test '#normalize_target returns "m1_" when manzu_1 (tsumo)' do
+    result = ScoreInputNormalizer.normalize_target(tiles(:first_manzu_1), :self)
     assert_equal 'm1_', result
   end
 
-  test '#normalize_agari_tile returns "p9-" when pinzu_9 (shimocha)' do
-    result = ScoreInputNormalizer.normalize_agari_tile(tiles(:first_pinzu_9), :shimocha)
+  test '#normalize_target returns "p9-" when pinzu_9 (shimocha)' do
+    result = ScoreInputNormalizer.normalize_target(tiles(:first_pinzu_9), :shimocha)
     assert_equal 'p9-', result
   end
 
-  test '#normalize_agari_tile returns "s5=" when souzu_5 (toimen)' do
-    result = ScoreInputNormalizer.normalize_agari_tile(tiles(:first_souzu_5), :toimen)
+  test '#normalize_target returns "s5=" when souzu_5 (toimen)' do
+    result = ScoreInputNormalizer.normalize_target(tiles(:first_souzu_5), :toimen)
     assert_equal 's5=', result
   end
 
-  test '#normalize_agari_tile returns "z7+" when zihai_7 (kamicha)' do
-    result = ScoreInputNormalizer.normalize_agari_tile(tiles(:first_chun), :kamicha)
+  test '#normalize_target returns "z7+" when zihai_7 (kamicha)' do
+    result = ScoreInputNormalizer.normalize_target(tiles(:first_chun), :kamicha)
     assert_equal 'z7+', result
   end
 end

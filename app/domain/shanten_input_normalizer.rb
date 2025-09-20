@@ -6,7 +6,7 @@ module ShantenInputNormalizer
   class << self
     def normalize(hands, melds)
       code_map = Array.new(TILE_KIND_COUNT, 0)
-      hands.each { |hand| code_map[hand.tile.code] += 1 }
+      hands.each { |hand| code_map[hand.code] += 1 }
       melds.each do |meld|
         code = meld.tile.code
 

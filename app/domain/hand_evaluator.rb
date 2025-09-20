@@ -179,7 +179,7 @@ module HandEvaluator
       return false unless drawn_hand
       return true if situational_yaku_list.any? { |_, v|  v }
 
-      normalized_hands, normalized_melds, normalized_drawn_tile = ScoreInputNormalizer.normalize(hands, melds, drawn_hand.tile, :self)
+      normalized_hands, normalized_melds, normalized_drawn_tile = ScoreInputNormalizer.normalize(hands, melds, drawn_hand, :self)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_drawn_tile)
       return true if agari_all_patterns.present? && normalized_melds.empty?
 
