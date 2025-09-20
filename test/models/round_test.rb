@@ -78,4 +78,23 @@ class RoundTest < ActiveSupport::TestCase
     @round.number = 7
     assert_equal 3, @round.host_seat_number
   end
+
+  test '#wind_number' do
+    @round.number = 0
+    assert_equal 0, @round.wind_number
+    @round.number = 1
+    assert_equal 0, @round.wind_number
+    @round.number = 2
+    assert_equal 0, @round.wind_number
+    @round.number = 3
+    assert_equal 0, @round.wind_number
+    @round.number = 4
+    assert_equal 1, @round.wind_number
+    @round.number = 5
+    assert_equal 1, @round.wind_number
+    @round.number = 6
+    assert_equal 1, @round.wind_number
+    @round.number = 7
+    assert_equal 1, @round.wind_number
+  end
 end

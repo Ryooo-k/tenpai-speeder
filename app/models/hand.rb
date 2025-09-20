@@ -15,4 +15,20 @@ class Hand < ApplicationRecord
       .order('base_tiles.code ASC')
       .order('tile.kind ASC')
   }
+
+  def suit
+    tile.suit
+  end
+
+  def name
+    tile.name
+  end
+
+  def number
+    tile.number
+  end
+
+  def code
+    tile.code
+  end
 end

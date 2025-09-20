@@ -3,16 +3,18 @@
 require 'test_helper'
 
 class HandTest < ActiveSupport::TestCase
+  def setup
+    @manzu_1 = tiles(:first_manzu_1)
+  end
+
   test 'is valid with player_state and tile' do
     player_1_state = player_states(:ryo)
-    manzu_1 = tiles(:first_manzu_1)
-    hand = Hand.new(player_state: player_1_state, tile: manzu_1)
+    hand = Hand.new(player_state: player_1_state, tile: @manzu_1)
     assert hand.valid?
   end
 
   test 'is invalid without player_state' do
-    manzu_1 = tiles(:first_manzu_1)
-    hand = Hand.new(tile: manzu_1)
+    hand = Hand.new(tile: @manzu_1)
     assert hand.invalid?
   end
 
@@ -23,9 +25,13 @@ class HandTest < ActiveSupport::TestCase
   end
 
   test 'drawn default to false' do
-    manzu_1 = tiles(:first_manzu_1)
-    hand = Hand.new(tile: manzu_1)
+    hand = Hand.new(tile: @manzu_1)
     assert_equal false, hand.drawn
+  end
+
+  test 'rinshan default to false' do
+    hand = Hand.new(tile: @manzu_1)
+    assert_equal false, hand.rinshan
   end
 
   test '.sorted' do
@@ -35,5 +41,25 @@ class HandTest < ActiveSupport::TestCase
     hand_second_3 = state.hands.create!(tile: tiles(:second_manzu_3), drawn: false)
     hand_first_3 = state.hands.create!(tile: tiles(:first_manzu_3), drawn: false)
     assert_equal [ hand_2, hand_first_3, hand_second_3, hand_1 ], state.hands.sorted
+  end
+
+  test '#suit returns suit of tile' do
+    hand = Hand.create!(tile: @manzu_1, player_state: player_states(:ryo))
+    assert_equal 'manzu', hand.suit
+  end
+
+  test '#name returns name of tile' do
+    hand = Hand.create!(tile: @manzu_1, player_state: player_states(:ryo))
+    assert_equal '1萬', hand.name
+  end
+
+  test '#number returns name of tile' do
+    hand = Hand.create!(tile: @manzu_1, player_state: player_states(:ryo))
+    assert_equal 1, hand.number
+  end
+
+  test '#code returns code of tile' do
+    hand = Hand.create!(tile: @manzu_1, player_state: player_states(:ryo))
+    assert_equal 0, hand.code
   end
 end

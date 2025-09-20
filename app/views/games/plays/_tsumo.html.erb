@@ -1,0 +1,11 @@
+<div class="absolute bottom-1/8 right-1/10">
+  <div class="flex gap-2">
+    <%= button_to "ツモ",
+                  game_action_tsumo_path(@game),
+                  class: "rounded border px-2 py-1" %>
+
+    <%= button_to "スルー",
+                  game_action_through_path(@game),
+                  class: "rounded border px-2 py-1" %>
+  </div>
+</div>

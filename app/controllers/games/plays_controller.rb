@@ -5,11 +5,11 @@ class Games::PlaysController < ApplicationController
   before_action :set_players
 
   def show
-    @next_action = flash[:next_action]&.to_sym
+    @action = flash[:next_action]&.to_sym
     @chosen_hand_id = flash[:chosen_hand_id]
     @discarded_tile_id = flash[:discarded_tile_id]
 
-    if @next_action == :furo
+    if @action == :furo
       target_tile = @game.tiles.find(@discarded_tile_id)
       @furo_candidates = @game.user_player.find_furo_candidates(target_tile, @game.current_player)
     end

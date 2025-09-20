@@ -1,5 +1,5 @@
 <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
-  <% if @next_action == :choose && @game.current_player.user? %>
+  <% if @action == :choose && @game.current_player.user? %>
     <%= form_with url: game_action_discard_path(@game) do |form| %>
       <div class="flex">
         <%= render partial: "games/hands/hand_form", collection: user.hands, as: :hand, locals: { form: } %>

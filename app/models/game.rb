@@ -109,6 +109,10 @@ class Game < ApplicationRecord
     user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, current_step)
   end
 
+  def round_wind_number
+    current_round.wind_number
+  end
+
   private
 
     def create_tiles_and_round
