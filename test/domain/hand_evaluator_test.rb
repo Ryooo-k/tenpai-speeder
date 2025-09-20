@@ -18,10 +18,6 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     HandEvaluator.private_class_method(*@privates)
   end
 
-  def build_situational_yaku_list(tenhou: false, chiihou: false, riichi: false, double_riichi: false, ippatsu: false, haitei: false, houtei: false, rinshan: false, chankan: false)
-    { tenhou:, chiihou:, riichi:, double_riichi:, ippatsu:, haitei:, houtei:, rinshan:, chankan: }
-  end
-
   test '#can_tsumo? returns true：役無しメンゼン4面子1雀頭の場合' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     situational_yaku_list = build_situational_yaku_list

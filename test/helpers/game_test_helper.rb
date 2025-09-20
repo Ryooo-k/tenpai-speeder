@@ -24,6 +24,10 @@ module GameTestHelper
     game.advance_current_player! unless game.current_player.ai?
   end
 
+  def build_situational_yaku_list(tenhou: false, chiihou: false, riichi: false, double_riichi: false, ippatsu: false, haitei: false, houtei: false, rinshan: false, chankan: false)
+    { tenhou:, chiihou:, riichi:, double_riichi:, ippatsu:, haitei:, houtei:, rinshan:, chankan: }
+  end
+
   def create_hands(pattern, player:, drawn: :last, rinshan: false)
     tile_fixture_names = []
 
