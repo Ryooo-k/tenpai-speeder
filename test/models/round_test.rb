@@ -35,10 +35,10 @@ class RoundTest < ActiveSupport::TestCase
     assert_equal 1, round.honbas.count
   end
 
-  test '#current_honba' do
+  test '#latest_honba' do
     max_number = @round.honbas.maximum(:number)
     expected = @round.honbas.find_by(number: max_number)
-    assert_equal expected, @round.current_honba
+    assert_equal expected, @round.latest_honba
   end
 
   test '#name' do

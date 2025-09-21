@@ -14,7 +14,7 @@ class Round < ApplicationRecord
 
   after_create :create_honba
 
-  def current_honba
+  def latest_honba
     honbas.order(:number).last
   end
 
