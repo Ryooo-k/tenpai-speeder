@@ -91,6 +91,10 @@ class Player < ApplicationRecord
     user_id.present?
   end
 
+  def host?
+    self == game.host_player
+  end
+
   def relation_from_user
     relation_seat_number = (user_seat_number - seat_order) % PLAYERS_COUNT
 

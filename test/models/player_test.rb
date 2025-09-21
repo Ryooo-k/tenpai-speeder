@@ -442,6 +442,13 @@ class PlayerTest < ActiveSupport::TestCase
     assert @user_player.user?
   end
 
+  test '#host?' do
+    @game.stub(:host_player, @user_player) do
+      assert @user_player.host?
+      assert_not @ai_player.host?
+    end
+  end
+
   test 'relation_from_user' do
     @ai_player.stub(:user_seat_number, 0) do
       @ai_player.seat_order = 1
