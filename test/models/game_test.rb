@@ -112,13 +112,29 @@ class GameTest < ActiveSupport::TestCase
     @game.players.each do |player|
       assert_equal 0, player.hands.count
     end
+
+    @game.deal_initial_hands
+    @game.players.each do |player|
+      assert_equal 13, player.hands.count
+    end
+  end
+
+  test '#deal_initial_hands increases draw count(13 x 4 = 52)' do
     assert_equal 0, @game.draw_count
 
     @game.deal_initial_hands
-    @game.players.ordered.each do |player|
-      assert_equal 13, player.hands.count
-    end
     assert_equal 52, @game.draw_count
+  end
+
+  test '#deal_initial_hands creates new state' do
+    @game.players.each do |player|
+      assert_equal 1, player.player_states.count
+    end
+
+    @game.deal_initial_hands
+    @game.players.each do |player|
+      assert_equal 2, player.player_states.count
+    end
   end
 
   test '#user_player' do
@@ -291,5 +307,60 @@ class GameTest < ActiveSupport::TestCase
     furo_ids = [ hand_1.id, hand_2.id ]
     @game.apply_furo(:chi, furo_ids, tiles(:first_manzu_3).id)
     assert_equal before_step_number + 1, @game.current_step_number
+  end
+
+  test '#advance_next_round! creates new round' do
+    before_round_count = @game.rounds.count
+    before_round_number = @game.rounds.order(:number).last.number
+
+    @game.advance_next_round!
+    assert_equal before_round_count  + 1, @game.rounds.count
+    assert_equal before_round_number + 1, @game.rounds.maximum(:number)
+  end
+
+  test '#advance_next_round! resets current_step_number to 0' do
+    @game.update!(current_step_number: 100)
+    @game.advance_next_round!
+    assert_equal 0 , @game.current_step_number
+  end
+
+  test '#advance_next_round! advances current_seat_number' do
+    before_current_seat_number = @game.current_seat_number
+
+    @game.advance_next_round!
+    expected = (before_current_seat_number + 1) % @game.players.count
+    assert_equal expected, @game.current_seat_number
+
+    @game.advance_next_round!
+    expected = (before_current_seat_number + 2) % @game.players.count
+    assert_equal expected, @game.current_seat_number
+  end
+
+  test '#advance_next_honba! creates new honba' do
+    current_round = @game.rounds.order(:number).last
+    before_honba_count = current_round.honbas.count
+    before_honba_number = current_round.current_honba.number
+    current_round.current_honba.update!(riichi_stick_count: 10)
+
+    @game.advance_next_honba!
+    assert_equal before_honba_count + 1, current_round.honbas.count
+    assert_equal before_honba_number + 1, current_round.current_honba.number
+    assert_equal 10, current_round.current_honba.riichi_stick_count
+  end
+
+  test '#advance_next_honba! resets current_seat_number' do
+    initial_current_seat_number = @game.current_seat_number
+    next_current_seat_number = initial_current_seat_number + 1
+    @game.update!(current_seat_number: next_current_seat_number)
+
+    assert_not_equal initial_current_seat_number, @game.current_seat_number
+    @game.advance_next_honba!
+    assert_equal initial_current_seat_number, @game.current_seat_number
+  end
+
+  test '#advance_next_honba! resets current_step_number to 0' do
+    @game.update!(current_step_number: 100)
+    @game.advance_next_honba!
+    assert_equal 0 , @game.current_step_number
   end
 end

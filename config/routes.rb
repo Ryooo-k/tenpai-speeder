@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       get 'action/choose',   to: 'actions#choose'
       post 'action/discard', to: 'actions#discard'
       post 'action/furo',    to: 'actions#furo'
+      post 'action/tsumo', to: 'actions#tsumo'
       post 'action/through', to: 'actions#through'
     end
   end

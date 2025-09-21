@@ -5,7 +5,13 @@ class Games::ActionsController < ApplicationController
 
   def draw
     @game.draw_for_current_player
-    flash[:next_action] = :choose
+
+    if @game.current_player.can_tsumo?
+      flash[:next_action] = :tsumo
+    else
+      flash[:next_action] = :choose
+    end
+
     redirect_to game_play_path(@game)
   end
 
@@ -43,6 +49,20 @@ class Games::ActionsController < ApplicationController
     @game.apply_furo(furo_type, furo_ids, discarded_tile_id)
     @game.advance_to_player!(@game.user_player)
     flash[:next_action] = :choose
+    redirect_to game_play_path(@game)
+  end
+
+  def tsumo
+    # 点数の振り分け処理は、別issueで対応する。
+
+    if @game.current_player.host?
+      @game.advance_next_honba!
+    else
+      @game.advance_next_round!
+    end
+
+    @game.deal_initial_hands
+    flash[:next_action] = :draw
     redirect_to game_play_path(@game)
   end
 

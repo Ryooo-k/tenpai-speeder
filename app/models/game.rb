@@ -28,12 +28,13 @@ class Game < ApplicationRecord
         players.create!(ai: player, seat_order:)
       end
       new_player.game_records.create!(honba: current_honba)
-      new_player.player_states.create!(step: current_step)
     end
   end
 
   def deal_initial_hands
     players.ordered.each do |player|
+      player.player_states.create!(step: current_step)
+
       INITIAL_HAND_SIZE.times do |_|
         player.receive(top_tile)
         increase_draw_count
@@ -111,6 +112,25 @@ class Game < ApplicationRecord
 
   def round_wind_number
     current_round.wind_number
+  end
+
+  def advance_next_round!
+    next_round_number = current_round.number + 1
+    rounds.create!(number: next_round_number)
+
+    next_seat_number = next_round_number % PLAYERS_COUNT
+    update!(current_seat_number: next_seat_number)
+    update!(current_step_number: 0)
+  end
+
+  def advance_next_honba!
+    next_honba_number = current_honba.number + 1
+    riichi_stick_count = current_honba.riichi_stick_count
+    current_round.honbas.create!(number: next_honba_number, riichi_stick_count: riichi_stick_count)
+
+    seat_number = current_round.number % PLAYERS_COUNT
+    update!(current_seat_number: seat_number)
+    update!(current_step_number: 0)
   end
 
   private
