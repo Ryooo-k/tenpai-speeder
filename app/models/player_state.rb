@@ -13,7 +13,14 @@ class PlayerState < ApplicationRecord
   validates :step, presence: true
 
   scope :ordered, -> { order(step_id: :asc) }
-  scope :up_to_step, ->(n) { joins(:step).where(steps: { number: ..n }) }
+  scope :for_honba, ->(honba) {
+    joins(step: :honba)
+    .where(honbas: { id: honba.id })
+  }
+  scope :up_to_step, ->(n) {
+    joins(:step)
+    .where(steps: { number: ..n })
+  }
   scope :with_hands, -> { where.associated(:hands) }
   scope :with_rivers, -> { where.associated(:rivers) }
   scope :with_melds, -> { where.associated(:melds) }

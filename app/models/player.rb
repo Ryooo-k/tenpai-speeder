@@ -165,7 +165,9 @@ class Player < ApplicationRecord
     end
 
     def base_states
-      player_states.up_to_step(current_step_number)
+      player_states
+        .for_honba(game.latest_honba)
+        .up_to_step(current_step_number)
     end
 
     def base_hands
