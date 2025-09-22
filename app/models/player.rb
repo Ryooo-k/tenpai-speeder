@@ -266,17 +266,13 @@ class Player < ApplicationRecord
       game.host_player.seat_order
     end
 
-    def hand_tiles
-      hands.map(&:tile)
-    end
-
     def find_kan_candidates(target_tile)
       return unless can_kan?(target_tile)
       hands.select { |hand| hand.code == target_tile.code }
     end
 
     def can_kan?(target_tile)
-      hand_tiles.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
+      hands.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
     end
 
     def find_pon_candidates(target_tile)
@@ -285,7 +281,7 @@ class Player < ApplicationRecord
     end
 
     def can_pon?(target_tile)
-      codes = hand_tiles.map(&:code)
+      codes = hands.map(&:code)
       return unless codes.include?(target_tile.code)
       codes.tally[target_tile.code] >= PON_REQUIRED_HAND_COUNT
     end
@@ -294,7 +290,7 @@ class Player < ApplicationRecord
       return unless can_chi?(target_tile, target_player)
 
       chi_candidates = []
-      hand_codes = hand_tiles.map(&:code)
+      hand_codes = hands.map(&:code)
       possible_chi_table = build_possible_chi_table(target_tile)
 
       possible_chi_table.each do |possible_chi_codes|
@@ -311,7 +307,7 @@ class Player < ApplicationRecord
       kamicha_seat_order = (target_player.seat_order + 1) % PLAYERS_COUNT
       return if seat_order != kamicha_seat_order || target_tile.code >= TON_TILE_CODE
 
-      hand_codes = hand_tiles.map(&:code)
+      hand_codes = hands.map(&:code)
       possible_chi_table = build_possible_chi_table(target_tile)
       possible_chi_table.any? do |possible_chi_codes|
         possible_chi_codes.all? { |code| hand_codes.include?(code) }
