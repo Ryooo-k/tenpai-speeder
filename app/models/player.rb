@@ -342,7 +342,7 @@ class Player < ApplicationRecord
     end
 
     def can_houtei_ron?(tile)
-      test_hands = hands.dup << tile
+      test_hands = Array(hands) + [ tile ]
       shanten = HandEvaluator.calculate_shanten(test_hands, melds)
       game.remaining_tile_count.zero? && shanten.negative?
     end
@@ -355,7 +355,7 @@ class Player < ApplicationRecord
     def can_chankan?(meld)
       return false unless meld.is_a?(Meld)
 
-      test_hands = hands.dup << meld
+      test_hands = Array(hands) + [ meld ]
       shanten = HandEvaluator.calculate_shanten(test_hands, melds)
       meld.kind == 'kakan' && shanten.negative?
     end

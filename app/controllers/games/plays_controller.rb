@@ -8,6 +8,7 @@ class Games::PlaysController < ApplicationController
     @action = flash[:next_action]&.to_sym
     @chosen_hand_id = flash[:chosen_hand_id]
     @discarded_tile_id = flash[:discarded_tile_id]
+    @ron_claimer_ids = flash[:ron_claimer_ids]
 
     if @action == :furo
       target_tile = @game.tiles.find(@discarded_tile_id)
