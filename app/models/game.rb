@@ -141,6 +141,12 @@ class Game < ApplicationRecord
     update!(current_step_number: 0)
   end
 
+  def find_ron_claimers(tile)
+    other_players.map do |player|
+      player.can_ron?(tile) ? player : next
+    end.compact
+  end
+
   private
 
     def create_tiles_and_round
@@ -180,5 +186,9 @@ class Game < ApplicationRecord
       next_step_number = current_step_number + 1
       update!(current_step_number: next_step_number)
       latest_honba.steps.create!(number: next_step_number)
+    end
+
+    def other_players
+      players.where.not(seat_order: current_seat_number)
     end
 end
