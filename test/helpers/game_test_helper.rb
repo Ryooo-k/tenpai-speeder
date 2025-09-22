@@ -118,16 +118,16 @@ module GameTestHelper
       usage_key = "#{suit}#{rank}"
       order_idx = usage[usage_key]
       usage[usage_key] += 1
-      number = index + 1
+      position = index + 1
 
       tile_sym = tile_fixture_symbol(suit, rank, order_idx)
       attrs = {
         tile:         tiles(tile_sym),
         player_state: player,
         kind:,
-        number:
+        position:
       }
-      attrs[:from] = relation if relation && number == from_index
+      attrs[:from] = relation if relation && position == from_index
       Meld.create!(**attrs)
     end
   end

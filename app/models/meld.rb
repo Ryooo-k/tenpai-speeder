@@ -7,7 +7,7 @@ class Meld < ApplicationRecord
   validates :player_state, presence: true
   validates :tile, presence: true
   validates :kind, presence: true
-  validates :number, presence: true
+  validates :position, presence: true
 
   enum :kind, {
     pon: 0,
@@ -23,5 +23,21 @@ class Meld < ApplicationRecord
     kamicha: 3
   }
 
-  scope :sorted, -> { order(player_state_id: :desc).order(:number) }
+  scope :sorted, -> { order(player_state_id: :desc).order(:position) }
+
+  def suit
+    tile.suit
+  end
+
+  def name
+    tile.name
+  end
+
+  def number
+    tile.number
+  end
+
+  def code
+    tile.code
+  end
 end

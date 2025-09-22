@@ -139,9 +139,9 @@ class PlayerTest < ActiveSupport::TestCase
     @user_player.current_state.melds.delete_all
     assert_equal [], @user_player.melds
 
-    @user_player.current_state.melds.create!(tile: @manzu_3, kind: :chi, number: 0)
-    @user_player.current_state.melds.create!(tile: @manzu_1, kind: :chi, number: 1)
-    @user_player.current_state.melds.create!(tile: @manzu_2, kind: :chi, number: 2)
+    @user_player.current_state.melds.create!(tile: @manzu_3, kind: :chi, position: 0)
+    @user_player.current_state.melds.create!(tile: @manzu_1, kind: :chi, position: 1)
+    @user_player.current_state.melds.create!(tile: @manzu_2, kind: :chi, position: 2)
     assert_equal [ @manzu_3, @manzu_1, @manzu_2 ], @user_player.melds.map(&:tile)
 
     @user_player.player_states.create!(step: steps(:step_2))
