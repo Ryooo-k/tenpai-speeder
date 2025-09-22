@@ -48,6 +48,43 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert result
   end
 
+  test '#can_ron? returns true：役ありメンゼンの場合（一気通貫）' do
+    hands = create_hands('m12345678 p11 s999', player: player_states(:ryo))
+    target_tile = tiles(:first_manzu_9)
+    relation = :toimen
+    situational_yaku_list = build_situational_yaku_list
+    result = HandEvaluator.can_ron?(hands, @empty_melds, target_tile, relation, @round_wind, @player_wind, situational_yaku_list)
+    assert result
+  end
+
+  test '#can_ron? returns true：鳴き役ありの場合（一気通貫）' do
+    hands = create_hands('m45678 p11 s999', player: player_states(:ryo))
+    melds = create_melds('m123+', player: player_states(:ryo))
+    target_tile = tiles(:first_manzu_9)
+    relation = :toimen
+    situational_yaku_list = build_situational_yaku_list
+    result = HandEvaluator.can_ron?(hands, melds, target_tile, relation, @round_wind, @player_wind, situational_yaku_list)
+    assert result
+  end
+
+  test '#can_ron? returns false：役無し形式聴牌の場合' do
+    hands = create_hands('m11145678 p11 s999', player: player_states(:ryo))
+    target_tile = tiles(:first_manzu_9)
+    relation = :toimen
+    situational_yaku_list = build_situational_yaku_list
+    result = HandEvaluator.can_ron?(hands, @empty_melds, target_tile, relation, @round_wind, @player_wind, situational_yaku_list)
+    assert_not result
+  end
+
+  test '#can_ron? returns true：手役無し状況役ありの場合' do
+    hands = create_hands('m11145678 p11 s999', player: player_states(:ryo))
+    target_meld = Meld.create!(tile: tiles(:first_manzu_9), kind: 'kakan', player_state: player_states(:tenpai_speeder), position: 3)
+    relation = :toimen
+    situational_yaku_list = build_situational_yaku_list(chankan: true)
+    result = HandEvaluator.can_ron?(hands, @empty_melds, target_meld, relation, @round_wind, @player_wind, situational_yaku_list)
+    assert result
+  end
+
   test '#get_score_summaries：天和 → 13飜' do
     hands = create_hands('m111 p234567 s23455', player: player_states(:ryo))
     agari_tile = tiles(:first_manzu_1)

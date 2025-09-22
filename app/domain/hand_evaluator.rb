@@ -188,6 +188,17 @@ module HandEvaluator
       yaku_list.present?
     end
 
+    def can_ron?(hands, melds, target, relation, round_wind, player_wind, situational_yaku_list)
+      return true if situational_yaku_list.any? { |_, v|  v }
+
+      test_hands = hands.dup << target
+      normalized_hands, normalized_melds, normalized_target_tile = ScoreInputNormalizer.normalize(test_hands, melds, target, relation)
+      agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_target_tile)
+      scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
+      yaku_list = scoring_state_table.map { |scoring_states| build_yaku_list(scoring_states, situational_yaku_list) }.flatten
+      yaku_list.present?
+    end
+
     def get_score_summaries(hands, melds, agari_tile, relation, situational_yaku_list, round_wind, player_wind)
       normalized_hands, normalized_melds, normalized_agari_tile = ScoreInputNormalizer.normalize(hands, melds, agari_tile, relation)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_agari_tile)
@@ -850,7 +861,7 @@ module HandEvaluator
 
       def calculate_chiitoitsu_shanten(hands, melds)
         return 7 if melds.present?
-        code_counts = hands.map(&:tile).map(&:code).tally
+        code_counts = hands.map(&:code).tally
         pair_count = 0
         code_counts.each_value { |count| pair_count += 1 if count >= 2 }
         CHIITOITSU_PAIR_COUNT - pair_count - 1
@@ -858,7 +869,7 @@ module HandEvaluator
 
       def calculate_kokushi_shanten(hands, melds)
         return 13 if melds.present?
-        code_counts = hands.map(&:tile).map(&:code).tally
+        code_counts = hands.map(&:code).tally
         used_kokushi_codes = code_counts.select { |code, _| KOKUSHI_TILE_CODES.include?(code) }
         unique_count = used_kokushi_codes.keys.size
         has_head = used_kokushi_codes.values.any? { |count| count >= 2 }
