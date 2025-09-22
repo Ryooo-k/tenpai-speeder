@@ -8,7 +8,7 @@ module ShantenInputNormalizer
       code_map = Array.new(TILE_KIND_COUNT, 0)
       hands.each { |hand| code_map[hand.code] += 1 }
       melds.each do |meld|
-        code = meld.tile.code
+        code = meld.code
 
         case meld.kind.to_sym
         when :chi

@@ -822,27 +822,25 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test '#can_tsumo? returns true：4面子1雀頭の和了形の場合' do
+  test '#can_tsumo? returns true：メンゼン聴牌の場合' do
     hands = create_hands('m111 p222 s333 z444 m99', player: player_states(:ryo))
+
     @user_player.stub(:hands, hands) do
-      @user_player.stub(:melds, []) do
-        result = @user_player.can_tsumo?
-        assert result
-      end
+      result = @user_player.can_tsumo?
+      assert result
     end
   end
 
   test '#can_tsumo? returns false：ノーテンの場合' do
     hands = create_hands('m123456789 p19 s19', player: player_states(:ryo))
+
     @user_player.stub(:hands, hands) do
-      @user_player.stub(:melds, []) do
-        result = @user_player.can_tsumo?
-        assert_not result
-      end
+      result = @user_player.can_tsumo?
+      assert_not result
     end
   end
 
-  test '#can_tsumo? returns false：役無しの形式聴牌かつ状況役が鳴い場合' do
+  test '#can_tsumo? returns false：役無しの形式聴牌 + 状況役が鳴い場合' do
     hands = create_hands('m123 p222 s333 m99', player: player_states(:ryo))
     melds = create_melds('m888-', player: player_states(:ryo))
 
@@ -854,15 +852,114 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test '#can_tsumo? returns true：役無しの形式聴牌かつ状況役がある場合' do
+  test '#can_tsumo? returns true：役無し聴牌 + 状況役（立直）がある場合' do
     hands = create_hands('m123 p222 s333 m99', player: player_states(:ryo))
     melds = create_melds('m888-', player: player_states(:ryo))
-    situational_yaku_list = build_situational_yaku_list(rinshan: true)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:situational_tsumo_yaku_list, situational_yaku_list) do
+        @user_player.stub(:riichi?, true) do
           result = @user_player.can_tsumo?
+          assert result
+        end
+      end
+    end
+  end
+
+  test '#can_tsumo? returns true：役無し聴牌 + 状況役（海底摸月）がある場合' do
+    hands = create_hands('m123 p222 s333 m99', player: player_states(:ryo))
+    melds = create_melds('m888-', player: player_states(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:can_haitei_tsumo?, true) do
+          result = @user_player.can_tsumo?
+          assert result
+        end
+      end
+    end
+  end
+
+  test '#can_tsumo? returns true：役無し聴牌 + 状況役（嶺上開花）がある場合' do
+    hands = create_hands('m123 p222 s333 m99', player: player_states(:ryo))
+    melds = create_melds('m888-', player: player_states(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:can_rinshan_tsumo?, true) do
+          result = @user_player.can_tsumo?
+          assert result
+        end
+      end
+    end
+  end
+
+  test '#can_ron? returns true：役ありメンゼン聴牌の場合' do
+    hands = create_hands('m123456789 p23 z33', player: player_states(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      result = @user_player.can_ron?(tiles(:first_pinzu_1))
+      assert result
+    end
+  end
+
+  test '#can_ron? returns false：役無しメンゼン形式聴牌の場合' do
+    hands = create_hands('m111456789 p23 z33', player: player_states(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:relation_from_current_player, :toimen) do
+        result = @user_player.can_ron?(tiles(:first_pinzu_1))
+        assert_not result
+      end
+    end
+  end
+
+  test '#can_ron? returns true：副露役あり聴牌の場合' do
+    hands = create_hands('p23 z33', player: player_states(:ryo))
+    melds = create_melds('m123+ m456+ m789+', player: player_states(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        result = @user_player.can_ron?(tiles(:first_pinzu_1))
+        assert result
+      end
+    end
+  end
+
+  test '#can_ron? returns false：副露役無し聴牌の場合' do
+    hands = create_hands('p23 z33', player: player_states(:ryo))
+    melds = create_melds('m111+ m456+ m789+', player: player_states(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        result = @user_player.can_ron?(tiles(:first_pinzu_1))
+        assert_not result
+      end
+    end
+  end
+
+  test '#can_ron? returns true：役無し聴牌 + 状況役（河底撈魚）がある場合' do
+    hands = create_hands('p23 z33', player: player_states(:ryo))
+    melds = create_melds('m111+ m456+ m789+', player: player_states(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:can_houtei_ron?, true) do
+          result = @user_player.can_ron?(tiles(:first_pinzu_1))
+          assert result
+        end
+      end
+    end
+  end
+
+  test '#can_ron? returns true：役無し聴牌 + 状況役（搶槓）がある場合' do
+    hands = create_hands('p23 z33', player: player_states(:ryo))
+    melds = create_melds('m111+ m456+ m789+', player: player_states(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:can_chankan?, true) do
+          result = @user_player.can_ron?(tiles(:first_pinzu_1))
           assert result
         end
       end

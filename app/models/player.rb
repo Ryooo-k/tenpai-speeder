@@ -106,8 +106,23 @@ class Player < ApplicationRecord
     end
   end
 
+  def relation_from_current_player
+    relation_seat_number = (game.current_player.seat_order - seat_order) % PLAYERS_COUNT
+
+    case relation_seat_number
+    when 0 then :self
+    when 1 then :kamicha
+    when 2 then :toimen
+    when 3 then :shimocha
+    end
+  end
+
   def drawn?
     hands.any?(&:drawn?)
+  end
+
+  def riichi?
+    current_state.riichi?
   end
 
   def score
@@ -152,6 +167,11 @@ class Player < ApplicationRecord
 
   def can_tsumo?
     HandEvaluator.can_tsumo?(hands, melds, game.round_wind_number, wind_number, situational_tsumo_yaku_list)
+  end
+
+  def can_ron?(tile)
+    return false unless tenpai?
+    HandEvaluator.can_ron?(hands, melds, tile, relation_from_current_player, game.round_wind_number, wind_number, situational_ron_yaku_list(tile))
   end
 
   private
@@ -204,9 +224,9 @@ class Player < ApplicationRecord
     def create_stole_melds(target_player, furo_type, furo_tiles, discarded_tile)
       relation_seat_number = (target_player.seat_order - seat_order) % PLAYERS_COUNT
       melds = build_melds(relation_seat_number, furo_tiles, discarded_tile)
-      melds.each_with_index do |tile, number|
+      melds.each_with_index do |tile, position|
         from = tile == discarded_tile ? relation_seat_number : nil
-        current_state.melds.create!(tile:, kind: furo_type, number:, from:)
+        current_state.melds.create!(tile:, kind: furo_type, position:, from:)
       end
     end
 
@@ -313,6 +333,10 @@ class Player < ApplicationRecord
       HandEvaluator.calculate_shanten(hands, melds)
     end
 
+    def tenpai?
+      shanten.zero?
+    end
+
     def complete?
       shanten.negative?
     end
@@ -321,14 +345,28 @@ class Player < ApplicationRecord
       game.remaining_tile_count.zero? && complete?
     end
 
+    def can_houtei_ron?(tile)
+      test_hands = hands.dup << tile
+      shanten = HandEvaluator.calculate_shanten(test_hands, melds)
+      game.remaining_tile_count.zero? && shanten.negative?
+    end
+
     def can_rinshan_tsumo?
       return false unless complete?
       hands.any? { |hand| hand.drawn && hand.rinshan }
     end
 
+    def can_chankan?(meld)
+      return false unless meld.is_a?(Meld)
+
+      test_hands = hands.dup << meld
+      shanten = HandEvaluator.calculate_shanten(test_hands, melds)
+      meld.kind == 'kakan' && shanten.negative?
+    end
+
     def situational_tsumo_yaku_list
       {
-        riichi: current_state.riichi?,
+        riichi: riichi?,
         haitei: can_haitei_tsumo?,
         rinshan: can_rinshan_tsumo?,
         double_riichi: false, # ツモ可否判定では不要のため false で固定
@@ -337,6 +375,20 @@ class Player < ApplicationRecord
         chiihou: false,       # ロン和了の状況役のため false で固定
         houtei: false,        # 同上
         chankan: false        # 同上
+      }
+    end
+
+    def situational_ron_yaku_list(tile)
+      {
+        riichi: riichi?,
+        houtei: can_houtei_ron?(tile),
+        chankan: can_chankan?(tile),
+        chiihou: false,       # ロン和了の状況役のため false で固定
+        haitei: false,        # ロン和了の状況役のため false で固定
+        rinshan: false,       # 同上
+        double_riichi: false, # 同上
+        tenhou: false,        # 同上
+        ippatsu: false        # 同上
       }
     end
 end
