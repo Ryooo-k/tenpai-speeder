@@ -6,8 +6,8 @@ module GameTestHelper
   ZIHAI_NAMES = %w[ton nan sha pei haku hatsu chun].freeze
   ORDER_WORDS = %w[first second third fourth].freeze
   CHI_RE = /\A([mps])(?:[1-9]\+[1-9]{2}|[1-9]{2}\+[1-9]|[1-9]{3}\+)\z/
-  MPS_TRIPLET_OR_QUAD_RE = /\A(?<suit>[mps])(?<rank>[1-9])\k<rank>{2,3}(?<rel>[+=-])?\z/
-  Z_TRIPLET_OR_QUAD_RE   = /\A(?<suit>z)(?<rank>[1-7])\k<rank>{2,3}(?<rel>[+=-])?\z/
+  MPS_TRIPLET_OR_QUAD_RE = /\A(?<suit>[mps])(?<number>[1-9])\k<number>{2,3}(?<rel>[+=-])?\z/
+  Z_TRIPLET_OR_QUAD_RE   = /\A(?<suit>z)(?<number>[1-7])\k<number>{2,3}(?<rel>[+=-])?\z/
 
 
   def find_game_from_url
@@ -54,29 +54,29 @@ module GameTestHelper
   # patterns: String または Array<String>
   # 例) 'z111= m1+23 p12+3 z1111='  /  ['z111=', 'm1+23']
   def set_melds(patterns, player)
-    tokens = Array(patterns).join(' ').split(/[,\s]+/).reject(&:empty?)
+    meld_combos = Array(patterns).join(' ').split(/[,\s]+/).reject(&:empty?)
 
-    tokens.flat_map do |tok|
-      case tok
+    meld_combos.flat_map do |meld_combo|
+      case meld_combo
       when CHI_RE
-        suit       = tok[0]
-        plus_index = tok.index('+') - 1
-        digits     = tok[1..].delete('+').chars.map!(&:to_i)
+        suit       = meld_combo[0]
+        from_index = meld_combo.index('+') - 2
+        numbers    = meld_combo[1..].delete('+').chars.map!(&:to_i)
 
         build_meld_set(
-          kind:       :chi,
-          suit:       suit,
-          ranks:      digits,
-          from_index: plus_index,
-          relation:   :kamicha,
-          player:     player
+          kind: :chi,
+          suit:,
+          numbers:,
+          from_index:,
+          relation: :kamicha,
+          player:
         )
 
       when MPS_TRIPLET_OR_QUAD_RE, Z_TRIPLET_OR_QUAD_RE
         suit     = Regexp.last_match[:suit]
-        rank     = Regexp.last_match[:rank].to_i
+        number   = Regexp.last_match[:number].to_i
         mark     = Regexp.last_match[:rel]
-        tiles_n  = tok.count('0-9')
+        tiles_n  = meld_combo.count('0-9')
 
         kind =
           if tiles_n == 4
@@ -88,44 +88,27 @@ module GameTestHelper
         relation = mark && RELATION_BY_MARK[mark]
 
         build_meld_set(
-          kind:       kind,
-          suit:       suit,
-          ranks:      Array.new(tiles_n, rank),
+          kind:,
+          suit:,
+          numbers: Array.new(tiles_n, number),
           from_index: (tiles_n == 4 ? 3 : 2),
-          relation:   relation,
-          player:     player
+          relation:,
+          player:
         )
       end
     end
+
+    player.current_state.melds
   end
 
-  def build_meld_set(kind:, suit:, ranks:, from_index:, relation:, player:)
-    usage = Hash.new(0)
+  def build_meld_set(kind:, suit:, numbers:, from_index:, relation:, player:)
+    tiles = player.game.tiles
+    suit_name = SUIT_NAMES[suit].to_sym
 
-    ranks.each_with_index.map do |rank, index|
-      usage_key = "#{suit}#{rank}"
-      order_idx = usage[usage_key]
-      usage[usage_key] += 1
-      position = index + 1
-
-      tile_sym = tile_fixture_symbol(suit, rank, order_idx)
-      attrs = {
-        tile:         tiles(tile_sym),
-        player_state: player.current_state,
-        kind:,
-        position:
-      }
-      attrs[:from] = relation if relation && position == from_index
-      Meld.create!(**attrs)
-    end
-  end
-
-  def tile_fixture_symbol(suit, rank, order_idx)
-    ord = ORDER_WORDS.fetch(order_idx)
-    if suit == 'z'
-      :"#{ord}_#{ZIHAI_NAMES.fetch(rank - 1)}"
-    else
-      :"#{ord}_#{SUIT_NAMES.fetch(suit)}_#{rank}"
+    numbers.each_with_index.map do |number, position|
+      tile = tiles.joins(:base_tile).find_by!(base_tile: { suit: suit_name, number: number })
+      from = relation if relation && position == from_index
+      player.current_state.melds.create!(tile:, kind:, position:, from:)
     end
   end
 
@@ -134,7 +117,7 @@ module GameTestHelper
     suit = SUIT_NAMES[tile_name[0]]
     number = tile_name[1].to_i
 
-    target_tile = game.latest_honba.tile_orders.joins(tile: :base_tile).find_by(base_tiles: { number:, suit:} )
+    target_tile = game.latest_honba.tile_orders.joins(tile: :base_tile).find_by(base_tiles: { number:, suit: })
     game.latest_honba.tile_orders.find_by(order: draw_count).update!(order: target_tile.order)
     target_tile.update!(order: draw_count)
   end
