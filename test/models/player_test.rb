@@ -823,7 +823,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns true：メンゼン聴牌の場合' do
-    hands = set_hands('m111 p222 s333 z444 m99', player: players(:ryo))
+    hands = set_hands('m111 p222 s333 z444 m99', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       result = @user_player.can_tsumo?
@@ -832,7 +832,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns false：ノーテンの場合' do
-    hands = set_hands('m123456789 p19 s19', player: players(:ryo))
+    hands = set_hands('m123456789 p19 s19', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       result = @user_player.can_tsumo?
@@ -841,8 +841,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns false：役無しの形式聴牌 + 状況役が鳴い場合' do
-    hands = set_hands('m123 p222 s333 m99', player: players(:ryo))
-    melds = set_melds('m888-', player: players(:ryo))
+    hands = set_hands('m123 p222 s333 m99', players(:ryo))
+    melds = set_melds('m888-', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -853,8 +853,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns true：役無し聴牌 + 状況役（立直）がある場合' do
-    hands = set_hands('m123 p222 s333 m99', player: players(:ryo))
-    melds = set_melds('m888-', player: players(:ryo))
+    hands = set_hands('m123 p222 s333 m99', players(:ryo))
+    melds = set_melds('m888-', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -867,8 +867,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns true：役無し聴牌 + 状況役（海底摸月）がある場合' do
-    hands = set_hands('m123 p222 s333 m99', player: players(:ryo))
-    melds = set_melds('m888-', player: players(:ryo))
+    hands = set_hands('m123 p222 s333 m99', players(:ryo))
+    melds = set_melds('m888-', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -881,8 +881,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns true：役無し聴牌 + 状況役（嶺上開花）がある場合' do
-    hands = set_hands('m123 p222 s333 m99', player: players(:ryo))
-    melds = set_melds('m888-', player: players(:ryo))
+    hands = set_hands('m123 p222 s333 m99', players(:ryo))
+    melds = set_melds('m888-', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -895,7 +895,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：役ありメンゼン聴牌の場合' do
-    hands = set_hands('m123456789 p23 z33', player: players(:ryo))
+    hands = set_hands('m123456789 p23 z33', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       result = @user_player.can_ron?(tiles(:first_pinzu_1))
@@ -904,7 +904,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns false：役無しメンゼン形式聴牌の場合' do
-    hands = set_hands('m111456789 p23 z33', player: players(:ryo))
+    hands = set_hands('m111456789 p23 z33', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:relation_from_current_player, :toimen) do
@@ -915,8 +915,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：副露役あり聴牌の場合' do
-    hands = set_hands('p23 z33', player: players(:ryo))
-    melds = set_melds('m123+ m456+ m789+', player: players(:ryo))
+    hands = set_hands('p23 z33', players(:ryo))
+    melds = set_melds('m123+ m456+ m789+', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -927,8 +927,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns false：副露役無し聴牌の場合' do
-    hands = set_hands('p23 z33', player: players(:ryo))
-    melds = set_melds('m111+ m456+ m789+', player: players(:ryo))
+    hands = set_hands('p23 z33', players(:ryo))
+    melds = set_melds('m111+ m456+ m789+', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -939,8 +939,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：役無し聴牌 + 状況役（河底撈魚）がある場合' do
-    hands = set_hands('p23 z33', player: players(:ryo))
-    melds = set_melds('m111+ m456+ m789+', player: players(:ryo))
+    hands = set_hands('p23 z33', players(:ryo))
+    melds = set_melds('m111+ m456+ m789+', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -953,8 +953,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：役無し聴牌 + 状況役（搶槓）がある場合' do
-    hands = set_hands('p23 z33', player: players(:ryo))
-    melds = set_melds('m111+ m456+ m789+', player: players(:ryo))
+    hands = set_hands('p23 z33', players(:ryo))
+    melds = set_melds('m111+ m456+ m789+', players(:ryo))
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do

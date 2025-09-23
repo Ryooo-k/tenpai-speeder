@@ -19,37 +19,37 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns true：役無しメンゼン4面子1雀頭の場合' do
-    hands = set_hands('m111 p234567 s23455', player: players(:ryo))
+    hands = set_hands('m111 p234567 s23455', players(:ryo))
     situational_yaku_list = build_situational_yaku_list
     result = HandEvaluator.can_tsumo?(hands, @empty_melds, @round_wind, @player_wind, situational_yaku_list)
     assert result
   end
 
   test '#can_tsumo? returns true：役あり1副露の4面子1雀頭の場合' do
-    hands = set_hands('z22 m123 p456 s999', player: players(:ryo))
-    melds = set_melds('z111=', player: players(:ryo))
+    hands = set_hands('z22 m123 p456 s999', players(:ryo))
+    melds = set_melds('z111=', players(:ryo))
     situational_yaku_list = build_situational_yaku_list
     result = HandEvaluator.can_tsumo?(hands, melds, @round_wind, @player_wind, situational_yaku_list)
     assert result
   end
 
   test '#can_tsumo? returns false：メンゼン4面子 雀頭無しの場合' do
-    hands = set_hands('m123 p456 s999 z12345', player: players(:ryo))
+    hands = set_hands('m123 p456 s999 z12345', players(:ryo))
     situational_yaku_list = build_situational_yaku_list
     result = HandEvaluator.can_tsumo?(hands, @empty_melds, @round_wind, @player_wind, situational_yaku_list)
     assert_not result
   end
 
   test '#can_tsumo? returns true：形式聴牌+状況役がある場合' do
-    hands = set_hands('m123 p456 s999 z44455', player: players(:ryo), rinshan: true)
-    melds = set_melds('z333=', player: players(:ryo))
+    hands = set_hands('m123 p456 s999 z44455', players(:ryo), rinshan: true)
+    melds = set_melds('z333=', players(:ryo))
     situational_yaku_list = build_situational_yaku_list(haitei: true)
     result = HandEvaluator.can_tsumo?(hands, melds, @round_wind, @player_wind, situational_yaku_list)
     assert result
   end
 
   test '#can_ron? returns true：役ありメンゼンの場合（一気通貫）' do
-    hands = set_hands('m12345678 p11 s999', player: players(:ryo))
+    hands = set_hands('m12345678 p11 s999', players(:ryo))
     target_tile = tiles(:first_manzu_9)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -58,8 +58,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：鳴き役ありの場合（一気通貫）' do
-    hands = set_hands('m45678 p11 s999', player: players(:ryo))
-    melds = set_melds('m123+', player: players(:ryo))
+    hands = set_hands('m45678 p11 s999', players(:ryo))
+    melds = set_melds('m123+', players(:ryo))
     target_tile = tiles(:first_manzu_9)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -68,7 +68,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns false：役無し形式聴牌の場合' do
-    hands = set_hands('m11145678 p11 s999', player: players(:ryo))
+    hands = set_hands('m11145678 p11 s999', players(:ryo))
     target_tile = tiles(:first_manzu_9)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -77,7 +77,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：手役無し状況役ありの場合' do
-    hands = set_hands('m11145678 p11 s999', player: players(:ryo))
+    hands = set_hands('m11145678 p11 s999', players(:ryo))
     target_meld = Meld.create!(tile: tiles(:first_manzu_9), kind: 'kakan', player_state: player_states(:tenpai_speeder), position: 3)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list(chankan: true)
@@ -86,7 +86,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：天和 → 13飜' do
-    hands = set_hands('m111 p234567 s23455', player: players(:ryo))
+    hands = set_hands('m111 p234567 s23455', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(tenhou: true)
     relation = :self
@@ -98,7 +98,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：地和 → 13飜' do
-    hands = set_hands('m111 p234567 s23455', player: players(:ryo))
+    hands = set_hands('m111 p234567 s23455', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(chiihou: true)
     relation = :shimocha
@@ -110,7 +110,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：立直(1) 一発 海底摸月 門前清自摸和 → 合計4飜' do
-    hands = set_hands('m111 p234567 s23455', player: players(:ryo))
+    hands = set_hands('m111 p234567 s23455', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(ippatsu: true, riichi: true, haitei: true)
     relation = :self
@@ -122,7 +122,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：ダブル立直(2) 河底撈魚 槍槓 → 合計4飜' do
-    hands = set_hands('m111 p234567 s23455', player: players(:ryo))
+    hands = set_hands('m111 p234567 s23455', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(double_riichi: true, houtei: true, chankan: true)
     relation = :toimen
@@ -134,7 +134,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：門前清自摸和 嶺上開花 → 合計2飜' do
-    hands = set_hands('m111 p234567 s23455', player: players(:ryo))
+    hands = set_hands('m111 p234567 s23455', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     situational_yaku_list = build_situational_yaku_list(rinshan: true)
     relation = :self
@@ -147,8 +147,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test '#get_score_summaries：場風 東 → 合計1飜' do
     # z1：東
-    hands = set_hands('p234567 s23455', player: players(:ryo))
-    melds = set_melds('z111=', player: players(:ryo))
+    hands = set_hands('p234567 s23455', players(:ryo))
+    melds = set_melds('z111=', players(:ryo))
     agari_tile = tiles(:first_pinzu_2)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
@@ -162,8 +162,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test '#get_score_summaries：自風 南 → 合計1飜' do
     # z2:南
-    hands = set_hands('p234567 s23455', player: players(:ryo))
-    melds = set_melds('z222=', player: players(:ryo))
+    hands = set_hands('p234567 s23455', players(:ryo))
+    melds = set_melds('z222=', players(:ryo))
     agari_tile = tiles(:first_pinzu_2)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
@@ -177,8 +177,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test '#get_score_summaries：翻牌 白 → 合計1飜' do
     # z5:白
-    hands = set_hands('p234567 s23455', player: players(:ryo))
-    melds = set_melds('z555=', player: players(:ryo))
+    hands = set_hands('p234567 s23455', players(:ryo))
+    melds = set_melds('z555=', players(:ryo))
     agari_tile = tiles(:first_pinzu_2)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
@@ -190,7 +190,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：平和 → 合計1飜' do
-    hands = set_hands('m123 p123456 s789 z22', player: players(:ryo), drawn: false)
+    hands = set_hands('m123 p123456 s789 z22', players(:ryo), drawn: false)
     agari_tile = tiles(:first_souzu_9)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -202,7 +202,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：タンヤオ → 合計1飜' do
-    hands = set_hands('m222 p234567 s23455', player: players(:ryo), drawn: false)
+    hands = set_hands('m222 p234567 s23455', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -214,7 +214,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：一盃口 → 合計1飜' do
-    hands = set_hands('m112233 p234567 s55', player: players(:ryo), drawn: false)
+    hands = set_hands('m112233 p234567 s55', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -226,7 +226,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：三色同順(面前) → 合計2飜' do
-    hands = set_hands('m123 p123 s123567 z22', player: players(:ryo), drawn: false)
+    hands = set_hands('m123 p123 s123567 z22', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -238,8 +238,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：三色同順(鳴き) → 合計1飜' do
-    hands = set_hands('m123 s123567 z22', player: players(:ryo), drawn: false)
-    melds = set_melds('p123+', player: players(:ryo))
+    hands = set_hands('m123 s123567 z22', players(:ryo), drawn: false)
+    melds = set_melds('p123+', players(:ryo))
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -251,7 +251,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：一気通貫(面前) → 合計2飜' do
-    hands = set_hands('m123456789 p234 z22', player: players(:ryo), drawn: false)
+    hands = set_hands('m123456789 p234 z22', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -263,8 +263,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：一気通貫(鳴き) → 合計1飜' do
-    hands = set_hands('m456789 p234 z22', player: players(:ryo), drawn: false)
-    melds = set_melds('m123+', player: players(:ryo))
+    hands = set_hands('m456789 p234 z22', players(:ryo), drawn: false)
+    melds = set_melds('m123+', players(:ryo))
     agari_tile = tiles(:first_manzu_4)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -276,7 +276,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：混全帯幺九(面前) → 合計2飜' do
-    hands = set_hands('m123789 p111999 z22', player: players(:ryo), drawn: false)
+    hands = set_hands('m123789 p111999 z22', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -288,8 +288,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：混全帯幺九(鳴き) → 合計1飜' do
-    hands = set_hands('m789 p111999 z22', player: players(:ryo), drawn: false)
-    melds = set_melds('m123+', player: players(:ryo))
+    hands = set_hands('m789 p111999 z22', players(:ryo), drawn: false)
+    melds = set_melds('m123+', players(:ryo))
     agari_tile = tiles(:first_manzu_9)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -301,7 +301,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：七対子 → 合計2飜' do
-    hands = set_hands('m1133557799 p1199', player: players(:ryo), drawn: false)
+    hands = set_hands('m1133557799 p1199', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -313,7 +313,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：七対子 混一色 → 合計5飜' do
-    hands = set_hands('m1133557799 z1122', player: players(:ryo), drawn: false)
+    hands = set_hands('m1133557799 z1122', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -325,7 +325,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：七対子 清一色 → 合計8飜' do
-    hands = set_hands('m11223355668899', player: players(:ryo), drawn: false)
+    hands = set_hands('m11223355668899', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -338,8 +338,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
 
   test '#get_score_summaries：対々和 → 合計2飜' do
-    hands = set_hands('m333 p111222 z22', player: players(:ryo), drawn: false)
-    melds = set_melds('m111+', player: players(:ryo))
+    hands = set_hands('m333 p111222 z22', players(:ryo), drawn: false)
+    melds = set_melds('m111+', players(:ryo))
     agari_tile = tiles(:first_manzu_3)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -351,8 +351,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：三暗刻 → 合計2飜' do
-    hands = set_hands('m111333444 z22', player: players(:ryo))
-    melds = set_melds('p123+', player: players(:ryo))
+    hands = set_hands('m111333444 z22', players(:ryo))
+    melds = set_melds('p123+', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
@@ -364,8 +364,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：三槓子 → 合計2飜' do
-    hands = set_hands('p123 z22', player: players(:ryo))
-    melds = set_melds('m1111 m2222= m3333', player: players(:ryo))
+    hands = set_hands('p123 z22', players(:ryo))
+    melds = set_melds('m1111 m2222= m3333', players(:ryo))
     agari_tile = tiles(:first_pinzu_1)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
@@ -377,8 +377,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：三色同刻 → 合計2飜' do
-    hands = set_hands('p123 z22', player: players(:ryo))
-    melds = set_melds('m222- p222= s222+', player: players(:ryo))
+    hands = set_hands('p123 z22', players(:ryo))
+    melds = set_melds('m222- p222= s222+', players(:ryo))
     agari_tile = tiles(:first_pinzu_1)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
@@ -390,8 +390,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：混老頭 対々和 → 合計4飜' do
-    hands = set_hands('m999 z22233', player: players(:ryo))
-    melds = set_melds('m111= p111=', player: players(:ryo))
+    hands = set_hands('m999 z22233', players(:ryo))
+    melds = set_melds('m111= p111=', players(:ryo))
     agari_tile = tiles(:first_manzu_9)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
@@ -403,7 +403,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：混老頭 七対子 → 合計4飜' do
-    hands = set_hands('m1199 p1199 s1199 z11', player: players(:ryo), drawn: false)
+    hands = set_hands('m1199 p1199 s1199 z11', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -415,8 +415,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：小三元 → 合計4飜' do
-    hands = set_hands('p234 z55566677', player: players(:ryo), drawn: false)
-    melds = set_melds('m234+', player: players(:ryo))
+    hands = set_hands('p234 z55566677', players(:ryo), drawn: false)
+    melds = set_melds('m234+', players(:ryo))
     agari_tile = tiles(:first_chun)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -428,7 +428,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：純全帯幺九 → 合計3飜' do
-    hands = set_hands('m111789 p123789 s11', player: players(:ryo), drawn: false)
+    hands = set_hands('m111789 p123789 s11', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -440,7 +440,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：二盃口' do
-    hands = set_hands('m112233 p445566 s11', player: players(:ryo), drawn: false)
+    hands = set_hands('m112233 p445566 s11', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -452,7 +452,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：清一色 → 合計6飜' do
-    hands = set_hands('m11122245678999', player: players(:ryo), drawn: false)
+    hands = set_hands('m11122245678999', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -464,7 +464,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：国士無双 → 合計13飜' do
-    hands = set_hands('m19 p19 s19 z12345677', player: players(:ryo), drawn: false)
+    hands = set_hands('m19 p19 s19 z12345677', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -476,7 +476,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：国士無双十三面 → 合計13飜' do
-    hands = set_hands('m119 p19 s19 z1234567', player: players(:ryo), drawn: false)
+    hands = set_hands('m119 p19 s19 z1234567', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -488,7 +488,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：四暗刻単騎 → 合計13飜' do
-    hands = set_hands('m111222 p333444 s55', player: players(:ryo))
+    hands = set_hands('m111222 p333444 s55', players(:ryo))
     agari_tile = tiles(:first_souzu_5)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
@@ -500,7 +500,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：四暗刻 → 合計13飜' do
-    hands = set_hands('m111222 p333444 s55', player: players(:ryo))
+    hands = set_hands('m111222 p333444 s55', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
@@ -512,7 +512,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：大三元 → 合計13飜' do
-    hands = set_hands('m234 p22 z555666777', player: players(:ryo), drawn: false)
+    hands = set_hands('m234 p22 z555666777', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -524,8 +524,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：大四喜 → 合計13飜' do
-    hands = set_hands('m11', player: players(:ryo))
-    melds = set_melds('z111= z222= z333= z444=', player: players(:ryo))
+    hands = set_hands('m11', players(:ryo))
+    melds = set_melds('z111= z222= z333= z444=', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -537,8 +537,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：小四喜 → 合計13飜' do
-    hands = set_hands('z11', player: players(:ryo))
-    melds = set_melds('m111= z222= z333= z444=', player: players(:ryo))
+    hands = set_hands('z11', players(:ryo))
+    melds = set_melds('m111= z222= z333= z444=', players(:ryo))
     agari_tile = tiles(:first_ton)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -550,8 +550,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：字一色 → 合計13飜' do
-    hands = set_hands('z66', player: players(:ryo))
-    melds = set_melds('z222= z333= z444= z555=', player: players(:ryo))
+    hands = set_hands('z66', players(:ryo))
+    melds = set_melds('z222= z333= z444= z555=', players(:ryo))
     agari_tile = tiles(:first_hatsu)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -563,7 +563,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：緑一色 → 合計13飜' do
-    hands = set_hands('s223344666888 z66', player: players(:ryo))
+    hands = set_hands('s223344666888 z66', players(:ryo))
     agari_tile = tiles(:first_hatsu)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -575,8 +575,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：清老頭 → 合計13飜' do
-    hands = set_hands('m111999 p111 s11', player: players(:ryo))
-    melds = set_melds('p999=', player: players(:ryo))
+    hands = set_hands('m111999 p111 s11', players(:ryo))
+    melds = set_melds('p999=', players(:ryo))
     agari_tile = tiles(:first_souzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -588,8 +588,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#get_score_summaries：四槓子 → 合計13飜' do
-    hands = set_hands('s11', player: players(:ryo))
-    melds = set_melds('m1111 p2222= s3333 z4444=', player: players(:ryo))
+    hands = set_hands('s11', players(:ryo))
+    melds = set_melds('m1111 p2222= s3333 z4444=', players(:ryo))
     agari_tile = tiles(:first_souzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
@@ -601,58 +601,58 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   end
 
   test '#calculate_shanten：m111222333 p259 z1（メンゼン通常手ノーテン） の向聴数 → 2' do
-    hands = set_hands('m111222333 p259 z1', player: players(:ryo))
+    hands = set_hands('m111222333 p259 z1', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
     assert_equal 2, result
   end
 
   test '#calculate_shanten：m111222333 p45 z11（メンゼン通常手 聴牌） の向聴数 → 0' do
-    hands = set_hands('m111222333 p45 z11', player: players(:ryo))
+    hands = set_hands('m111222333 p45 z11', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
     assert_equal 0, result
   end
 
   test '#calculate_shanten：m111222333 p259 z1（鳴き通常手ノーテン） の向聴数 → 2' do
-    hands = set_hands('m333 p259 z1', player: players(:ryo))
-    melds = set_melds('m111- m2222-', player: players(:ryo))
+    hands = set_hands('m333 p259 z1', players(:ryo))
+    melds = set_melds('m111- m2222-', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, melds)
     assert_equal 2, result
   end
 
   test '#calculate_shanten：m111222333 p45 z11（鳴き通常手 聴牌） の向聴数 → 0' do
-    hands = set_hands('m333 p45 z11', player: players(:ryo))
-    melds = set_melds('m111- m2222-', player: players(:ryo))
+    hands = set_hands('m333 p45 z11', players(:ryo))
+    melds = set_melds('m111- m2222-', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, melds)
     assert_equal 0, result
   end
 
   test '#calculate_shanten：m159 p159 s159 z1234（国士無双ノーテン）の向聴数 → 3' do
-    hands = set_hands('m159 p159 s159 z1234', player: players(:ryo))
+    hands = set_hands('m159 p159 s159 z1234', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
     assert_equal 3, result
   end
 
   test '#calculate_shanten：m19 p19 s19 z1234567（国士無双 聴牌）の向聴数 → 0' do
-    hands = set_hands('m19 p19 s19 z1234567', player: players(:ryo))
+    hands = set_hands('m19 p19 s19 z1234567', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
     assert_equal 0, result
   end
 
   test '#calculate_shanten：m11335577 p19 s19 z1（七対子ノーテン）の向聴数 → 4' do
-    hands = set_hands('m1133579 p159 s19 z1', player: players(:ryo))
+    hands = set_hands('m1133579 p159 s19 z1', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
     assert_equal 4, result
   end
 
   test '#calculate_shanten：m1133577 p1199 s11 z1（七対子 聴牌）の向聴数 → 0' do
-    hands = set_hands('m1133577 p1199 s11 z1', player: players(:ryo))
+    hands = set_hands('m1133577 p1199 s11 z1', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
     assert_equal 0, result
   end
 
   test '#get_score_summaries：九蓮宝燈 → 合計13飜' do
     # m11112345678999
-    hands = set_hands('m11112345678999', player: players(:ryo))
+    hands = set_hands('m11112345678999', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list

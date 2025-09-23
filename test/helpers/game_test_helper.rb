@@ -2,7 +2,7 @@
 
 module GameTestHelper
   RELATION_BY_MARK = { '-' => :shimocha, '=' => :toimen, '+' => :kamicha }.freeze
-  SUIT_NAMES  = { 'm' => 'manzu', 'p' => 'pinzu', 's' => 'souzu' }.freeze
+  SUIT_NAMES  = { 'm' => 'manzu', 'p' => 'pinzu', 's' => 'souzu', 'z' => 'zihai' }.freeze
   ZIHAI_NAMES = %w[ton nan sha pei haku hatsu chun].freeze
   ORDER_WORDS = %w[first second third fourth].freeze
   CHI_RE = /\A([mps])(?:[1-9]\+[1-9]{2}|[1-9]{2}\+[1-9]|[1-9]{3}\+)\z/
@@ -34,44 +34,26 @@ module GameTestHelper
     { tenhou:, chiihou:, riichi:, double_riichi:, ippatsu:, haitei:, houtei:, rinshan:, chankan: }
   end
 
-  def set_hands(pattern, player:, drawn: :last, rinshan: false)
+  def set_hands(pattern, player, drawn: true, rinshan: false)
     player.current_state.hands.delete_all
-    tile_fixture_names = []
+    game = player.game
 
     pattern.delete(' ').scan(/([mpsz])([0-9]+)/) do |suit, numbers|
-      counts = Hash.new(0)
+      suit_name = SUIT_NAMES[suit].to_sym
       numbers.chars.each do |number|
         n = number.to_i
-        counts[n] += 1
 
-        order = ORDER_WORDS.fetch(counts[n] - 1)
-        tile_fixture_name =
-          if suit == 'z'
-            tile = ZIHAI_NAMES.fetch(n - 1)
-            :"#{order}_#{tile}"
-          else
-            tile = "#{SUIT_NAMES.fetch(suit)}_#{n}"
-            :"#{order}_#{tile}"
-          end
-
-        tile_fixture_names << tile_fixture_name
+        tile = game.tiles.joins(:base_tile).find_by!(base_tile: { suit: suit_name, number: n })
+        player.current_state.hands.create!(tile:)
       end
     end
-
-    tile_fixture_names.map.with_index do |name, index|
-      is_drawn = drawn == :last && index == tile_fixture_names.length - 1
-
-      player.current_state.hands.create!(
-        tile: tiles(name),
-        drawn: is_drawn,
-        rinshan: is_drawn && rinshan
-      )
-    end
+    player.hands.last.update!(drawn:, rinshan:)
+    player.hands
   end
 
   # patterns: String または Array<String>
   # 例) 'z111= m1+23 p12+3 z1111='  /  ['z111=', 'm1+23']
-  def set_melds(patterns, player:)
+  def set_melds(patterns, player)
     tokens = Array(patterns).join(' ').split(/[,\s]+/).reject(&:empty?)
 
     tokens.flat_map do |tok|
