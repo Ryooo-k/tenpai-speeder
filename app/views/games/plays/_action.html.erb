@@ -1,0 +1,37 @@
+<% case @action %>
+<% when :draw %>
+  <%= form_with url: game_action_draw_path(@game),
+                method: :post,
+                data: { controller: "auto-submit" } %>
+
+<% when :tsumo %>
+    <%= render partial: "tsumo" %>
+
+<% when :choose %>
+  <% if @game.current_player.ai? %>
+    <%= form_with url: game_action_choose_path(@game),
+                  method: :get,
+                  data: { controller: "auto-submit" } %>
+  <% end %>
+
+<% when :discard %>
+  <%= form_with url: game_action_discard_path(@game),
+                method: :post,
+                data: { controller: "auto-submit" } do |form| %>
+    <%= form.hidden_field :chosen_hand_id, value: @chosen_hand_id %>
+  <% end %>
+
+<% when :ron_confirmation %>
+    <%= render partial: "ron_confirmation" %>
+
+<% when :ron %>
+  <%= form_with url: game_action_ron_path(@game),
+                method: :post,
+                data: { controller: "auto-submit" } do |form| %>
+    <%= form.hidden_field :discard_tile_id, value: @discard_tile_id %>
+    <%= form.hidden_field :ron_claimer_ids, value: @ron_claimer_ids %>
+  <% end %>
+
+<% when :furo %>
+    <%= render partial: "furos" %>
+<% end %>

@@ -9,6 +9,13 @@ module ScoreInputNormalizer
   }
 
   class << self
+    def normalize(hands, melds, target, relation)
+      normalized_hands = normalize_hands(hands)
+      normalized_melds = normalize_melds(melds)
+      normalized_target = normalize_target(target, relation)
+      [ normalized_hands, normalized_melds, normalized_target ]
+    end
+
     def normalize_hands(hands)
       normalized_hands = {
         m: Array.new(9, 0),
@@ -18,8 +25,8 @@ module ScoreInputNormalizer
       }
 
       hands.each do |hand|
-        suit = hand.tile.suit.first.to_sym
-        number_index = hand.tile.number - 1
+        suit = hand.suit.first.to_sym
+        number_index = hand.number - 1
         normalized_hands[suit][number_index] += 1
       end
       normalized_hands
@@ -33,9 +40,9 @@ module ScoreInputNormalizer
       [ pon_and_kakan, chi, daiminkan, ankan ].flatten
     end
 
-    def normalize_agari_tile(tile, relation)
-      suit = tile.suit.first
-      number = tile.number
+    def normalize_target(target, relation)
+      suit = target.suit.first
+      number = target.number
 
       case relation
       when :self

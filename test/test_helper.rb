@@ -3,6 +3,7 @@
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
+require 'debug'
 
 module ActiveSupport
   class TestCase
@@ -13,5 +14,6 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+    Dir[Rails.root.join('test', 'helpers', '**', '*.rb')].each { |file| require file }
   end
 end

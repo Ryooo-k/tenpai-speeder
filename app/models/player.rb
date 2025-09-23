@@ -91,8 +91,23 @@ class Player < ApplicationRecord
     user_id.present?
   end
 
+  def host?
+    self == game.host_player
+  end
+
   def relation_from_user
     relation_seat_number = (user_seat_number - seat_order) % PLAYERS_COUNT
+
+    case relation_seat_number
+    when 0 then :self
+    when 1 then :kamicha
+    when 2 then :toimen
+    when 3 then :shimocha
+    end
+  end
+
+  def relation_from_current_player
+    relation_seat_number = (game.current_player.seat_order - seat_order) % PLAYERS_COUNT
 
     case relation_seat_number
     when 0 then :self
@@ -106,25 +121,34 @@ class Player < ApplicationRecord
     hands.any?(&:drawn?)
   end
 
+  def riichi?
+    current_state.riichi?
+  end
+
   def score
     game_records.ordered.last.score
+  end
+
+  def wind_number
+    wind_number = seat_order - host_seat_number
+    wind_number.positive? || wind_number.zero? ? wind_number : wind_number + PLAYERS_COUNT
   end
 
   def wind_name
     case wind_number
     when 0 then '東'
-    when 1 then '北'
+    when 1 then '南'
     when 2 then '西'
-    when 3 then '南'
+    when 3 then '北'
     end
   end
 
   def wind_code
     case wind_number
     when 0 then TON_TILE_CODE
-    when 1 then PEI_TILE_CODE
+    when 1 then NAN_TILE_CODE
     when 2 then SHA_TILE_CODE
-    when 3 then NAN_TILE_CODE
+    when 3 then PEI_TILE_CODE
     end
   end
 
@@ -139,6 +163,15 @@ class Player < ApplicationRecord
       chi: find_chi_candidates(target_tile, target_player),
       kan: find_kan_candidates(target_tile)
     }.compact
+  end
+
+  def can_tsumo?
+    HandEvaluator.can_tsumo?(hands, melds, game.round_wind_number, wind_number, situational_tsumo_yaku_list)
+  end
+
+  def can_ron?(tile)
+    return false unless tenpai?
+    HandEvaluator.can_ron?(hands, melds, tile, relation_from_current_player, game.round_wind_number, wind_number, situational_ron_yaku_list(tile))
   end
 
   private
@@ -156,7 +189,9 @@ class Player < ApplicationRecord
     end
 
     def base_states
-      player_states.up_to_step(current_step_number)
+      player_states
+        .for_honba(game.latest_honba)
+        .up_to_step(current_step_number)
     end
 
     def base_hands
@@ -189,9 +224,9 @@ class Player < ApplicationRecord
     def create_stole_melds(target_player, furo_type, furo_tiles, discarded_tile)
       relation_seat_number = (target_player.seat_order - seat_order) % PLAYERS_COUNT
       melds = build_melds(relation_seat_number, furo_tiles, discarded_tile)
-      melds.each_with_index do |tile, number|
+      melds.each_with_index do |tile, position|
         from = tile == discarded_tile ? relation_seat_number : nil
-        current_state.melds.create!(tile:, kind: furo_type, number:, from:)
+        current_state.melds.create!(tile:, kind: furo_type, position:, from:)
       end
     end
 
@@ -231,30 +266,22 @@ class Player < ApplicationRecord
       game.host_player.seat_order
     end
 
-    def wind_number
-      (host_seat_number - seat_order) % PLAYERS_COUNT
-    end
-
-    def hand_tiles
-      hands.map(&:tile)
-    end
-
     def find_kan_candidates(target_tile)
       return unless can_kan?(target_tile)
-      hands.select { |hand| hand.tile.code == target_tile.code }
+      hands.select { |hand| hand.code == target_tile.code }
     end
 
     def can_kan?(target_tile)
-      hand_tiles.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
+      hands.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
     end
 
     def find_pon_candidates(target_tile)
       return unless can_pon?(target_tile)
-      hands.select { |hand| hand.tile.code == target_tile.code }[..1]
+      hands.select { |hand| hand.code == target_tile.code }[..1]
     end
 
     def can_pon?(target_tile)
-      codes = hand_tiles.map(&:code)
+      codes = hands.map(&:code)
       return unless codes.include?(target_tile.code)
       codes.tally[target_tile.code] >= PON_REQUIRED_HAND_COUNT
     end
@@ -263,13 +290,13 @@ class Player < ApplicationRecord
       return unless can_chi?(target_tile, target_player)
 
       chi_candidates = []
-      hand_codes = hand_tiles.map(&:code)
+      hand_codes = hands.map(&:code)
       possible_chi_table = build_possible_chi_table(target_tile)
 
       possible_chi_table.each do |possible_chi_codes|
         if possible_chi_codes.all? { |code| hand_codes.include?(code) }
           chi_candidates << possible_chi_codes.map do |chi_code|
-                              hands.select { |hand| hand.tile.code == chi_code }.first
+                              hands.select { |hand| hand.code == chi_code }.first
                             end
         end
       end
@@ -280,7 +307,7 @@ class Player < ApplicationRecord
       kamicha_seat_order = (target_player.seat_order + 1) % PLAYERS_COUNT
       return if seat_order != kamicha_seat_order || target_tile.code >= TON_TILE_CODE
 
-      hand_codes = hand_tiles.map(&:code)
+      hand_codes = hands.map(&:code)
       possible_chi_table = build_possible_chi_table(target_tile)
       possible_chi_table.any? do |possible_chi_codes|
         possible_chi_codes.all? { |code| hand_codes.include?(code) }
@@ -296,5 +323,68 @@ class Player < ApplicationRecord
       candidates << [ code - 1, code + 1 ] if (2..8).include?(number)
       candidates << [ code + 1, code + 2 ] if number <= 7
       candidates
+    end
+
+    def shanten
+      HandEvaluator.calculate_shanten(hands, melds)
+    end
+
+    def tenpai?
+      shanten.zero?
+    end
+
+    def complete?
+      shanten.negative?
+    end
+
+    def can_haitei_tsumo?
+      game.remaining_tile_count.zero? && complete?
+    end
+
+    def can_houtei_ron?(tile)
+      test_hands = Array(hands) + [ tile ]
+      shanten = HandEvaluator.calculate_shanten(test_hands, melds)
+      game.remaining_tile_count.zero? && shanten.negative?
+    end
+
+    def can_rinshan_tsumo?
+      return false unless complete?
+      hands.any? { |hand| hand.drawn && hand.rinshan }
+    end
+
+    def can_chankan?(meld)
+      return false unless meld.is_a?(Meld)
+
+      test_hands = Array(hands) + [ meld ]
+      shanten = HandEvaluator.calculate_shanten(test_hands, melds)
+      meld.kind == 'kakan' && shanten.negative?
+    end
+
+    def situational_tsumo_yaku_list
+      {
+        riichi: riichi?,
+        haitei: can_haitei_tsumo?,
+        rinshan: can_rinshan_tsumo?,
+        double_riichi: false, # ツモ可否判定では不要のため false で固定
+        tenhou: false,        # 同上
+        ippatsu: false,       # 同上
+        chiihou: false,       # ロン和了の状況役のため false で固定
+        houtei: false,        # 同上
+        chankan: false        # 同上
+      }
+    end
+
+    def situational_ron_yaku_list(tile)
+      {
+        riichi: riichi?,
+        houtei: can_houtei_ron?(tile),
+        chankan: can_chankan?(tile),
+        chiihou: false,       # ロン和了の状況役のため false で固定
+        haitei: false,        # ロン和了の状況役のため false で固定
+        rinshan: false,       # 同上
+        double_riichi: false, # 同上
+        tenhou: false,        # 同上
+        ippatsu: false        # 同上
+      }
     end
 end

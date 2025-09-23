@@ -33,12 +33,12 @@ class ScoreInputNormalizerTest < ActiveSupport::TestCase
   test '#normalize_melds converts :pon melds and applies relation marks (-/=/+)' do
     # m111 z111
     melds = [
-      Meld.create!(tile: tiles(:first_manzu_1), player_state: player_states(:ryo), kind: :pon, number: 0, from: :shimocha),
-      Meld.create!(tile: tiles(:second_manzu_1), player_state: player_states(:ryo), kind: :pon, number: 1),
-      Meld.create!(tile: tiles(:third_manzu_1), player_state: player_states(:ryo), kind: :pon, number: 2),
-      Meld.create!(tile: tiles(:first_ton), player_state: player_states(:ryo), kind: :pon, number: 0, from: :toimen),
-      Meld.create!(tile: tiles(:second_ton), player_state: player_states(:ryo), kind: :pon, number: 1),
-      Meld.create!(tile: tiles(:third_ton), player_state: player_states(:ryo), kind: :pon, number: 2)
+      Meld.create!(tile: tiles(:first_manzu_1), player_state: player_states(:ryo), kind: :pon, position: 0, from: :shimocha),
+      Meld.create!(tile: tiles(:second_manzu_1), player_state: player_states(:ryo), kind: :pon, position: 1),
+      Meld.create!(tile: tiles(:third_manzu_1), player_state: player_states(:ryo), kind: :pon, position: 2),
+      Meld.create!(tile: tiles(:first_ton), player_state: player_states(:ryo), kind: :pon, position: 0, from: :toimen),
+      Meld.create!(tile: tiles(:second_ton), player_state: player_states(:ryo), kind: :pon, position: 1),
+      Meld.create!(tile: tiles(:third_ton), player_state: player_states(:ryo), kind: :pon, position: 2)
     ]
 
     result = ScoreInputNormalizer.normalize_melds(melds)
@@ -48,12 +48,12 @@ class ScoreInputNormalizerTest < ActiveSupport::TestCase
   test '#normalize_melds converts :chi melds and marks the taken tile position' do
     # m123 p123
     melds = [
-      Meld.create!(tile: tiles(:first_manzu_1), player_state: player_states(:ryo), kind: :chi, number: 0, from: :kamicha),
-      Meld.create!(tile: tiles(:first_manzu_2), player_state: player_states(:ryo), kind: :chi, number: 1),
-      Meld.create!(tile: tiles(:first_manzu_3), player_state: player_states(:ryo), kind: :chi, number: 2),
-      Meld.create!(tile: tiles(:first_pinzu_1), player_state: player_states(:ryo), kind: :chi, number: 1),
-      Meld.create!(tile: tiles(:first_pinzu_2), player_state: player_states(:ryo), kind: :chi, number: 0, from: :kamicha),
-      Meld.create!(tile: tiles(:first_pinzu_3), player_state: player_states(:ryo), kind: :chi, number: 2)
+      Meld.create!(tile: tiles(:first_manzu_1), player_state: player_states(:ryo), kind: :chi, position: 0, from: :kamicha),
+      Meld.create!(tile: tiles(:first_manzu_2), player_state: player_states(:ryo), kind: :chi, position: 1),
+      Meld.create!(tile: tiles(:first_manzu_3), player_state: player_states(:ryo), kind: :chi, position: 2),
+      Meld.create!(tile: tiles(:first_pinzu_1), player_state: player_states(:ryo), kind: :chi, position: 1),
+      Meld.create!(tile: tiles(:first_pinzu_2), player_state: player_states(:ryo), kind: :chi, position: 0, from: :kamicha),
+      Meld.create!(tile: tiles(:first_pinzu_3), player_state: player_states(:ryo), kind: :chi, position: 2)
     ]
 
     result = ScoreInputNormalizer.normalize_melds(melds)
@@ -63,13 +63,13 @@ class ScoreInputNormalizerTest < ActiveSupport::TestCase
   test '#normalize_melds handles :kakan by upgrading the pon to four' do
     # m111 z1111
     melds = [
-      Meld.create!(tile: tiles(:first_manzu_1), player_state: player_states(:ryo), kind: :pon, number: 0, from: :shimocha),
-      Meld.create!(tile: tiles(:second_manzu_1), player_state: player_states(:ryo), kind: :pon, number: 1),
-      Meld.create!(tile: tiles(:third_manzu_1), player_state: player_states(:ryo), kind: :pon, number: 2),
-      Meld.create!(tile: tiles(:first_ton), player_state: player_states(:ryo), kind: :pon, number: 0, from: :toimen),
-      Meld.create!(tile: tiles(:second_ton), player_state: player_states(:ryo), kind: :pon, number: 1),
-      Meld.create!(tile: tiles(:third_ton), player_state: player_states(:ryo), kind: :pon, number: 2),
-      Meld.create!(tile: tiles(:fourth_ton), player_state: player_states(:ryo), kind: :kakan, number: 3)
+      Meld.create!(tile: tiles(:first_manzu_1), player_state: player_states(:ryo), kind: :pon, position: 0, from: :shimocha),
+      Meld.create!(tile: tiles(:second_manzu_1), player_state: player_states(:ryo), kind: :pon, position: 1),
+      Meld.create!(tile: tiles(:third_manzu_1), player_state: player_states(:ryo), kind: :pon, position: 2),
+      Meld.create!(tile: tiles(:first_ton), player_state: player_states(:ryo), kind: :pon, position: 0, from: :toimen),
+      Meld.create!(tile: tiles(:second_ton), player_state: player_states(:ryo), kind: :pon, position: 1),
+      Meld.create!(tile: tiles(:third_ton), player_state: player_states(:ryo), kind: :pon, position: 2),
+      Meld.create!(tile: tiles(:fourth_ton), player_state: player_states(:ryo), kind: :kakan, position: 3)
     ]
 
     result = ScoreInputNormalizer.normalize_melds(melds)
@@ -78,10 +78,10 @@ class ScoreInputNormalizerTest < ActiveSupport::TestCase
 
   test '#normalize_melds formats :daiminkan' do
     melds = [
-      Meld.create!(tile: tiles(:first_ton), player_state: player_states(:ryo), kind: :daiminkan, number: 0, from: :toimen),
-      Meld.create!(tile: tiles(:second_ton), player_state: player_states(:ryo), kind: :daiminkan, number: 1),
-      Meld.create!(tile: tiles(:third_ton), player_state: player_states(:ryo), kind: :daiminkan, number: 2),
-      Meld.create!(tile: tiles(:fourth_ton), player_state: player_states(:ryo), kind: :daiminkan, number: 3)
+      Meld.create!(tile: tiles(:first_ton), player_state: player_states(:ryo), kind: :daiminkan, position: 0, from: :toimen),
+      Meld.create!(tile: tiles(:second_ton), player_state: player_states(:ryo), kind: :daiminkan, position: 1),
+      Meld.create!(tile: tiles(:third_ton), player_state: player_states(:ryo), kind: :daiminkan, position: 2),
+      Meld.create!(tile: tiles(:fourth_ton), player_state: player_states(:ryo), kind: :daiminkan, position: 3)
     ]
 
     result = ScoreInputNormalizer.normalize_melds(melds)
@@ -91,33 +91,33 @@ class ScoreInputNormalizerTest < ActiveSupport::TestCase
   test '#normalize_melds formats :ankan' do
     # z1111
     melds = [
-      Meld.create!(tile: tiles(:first_ton), player_state: player_states(:ryo), kind: :ankan, number: 0, from: :toimen),
-      Meld.create!(tile: tiles(:second_ton), player_state: player_states(:ryo), kind: :ankan, number: 1),
-      Meld.create!(tile: tiles(:third_ton), player_state: player_states(:ryo), kind: :ankan, number: 2),
-      Meld.create!(tile: tiles(:fourth_ton), player_state: player_states(:ryo), kind: :ankan, number: 3)
+      Meld.create!(tile: tiles(:first_ton), player_state: player_states(:ryo), kind: :ankan, position: 0, from: :toimen),
+      Meld.create!(tile: tiles(:second_ton), player_state: player_states(:ryo), kind: :ankan, position: 1),
+      Meld.create!(tile: tiles(:third_ton), player_state: player_states(:ryo), kind: :ankan, position: 2),
+      Meld.create!(tile: tiles(:fourth_ton), player_state: player_states(:ryo), kind: :ankan, position: 3)
     ]
 
     result = ScoreInputNormalizer.normalize_melds(melds)
     assert_equal [ 'z1111' ], result
   end
 
-  test '#normalize_agari_tile returns "m1_" when manzu_1 (tsumo)' do
-    result = ScoreInputNormalizer.normalize_agari_tile(tiles(:first_manzu_1), :self)
+  test '#normalize_target returns "m1_" when manzu_1 (tsumo)' do
+    result = ScoreInputNormalizer.normalize_target(tiles(:first_manzu_1), :self)
     assert_equal 'm1_', result
   end
 
-  test '#normalize_agari_tile returns "p9-" when pinzu_9 (shimocha)' do
-    result = ScoreInputNormalizer.normalize_agari_tile(tiles(:first_pinzu_9), :shimocha)
+  test '#normalize_target returns "p9-" when pinzu_9 (shimocha)' do
+    result = ScoreInputNormalizer.normalize_target(tiles(:first_pinzu_9), :shimocha)
     assert_equal 'p9-', result
   end
 
-  test '#normalize_agari_tile returns "s5=" when souzu_5 (toimen)' do
-    result = ScoreInputNormalizer.normalize_agari_tile(tiles(:first_souzu_5), :toimen)
+  test '#normalize_target returns "s5=" when souzu_5 (toimen)' do
+    result = ScoreInputNormalizer.normalize_target(tiles(:first_souzu_5), :toimen)
     assert_equal 's5=', result
   end
 
-  test '#normalize_agari_tile returns "z7+" when zihai_7 (kamicha)' do
-    result = ScoreInputNormalizer.normalize_agari_tile(tiles(:first_chun), :kamicha)
+  test '#normalize_target returns "z7+" when zihai_7 (kamicha)' do
+    result = ScoreInputNormalizer.normalize_target(tiles(:first_chun), :kamicha)
     assert_equal 'z7+', result
   end
 end

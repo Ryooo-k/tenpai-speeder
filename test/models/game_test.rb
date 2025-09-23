@@ -112,13 +112,29 @@ class GameTest < ActiveSupport::TestCase
     @game.players.each do |player|
       assert_equal 0, player.hands.count
     end
+
+    @game.deal_initial_hands
+    @game.players.each do |player|
+      assert_equal 13, player.hands.count
+    end
+  end
+
+  test '#deal_initial_hands increases draw count(13 x 4 = 52)' do
     assert_equal 0, @game.draw_count
 
     @game.deal_initial_hands
-    @game.players.ordered.each do |player|
-      assert_equal 13, player.hands.count
-    end
     assert_equal 52, @game.draw_count
+  end
+
+  test '#deal_initial_hands creates new state' do
+    @game.players.each do |player|
+      assert_equal 1, player.player_states.count
+    end
+
+    @game.deal_initial_hands
+    @game.players.each do |player|
+      assert_equal 2, player.player_states.count
+    end
   end
 
   test '#user_player' do
@@ -194,58 +210,66 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_step_number + 1, @game.current_step_number
   end
 
+  test '#latest_round returns round with maximum number' do
+    max_number = @game.rounds.maximum(:number)
+    expected = @game.rounds.find_by(number: max_number)
+    assert_equal expected, @game.latest_round
+  end
+
+  test '#latest_honba returns honba with maximum number for latest_round' do
+    max_number = @game.latest_round.honbas.maximum(:number)
+    expected = @game.latest_round.honbas.find_by(number: max_number)
+    assert_equal expected, @game.latest_honba
+  end
+
   test '#current_round_name' do
-    current_round = @game.rounds.order(:number).last
-    current_round.update!(number: 0)
+    @game.latest_round.update!(number: 0)
     assert_equal '東一局', @game.current_round_name
 
-    current_round.update!(number: 1)
+    @game.latest_round.update!(number: 1)
     assert_equal '東二局', @game.current_round_name
 
-    current_round.update!(number: 4)
+    @game.latest_round.update!(number: 4)
     assert_equal '南一局', @game.current_round_name
   end
 
   test '#current_honba_name' do
-    current_honba = @game.rounds.order(:number).last.current_honba
-    current_honba.update!(number: 0)
+    @game.latest_honba.update!(number: 0)
     assert_equal '〇本場', @game.current_honba_name
 
-    current_honba.update!(number: 1)
+    @game.latest_honba.update!(number: 1)
     assert_equal '一本場', @game.current_honba_name
 
-    current_honba.update!(number: 4)
+    @game.latest_honba.update!(number: 4)
     assert_equal '四本場', @game.current_honba_name
   end
 
   test '#remaining_tile_count' do
-    current_honba = @game.rounds.order(:number).last.current_honba
-    current_honba.update!(draw_count: 0)
-    current_honba.update!(kan_count: 0)
+    @game.latest_honba.update!(draw_count: 0)
+    @game.latest_honba.update!(kan_count: 0)
     assert_equal 122, @game.remaining_tile_count
 
-    current_honba.update!(draw_count: 10)
+    @game.latest_honba.update!(draw_count: 10)
     assert_equal 112, @game.remaining_tile_count
 
-    current_honba.update!(kan_count: 2)
+    @game.latest_honba.update!(kan_count: 2)
     assert_equal 110, @game.remaining_tile_count
   end
 
   test '#dora_indicator_tiles' do
-    current_honba = @game.rounds.order(:number).last.current_honba
-    current_honba.update!(kan_count: 0)
+    @game.latest_honba.update!(kan_count: 0)
     assert_equal [ Tile, NilClass, NilClass, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
 
-    current_honba.update!(kan_count: 1)
+    @game.latest_honba.update!(kan_count: 1)
     assert_equal [ Tile, Tile, NilClass, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
 
-    current_honba.update!(kan_count: 2)
+    @game.latest_honba.update!(kan_count: 2)
     assert_equal [ Tile, Tile, Tile, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)
 
-    current_honba.update!(kan_count: 3)
+    @game.latest_honba.update!(kan_count: 3)
     assert_equal [ Tile, Tile, Tile, Tile, NilClass ], @game.dora_indicator_tiles.map(&:class)
 
-    current_honba.update!(kan_count: 4)
+    @game.latest_honba.update!(kan_count: 4)
     assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.dora_indicator_tiles.map(&:class)
   end
 
@@ -255,11 +279,10 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#riichi_stick_count' do
-    current_honba = @game.rounds.order(:number).last.current_honba
-    current_honba.update!(riichi_stick_count: 0)
+    @game.latest_honba.update!(riichi_stick_count: 0)
     assert_equal 0, @game.riichi_stick_count
 
-    current_honba.update!(riichi_stick_count: 1)
+    @game.latest_honba.update!(riichi_stick_count: 1)
     assert_equal 1, @game.riichi_stick_count
   end
 
@@ -291,5 +314,91 @@ class GameTest < ActiveSupport::TestCase
     furo_ids = [ hand_1.id, hand_2.id ]
     @game.apply_furo(:chi, furo_ids, tiles(:first_manzu_3).id)
     assert_equal before_step_number + 1, @game.current_step_number
+  end
+
+  test '#advance_next_round! creates new round' do
+    before_round_count = @game.rounds.count
+    before_round_number = @game.rounds.order(:number).last.number
+
+    @game.advance_next_round!
+    assert_equal before_round_count  + 1, @game.rounds.count
+    assert_equal before_round_number + 1, @game.rounds.maximum(:number)
+  end
+
+  test '#advance_next_round! resets current_step_number to 0' do
+    @game.update!(current_step_number: 100)
+    @game.advance_next_round!
+    assert_equal 0, @game.current_step_number
+  end
+
+  test '#advance_next_round! advances current_seat_number' do
+    before_current_seat_number = @game.current_seat_number
+
+    @game.advance_next_round!
+    expected = (before_current_seat_number + 1) % @game.players.count
+    assert_equal expected, @game.current_seat_number
+
+    @game.advance_next_round!
+    expected = (before_current_seat_number + 2) % @game.players.count
+    assert_equal expected, @game.current_seat_number
+  end
+
+  test '#advance_next_honba! creates new honba' do
+    before_honba_count = @game.latest_round.honbas.count
+    before_honba_number = @game.latest_honba.number
+    @game.latest_honba.update!(riichi_stick_count: 10)
+
+    @game.advance_next_honba!
+    assert_equal before_honba_count + 1, @game.latest_round.honbas.count
+    assert_equal before_honba_number + 1, @game.latest_honba.number
+    assert_equal 10, @game.latest_honba.riichi_stick_count
+  end
+
+  test '#advance_next_honba! resets current_seat_number' do
+    initial_current_seat_number = @game.current_seat_number
+    next_current_seat_number = initial_current_seat_number + 1
+    @game.update!(current_seat_number: next_current_seat_number)
+
+    assert_not_equal initial_current_seat_number, @game.current_seat_number
+    @game.advance_next_honba!
+    assert_equal initial_current_seat_number, @game.current_seat_number
+  end
+
+  test '#advance_next_honba! resets current_step_number to 0' do
+    @game.update!(current_step_number: 100)
+    @game.advance_next_honba!
+    assert_equal 0, @game.current_step_number
+  end
+
+  test '#find_ron_claimers returns players that can_ron? == true' do
+    player_1 = Minitest::Mock.new
+    player_2 = Minitest::Mock.new
+    player_3 = Minitest::Mock.new
+    tile = tiles(:first_manzu_1)
+
+    player_1.expect(:can_ron?, false, [ tile ])
+    player_2.expect(:can_ron?, true,  [ tile ])
+    player_3.expect(:can_ron?, true,  [ tile ])
+
+    @game.stub(:other_players, [ player_1, player_2, player_3 ]) do
+      result = @game.find_ron_claimers(tile)
+      assert_equal [ player_2, player_3 ], result
+    end
+  end
+
+  test '#find_ron_claimers returns empty array when nobody can ron' do
+    player_1 = Minitest::Mock.new
+    player_2 = Minitest::Mock.new
+    player_3 = Minitest::Mock.new
+    tile = tiles(:first_manzu_1)
+
+    player_1.expect(:can_ron?, false, [ tile ])
+    player_2.expect(:can_ron?, false, [ tile ])
+    player_3.expect(:can_ron?, false, [ tile ])
+
+    @game.stub(:other_players, [ player_1, player_2, player_3 ]) do
+      result = @game.find_ron_claimers(tile)
+      assert_empty result
+    end
   end
 end

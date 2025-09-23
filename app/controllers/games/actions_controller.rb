@@ -5,7 +5,13 @@ class Games::ActionsController < ApplicationController
 
   def draw
     @game.draw_for_current_player
-    flash[:next_action] = :choose
+
+    if @game.current_player.can_tsumo?
+      flash[:next_action] = :tsumo
+    else
+      flash[:next_action] = :choose
+    end
+
     redirect_to game_play_path(@game)
   end
 
@@ -20,18 +26,41 @@ class Games::ActionsController < ApplicationController
     chosen_hand_id = params.expect(:chosen_hand_id).to_i
     discarded_tile = @game.discard_for_current_player(chosen_hand_id)
 
-    # 現状aiは副露を学習していないため、
-    # userが打牌した際のai_player副露はせずdrawアクションに移行する。
-    # aiが副露を学習後、ai用副露処理の実装を行う。
-    is_user_furo = @game.user_player.can_furo?(discarded_tile, @game.current_player)
-    if is_user_furo
-      flash[:next_action] = :furo
+    ron_claimers = @game.find_ron_claimers(discarded_tile)
+    if ron_claimers.present?
+      flash[:next_action] = ron_claimers.all?(&:ai?) ? :ron : :ron_confirmation
       flash[:discarded_tile_id] = discarded_tile.id
+      flash[:ron_claimer_ids] = ron_claimers.map(&:id)
     else
-      @game.advance_current_player!
-      flash[:next_action] = :draw
+      # 現状aiは副露を学習していないため、
+      # userが打牌した際のai_player副露はせずdrawアクションに移行する。
+      # aiが副露を学習後、ai用副露処理の実装を行う。
+      is_user_furo = @game.user_player.can_furo?(discarded_tile, @game.current_player)
+      if is_user_furo
+        flash[:next_action] = :furo
+        flash[:discarded_tile_id] = discarded_tile.id
+      else
+        @game.advance_current_player!
+        flash[:next_action] = :draw
+      end
     end
 
+    redirect_to game_play_path(@game)
+  end
+
+  def ron
+    discarded_tile_id = params.expect(:discarded_tile_id).to_i
+    ron_claimer_ids = params.expect(ron_claimer_ids: []).map(&:to_i)
+    # 点数の振り分け処理は、別issueで対応する。
+
+    if ron_claimer_ids.include?(@game.host_player.id)
+      @game.advance_next_honba!
+    else
+      @game.advance_next_round!
+    end
+
+    @game.deal_initial_hands
+    flash[:next_action] = :draw
     redirect_to game_play_path(@game)
   end
 
@@ -43,6 +72,20 @@ class Games::ActionsController < ApplicationController
     @game.apply_furo(furo_type, furo_ids, discarded_tile_id)
     @game.advance_to_player!(@game.user_player)
     flash[:next_action] = :choose
+    redirect_to game_play_path(@game)
+  end
+
+  def tsumo
+    # 点数の振り分け処理は、別issueで対応する。
+
+    if @game.current_player.host?
+      @game.advance_next_honba!
+    else
+      @game.advance_next_round!
+    end
+
+    @game.deal_initial_hands
+    flash[:next_action] = :draw
     redirect_to game_play_path(@game)
   end
 

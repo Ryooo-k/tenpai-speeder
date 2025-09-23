@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_08_081519) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_22_044158) do
   create_table "ais", force: :cascade do |t|
     t.string "name", null: false
     t.string "version", null: false
@@ -73,6 +73,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_081519) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "drawn", default: false, null: false
+    t.boolean "rinshan", default: false
     t.index ["player_state_id"], name: "index_hands_on_player_state_id"
     t.index ["tile_id"], name: "index_hands_on_tile_id"
   end
@@ -95,7 +96,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_081519) do
     t.datetime "updated_at", null: false
     t.integer "from"
     t.integer "kind", null: false
-    t.integer "number", null: false
+    t.integer "position", null: false
     t.index ["player_state_id"], name: "index_melds_on_player_state_id"
     t.index ["tile_id"], name: "index_melds_on_tile_id"
   end

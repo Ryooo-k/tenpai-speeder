@@ -64,6 +64,24 @@ class PlayerStateTest < ActiveSupport::TestCase
     assert_equal [ state_1, state_2, state_3, state_4 ], @player.player_states.ordered
   end
 
+  test '.for_honba' do
+    game = games(:tonpuu)
+    honba_1 = game.latest_round.honbas.create!(number: 1)
+    honba_2 = game.latest_round.honbas.create!(number: 2)
+
+    step_1 = honba_1.steps.create!
+    step_2 = honba_2.steps.create!
+
+    state_1 = step_1.player_states.create!(player: @player)
+    state_2 = step_2.player_states.create!(player: @player)
+
+    assert_includes PlayerState.for_honba(honba_1), state_1
+    assert_not_includes PlayerState.for_honba(honba_1), state_2
+
+    assert_includes PlayerState.for_honba(honba_2), state_2
+    assert_not_includes PlayerState.for_honba(honba_2), state_1
+  end
+
   test '.up_to_steps' do
     @player.player_states.delete_all
     step_1 = steps(:step_1)

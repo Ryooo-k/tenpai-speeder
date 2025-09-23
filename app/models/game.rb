@@ -27,13 +27,14 @@ class Game < ApplicationRecord
       else
         players.create!(ai: player, seat_order:)
       end
-      new_player.game_records.create!(honba: current_honba)
-      new_player.player_states.create!(step: current_step)
+      new_player.game_records.create!(honba: latest_honba)
     end
   end
 
   def deal_initial_hands
     players.ordered.each do |player|
+      player.player_states.create!(step: current_step)
+
       INITIAL_HAND_SIZE.times do |_|
         player.receive(top_tile)
         increase_draw_count
@@ -63,7 +64,7 @@ class Game < ApplicationRecord
   end
 
   def draw_count
-    current_honba.draw_count
+    latest_honba.draw_count
   end
 
   def draw_for_current_player
@@ -77,28 +78,36 @@ class Game < ApplicationRecord
     current_player.discard(hand_id, current_step)
   end
 
+  def latest_round
+    rounds.order(:number).last
+  end
+
+  def latest_honba
+    latest_round.latest_honba
+  end
+
   def current_round_name
-    current_round.name
+    latest_round.name
   end
 
   def current_honba_name
-    current_honba.name
+    latest_honba.name
   end
 
   def remaining_tile_count
-    current_honba.remaining_tile_count
+    latest_honba.remaining_tile_count
   end
 
   def dora_indicator_tiles
-    current_honba.dora_indicator_tiles.values_at(..4)
+    latest_honba.dora_indicator_tiles.values_at(..4)
   end
 
   def host_player
-    players.find_by!(seat_order: current_round.host_seat_number)
+    players.find_by!(seat_order: latest_round.host_seat_number)
   end
 
   def riichi_stick_count
-    current_honba.riichi_stick_count
+    latest_honba.riichi_stick_count
   end
 
   def apply_furo(furo_type, furo_ids, discarded_tile_id)
@@ -107,6 +116,35 @@ class Game < ApplicationRecord
     advance_step!
     current_player.stolen(discarded_tile, current_step)
     user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, current_step)
+  end
+
+  def round_wind_number
+    latest_round.wind_number
+  end
+
+  def advance_next_round!
+    next_round_number = latest_round.number + 1
+    rounds.create!(number: next_round_number)
+
+    next_seat_number = next_round_number % PLAYERS_COUNT
+    update!(current_seat_number: next_seat_number)
+    update!(current_step_number: 0)
+  end
+
+  def advance_next_honba!
+    next_honba_number = latest_honba.number + 1
+    riichi_stick_count = latest_honba.riichi_stick_count
+    latest_round.honbas.create!(number: next_honba_number, riichi_stick_count: riichi_stick_count)
+
+    seat_number = latest_round.number % PLAYERS_COUNT
+    update!(current_seat_number: seat_number)
+    update!(current_step_number: 0)
+  end
+
+  def find_ron_claimers(tile)
+    other_players.map do |player|
+      player.can_ron?(tile) ? player : next
+    end.compact
   end
 
   private
@@ -132,29 +170,25 @@ class Game < ApplicationRecord
       game_mode.aka_dora? && AKA_DORA_TILE_CODES.include?(code) && kind.zero?
     end
 
-    def current_round
-      rounds.order(:number).last
-    end
-
-    def current_honba
-      current_round.current_honba
-    end
-
     def current_step
-      current_honba.find_current_step(current_step_number)
+      latest_honba.find_current_step(current_step_number)
     end
 
     def top_tile
-      current_honba.top_tile
+      latest_honba.top_tile
     end
 
     def increase_draw_count
-      current_honba.increment!(:draw_count)
+      latest_honba.increment!(:draw_count)
     end
 
     def advance_step!
       next_step_number = current_step_number + 1
       update!(current_step_number: next_step_number)
-      current_honba.steps.create!(number: next_step_number)
+      latest_honba.steps.create!(number: next_step_number)
+    end
+
+    def other_players
+      players.where.not(seat_order: current_seat_number)
     end
 end

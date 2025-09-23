@@ -4,6 +4,8 @@ require 'test_helper'
 require 'minitest/mock'
 
 class PlayerTest < ActiveSupport::TestCase
+  include GameTestHelper
+
   def setup
     @user_player = players(:ryo)
     @ai_player = players(:menzen_tenpai_speeder)
@@ -137,9 +139,9 @@ class PlayerTest < ActiveSupport::TestCase
     @user_player.current_state.melds.delete_all
     assert_equal [], @user_player.melds
 
-    @user_player.current_state.melds.create!(tile: @manzu_3, kind: :chi, number: 0)
-    @user_player.current_state.melds.create!(tile: @manzu_1, kind: :chi, number: 1)
-    @user_player.current_state.melds.create!(tile: @manzu_2, kind: :chi, number: 2)
+    @user_player.current_state.melds.create!(tile: @manzu_3, kind: :chi, position: 0)
+    @user_player.current_state.melds.create!(tile: @manzu_1, kind: :chi, position: 1)
+    @user_player.current_state.melds.create!(tile: @manzu_2, kind: :chi, position: 2)
     assert_equal [ @manzu_3, @manzu_1, @manzu_2 ], @user_player.melds.map(&:tile)
 
     @user_player.player_states.create!(step: steps(:step_2))
@@ -440,6 +442,13 @@ class PlayerTest < ActiveSupport::TestCase
     assert @user_player.user?
   end
 
+  test '#host?' do
+    @game.stub(:host_player, @user_player) do
+      assert @user_player.host?
+      assert_not @ai_player.host?
+    end
+  end
+
   test 'relation_from_user' do
     @ai_player.stub(:user_seat_number, 0) do
       @ai_player.seat_order = 1
@@ -522,75 +531,91 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 45000, @user_player.score
   end
 
-  test '#wind_name and #wind_code' do
+  test '#wind_number and wind_name and #wind_code' do
     @user_player.stub(:host_seat_number, 0) do
       @user_player.seat_order = 0
+      assert_equal 0, @user_player.wind_number
       assert_equal '東', @user_player.wind_name
       assert_equal base_tiles(:ton).code, @user_player.wind_code
 
       @user_player.seat_order = 1
+      assert_equal 1, @user_player.wind_number
       assert_equal '南', @user_player.wind_name
       assert_equal base_tiles(:nan).code, @user_player.wind_code
 
       @user_player.seat_order = 2
+      assert_equal 2, @user_player.wind_number
       assert_equal '西', @user_player.wind_name
       assert_equal base_tiles(:sha).code, @user_player.wind_code
 
       @user_player.seat_order = 3
+      assert_equal 3, @user_player.wind_number
       assert_equal '北', @user_player.wind_name
       assert_equal base_tiles(:pei).code, @user_player.wind_code
     end
 
     @user_player.stub(:host_seat_number, 1) do
       @user_player.seat_order = 0
+      assert_equal 3, @user_player.wind_number
       assert_equal '北', @user_player.wind_name
       assert_equal base_tiles(:pei).code, @user_player.wind_code
 
       @user_player.seat_order = 1
+      assert_equal 0, @user_player.wind_number
       assert_equal '東', @user_player.wind_name
       assert_equal base_tiles(:ton).code, @user_player.wind_code
 
       @user_player.seat_order = 2
+      assert_equal 1, @user_player.wind_number
       assert_equal '南', @user_player.wind_name
       assert_equal base_tiles(:nan).code, @user_player.wind_code
 
       @user_player.seat_order = 3
+      assert_equal 2, @user_player.wind_number
       assert_equal '西', @user_player.wind_name
       assert_equal base_tiles(:sha).code, @user_player.wind_code
     end
 
     @user_player.stub(:host_seat_number, 2) do
       @user_player.seat_order = 0
+      assert_equal 2, @user_player.wind_number
       assert_equal '西', @user_player.wind_name
       assert_equal base_tiles(:sha).code, @user_player.wind_code
 
       @user_player.seat_order = 1
+      assert_equal 3, @user_player.wind_number
       assert_equal '北', @user_player.wind_name
       assert_equal base_tiles(:pei).code, @user_player.wind_code
 
       @user_player.seat_order = 2
+      assert_equal 0, @user_player.wind_number
       assert_equal '東', @user_player.wind_name
       assert_equal base_tiles(:ton).code, @user_player.wind_code
 
       @user_player.seat_order = 3
+      assert_equal 1, @user_player.wind_number
       assert_equal '南', @user_player.wind_name
       assert_equal base_tiles(:nan).code, @user_player.wind_code
     end
 
     @user_player.stub(:host_seat_number, 3) do
       @user_player.seat_order = 0
+      assert_equal 1, @user_player.wind_number
       assert_equal '南', @user_player.wind_name
       assert_equal base_tiles(:nan).code, @user_player.wind_code
 
       @user_player.seat_order = 1
+      assert_equal 2, @user_player.wind_number
       assert_equal '西', @user_player.wind_name
       assert_equal base_tiles(:sha).code, @user_player.wind_code
 
       @user_player.seat_order = 2
+      assert_equal 3, @user_player.wind_number
       assert_equal '北', @user_player.wind_name
       assert_equal base_tiles(:pei).code, @user_player.wind_code
 
       @user_player.seat_order = 3
+      assert_equal 0, @user_player.wind_number
       assert_equal '東', @user_player.wind_name
       assert_equal base_tiles(:ton).code, @user_player.wind_code
     end
@@ -794,6 +819,150 @@ class PlayerTest < ActiveSupport::TestCase
     @user_player.stub(:hands, hands) do
       furo_candidates = @user_player.find_furo_candidates(tiles(:second_manzu_1), @ai_player)
       assert_equal({}, furo_candidates)
+    end
+  end
+
+  test '#can_tsumo? returns true：メンゼン聴牌の場合' do
+    hands = set_hands('m111 p222 s333 z444 m99', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      result = @user_player.can_tsumo?
+      assert result
+    end
+  end
+
+  test '#can_tsumo? returns false：ノーテンの場合' do
+    hands = set_hands('m123456789 p19 s19', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      result = @user_player.can_tsumo?
+      assert_not result
+    end
+  end
+
+  test '#can_tsumo? returns false：役無しの形式聴牌 + 状況役が鳴い場合' do
+    hands = set_hands('m123 p222 s333 m99', players(:ryo))
+    melds = set_melds('m888-', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        result = @user_player.can_tsumo?
+        assert_not result
+      end
+    end
+  end
+
+  test '#can_tsumo? returns true：役無し聴牌 + 状況役（立直）がある場合' do
+    hands = set_hands('m123 p222 s333 m99', players(:ryo))
+    melds = set_melds('m888-', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:riichi?, true) do
+          result = @user_player.can_tsumo?
+          assert result
+        end
+      end
+    end
+  end
+
+  test '#can_tsumo? returns true：役無し聴牌 + 状況役（海底摸月）がある場合' do
+    hands = set_hands('m123 p222 s333 m99', players(:ryo))
+    melds = set_melds('m888-', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:can_haitei_tsumo?, true) do
+          result = @user_player.can_tsumo?
+          assert result
+        end
+      end
+    end
+  end
+
+  test '#can_tsumo? returns true：役無し聴牌 + 状況役（嶺上開花）がある場合' do
+    hands = set_hands('m123 p222 s333 m99', players(:ryo))
+    melds = set_melds('m888-', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:can_rinshan_tsumo?, true) do
+          result = @user_player.can_tsumo?
+          assert result
+        end
+      end
+    end
+  end
+
+  test '#can_ron? returns true：役ありメンゼン聴牌の場合' do
+    hands = set_hands('m123456789 p23 z33', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      result = @user_player.can_ron?(tiles(:first_pinzu_1))
+      assert result
+    end
+  end
+
+  test '#can_ron? returns false：役無しメンゼン形式聴牌の場合' do
+    hands = set_hands('m111456789 p23 z33', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:relation_from_current_player, :toimen) do
+        result = @user_player.can_ron?(tiles(:first_pinzu_1))
+        assert_not result
+      end
+    end
+  end
+
+  test '#can_ron? returns true：副露役あり聴牌の場合' do
+    hands = set_hands('p23 z33', players(:ryo))
+    melds = set_melds('m123+ m456+ m789+', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        result = @user_player.can_ron?(tiles(:first_pinzu_1))
+        assert result
+      end
+    end
+  end
+
+  test '#can_ron? returns false：副露役無し聴牌の場合' do
+    hands = set_hands('p23 z33', players(:ryo))
+    melds = set_melds('m111+ m456+ m789+', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        result = @user_player.can_ron?(tiles(:first_pinzu_1))
+        assert_not result
+      end
+    end
+  end
+
+  test '#can_ron? returns true：役無し聴牌 + 状況役（河底撈魚）がある場合' do
+    hands = set_hands('p23 z33', players(:ryo))
+    melds = set_melds('m111+ m456+ m789+', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:can_houtei_ron?, true) do
+          result = @user_player.can_ron?(tiles(:first_pinzu_1))
+          assert result
+        end
+      end
+    end
+  end
+
+  test '#can_ron? returns true：役無し聴牌 + 状況役（搶槓）がある場合' do
+    hands = set_hands('p23 z33', players(:ryo))
+    melds = set_melds('m111+ m456+ m789+', players(:ryo))
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, melds) do
+        @user_player.stub(:can_chankan?, true) do
+          result = @user_player.can_ron?(tiles(:first_pinzu_1))
+          assert result
+        end
+      end
     end
   end
 end
