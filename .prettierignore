@@ -10,3 +10,4 @@ config
 .github
 .gitignore
 .vscode
+app/domain/agari_distance_map.json
