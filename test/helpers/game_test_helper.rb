@@ -25,7 +25,9 @@ module GameTestHelper
   end
 
   def assign_host_player(player, game)
-    game.latest_round
+    host_seat_number = game.latest_round.host_seat_number
+    game.players.find_by(seat_order: host_seat_number).update!(seat_order: player.seat_order)
+    player.update!(seat_order: host_seat_number)
   end
 
   def build_situational_yaku_list(tenhou: false, chiihou: false, riichi: false, double_riichi: false, ippatsu: false, haitei: false, houtei: false, rinshan: false, chankan: false)
