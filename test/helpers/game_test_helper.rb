@@ -24,11 +24,16 @@ module GameTestHelper
     game.advance_current_player! unless game.current_player.ai?
   end
 
+  def assign_host_player(player, game)
+    game.latest_round
+  end
+
   def build_situational_yaku_list(tenhou: false, chiihou: false, riichi: false, double_riichi: false, ippatsu: false, haitei: false, houtei: false, rinshan: false, chankan: false)
     { tenhou:, chiihou:, riichi:, double_riichi:, ippatsu:, haitei:, houtei:, rinshan:, chankan: }
   end
 
-  def create_hands(pattern, player:, drawn: :last, rinshan: false)
+  def set_hands(pattern, player:, drawn: :last, rinshan: false)
+    player.current_state.hands.delete_all
     tile_fixture_names = []
 
     pattern.delete(' ').scan(/([mpsz])([0-9]+)/) do |suit, numbers|
@@ -54,9 +59,8 @@ module GameTestHelper
     tile_fixture_names.map.with_index do |name, index|
       is_drawn = drawn == :last && index == tile_fixture_names.length - 1
 
-      Hand.create!(
+      player.current_state.hands.create!(
         tile: tiles(name),
-        player_state: player,
         drawn: is_drawn,
         rinshan: is_drawn && rinshan
       )
@@ -65,7 +69,7 @@ module GameTestHelper
 
   # patterns: String または Array<String>
   # 例) 'z111= m1+23 p12+3 z1111='  /  ['z111=', 'm1+23']
-  def create_melds(patterns, player:)
+  def set_melds(patterns, player:)
     tokens = Array(patterns).join(' ').split(/[,\s]+/).reject(&:empty?)
 
     tokens.flat_map do |tok|
@@ -123,7 +127,7 @@ module GameTestHelper
       tile_sym = tile_fixture_symbol(suit, rank, order_idx)
       attrs = {
         tile:         tiles(tile_sym),
-        player_state: player,
+        player_state: player.current_state,
         kind:,
         position:
       }
@@ -139,5 +143,15 @@ module GameTestHelper
     else
       :"#{ord}_#{SUIT_NAMES.fetch(suit)}_#{rank}"
     end
+  end
+
+  def assign_draw_tile(tile_name, game)
+    draw_count = game.draw_count
+    suit = SUIT_NAMES[tile_name[0]]
+    number = tile_name[1].to_i
+
+    target_tile = game.latest_honba.tile_orders.joins(tile: :base_tile).find_by(base_tiles: { number:, suit:} )
+    game.latest_honba.tile_orders.find_by(order: draw_count).update!(order: target_tile.order)
+    target_tile.update!(order: draw_count)
   end
 end

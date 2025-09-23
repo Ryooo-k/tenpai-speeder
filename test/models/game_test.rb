@@ -328,7 +328,7 @@ class GameTest < ActiveSupport::TestCase
   test '#advance_next_round! resets current_step_number to 0' do
     @game.update!(current_step_number: 100)
     @game.advance_next_round!
-    assert_equal 0 , @game.current_step_number
+    assert_equal 0, @game.current_step_number
   end
 
   test '#advance_next_round! advances current_seat_number' do
@@ -367,7 +367,7 @@ class GameTest < ActiveSupport::TestCase
   test '#advance_next_honba! resets current_step_number to 0' do
     @game.update!(current_step_number: 100)
     @game.advance_next_honba!
-    assert_equal 0 , @game.current_step_number
+    assert_equal 0, @game.current_step_number
   end
 
   test '#find_ron_claimers returns players that can_ron? == true' do
