@@ -91,7 +91,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     situational_yaku_list = build_situational_yaku_list(tenhou: true)
     relation = :self
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '天和', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -103,7 +103,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     situational_yaku_list = build_situational_yaku_list(chiihou: true)
     relation = :shimocha
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '地和', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -115,7 +115,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     situational_yaku_list = build_situational_yaku_list(ippatsu: true, riichi: true, haitei: true)
     relation = :self
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '立直', han: 1 }, { name: '一発', han: 1 }, { name: '海底摸月', han: 1 }, { name: '門前清自摸和', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -127,7 +127,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     situational_yaku_list = build_situational_yaku_list(double_riichi: true, houtei: true, chankan: true)
     relation = :toimen
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: 'ダブル立直', han: 2 }, { name: '河底撈魚', han: 1 }, { name: '槍槓', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -139,7 +139,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     situational_yaku_list = build_situational_yaku_list(rinshan: true)
     relation = :self
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '嶺上開花', han: 1 }, { name: '門前清自摸和', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -154,7 +154,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     situational_yaku_list = build_situational_yaku_list
     player_wind = 1 # 南
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, player_wind, situational_yaku_list)
     expected = [ { name: '場風 東', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -169,7 +169,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     situational_yaku_list = build_situational_yaku_list
     player_wind = 1 # 南
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, player_wind, situational_yaku_list)
     expected = [ { name: '自風 南', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -183,7 +183,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :self
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '翻牌 白', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -195,7 +195,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '平和', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -207,7 +207,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '断幺九', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -219,7 +219,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '一盃口', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -231,7 +231,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '三色同順', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -244,7 +244,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '三色同順', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -256,7 +256,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '一気通貫', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -269,7 +269,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '一気通貫', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -281,7 +281,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '混全帯幺九', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -294,7 +294,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '混全帯幺九', han: 1 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
@@ -306,7 +306,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '七対子', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -318,7 +318,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '七対子', han: 2 }, { name: '混一色', han: 3 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 5, result[:han_total]
@@ -330,7 +330,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '七対子', han: 2 }, { name: '清一色', han: 6 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 8, result[:han_total]
@@ -344,7 +344,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '対々和', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -357,7 +357,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :self
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '三暗刻', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -370,7 +370,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :self
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '三槓子', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -383,7 +383,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :self
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '三色同刻', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
@@ -396,7 +396,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :self
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '対々和', han: 2 }, { name: '混老頭', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -408,7 +408,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '七対子', han: 2 }, { name: '混老頭', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -421,7 +421,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '翻牌 白', han: 1 }, { name: '翻牌 發', han: 1 }, { name: '小三元', han: 2 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
@@ -433,7 +433,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '純全帯幺九', han: 3 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 3, result[:han_total]
@@ -445,7 +445,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '二盃口', han: 3 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 3, result[:han_total]
@@ -457,7 +457,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '清一色', han: 6 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 6, result[:han_total]
@@ -469,7 +469,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '国士無双', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -481,7 +481,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '国士無双十三面', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -493,7 +493,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :self
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '四暗刻単騎', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -505,7 +505,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :self
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '四暗刻', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -517,7 +517,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '大三元', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -530,7 +530,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '大四喜', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -543,7 +543,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '小四喜', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -556,7 +556,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '小四喜', han: 13 }, { name: '字一色', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 26, result[:han_total]
@@ -568,7 +568,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '緑一色', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -581,7 +581,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '清老頭', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -594,7 +594,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '四槓子', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
@@ -657,7 +657,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list
 
-    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, situational_yaku_list, @round_wind, @player_wind)
+    result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '九蓮宝燈', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]

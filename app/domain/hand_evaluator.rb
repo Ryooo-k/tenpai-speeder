@@ -199,7 +199,7 @@ module HandEvaluator
       yaku_list.present?
     end
 
-    def get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, round_wind, player_wind)
+    def get_score_statements(hands, melds, agari_tile, relation, round_wind, player_wind, situational_yaku_list)
       normalized_hands, normalized_melds, normalized_agari_tile = ScoreInputNormalizer.normalize(hands, melds, agari_tile, relation)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_agari_tile)
       scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
