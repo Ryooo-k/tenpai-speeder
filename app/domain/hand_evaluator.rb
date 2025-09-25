@@ -199,11 +199,11 @@ module HandEvaluator
       yaku_list.present?
     end
 
-    def get_score_summaries(hands, melds, agari_tile, relation, situational_yaku_list, round_wind, player_wind)
+    def get_score_statements(hands, melds, agari_tile, relation, situational_yaku_list, round_wind, player_wind)
       normalized_hands, normalized_melds, normalized_agari_tile = ScoreInputNormalizer.normalize(hands, melds, agari_tile, relation)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_agari_tile)
       scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
-      all_score_summaries = scoring_state_table.map do |scoring_states|
+      all_score_statements = scoring_state_table.map do |scoring_states|
         yaku_list = build_yaku_list(scoring_states, situational_yaku_list)
         han_total = yaku_list.empty? ? 0 : yaku_list.sum { |yaku| yaku[:han].to_i }
 
@@ -214,7 +214,7 @@ module HandEvaluator
           yaku_list:
         }
       end
-      all_score_summaries.max_by { |score_summary| score_summary[:han_total] }
+      all_score_statements.max_by { |score_summary| score_summary[:han_total] }
     end
 
     def calculate_shanten(hands, melds)
