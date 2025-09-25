@@ -147,6 +147,18 @@ class Game < ApplicationRecord
     end.compact
   end
 
+  def build_ron_score_statements(discarded_tile_id, ron_claimer_ids)
+    ron_players = players.where(id: ron_claimer_ids)
+    tile = tiles.find(discarded_tile_id)
+    score_statement_table = {}
+
+    ron_players.each do |player|
+      score_statements = player.score_statements(tile:)
+      score_statement_table[player.id] = score_statements
+    end
+    score_statement_table
+  end
+
   private
 
     def create_tiles_and_round

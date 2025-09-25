@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'helpers/game_test_helper'
 
 class GameTest < ActiveSupport::TestCase
   include GameTestHelper
@@ -400,5 +399,31 @@ class GameTest < ActiveSupport::TestCase
       result = @game.find_ron_claimers(tile)
       assert_empty result
     end
+  end
+
+  test '#build_ron_score_statements' do
+    ron_player_1 = @game.opponents[0]
+    ron_player_2 = @game.opponents[1]
+    set_hands('m123456789 p22 s45', ron_player_1, drawn: false)
+    set_hands('m111222333 p22 s33', ron_player_2, drawn: false)
+    discarded_tile = tiles(:first_souzu_3)
+
+    score_statements = @game.build_ron_score_statements(discarded_tile.id, [ ron_player_1.id, ron_player_2.id ])
+    player_1_score_statements = score_statements[ron_player_1.id]
+    player_2_score_statements = score_statements[ron_player_2.id]
+
+    assert_equal 30, player_1_score_statements[:fu_total]
+    assert_equal 3, player_1_score_statements[:han_total]
+    assert_equal [
+      { name: "平和", han: 1 },
+      { name: "一気通貫", han: 2 }
+    ], player_1_score_statements[:yaku_list]
+
+    assert_equal 50, player_2_score_statements[:fu_total]
+    assert_equal 4, player_2_score_statements[:han_total]
+    assert_equal [
+      { name: "対々和", han: 2 },
+      { name: "三暗刻", han: 2 }
+    ], player_2_score_statements[:yaku_list]
   end
 end
