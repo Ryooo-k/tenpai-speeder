@@ -85,111 +85,135 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert result
   end
 
-  test '#get_score_statements：天和 → 13飜' do
-    hands = set_hands('m111 p234567 s23455', players(:ryo))
-    agari_tile = tiles(:first_manzu_1)
+  test '#get_score_statements：天和 → 13飜30符' do
+    hands = set_hands('m111 p234567 s11345', players(:ryo))
+    agari_tile = tiles(:first_souzu_5)
     situational_yaku_list = build_situational_yaku_list(tenhou: true)
     relation = :self
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '天和', han: 13 } ]
+
+    assert result[:tsumo]
+    assert_equal 30, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：地和 → 13飜' do
-    hands = set_hands('m111 p234567 s23455', players(:ryo))
-    agari_tile = tiles(:first_manzu_1)
+  test '#get_score_statements：地和 → 13飜30符' do
+    hands = set_hands('m111 p234567 s11345', players(:ryo))
+    agari_tile = tiles(:first_souzu_5)
     situational_yaku_list = build_situational_yaku_list(chiihou: true)
-    relation = :shimocha
+    relation = :self
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '地和', han: 13 } ]
+
+    assert result[:tsumo]
+    assert_equal 30, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：立直(1) 一発 海底摸月 門前清自摸和 → 合計4飜' do
+  test '#get_score_statements：立直(1) 一発 海底摸月 門前清自摸和 → 4飜40符' do
     hands = set_hands('m111 p234567 s23455', players(:ryo))
-    agari_tile = tiles(:first_manzu_1)
+    agari_tile = tiles(:first_souzu_5)
     situational_yaku_list = build_situational_yaku_list(ippatsu: true, riichi: true, haitei: true)
     relation = :self
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '立直', han: 1 }, { name: '一発', han: 1 }, { name: '海底摸月', han: 1 }, { name: '門前清自摸和', han: 1 } ]
+
+    assert result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_statements：ダブル立直(2) 河底撈魚 槍槓 → 合計4飜' do
-    hands = set_hands('m111 p234567 s23455', players(:ryo))
-    agari_tile = tiles(:first_manzu_1)
+  test '#get_score_statements：ダブル立直(2) 河底撈魚 槍槓 → 4飜40符' do
+    hands = set_hands('m111 p234567 s23455', players(:ryo), drawn: false)
+    agari_tile = tiles(:first_souzu_5)
     situational_yaku_list = build_situational_yaku_list(double_riichi: true, houtei: true, chankan: true)
     relation = :toimen
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: 'ダブル立直', han: 2 }, { name: '河底撈魚', han: 1 }, { name: '槍槓', han: 1 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_statements：門前清自摸和 嶺上開花 → 合計2飜' do
+  test '#get_score_statements：門前清自摸和 嶺上開花 → 2飜40符' do
     hands = set_hands('m111 p234567 s23455', players(:ryo))
-    agari_tile = tiles(:first_manzu_1)
+    agari_tile = tiles(:first_souzu_5)
     situational_yaku_list = build_situational_yaku_list(rinshan: true)
     relation = :self
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '嶺上開花', han: 1 }, { name: '門前清自摸和', han: 1 } ]
+
+    assert result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_statements：場風 東 → 合計1飜' do
+  test '#get_score_statements：場風 東 → 1飜30符' do
     # z1：東
     hands = set_hands('p234567 s23455', players(:ryo))
     melds = set_melds('z111=', players(:ryo))
-    agari_tile = tiles(:first_pinzu_2)
+    agari_tile = tiles(:first_souzu_5)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
     player_wind = 1 # 南
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, player_wind, situational_yaku_list)
     expected = [ { name: '場風 東', han: 1 } ]
+
+    assert result[:tsumo]
+    assert_equal 30, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_statements：自風 南 → 合計1飜' do
+  test '#get_score_statements：自風 南 → 1飜30符' do
     # z2:南
     hands = set_hands('p234567 s23455', players(:ryo))
     melds = set_melds('z222=', players(:ryo))
-    agari_tile = tiles(:first_pinzu_2)
+    agari_tile = tiles(:first_souzu_5)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
     player_wind = 1 # 南
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, player_wind, situational_yaku_list)
     expected = [ { name: '自風 南', han: 1 } ]
+
+    assert result[:tsumo]
+    assert_equal 30, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_statements：翻牌 白 → 合計1飜' do
+  test '#get_score_statements：翻牌 白 → 1飜30符' do
     # z5:白
     hands = set_hands('p234567 s23455', players(:ryo))
     melds = set_melds('z555=', players(:ryo))
-    agari_tile = tiles(:first_pinzu_2)
+    agari_tile = tiles(:first_souzu_5)
     relation = :self
     situational_yaku_list = build_situational_yaku_list
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '翻牌 白', han: 1 } ]
+
+    assert result[:tsumo]
+    assert_equal 30, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_statements：平和 → 合計1飜' do
+  test '#get_score_statements：平和 → 1飜30符' do
     hands = set_hands('m123 p123456 s789 z22', players(:ryo), drawn: false)
     agari_tile = tiles(:first_souzu_9)
     relation = :toimen
@@ -197,11 +221,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '平和', han: 1 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 30, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_statements：タンヤオ → 合計1飜' do
+  test '#get_score_statements：タンヤオ → 1飜40符' do
     hands = set_hands('m222 p234567 s23455', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -209,11 +236,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '断幺九', han: 1 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_statements：一盃口 → 合計1飜' do
+  test '#get_score_statements：一盃口 → 1飜40符' do
     hands = set_hands('m112233 p234567 s55', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -221,11 +251,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '一盃口', han: 1 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_statements：三色同順(面前) → 合計2飜' do
+  test '#get_score_statements：三色同順(面前) → 2飜40符' do
     hands = set_hands('m123 p123 s123567 z22', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -237,7 +270,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_statements：三色同順(鳴き) → 合計1飜' do
+  test '#get_score_statements：三色同順(鳴き) → 1飜30符' do
     hands = set_hands('m123 s123567 z22', players(:ryo), drawn: false)
     melds = set_melds('p123+', players(:ryo))
     agari_tile = tiles(:first_manzu_2)
@@ -246,11 +279,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '三色同順', han: 1 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 30, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_statements：一気通貫(面前) → 合計2飜' do
+  test '#get_score_statements：一気通貫(面前) → 2飜40符' do
     hands = set_hands('m123456789 p234 z22', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -258,11 +294,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '一気通貫', han: 2 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_statements：一気通貫(鳴き) → 合計1飜' do
+  test '#get_score_statements：一気通貫(鳴き) → 1飜40符' do
     hands = set_hands('m456789 p234 z22', players(:ryo), drawn: false)
     melds = set_melds('m123+', players(:ryo))
     agari_tile = tiles(:first_manzu_4)
@@ -271,11 +310,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '一気通貫', han: 1 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 30, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_statements：混全帯幺九(面前) → 合計2飜' do
+  test '#get_score_statements：混全帯幺九(面前) → 2飜50符' do
     hands = set_hands('m123789 p111999 z22', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -283,11 +325,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '混全帯幺九', han: 2 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 50, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_statements：混全帯幺九(鳴き) → 合計1飜' do
+  test '#get_score_statements：混全帯幺九(鳴き) → 1飜40符' do
     hands = set_hands('m789 p111999 z22', players(:ryo), drawn: false)
     melds = set_melds('m123+', players(:ryo))
     agari_tile = tiles(:first_manzu_9)
@@ -296,11 +341,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '混全帯幺九', han: 1 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 1, result[:han_total]
   end
 
-  test '#get_score_statements：七対子 → 合計2飜' do
+  test '#get_score_statements：七対子 → 2飜25符' do
     hands = set_hands('m1133557799 p1199', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -308,11 +356,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '七対子', han: 2 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 25, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_statements：七対子 混一色 → 合計5飜' do
+  test '#get_score_statements：七対子 混一色 → 5飜25符' do
     hands = set_hands('m1133557799 z1122', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -320,11 +371,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '七対子', han: 2 }, { name: '混一色', han: 3 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 25, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 5, result[:han_total]
   end
 
-  test '#get_score_statements：七対子 清一色 → 合計8飜' do
+  test '#get_score_statements：七対子 清一色 → 8飜25符' do
     hands = set_hands('m11223355668899', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -332,12 +386,15 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '七対子', han: 2 }, { name: '清一色', han: 6 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 25, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 8, result[:han_total]
   end
 
 
-  test '#get_score_statements：対々和 → 合計2飜' do
+  test '#get_score_statements：対々和 → 2飜40符' do
     hands = set_hands('m333 p111222 z22', players(:ryo), drawn: false)
     melds = set_melds('m111+', players(:ryo))
     agari_tile = tiles(:first_manzu_3)
@@ -346,11 +403,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '対々和', han: 2 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_statements：三暗刻 → 合計2飜' do
+  test '#get_score_statements：三暗刻 → 2飜40符' do
     hands = set_hands('m111333444 z22', players(:ryo))
     melds = set_melds('p123+', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
@@ -359,11 +419,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '三暗刻', han: 2 } ]
+
+    assert result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_statements：三槓子 → 合計2飜' do
+  test '#get_score_statements：三槓子 → 2飜80符' do
     hands = set_hands('p123 z22', players(:ryo))
     melds = set_melds('m1111 m2222= m3333', players(:ryo))
     agari_tile = tiles(:first_pinzu_1)
@@ -372,11 +435,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '三槓子', han: 2 } ]
+
+    assert result[:tsumo]
+    assert_equal 80, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_statements：三色同刻 → 合計2飜' do
+  test '#get_score_statements：三色同刻 → 2飜30符' do
     hands = set_hands('p123 z22', players(:ryo))
     melds = set_melds('m222- p222= s222+', players(:ryo))
     agari_tile = tiles(:first_pinzu_1)
@@ -385,11 +451,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '三色同刻', han: 2 } ]
+
+    assert result[:tsumo]
+    assert_equal 30, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 2, result[:han_total]
   end
 
-  test '#get_score_statements：混老頭 対々和 → 合計4飜' do
+  test '#get_score_statements：混老頭 対々和 → 4飜50符' do
     hands = set_hands('m999 z22233', players(:ryo))
     melds = set_melds('m111= p111=', players(:ryo))
     agari_tile = tiles(:first_manzu_9)
@@ -398,11 +467,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '対々和', han: 2 }, { name: '混老頭', han: 2 } ]
+
+    assert result[:tsumo]
+    assert_equal 50, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_statements：混老頭 七対子 → 合計4飜' do
+  test '#get_score_statements：混老頭 七対子 → 4飜25符' do
     hands = set_hands('m1199 p1199 s1199 z11', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -410,11 +482,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '七対子', han: 2 }, { name: '混老頭', han: 2 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 25, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_statements：小三元 → 合計4飜' do
+  test '#get_score_statements：小三元 → 4飜40符' do
     hands = set_hands('p234 z55566677', players(:ryo), drawn: false)
     melds = set_melds('m234+', players(:ryo))
     agari_tile = tiles(:first_chun)
@@ -423,11 +498,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '翻牌 白', han: 1 }, { name: '翻牌 發', han: 1 }, { name: '小三元', han: 2 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 4, result[:han_total]
   end
 
-  test '#get_score_statements：純全帯幺九 → 合計3飜' do
+  test '#get_score_statements：純全帯幺九 → 3飜40符' do
     hands = set_hands('m111789 p123789 s11', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -435,11 +513,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '純全帯幺九', han: 3 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 3, result[:han_total]
   end
 
-  test '#get_score_statements：二盃口' do
+  test '#get_score_statements：二盃口 → 3飜40符' do
     hands = set_hands('m112233 p445566 s11', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -447,11 +528,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '二盃口', han: 3 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 3, result[:han_total]
   end
 
-  test '#get_score_statements：清一色 → 合計6飜' do
+  test '#get_score_statements：清一色 → 6飜40符' do
     hands = set_hands('m11122245678999', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -459,11 +543,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '清一色', han: 6 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 6, result[:han_total]
   end
 
-  test '#get_score_statements：国士無双 → 合計13飜' do
+  test '#get_score_statements：国士無双 → 13飜' do
     hands = set_hands('m19 p19 s19 z12345677', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -471,11 +558,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '国士無双', han: 13 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 0, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：国士無双十三面 → 合計13飜' do
+  test '#get_score_statements：国士無双十三面 → 13飜' do
     hands = set_hands('m119 p19 s19 z1234567', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -483,11 +573,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '国士無双十三面', han: 13 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 0, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：四暗刻単騎 → 合計13飜' do
+  test '#get_score_statements：四暗刻単騎 → 13飜50符' do
     hands = set_hands('m111222 p333444 s55', players(:ryo))
     agari_tile = tiles(:first_souzu_5)
     relation = :self
@@ -495,11 +588,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '四暗刻単騎', han: 13 } ]
+
+    assert result[:tsumo]
+    assert_equal 50, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：四暗刻 → 合計13飜' do
+  test '#get_score_statements：四暗刻 → 13飜50符' do
     hands = set_hands('m111222 p333444 s55', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     relation = :self
@@ -507,11 +603,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '四暗刻', han: 13 } ]
+
+    assert result[:tsumo]
+    assert_equal 50, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：大三元 → 合計13飜' do
+  test '#get_score_statements：大三元 → 13飜60符' do
     hands = set_hands('m234 p22 z555666777', players(:ryo), drawn: false)
     agari_tile = tiles(:first_manzu_2)
     relation = :toimen
@@ -519,11 +618,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '大三元', han: 13 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 60, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：大四喜 → 合計13飜' do
+  test '#get_score_statements：大四喜 → 13飜40符' do
     hands = set_hands('m11', players(:ryo))
     melds = set_melds('z111= z222= z333= z444=', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
@@ -532,11 +634,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '大四喜', han: 13 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：小四喜 → 合計13飜' do
+  test '#get_score_statements：小四喜 → 13飜40符' do
     hands = set_hands('z11', players(:ryo))
     melds = set_melds('m111= z222= z333= z444=', players(:ryo))
     agari_tile = tiles(:first_ton)
@@ -545,11 +650,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '小四喜', han: 13 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：字一色 → 合計13飜' do
+  test '#get_score_statements：字一色 → 13飜40符' do
     hands = set_hands('z66', players(:ryo))
     melds = set_melds('z222= z333= z444= z555=', players(:ryo))
     agari_tile = tiles(:first_hatsu)
@@ -558,11 +666,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '小四喜', han: 13 }, { name: '字一色', han: 13 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 40, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 26, result[:han_total]
   end
 
-  test '#get_score_statements：緑一色 → 合計13飜' do
+  test '#get_score_statements：緑一色 → 13飜50符' do
     hands = set_hands('s223344666888 z66', players(:ryo))
     agari_tile = tiles(:first_hatsu)
     relation = :toimen
@@ -570,11 +681,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '緑一色', han: 13 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 50, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：清老頭 → 合計13飜' do
+  test '#get_score_statements：清老頭 → 13飜50符' do
     hands = set_hands('m111999 p111 s11', players(:ryo))
     melds = set_melds('p999=', players(:ryo))
     agari_tile = tiles(:first_souzu_1)
@@ -583,11 +697,14 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '清老頭', han: 13 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 50, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end
 
-  test '#get_score_statements：四槓子 → 合計13飜' do
+  test '#get_score_statements：四槓子 → 13飜100符' do
     hands = set_hands('s11', players(:ryo))
     melds = set_melds('m1111 p2222= s3333 z4444=', players(:ryo))
     agari_tile = tiles(:first_souzu_1)
@@ -596,6 +713,9 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
     result = HandEvaluator.get_score_statements(hands, melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list)
     expected = [ { name: '四槓子', han: 13 } ]
+
+    assert_not result[:tsumo]
+    assert_equal 100, result[:fu_total]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
   end

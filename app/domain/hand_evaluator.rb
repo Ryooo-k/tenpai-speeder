@@ -208,10 +208,11 @@ module HandEvaluator
         han_total = yaku_list.empty? ? 0 : yaku_list.sum { |yaku| yaku[:han].to_i }
 
         {
+          tsumo: scoring_states[:tsumo],
           fu_total: scoring_states[:fu_total],
           fu_components: scoring_states[:fu_components],
           han_total:,
-          yaku_list:
+          yaku_list:,
         }
       end
       all_score_statements.max_by { |score_summary| score_summary[:han_total] }
