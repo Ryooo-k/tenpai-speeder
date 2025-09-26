@@ -122,7 +122,7 @@ class Player < ApplicationRecord
   end
 
   def riichi?
-    current_state.riichi?
+    base_states.exists?(riichi: true)
   end
 
   def score
@@ -166,12 +166,28 @@ class Player < ApplicationRecord
   end
 
   def can_tsumo?
+    return false unless complete?
     HandEvaluator.can_tsumo?(hands, melds, game.round_wind_number, wind_number, situational_tsumo_yaku_list)
   end
 
   def can_ron?(tile)
     return false unless tenpai?
     HandEvaluator.can_ron?(hands, melds, tile, relation_from_current_player, game.round_wind_number, wind_number, situational_ron_yaku_list(tile))
+  end
+
+  def score_statements(tile: false)
+    target_hands = tile ? Array(hands) + [ tile ] : hands
+    agari_tile = tile ? tile : hands.find_by(drawn: true)
+    situational_yaku_list = build_situational_yaku_list(tile:)
+    HandEvaluator.get_score_statements(
+      target_hands,
+      melds,
+      agari_tile,
+      relation_from_current_player,
+      game.round_wind_number,
+      wind_number,
+      situational_yaku_list
+    )
   end
 
   private
@@ -337,22 +353,58 @@ class Player < ApplicationRecord
       shanten.negative?
     end
 
-    def can_haitei_tsumo?
+    def double_riichi?
+      riichi_state = base_states.find_by(riichi: true)
+      return false unless riichi_state
+
+      is_first_turn = riichi_state.rivers.count == 1
+      is_nobody_furo = PlayerState.for_honba(game.latest_honba).up_to_step(riichi_state.step.number).with_melds.empty?
+      is_first_turn && is_nobody_furo
+    end
+
+    def ippatsu?
+      riichi_state = base_states.find_by(riichi: true)
+      return false unless riichi_state
+
+      is_first_tsumo = (rivers.count - riichi_state.rivers.count).zero?
+      range = riichi_state.step.number..current_state.step.number
+      range_states = PlayerState.for_honba(game.latest_honba).in_step_range(range)
+      is_nobody_furo = range_states.with_melds.empty?
+      is_first_tsumo && is_nobody_furo
+    end
+
+    def nobody_furo?
+      game.players.all? { |player| player.melds.empty? }
+    end
+
+    def nobody_discard?
+      game.players.all? { |player| player.rivers.empty? }
+    end
+
+    def tenhou?
+      complete? && nobody_discard? && nobody_furo?
+    end
+
+    def chiihou?
+      complete? && rivers.empty? && nobody_furo?
+    end
+
+    def haitei_tsumo?
       game.remaining_tile_count.zero? && complete?
     end
 
-    def can_houtei_ron?(tile)
+    def houtei_ron?(tile)
       test_hands = Array(hands) + [ tile ]
       shanten = HandEvaluator.calculate_shanten(test_hands, melds)
       game.remaining_tile_count.zero? && shanten.negative?
     end
 
-    def can_rinshan_tsumo?
+    def rinshan_tsumo?
       return false unless complete?
       hands.any? { |hand| hand.drawn && hand.rinshan }
     end
 
-    def can_chankan?(meld)
+    def chankan?(meld)
       return false unless meld.is_a?(Meld)
 
       test_hands = Array(hands) + [ meld ]
@@ -363,8 +415,8 @@ class Player < ApplicationRecord
     def situational_tsumo_yaku_list
       {
         riichi: riichi?,
-        haitei: can_haitei_tsumo?,
-        rinshan: can_rinshan_tsumo?,
+        haitei: haitei_tsumo?,
+        rinshan: rinshan_tsumo?,
         double_riichi: false, # ツモ可否判定では不要のため false で固定
         tenhou: false,        # 同上
         ippatsu: false,       # 同上
@@ -377,14 +429,31 @@ class Player < ApplicationRecord
     def situational_ron_yaku_list(tile)
       {
         riichi: riichi?,
-        houtei: can_houtei_ron?(tile),
-        chankan: can_chankan?(tile),
+        houtei: houtei_ron?(tile),
+        chankan: chankan?(tile),
         chiihou: false,       # ロン和了の状況役のため false で固定
         haitei: false,        # ロン和了の状況役のため false で固定
         rinshan: false,       # 同上
         double_riichi: false, # 同上
         tenhou: false,        # 同上
         ippatsu: false        # 同上
+      }
+    end
+
+    def build_situational_yaku_list(tile: false)
+      houtei  = tile ? houtei_ron?(tile) : false
+      chankan = tile ? chankan?(tile) : false
+
+      {
+        riichi:        riichi?,
+        double_riichi: double_riichi?,
+        ippatsu:       ippatsu?,
+        tenhou:        tenhou?,
+        chiihou:       chiihou?,
+        haitei:        haitei_tsumo?,
+        houtei:        houtei,
+        rinshan:       rinshan_tsumo?,
+        chankan:       chankan
       }
     end
 end

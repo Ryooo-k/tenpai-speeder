@@ -95,4 +95,18 @@ class PlayerStateTest < ActiveSupport::TestCase
     assert_equal [ state_1, state_2 ], @player.player_states.up_to_step(step_2.number)
     assert_equal [ state_1, state_2, state_3 ], @player.player_states.up_to_step(step_3.number)
   end
+
+  test '.in_step_range' do
+    @player.player_states.delete_all
+    step_1 = steps(:step_1)
+    step_2 = steps(:step_2)
+    step_3 = steps(:step_3)
+    state_1 = @player.player_states.create!(step: step_1)
+    state_2 = @player.player_states.create!(step: step_2)
+    state_3 = @player.player_states.create!(step: step_3)
+
+    assert_equal [ state_1 ],  @player.player_states.in_step_range(step_1.number..step_1.number)
+    assert_equal [ state_1, state_2 ], @player.player_states.in_step_range(step_1.number..step_2.number)
+    assert_equal [ state_2, state_3 ], @player.player_states.in_step_range(step_2.number..step_3.number)
+  end
 end

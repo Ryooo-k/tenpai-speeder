@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'helpers/game_test_helper'
-require 'minitest/mock'
 
 class GameFlowsTest < ActionDispatch::IntegrationTest
   include GameTestHelper

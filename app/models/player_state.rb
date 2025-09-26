@@ -21,6 +21,10 @@ class PlayerState < ApplicationRecord
     joins(:step)
     .where(steps: { number: ..n })
   }
+  scope :in_step_range, ->(range) {
+    joins(:step)
+    .where(steps: { number: range })
+  }
   scope :with_hands, -> { where.associated(:hands) }
   scope :with_rivers, -> { where.associated(:rivers) }
   scope :with_melds, -> { where.associated(:melds) }

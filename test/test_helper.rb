@@ -3,7 +3,9 @@
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
+require 'helpers/game_test_helper'
 require 'debug'
+require 'minitest/mock'
 
 module ActiveSupport
   class TestCase
