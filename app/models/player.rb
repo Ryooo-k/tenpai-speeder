@@ -175,12 +175,14 @@ class Player < ApplicationRecord
 
   def can_tsumo?
     return false unless complete?
-    HandEvaluator.can_tsumo?(hands, melds, game.round_wind_number, wind_number, situational_tsumo_yaku_list)
+    situational_yaku_list = build_situational_yaku_list
+    HandEvaluator.can_tsumo?(hands, melds, game.round_wind_number, wind_number, situational_yaku_list)
   end
 
   def can_ron?(tile)
     return false unless tenpai?
-    HandEvaluator.can_ron?(hands, melds, tile, relation_from_current_player, game.round_wind_number, wind_number, situational_ron_yaku_list(tile))
+    situational_yaku_list = build_situational_yaku_list(tile:)
+    HandEvaluator.can_ron?(hands, melds, tile, relation_from_current_player, game.round_wind_number, wind_number, situational_yaku_list)
   end
 
   def score_statements(tile: false)
@@ -422,34 +424,6 @@ class Player < ApplicationRecord
       test_hands = Array(hands) + [ meld ]
       shanten = HandEvaluator.calculate_shanten(test_hands, melds)
       meld.kind == 'kakan' && shanten.negative?
-    end
-
-    def situational_tsumo_yaku_list
-      {
-        riichi: riichi?,
-        haitei: haitei_tsumo?,
-        rinshan: rinshan_tsumo?,
-        double_riichi: false, # ツモ可否判定では不要のため false で固定
-        tenhou: false,        # 同上
-        ippatsu: false,       # 同上
-        chiihou: false,       # ロン和了の状況役のため false で固定
-        houtei: false,        # 同上
-        chankan: false        # 同上
-      }
-    end
-
-    def situational_ron_yaku_list(tile)
-      {
-        riichi: riichi?,
-        houtei: houtei_ron?(tile),
-        chankan: chankan?(tile),
-        chiihou: false,       # ロン和了の状況役のため false で固定
-        haitei: false,        # ロン和了の状況役のため false で固定
-        rinshan: false,       # 同上
-        double_riichi: false, # 同上
-        tenhou: false,        # 同上
-        ippatsu: false        # 同上
-      }
     end
 
     def build_situational_yaku_list(tile: false)
