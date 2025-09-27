@@ -426,4 +426,33 @@ class GameTest < ActiveSupport::TestCase
       { name: "三暗刻", han: 2 }
     ], player_2_score_statements[:yaku_list]
   end
+
+  test '#give_ron_point updates point' do
+    current_player = @game.current_player
+    ron_player_1 = @game.opponents[0]
+    ron_player_2 = @game.opponents[1]
+    score_statement_table = {
+      # 満貫（8000点）
+      ron_player_1.id.to_s => {
+        tsumo: false,
+        han_total: 5,
+        fu_total: 30
+      },
+      # 跳萬（12000点）
+      ron_player_2.id.to_s => {
+        tsumo: false,
+        han_total: 7,
+        fu_total: 30
+      }
+    }
+
+    assert_equal 0, current_player.point
+    assert_equal 0, ron_player_1.point
+    assert_equal 0, ron_player_2.point
+
+    @game.give_ron_point(score_statement_table)
+    assert_equal -20000, current_player.point
+    assert_equal   8000, ron_player_1.point
+    assert_equal  12000, ron_player_2.point
+  end
 end

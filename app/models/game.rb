@@ -159,6 +159,17 @@ class Game < ApplicationRecord
     score_statement_table
   end
 
+  def give_ron_point(score_statement_table)
+    payment = 0
+    score_statement_table.each do |player_id, score_statements|
+      player = players.find(player_id)
+      point = PointCalculator.calculate_point(score_statements, player)
+      player.add_point(point[:receiving])
+      payment += point[:payment]
+    end
+    current_player.add_point(payment)
+  end
+
   private
 
     def create_tiles_and_round
