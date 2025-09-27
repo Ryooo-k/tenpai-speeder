@@ -125,8 +125,16 @@ class Player < ApplicationRecord
     base_states.exists?(riichi: true)
   end
 
+  def point
+    latest_game_record.point
+  end
+
+  def add_point(point)
+    latest_game_record.update!(point:)
+  end
+
   def score
-    game_records.ordered.last.score
+    latest_game_record.score
   end
 
   def wind_number
@@ -220,6 +228,10 @@ class Player < ApplicationRecord
 
     def base_melds
       Meld.where(player_state: base_states.with_melds)
+    end
+
+    def latest_game_record
+      game_records.ordered.last
     end
 
     def create_drawn_hands(drawn_tile)

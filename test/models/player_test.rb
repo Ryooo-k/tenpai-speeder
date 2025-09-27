@@ -514,7 +514,29 @@ class PlayerTest < ActiveSupport::TestCase
     assert @user_player.drawn?
   end
 
-  test '#score' do
+  test '#point returns latest_game_record point' do
+    ton_1 = Round.create!(game: @game, number: 0)
+    ton_1_honba_0 = Honba.create!(round: ton_1, number: 0)
+    @user_player.game_records.create!(honba: ton_1_honba_0, point: 1000)
+    assert_equal 1000, @user_player.point
+
+    ton_1_honba_1 = Honba.create!(round: ton_1, number: 1)
+    @user_player.game_records.create!(honba: ton_1_honba_1, point: 2000)
+    assert_equal 2000, @user_player.point
+
+    ton_2 = Round.create!(game: @game, number: 1)
+    ton_2_honba_0 = Honba.create!(round: ton_2, number: 0)
+    @user_player.game_records.create!(honba: ton_2_honba_0, point: 3000)
+    assert_equal 3000, @user_player.point
+  end
+
+  test '#add_point updates latest_game_record point' do
+    assert_equal 0, @user_player.point
+    @user_player.add_point(8000)
+    assert_equal 8000, @user_player.point
+  end
+
+  test '#score returns latest_game_record score' do
     ton_1 = Round.create!(game: @game, number: 0)
     ton_1_honba_0 = Honba.create!(round: ton_1, number: 0)
     @user_player.game_records.create!(honba: ton_1_honba_0, score: 25000)
