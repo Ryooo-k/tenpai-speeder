@@ -2,9 +2,12 @@
 
 class Game < ApplicationRecord
   TILES_PER_KIND = 4
-  AKA_DORA_TILE_CODES = [ 4, 13, 22 ] # 5萬、5筒、5索の牌コード
+  AKA_DORA_TILE_CODES = [ 4, 13, 22 ].freeze # 5萬、5筒、5索の牌コード
   INITIAL_HAND_SIZE = 13
   PLAYERS_COUNT = 4
+  RELATION_ORDER = { shimocha: 0, toimen: 1, kamicha: 2 }.freeze
+  RIICHI_BONUS = 1000
+  HONBA_BONUS = 300
 
   belongs_to :game_mode
 
@@ -160,14 +163,18 @@ class Game < ApplicationRecord
   end
 
   def give_ron_point(score_statement_table)
-    payment = 0
     score_statement_table.each do |player_id, score_statements|
       player = players.find(player_id)
       point = PointCalculator.calculate_point(score_statements, player)
       player.add_point(point[:receiving])
-      payment += point[:payment]
+      current_player.add_point(point[:payment])
     end
-    current_player.add_point(payment)
+  end
+
+  def give_honba_bonus(ron_claimer_ids: false)
+    target_player = ron_claimer_ids ? find_bonus_winner(ron_claimer_ids) : current_player
+    bonus = latest_honba.riichi_stick_count * RIICHI_BONUS + latest_honba.number * HONBA_BONUS
+    target_player.add_point(bonus)
   end
 
   private
@@ -213,5 +220,10 @@ class Game < ApplicationRecord
 
     def other_players
       players.where.not(seat_order: current_seat_number)
+    end
+
+    def find_bonus_winner(ron_claimer_ids)
+      winner_players = players.where(id: ron_claimer_ids)
+      winner_players.min_by { |player| RELATION_ORDER.fetch(player.relation_from_current_player) }
     end
 end

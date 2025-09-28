@@ -530,10 +530,14 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 3000, @user_player.point
   end
 
-  test '#add_point updates latest_game_record point' do
+  test '#add_point adds latest_game_record point' do
     assert_equal 0, @user_player.point
+
     @user_player.add_point(8000)
     assert_equal 8000, @user_player.point
+
+    @user_player.add_point(1300)
+    assert_equal 9300, @user_player.point
   end
 
   test '#score returns latest_game_record score' do

@@ -427,7 +427,7 @@ class GameTest < ActiveSupport::TestCase
     ], player_2_score_statements[:yaku_list]
   end
 
-  test '#give_ron_point updates point' do
+  test '#give_ron_point adds point' do
     current_player = @game.current_player
     ron_player_1 = @game.opponents[0]
     ron_player_2 = @game.opponents[1]
@@ -454,5 +454,46 @@ class GameTest < ActiveSupport::TestCase
     assert_equal -20000, current_player.point
     assert_equal   8000, ron_player_1.point
     assert_equal  12000, ron_player_2.point
+  end
+
+  test '#give_honba_bonus adds riichi_stick_count_point and honba_point' do
+    winner = @game.opponents.ordered[0]
+    ron_claimer_ids = [ winner.id ]
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 3)
+
+    assert_equal 0, winner.point
+    @game.give_honba_bonus(ron_claimer_ids:)
+    assert_equal 1900, winner.point
+  end
+
+  test '#give_honba_bonus adds bonus to a shimocha claimer following relation priority(shimocha → toimen → kamicha)' do
+    shimocha = @game.opponents.ordered[0]
+    toimen = @game.opponents.ordered[1]
+    kamicha = @game.opponents.ordered[2]
+    ron_claimer_ids = [ shimocha.id, toimen.id, kamicha.id ]
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 3)
+
+    assert_equal 0, shimocha.point
+    assert_equal 0, toimen.point
+    assert_equal 0, kamicha.point
+
+    @game.give_honba_bonus(ron_claimer_ids:)
+    assert_equal 1900, shimocha.point
+    assert_equal    0, toimen.point
+    assert_equal    0, kamicha.point
+  end
+
+  test '#give_honba_bonus adds bonus to a toimen claimer following relation priority(shimocha → toimen → kamicha)' do
+    toimen = @game.opponents.ordered[1]
+    kamicha = @game.opponents.ordered[2]
+    ron_claimer_ids = [ toimen.id, kamicha.id ]
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 3)
+
+    assert_equal 0, toimen.point
+    assert_equal 0, kamicha.point
+
+    @game.give_honba_bonus(ron_claimer_ids:)
+    assert_equal 1900, toimen.point
+    assert_equal    0, kamicha.point
   end
 end

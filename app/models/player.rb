@@ -129,8 +129,9 @@ class Player < ApplicationRecord
     latest_game_record.point
   end
 
-  def add_point(point)
-    latest_game_record.update!(point:)
+  def add_point(addition)
+    new_point = point + addition
+    latest_game_record.update!(point: new_point)
   end
 
   def score
