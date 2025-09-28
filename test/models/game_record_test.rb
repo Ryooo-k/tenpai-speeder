@@ -17,9 +17,14 @@ class GameRecordTest < ActiveSupport::TestCase
     assert record.invalid?
   end
 
-  test 'record default to 25_000' do
+  test 'score default to 25_000' do
     record = GameRecord.new(player: @player, honba: honbas(:honba_0))
     assert_equal 25_000, record.score
+  end
+
+  test 'point default to 0' do
+    record = GameRecord.new(player: @player, honba: honbas(:honba_0))
+    assert_equal 0, record.point
   end
 
   test '.ordered orders by honba_id asc' do

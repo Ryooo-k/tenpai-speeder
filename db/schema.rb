@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_22_044158) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_28_204127) do
   create_table "ais", force: :cascade do |t|
     t.string "name", null: false
     t.string "version", null: false
@@ -51,7 +51,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_22_044158) do
     t.integer "player_id", null: false
     t.integer "honba_id", null: false
     t.integer "score", default: 25000, null: false
-    t.integer "point"
+    t.integer "point", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["honba_id"], name: "index_game_records_on_honba_id"
