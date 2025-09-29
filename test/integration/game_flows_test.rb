@@ -299,12 +299,12 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     set_hands('p4', opponent)
     @game.latest_honba.update!(riichi_stick_count: 1, number: 2) # リーチ棒：1000点、本場：300x2 = 600点
 
-    assert_dom %[div[data-player-board-test-id="#{host.id}"]] do
-      assert_dom %[div[data-role="score"]], text: "25000"
+    assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
+      assert_dom %(div[data-role="score"]), text: '25000'
     end
 
-    assert_dom %[div[data-player-board-test-id="#{opponent.id}"]] do
-      assert_dom %[div[data-role="score"]], text: "25000"
+    assert_dom %(div[data-player-board-test-id="#{opponent.id}"]) do
+      assert_dom %(div[data-role="score"]), text: '25000'
     end
 
     pinzu_4 = opponent.hands.first
@@ -318,12 +318,12 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_dom %[div[data-player-board-test-id="#{host.id}"]] do
-      assert_dom %[div[data-role="score"]], text: "38600" # 25000 + 12000 + 1000 + 600
+    assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
+      assert_dom %(div[data-role="score"]), text: '38600' # 25000 + 12000 + 1000 + 600
     end
 
-    assert_dom %[div[data-player-board-test-id="#{opponent.id}"]] do
-      assert_dom %[div[data-role="score"]], text: "12400" # 25000 - 12000 - 600
+    assert_dom %(div[data-player-board-test-id="#{opponent.id}"]) do
+      assert_dom %(div[data-role="score"]), text: '12400' # 25000 - 12000 - 600
     end
   end
 
@@ -337,8 +337,8 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     @game.latest_honba.update!(riichi_stick_count: 1, number: 2) # リーチ棒：1000点、本場：300x2 = 600点
 
     @game.players.each do |player|
-      assert_dom %[div[data-player-board-test-id="#{player.id}"]] do
-        assert_dom %[div[data-role="score"]], text: "25000"
+      assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
+        assert_dom %(div[data-role="score"]), text: '25000'
       end
     end
 
@@ -353,11 +353,11 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     @game.players.each do |player|
-      assert_dom %[div[data-player-board-test-id="#{player.id}"]] do
+      assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
         if player.host?
-          assert_dom %[div[data-role="score"]], text: "38600" # 25000 + 12000 + 1000 + 600
+          assert_dom %(div[data-role="score"]), text: '38600' # 25000 + 12000 + 1000 + 600
         else
-          assert_dom %[div[data-role="score"]], text: "20800" # 25000 - 4000 - 200
+          assert_dom %(div[data-role="score"]), text: '20800' # 25000 - 4000 - 200
         end
       end
     end
@@ -369,20 +369,20 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     sha_wind_player = @game.players.ordered[2]
     pei_wind_player = @game.players.ordered[3]
 
-    assert_dom %[div[data-player-board-test-id="#{ton_wind_player.id}"]] do
-      assert_dom %[div[data-role="wind"]], text: "東"
+    assert_dom %(div[data-player-board-test-id="#{ton_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '東'
     end
 
-    assert_dom %[div[data-player-board-test-id="#{nan_wind_player.id}"]] do
-      assert_dom %[div[data-role="wind"]], text: "南"
+    assert_dom %(div[data-player-board-test-id="#{nan_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '南'
     end
 
-    assert_dom %[div[data-player-board-test-id="#{sha_wind_player.id}"]] do
-      assert_dom %[div[data-role="wind"]], text: "西"
+    assert_dom %(div[data-player-board-test-id="#{sha_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '西'
     end
 
-    assert_dom %[div[data-player-board-test-id="#{pei_wind_player.id}"]] do
-      assert_dom %[div[data-role="wind"]], text: "北"
+    assert_dom %(div[data-player-board-test-id="#{pei_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '北'
     end
 
     next_round_number = @game.latest_round.number + 1
@@ -392,20 +392,20 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
 
-    assert_dom %[div[data-player-board-test-id="#{ton_wind_player.id}"]] do
-      assert_dom %[div[data-role="wind"]], text: "北"
+    assert_dom %(div[data-player-board-test-id="#{ton_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '北'
     end
 
-    assert_dom %[div[data-player-board-test-id="#{nan_wind_player.id}"]] do
-      assert_dom %[div[data-role="wind"]], text: "東"
+    assert_dom %(div[data-player-board-test-id="#{nan_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '東'
     end
 
-    assert_dom %[div[data-player-board-test-id="#{sha_wind_player.id}"]] do
-      assert_dom %[div[data-role="wind"]], text: "南"
+    assert_dom %(div[data-player-board-test-id="#{sha_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '南'
     end
 
-    assert_dom %[div[data-player-board-test-id="#{pei_wind_player.id}"]] do
-      assert_dom %[div[data-role="wind"]], text: "西"
+    assert_dom %(div[data-player-board-test-id="#{pei_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '西'
     end
   end
 end

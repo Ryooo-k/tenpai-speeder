@@ -212,7 +212,7 @@ module HandEvaluator
           fu_total: scoring_states[:fu_total],
           fu_components: scoring_states[:fu_components],
           han_total:,
-          yaku_list:,
+          yaku_list:
         }
       end
       all_score_statements.max_by { |score_summary| score_summary[:han_total] }

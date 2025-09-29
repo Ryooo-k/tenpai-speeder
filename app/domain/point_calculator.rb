@@ -179,7 +179,7 @@ module PointCalculator
     '10' => { '*' => { receiving: 24000, payment: -24000 } },
     '11' => { '*' => { receiving: 36000, payment: -36000 } },
     '12' => { '*' => { receiving: 36000, payment: -36000 } },
-    '13' => { '*' => { receiving: 48000, payment: -48000 } },
+    '13' => { '*' => { receiving: 48000, payment: -48000 } }
   }
 
   CHILD_RON_POINT_TABLE = {
@@ -216,7 +216,7 @@ module PointCalculator
       '80'  => { receiving: 8000, payment: -8000 },
       '90'  => { receiving: 8000, payment: -8000 },
       '100' => { receiving: 8000, payment: -8000 },
-      '110' => { receiving: 8000, payment: -8000 },
+      '110' => { receiving: 8000, payment: -8000 }
     },
     '4' => {
       '25'  => { receiving: 6400, payment: -6400 },
@@ -238,7 +238,7 @@ module PointCalculator
     '10' => { '*' => { receiving: 16000, payment: -16000 } },
     '11' => { '*' => { receiving: 24000, payment: -24000 } },
     '12' => { '*' => { receiving: 24000, payment: -24000 } },
-    '13' => { '*' => { receiving: 32000, payment: -32000 } },
+    '13' => { '*' => { receiving: 32000, payment: -32000 } }
   }
 
   class << self

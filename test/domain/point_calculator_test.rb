@@ -30,7 +30,7 @@ class PointCalculatorTest < ActiveSupport::TestCase
     }
     point = PointCalculator.calculate_point(score_statements, @host)
 
-    assert_equal  36000, point[:receiving]
+    assert_equal 36000, point[:receiving]
     assert_equal -12000, point[:payment][:child]
     assert_equal      0, point[:payment][:host]
   end
@@ -42,7 +42,7 @@ class PointCalculatorTest < ActiveSupport::TestCase
       han_total: 26
     }
     point = PointCalculator.calculate_point(score_statements, @host)
-    assert_equal  48000, point[:receiving]
+    assert_equal 48000, point[:receiving]
     assert_equal -16000, point[:payment][:child]
     assert_equal      0, point[:payment][:host]
   end

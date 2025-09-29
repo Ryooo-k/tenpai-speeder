@@ -1004,9 +1004,9 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 40, score_statements[:fu_total]
     assert_equal 4,  score_statements[:han_total]
     assert_equal [
-      {name: 'ダブル立直',  han: 2},
-      {name: '一発',       han: 1},
-      {name: '門前清自摸和', han: 1}
+      { name: 'ダブル立直',  han: 2 },
+      { name: '一発',       han: 1 },
+      { name: '門前清自摸和', han: 1 }
     ], score_statements[:yaku_list]
   end
 
@@ -1018,7 +1018,7 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 20, score_statements[:fu_total]
     assert_equal 13,  score_statements[:han_total]
     assert_equal [
-      {name: '天和', han: 13},
+      { name: '天和', han: 13 }
     ], score_statements[:yaku_list]
   end
 
@@ -1032,7 +1032,7 @@ class PlayerTest < ActiveSupport::TestCase
       assert_equal 20, score_statements[:fu_total]
       assert_equal 13,  score_statements[:han_total]
       assert_equal [
-        {name: '地和', han: 13},
+        { name: '地和', han: 13 }
       ], score_statements[:yaku_list]
     end
   end
@@ -1046,8 +1046,8 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 30, score_statements[:fu_total]
     assert_equal 2,  score_statements[:han_total]
     assert_equal [
-      {name: '海底摸月',    han: 1},
-      {name: '門前清自摸和', han: 1}
+      { name: '海底摸月',    han: 1 },
+      { name: '門前清自摸和', han: 1 }
     ], score_statements[:yaku_list]
   end
 
@@ -1061,7 +1061,7 @@ class PlayerTest < ActiveSupport::TestCase
       assert_equal 40, score_statements[:fu_total]
       assert_equal 1,  score_statements[:han_total]
       assert_equal [
-        {name: '河底撈魚', han: 1}
+        { name: '河底撈魚', han: 1 }
       ], score_statements[:yaku_list]
     end
   end
@@ -1075,7 +1075,7 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 40, score_statements[:fu_total]
     assert_equal 1,  score_statements[:han_total]
     assert_equal [
-      {name: '嶺上開花', han: 1}
+      { name: '嶺上開花', han: 1 }
     ], score_statements[:yaku_list]
   end
 
@@ -1088,7 +1088,7 @@ class PlayerTest < ActiveSupport::TestCase
       assert_equal 40, score_statements[:fu_total]
       assert_equal 1,  score_statements[:han_total]
       assert_equal [
-        {name: '槍槓', han: 1}
+        { name: '槍槓', han: 1 }
       ], score_statements[:yaku_list]
     end
   end

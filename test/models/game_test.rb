@@ -483,15 +483,15 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 30, player_1_score_statements[:fu_total]
     assert_equal 3, player_1_score_statements[:han_total]
     assert_equal [
-      { name: "平和", han: 1 },
-      { name: "一気通貫", han: 2 }
+      { name: '平和', han: 1 },
+      { name: '一気通貫', han: 2 }
     ], player_1_score_statements[:yaku_list]
 
     assert_equal 50, player_2_score_statements[:fu_total]
     assert_equal 4, player_2_score_statements[:han_total]
     assert_equal [
-      { name: "対々和", han: 2 },
-      { name: "三暗刻", han: 2 }
+      { name: '対々和', han: 2 },
+      { name: '三暗刻', han: 2 }
     ], player_2_score_statements[:yaku_list]
   end
 
@@ -520,8 +520,8 @@ class GameTest < ActiveSupport::TestCase
 
     @game.give_ron_point(score_statement_table)
     assert_equal -20000, current_player.point
-    assert_equal   8000, ron_player_1.point
-    assert_equal  12000, ron_player_2.point
+    assert_equal 8000, ron_player_1.point
+    assert_equal 12000, ron_player_2.point
   end
 
   test '#give_bonus_point adds riichi_stick_count_point and honba_point' do
@@ -576,8 +576,8 @@ class GameTest < ActiveSupport::TestCase
 
     @game.give_bonus_point(ron_claimer_ids:)
     assert_equal -1200, loser.point
-    assert_equal  1600, toimen.point
-    assert_equal   600, kamicha.point
+    assert_equal 1600, toimen.point
+    assert_equal 600, kamicha.point
   end
 
   test '#give_tsumo_point adds point' do
@@ -593,7 +593,7 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 0, loser_3.point
 
     @game.give_tsumo_point
-    assert_equal  48000, winner.point
+    assert_equal 48000, winner.point
     assert_equal -16000, loser_1.point
     assert_equal -16000, loser_2.point
     assert_equal -16000, loser_3.point
