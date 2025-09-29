@@ -132,6 +132,7 @@ class Game < ApplicationRecord
     next_seat_number = next_round_number % PLAYERS_COUNT
     update!(current_seat_number: next_seat_number)
     update!(current_step_number: 0)
+    create_game_records
   end
 
   def advance_next_honba!
@@ -142,6 +143,7 @@ class Game < ApplicationRecord
     seat_number = latest_round.number % PLAYERS_COUNT
     update!(current_seat_number: seat_number)
     update!(current_step_number: 0)
+    create_game_records
   end
 
   def find_ron_claimers(tile)
@@ -225,5 +227,12 @@ class Game < ApplicationRecord
     def find_bonus_winner(ron_claimer_ids)
       winner_players = players.where(id: ron_claimer_ids)
       winner_players.min_by { |player| RELATION_ORDER.fetch(player.relation_from_current_player) }
+    end
+
+    def create_game_records
+      players.each do |player|
+        score = player.score + player.point
+        player.game_records.create!(score:, honba: latest_honba)
+      end
     end
 end

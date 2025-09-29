@@ -342,6 +342,40 @@ class GameTest < ActiveSupport::TestCase
     assert_equal expected, @game.current_seat_number
   end
 
+  test '#advance_next_round! creates every player new game_record' do
+    @game.players.each do |player|
+      assert_equal 1, player.game_records.count
+    end
+
+    @game.advance_next_round!
+    @game.players.each do |player|
+      assert_equal 2, player.game_records.count
+    end
+
+    @game.advance_next_round!
+    @game.players.each do |player|
+      assert_equal 3, player.game_records.count
+    end
+  end
+
+  test '#advance_next_round! updates every player score by addition point' do
+    @game.players.each do |player|
+      assert_equal 25000, player.score
+      player.add_point(5000)
+    end
+
+    @game.advance_next_round!
+    @game.players.each do |player|
+      assert_equal 30000, player.score
+      player.add_point(-20000)
+    end
+
+    @game.advance_next_round!
+    @game.players.each do |player|
+      assert_equal 10000, player.score
+    end
+  end
+
   test '#advance_next_honba! creates new honba' do
     before_honba_count = @game.latest_round.honbas.count
     before_honba_number = @game.latest_honba.number
@@ -367,6 +401,40 @@ class GameTest < ActiveSupport::TestCase
     @game.update!(current_step_number: 100)
     @game.advance_next_honba!
     assert_equal 0, @game.current_step_number
+  end
+
+  test '#advance_next_honba! creates every player new game_record' do
+    @game.players.each do |player|
+      assert_equal 1, player.game_records.count
+    end
+
+    @game.advance_next_honba!
+    @game.players.each do |player|
+      assert_equal 2, player.game_records.count
+    end
+
+    @game.advance_next_honba!
+    @game.players.each do |player|
+      assert_equal 3, player.game_records.count
+    end
+  end
+
+  test '#advance_next_honba! updates every player score by addition point' do
+    @game.players.each do |player|
+      assert_equal 25000, player.score
+      player.add_point(5000)
+    end
+
+    @game.advance_next_honba!
+    @game.players.each do |player|
+      assert_equal 30000, player.score
+      player.add_point(-20000)
+    end
+
+    @game.advance_next_honba!
+    @game.players.each do |player|
+      assert_equal 10000, player.score
+    end
   end
 
   test '#find_ron_claimers returns players that can_ron? == true' do
