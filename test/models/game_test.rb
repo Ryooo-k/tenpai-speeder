@@ -524,44 +524,78 @@ class GameTest < ActiveSupport::TestCase
     assert_equal  12000, ron_player_2.point
   end
 
-  test '#give_honba_bonus adds riichi_stick_count_point and honba_point' do
-    winner = @game.opponents.ordered[0]
-    ron_claimer_ids = [ winner.id ]
-    @game.latest_honba.update!(riichi_stick_count: 1, number: 3)
+  test '#give_bonus_point adds riichi_stick_count_point and honba_point' do
+    winner = @game.current_player
+    loser_1 = @game.opponents[0]
+    loser_2 = @game.opponents[1]
+    loser_3 = @game.opponents[2]
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 1) # リーチ棒；1000点、本場：300点（100x3）
 
     assert_equal 0, winner.point
-    @game.give_honba_bonus(ron_claimer_ids:)
-    assert_equal 1900, winner.point
+    assert_equal 0, loser_1.point
+    assert_equal 0, loser_2.point
+    assert_equal 0, loser_3.point
+
+    @game.give_bonus_point
+    assert_equal 1300, winner.point
+    assert_equal -100, loser_1.point
+    assert_equal -100, loser_2.point
+    assert_equal -100, loser_3.point
   end
 
-  test '#give_honba_bonus adds bonus to a shimocha claimer following relation priority(shimocha → toimen → kamicha)' do
+  test '#give_bonus_point adds bonus to a shimocha claimer following relation priority(shimocha → toimen → kamicha)' do
+    loser = @game.current_player
     shimocha = @game.opponents.ordered[0]
     toimen = @game.opponents.ordered[1]
     kamicha = @game.opponents.ordered[2]
     ron_claimer_ids = [ shimocha.id, toimen.id, kamicha.id ]
-    @game.latest_honba.update!(riichi_stick_count: 1, number: 3)
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 1)
 
+    assert_equal 0, loser.point
     assert_equal 0, shimocha.point
     assert_equal 0, toimen.point
     assert_equal 0, kamicha.point
 
-    @game.give_honba_bonus(ron_claimer_ids:)
-    assert_equal 1900, shimocha.point
-    assert_equal    0, toimen.point
-    assert_equal    0, kamicha.point
+    @game.give_bonus_point(ron_claimer_ids:)
+    assert_equal -900, loser.point
+    assert_equal 1300, shimocha.point
+    assert_equal  300, toimen.point
+    assert_equal  300, kamicha.point
   end
 
-  test '#give_honba_bonus adds bonus to a toimen claimer following relation priority(shimocha → toimen → kamicha)' do
+  test '#give_bonus_point adds bonus to a toimen claimer following relation priority(shimocha → toimen → kamicha)' do
+    loser = @game.current_player
     toimen = @game.opponents.ordered[1]
     kamicha = @game.opponents.ordered[2]
     ron_claimer_ids = [ toimen.id, kamicha.id ]
-    @game.latest_honba.update!(riichi_stick_count: 1, number: 3)
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 2)
 
+    assert_equal 0, loser.point
     assert_equal 0, toimen.point
     assert_equal 0, kamicha.point
 
-    @game.give_honba_bonus(ron_claimer_ids:)
-    assert_equal 1900, toimen.point
-    assert_equal    0, kamicha.point
+    @game.give_bonus_point(ron_claimer_ids:)
+    assert_equal -1200, loser.point
+    assert_equal  1600, toimen.point
+    assert_equal   600, kamicha.point
+  end
+
+  test '#give_tsumo_point adds point' do
+    winner = @game.current_player
+    loser_1 = @game.opponents.ordered[0]
+    loser_2 = @game.opponents.ordered[1]
+    loser_3 = @game.opponents.ordered[2]
+    set_hands('m234567 p234 s23455', winner) # 天和 48000点の加点
+
+    assert_equal 0, winner.point
+    assert_equal 0, loser_1.point
+    assert_equal 0, loser_2.point
+    assert_equal 0, loser_3.point
+
+    @game.give_tsumo_point
+    assert_equal  48000, winner.point
+    assert_equal -16000, loser_1.point
+    assert_equal -16000, loser_2.point
+    assert_equal -16000, loser_3.point
   end
 end

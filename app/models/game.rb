@@ -173,10 +173,20 @@ class Game < ApplicationRecord
     end
   end
 
-  def give_honba_bonus(ron_claimer_ids: false)
-    target_player = ron_claimer_ids ? find_bonus_winner(ron_claimer_ids) : current_player
-    bonus = latest_honba.riichi_stick_count * RIICHI_BONUS + latest_honba.number * HONBA_BONUS
-    target_player.add_point(bonus)
+  def give_tsumo_point
+    score_statements = current_player.score_statements
+    point = PointCalculator.calculate_point(score_statements, current_player)
+    current_player.add_point(point[:receiving])
+
+    other_players.each do |player|
+      payment = player.host? ? point[:payment][:host] : point[:payment][:child]
+      player.add_point(payment)
+    end
+  end
+
+  def give_bonus_point(ron_claimer_ids: false)
+    give_riichi_bonus_point(ron_claimer_ids)
+    give_honba_bonus_point(ron_claimer_ids)
   end
 
   private
@@ -224,7 +234,7 @@ class Game < ApplicationRecord
       players.where.not(seat_order: current_seat_number)
     end
 
-    def find_bonus_winner(ron_claimer_ids)
+    def find_riichi_bonus_winner(ron_claimer_ids)
       winner_players = players.where(id: ron_claimer_ids)
       winner_players.min_by { |player| RELATION_ORDER.fetch(player.relation_from_current_player) }
     end
@@ -234,5 +244,21 @@ class Game < ApplicationRecord
         score = player.score + player.point
         player.game_records.create!(score:, honba: latest_honba)
       end
+    end
+
+    def give_riichi_bonus_point(ron_claimer_ids)
+      winner = ron_claimer_ids ? find_riichi_bonus_winner(ron_claimer_ids) : current_player
+      riichi_bonus = latest_honba.riichi_stick_count * RIICHI_BONUS
+      winner.add_point(riichi_bonus)
+    end
+
+    def give_honba_bonus_point(ron_claimer_ids)
+      winners = ron_claimer_ids ? players.where(id: ron_claimer_ids) : [ current_player ]
+      losers  = ron_claimer_ids ? [ current_player ] : other_players
+      honba_bonus  = latest_honba.number * HONBA_BONUS
+      winners.each { |winner| winner.add_point(honba_bonus) }
+
+      bonus_payment = losers.size == 1 ? -honba_bonus * winners.count : -honba_bonus / losers.count
+      losers.each { |loser| loser.add_point(bonus_payment) }
     end
 end
