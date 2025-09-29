@@ -99,6 +99,11 @@ class Games::ActionsController < ApplicationController
     redirect_to game_play_path(@game)
   end
 
+  def pass
+    flash[:next_action] = :choose
+    redirect_to game_play_path(@game)
+  end
+
   private
 
     def set_game
