@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'helpers/game_test_helper'
 
 class GameTest < ActiveSupport::TestCase
   include GameTestHelper
@@ -343,6 +342,40 @@ class GameTest < ActiveSupport::TestCase
     assert_equal expected, @game.current_seat_number
   end
 
+  test '#advance_next_round! creates every player new game_record' do
+    @game.players.each do |player|
+      assert_equal 1, player.game_records.count
+    end
+
+    @game.advance_next_round!
+    @game.players.each do |player|
+      assert_equal 2, player.game_records.count
+    end
+
+    @game.advance_next_round!
+    @game.players.each do |player|
+      assert_equal 3, player.game_records.count
+    end
+  end
+
+  test '#advance_next_round! updates every player score by addition point' do
+    @game.players.each do |player|
+      assert_equal 25000, player.score
+      player.add_point(5000)
+    end
+
+    @game.advance_next_round!
+    @game.players.each do |player|
+      assert_equal 30000, player.score
+      player.add_point(-20000)
+    end
+
+    @game.advance_next_round!
+    @game.players.each do |player|
+      assert_equal 10000, player.score
+    end
+  end
+
   test '#advance_next_honba! creates new honba' do
     before_honba_count = @game.latest_round.honbas.count
     before_honba_number = @game.latest_honba.number
@@ -368,6 +401,40 @@ class GameTest < ActiveSupport::TestCase
     @game.update!(current_step_number: 100)
     @game.advance_next_honba!
     assert_equal 0, @game.current_step_number
+  end
+
+  test '#advance_next_honba! creates every player new game_record' do
+    @game.players.each do |player|
+      assert_equal 1, player.game_records.count
+    end
+
+    @game.advance_next_honba!
+    @game.players.each do |player|
+      assert_equal 2, player.game_records.count
+    end
+
+    @game.advance_next_honba!
+    @game.players.each do |player|
+      assert_equal 3, player.game_records.count
+    end
+  end
+
+  test '#advance_next_honba! updates every player score by addition point' do
+    @game.players.each do |player|
+      assert_equal 25000, player.score
+      player.add_point(5000)
+    end
+
+    @game.advance_next_honba!
+    @game.players.each do |player|
+      assert_equal 30000, player.score
+      player.add_point(-20000)
+    end
+
+    @game.advance_next_honba!
+    @game.players.each do |player|
+      assert_equal 10000, player.score
+    end
   end
 
   test '#find_ron_claimers returns players that can_ron? == true' do
@@ -400,5 +467,135 @@ class GameTest < ActiveSupport::TestCase
       result = @game.find_ron_claimers(tile)
       assert_empty result
     end
+  end
+
+  test '#build_ron_score_statements' do
+    ron_player_1 = @game.opponents[0]
+    ron_player_2 = @game.opponents[1]
+    set_hands('m123456789 p22 s45', ron_player_1, drawn: false)
+    set_hands('m111222333 p22 s33', ron_player_2, drawn: false)
+    discarded_tile = tiles(:first_souzu_3)
+
+    score_statements = @game.build_ron_score_statements(discarded_tile.id, [ ron_player_1.id, ron_player_2.id ])
+    player_1_score_statements = score_statements[ron_player_1.id]
+    player_2_score_statements = score_statements[ron_player_2.id]
+
+    assert_equal 30, player_1_score_statements[:fu_total]
+    assert_equal 3, player_1_score_statements[:han_total]
+    assert_equal [
+      { name: '平和', han: 1 },
+      { name: '一気通貫', han: 2 }
+    ], player_1_score_statements[:yaku_list]
+
+    assert_equal 50, player_2_score_statements[:fu_total]
+    assert_equal 4, player_2_score_statements[:han_total]
+    assert_equal [
+      { name: '対々和', han: 2 },
+      { name: '三暗刻', han: 2 }
+    ], player_2_score_statements[:yaku_list]
+  end
+
+  test '#give_ron_point adds point' do
+    current_player = @game.current_player
+    ron_player_1 = @game.opponents[0]
+    ron_player_2 = @game.opponents[1]
+    score_statement_table = {
+      # 満貫（8000点）
+      ron_player_1.id.to_s => {
+        tsumo: false,
+        han_total: 5,
+        fu_total: 30
+      },
+      # 跳萬（12000点）
+      ron_player_2.id.to_s => {
+        tsumo: false,
+        han_total: 7,
+        fu_total: 30
+      }
+    }
+
+    assert_equal 0, current_player.point
+    assert_equal 0, ron_player_1.point
+    assert_equal 0, ron_player_2.point
+
+    @game.give_ron_point(score_statement_table)
+    assert_equal -20000, current_player.point
+    assert_equal 8000, ron_player_1.point
+    assert_equal 12000, ron_player_2.point
+  end
+
+  test '#give_bonus_point adds riichi_stick_count_point and honba_point' do
+    winner = @game.current_player
+    loser_1 = @game.opponents[0]
+    loser_2 = @game.opponents[1]
+    loser_3 = @game.opponents[2]
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 1) # リーチ棒；1000点、本場：300点（100x3）
+
+    assert_equal 0, winner.point
+    assert_equal 0, loser_1.point
+    assert_equal 0, loser_2.point
+    assert_equal 0, loser_3.point
+
+    @game.give_bonus_point
+    assert_equal 1300, winner.point
+    assert_equal -100, loser_1.point
+    assert_equal -100, loser_2.point
+    assert_equal -100, loser_3.point
+  end
+
+  test '#give_bonus_point adds bonus to a shimocha claimer following relation priority(shimocha → toimen → kamicha)' do
+    loser = @game.current_player
+    shimocha = @game.opponents.ordered[0]
+    toimen = @game.opponents.ordered[1]
+    kamicha = @game.opponents.ordered[2]
+    ron_claimer_ids = [ shimocha.id, toimen.id, kamicha.id ]
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 1)
+
+    assert_equal 0, loser.point
+    assert_equal 0, shimocha.point
+    assert_equal 0, toimen.point
+    assert_equal 0, kamicha.point
+
+    @game.give_bonus_point(ron_claimer_ids:)
+    assert_equal -900, loser.point
+    assert_equal 1300, shimocha.point
+    assert_equal  300, toimen.point
+    assert_equal  300, kamicha.point
+  end
+
+  test '#give_bonus_point adds bonus to a toimen claimer following relation priority(shimocha → toimen → kamicha)' do
+    loser = @game.current_player
+    toimen = @game.opponents.ordered[1]
+    kamicha = @game.opponents.ordered[2]
+    ron_claimer_ids = [ toimen.id, kamicha.id ]
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 2)
+
+    assert_equal 0, loser.point
+    assert_equal 0, toimen.point
+    assert_equal 0, kamicha.point
+
+    @game.give_bonus_point(ron_claimer_ids:)
+    assert_equal -1200, loser.point
+    assert_equal 1600, toimen.point
+    assert_equal 600, kamicha.point
+  end
+
+  test '#give_tsumo_point adds point' do
+    winner = @game.current_player
+    loser_1 = @game.opponents.ordered[0]
+    loser_2 = @game.opponents.ordered[1]
+    loser_3 = @game.opponents.ordered[2]
+    set_hands('m234567 p234 s23455', winner) # 天和 48000点の加点
+
+    assert_equal 0, winner.point
+    assert_equal 0, loser_1.point
+    assert_equal 0, loser_2.point
+    assert_equal 0, loser_3.point
+
+    @game.give_tsumo_point
+    assert_equal 48000, winner.point
+    assert_equal -16000, loser_1.point
+    assert_equal -16000, loser_2.point
+    assert_equal -16000, loser_3.point
   end
 end

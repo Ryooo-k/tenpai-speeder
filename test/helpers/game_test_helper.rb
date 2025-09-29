@@ -51,6 +51,22 @@ module GameTestHelper
     player.hands
   end
 
+  def set_rivers(pattern, player, tsumogiri: false, stolen: false)
+    player.current_state.rivers.delete_all
+    game = player.game
+
+    pattern.delete(' ').scan(/([mpsz])([0-9]+)/) do |suit, numbers|
+      suit_name = SUIT_NAMES[suit].to_sym
+      numbers.chars.each do |number|
+        n = number.to_i
+
+        tile = game.tiles.joins(:base_tile).find_by!(base_tile: { suit: suit_name, number: n })
+        player.current_state.rivers.create!(tile:, tsumogiri:, stolen:)
+      end
+    end
+    player.rivers
+  end
+
   # patterns: String または Array<String>
   # 例) 'z111= m1+23 p12+3 z1111='  /  ['z111=', 'm1+23']
   def set_melds(patterns, player)

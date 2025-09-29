@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'minitest/mock'
 
 class PlayerTest < ActiveSupport::TestCase
   include GameTestHelper
@@ -515,7 +514,33 @@ class PlayerTest < ActiveSupport::TestCase
     assert @user_player.drawn?
   end
 
-  test '#score' do
+  test '#point returns latest_game_record point' do
+    ton_1 = Round.create!(game: @game, number: 0)
+    ton_1_honba_0 = Honba.create!(round: ton_1, number: 0)
+    @user_player.game_records.create!(honba: ton_1_honba_0, point: 1000)
+    assert_equal 1000, @user_player.point
+
+    ton_1_honba_1 = Honba.create!(round: ton_1, number: 1)
+    @user_player.game_records.create!(honba: ton_1_honba_1, point: 2000)
+    assert_equal 2000, @user_player.point
+
+    ton_2 = Round.create!(game: @game, number: 1)
+    ton_2_honba_0 = Honba.create!(round: ton_2, number: 0)
+    @user_player.game_records.create!(honba: ton_2_honba_0, point: 3000)
+    assert_equal 3000, @user_player.point
+  end
+
+  test '#add_point adds latest_game_record point' do
+    assert_equal 0, @user_player.point
+
+    @user_player.add_point(8000)
+    assert_equal 8000, @user_player.point
+
+    @user_player.add_point(1300)
+    assert_equal 9300, @user_player.point
+  end
+
+  test '#score returns latest_game_record score' do
     ton_1 = Round.create!(game: @game, number: 0)
     ton_1_honba_0 = Honba.create!(round: ton_1, number: 0)
     @user_player.game_records.create!(honba: ton_1_honba_0, score: 25000)
@@ -872,7 +897,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:can_haitei_tsumo?, true) do
+        @user_player.stub(:haitei_tsumo?, true) do
           result = @user_player.can_tsumo?
           assert result
         end
@@ -886,7 +911,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:can_rinshan_tsumo?, true) do
+        @user_player.stub(:rinshan_tsumo?, true) do
           result = @user_player.can_tsumo?
           assert result
         end
@@ -944,7 +969,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:can_houtei_ron?, true) do
+        @user_player.stub(:houtei_ron?, true) do
           result = @user_player.can_ron?(tiles(:first_pinzu_1))
           assert result
         end
@@ -958,11 +983,113 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:can_chankan?, true) do
+        @user_player.stub(:chankan?, true) do
           result = @user_player.can_ron?(tiles(:first_pinzu_1))
           assert result
         end
       end
+    end
+  end
+
+  test '#score_statements：4飜40符（ダブル立直、一発、門前清自摸和）' do
+    player = @game.current_player
+    set_hands('m123789 p111456 s1', player)
+    set_rivers('z1', player)
+    player.current_state.update!(riichi: true)
+
+    assign_draw_tile('s1', @game)
+    @game.draw_for_current_player
+
+    score_statements = player.score_statements
+    assert_equal 40, score_statements[:fu_total]
+    assert_equal 4,  score_statements[:han_total]
+    assert_equal [
+      { name: 'ダブル立直',  han: 2 },
+      { name: '一発',       han: 1 },
+      { name: '門前清自摸和', han: 1 }
+    ], score_statements[:yaku_list]
+  end
+
+  test '#score_statements：13飜20符（天和）' do
+    host = @game.host_player
+    set_hands('m123456789 p55 s234', host)
+
+    score_statements = host.score_statements
+    assert_equal 20, score_statements[:fu_total]
+    assert_equal 13,  score_statements[:han_total]
+    assert_equal [
+      { name: '天和', han: 13 }
+    ], score_statements[:yaku_list]
+  end
+
+  test '#score_statements：13飜20符（地和）' do
+    child = @game.players.find_by!(seat_order: 1)
+    set_hands('m123456789 p55 s234', child)
+    set_rivers('z1', @game.host_player)
+
+    @game.stub(:current_player, child) do
+      score_statements = child.score_statements
+      assert_equal 20, score_statements[:fu_total]
+      assert_equal 13,  score_statements[:han_total]
+      assert_equal [
+        { name: '地和', han: 13 }
+      ], score_statements[:yaku_list]
+    end
+  end
+
+  test '#score_statements：2飜30符（海底摸月、門前清自摸和）' do
+    set_hands('m123789 p222 s234 z11', @user_player)
+    set_rivers('z1', @user_player)
+    @game.latest_honba.update!(draw_count: 122)
+
+    score_statements = @user_player.score_statements
+    assert_equal 30, score_statements[:fu_total]
+    assert_equal 2,  score_statements[:han_total]
+    assert_equal [
+      { name: '海底摸月',    han: 1 },
+      { name: '門前清自摸和', han: 1 }
+    ], score_statements[:yaku_list]
+  end
+
+  test '#score_statements：1飜40符（河底撈魚）' do
+    set_hands('m123789 p222 s234 z1', @user_player)
+    @game.latest_honba.update!(draw_count: 122)
+    ton = tiles(:first_ton)
+
+    @user_player.stub(:relation_from_current_player, :toimen) do
+      score_statements = @user_player.score_statements(tile: ton)
+      assert_equal 40, score_statements[:fu_total]
+      assert_equal 1,  score_statements[:han_total]
+      assert_equal [
+        { name: '河底撈魚', han: 1 }
+      ], score_statements[:yaku_list]
+    end
+  end
+
+  test '#score_statements：1飜40符（嶺上開花）' do
+    set_hands('m123789 s234 z11', @user_player, rinshan: true)
+    set_melds('p2222=', @user_player)
+    set_rivers('z1', @user_player)
+
+    score_statements = @user_player.score_statements
+    assert_equal 40, score_statements[:fu_total]
+    assert_equal 1,  score_statements[:han_total]
+    assert_equal [
+      { name: '嶺上開花', han: 1 }
+    ], score_statements[:yaku_list]
+  end
+
+  test '#score_statements：1飜40符（槍槓）' do
+    set_hands('m123789 p222 s23 z11', @user_player, drawn: false)
+    meld = Meld.create!(tile: tiles(:fourth_souzu_1), kind: 'kakan', player_state: @ai_player.current_state, from: :self, position: 3)
+
+    @user_player.stub(:relation_from_current_player, :toimen) do
+      score_statements = @user_player.score_statements(tile: meld)
+      assert_equal 40, score_statements[:fu_total]
+      assert_equal 1,  score_statements[:han_total]
+      assert_equal [
+        { name: '槍槓', han: 1 }
+      ], score_statements[:yaku_list]
     end
   end
 end

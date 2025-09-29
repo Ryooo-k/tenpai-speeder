@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'helpers/game_test_helper'
-require 'minitest/mock'
 
 class GameFlowsTest < ActionDispatch::IntegrationTest
   include GameTestHelper
@@ -74,7 +72,7 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
-  test 'next player draws when current player discards and not steal' do
+  test 'next player draws when current player discards or not steal' do
     before_player = @game.current_player.dup
     chosen_hand = @game.current_player.hands.sample
     post game_action_discard_path, params: { game_id: @game.id, chosen_hand_id: chosen_hand.id }
@@ -290,5 +288,124 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     assert_equal before_rounds_count + 1, @game.rounds.count
     assert_equal before_round_number + 1, @game.latest_round.number
     assert_equal 0, @game.current_step_number
+  end
+
+  test 'host mangan ron updates score: +12000 to winner, -12000 to loser, bonus 1600' do
+    host = @game.user_player
+    assign_host_player(host, @game)
+    set_hands('m234567 p23 s23455', host, drawn: false) # 4筒ロンで親萬 12000点の加点
+    set_opponent_turn(@game)
+    opponent = @game.current_player
+    set_hands('p4', opponent)
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 2) # リーチ棒：1000点、本場：300x2 = 600点
+
+    assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
+      assert_dom %(div[data-role="score"]), text: '25000'
+    end
+
+    assert_dom %(div[data-player-board-test-id="#{opponent.id}"]) do
+      assert_dom %(div[data-role="score"]), text: '25000'
+    end
+
+    pinzu_4 = opponent.hands.first
+    post game_action_discard_path, params: { game_id: @game.id, chosen_hand_id: pinzu_4.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    post game_action_ron_path, params: { game_id: @game.id, discarded_tile_id: pinzu_4.tile.id, ron_claimer_ids: [ host.id ] }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
+      assert_dom %(div[data-role="score"]), text: '38600' # 25000 + 12000 + 1000 + 600
+    end
+
+    assert_dom %(div[data-player-board-test-id="#{opponent.id}"]) do
+      assert_dom %(div[data-role="score"]), text: '12400' # 25000 - 12000 - 600
+    end
+  end
+
+  test 'host mangan tsumo updates score: +12000 to host, -4000 to children' do
+    host = @game.user_player
+    assign_host_player(host, @game)
+    set_hands('m234567 p23 s23455', host, drawn: false) # 4筒ツモで親萬 12000点の加点
+    set_rivers('m1', host)
+    set_user_turn(@game)
+    assign_draw_tile('p4', @game)
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 2) # リーチ棒：1000点、本場：300x2 = 600点
+
+    @game.players.each do |player|
+      assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
+        assert_dom %(div[data-role="score"]), text: '25000'
+      end
+    end
+
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    post game_action_tsumo_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    @game.players.each do |player|
+      assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
+        if player.host?
+          assert_dom %(div[data-role="score"]), text: '38600' # 25000 + 12000 + 1000 + 600
+        else
+          assert_dom %(div[data-role="score"]), text: '20800' # 25000 - 4000 - 200
+        end
+      end
+    end
+  end
+
+  test 'rotates wind when advances next round' do
+    ton_wind_player = @game.players.ordered[0]
+    nan_wind_player = @game.players.ordered[1]
+    sha_wind_player = @game.players.ordered[2]
+    pei_wind_player = @game.players.ordered[3]
+
+    assert_dom %(div[data-player-board-test-id="#{ton_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '東'
+    end
+
+    assert_dom %(div[data-player-board-test-id="#{nan_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '南'
+    end
+
+    assert_dom %(div[data-player-board-test-id="#{sha_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '西'
+    end
+
+    assert_dom %(div[data-player-board-test-id="#{pei_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '北'
+    end
+
+    next_round_number = @game.latest_round.number + 1
+    @game.latest_round.update!(number: next_round_number)
+    @game.reload
+    post game_action_draw_path, params: { game_mode_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom %(div[data-player-board-test-id="#{ton_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '北'
+    end
+
+    assert_dom %(div[data-player-board-test-id="#{nan_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '東'
+    end
+
+    assert_dom %(div[data-player-board-test-id="#{sha_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '南'
+    end
+
+    assert_dom %(div[data-player-board-test-id="#{pei_wind_player.id}"]) do
+      assert_dom %(div[data-role="wind"]), text: '西'
+    end
   end
 end

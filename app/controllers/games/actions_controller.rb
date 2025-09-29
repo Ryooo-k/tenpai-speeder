@@ -51,7 +51,10 @@ class Games::ActionsController < ApplicationController
   def ron
     discarded_tile_id = params.expect(:discarded_tile_id).to_i
     ron_claimer_ids = params.expect(ron_claimer_ids: []).map(&:to_i)
-    # 点数の振り分け処理は、別issueで対応する。
+
+    score_statements = @game.build_ron_score_statements(discarded_tile_id, ron_claimer_ids)
+    @game.give_ron_point(score_statements)
+    @game.give_bonus_point(ron_claimer_ids:)
 
     if ron_claimer_ids.include?(@game.host_player.id)
       @game.advance_next_honba!
@@ -76,7 +79,8 @@ class Games::ActionsController < ApplicationController
   end
 
   def tsumo
-    # 点数の振り分け処理は、別issueで対応する。
+    @game.give_tsumo_point
+    @game.give_bonus_point
 
     if @game.current_player.host?
       @game.advance_next_honba!

@@ -2,9 +2,12 @@
 
 class Game < ApplicationRecord
   TILES_PER_KIND = 4
-  AKA_DORA_TILE_CODES = [ 4, 13, 22 ] # 5萬、5筒、5索の牌コード
+  AKA_DORA_TILE_CODES = [ 4, 13, 22 ].freeze # 5萬、5筒、5索の牌コード
   INITIAL_HAND_SIZE = 13
   PLAYERS_COUNT = 4
+  RELATION_ORDER = { shimocha: 0, toimen: 1, kamicha: 2 }.freeze
+  RIICHI_BONUS = 1000
+  HONBA_BONUS = 300
 
   belongs_to :game_mode
 
@@ -129,6 +132,7 @@ class Game < ApplicationRecord
     next_seat_number = next_round_number % PLAYERS_COUNT
     update!(current_seat_number: next_seat_number)
     update!(current_step_number: 0)
+    create_game_records
   end
 
   def advance_next_honba!
@@ -139,12 +143,50 @@ class Game < ApplicationRecord
     seat_number = latest_round.number % PLAYERS_COUNT
     update!(current_seat_number: seat_number)
     update!(current_step_number: 0)
+    create_game_records
   end
 
   def find_ron_claimers(tile)
     other_players.map do |player|
       player.can_ron?(tile) ? player : next
     end.compact
+  end
+
+  def build_ron_score_statements(discarded_tile_id, ron_claimer_ids)
+    ron_players = players.where(id: ron_claimer_ids)
+    tile = tiles.find(discarded_tile_id)
+    score_statement_table = {}
+
+    ron_players.each do |player|
+      score_statements = player.score_statements(tile:)
+      score_statement_table[player.id] = score_statements
+    end
+    score_statement_table
+  end
+
+  def give_ron_point(score_statement_table)
+    score_statement_table.each do |player_id, score_statements|
+      player = players.find(player_id)
+      point = PointCalculator.calculate_point(score_statements, player)
+      player.add_point(point[:receiving])
+      current_player.add_point(point[:payment])
+    end
+  end
+
+  def give_tsumo_point
+    score_statements = current_player.score_statements
+    point = PointCalculator.calculate_point(score_statements, current_player)
+    current_player.add_point(point[:receiving])
+
+    other_players.each do |player|
+      payment = player.host? ? point[:payment][:host] : point[:payment][:child]
+      player.add_point(payment)
+    end
+  end
+
+  def give_bonus_point(ron_claimer_ids: false)
+    give_riichi_bonus_point(ron_claimer_ids)
+    give_honba_bonus_point(ron_claimer_ids)
   end
 
   private
@@ -190,5 +232,33 @@ class Game < ApplicationRecord
 
     def other_players
       players.where.not(seat_order: current_seat_number)
+    end
+
+    def find_riichi_bonus_winner(ron_claimer_ids)
+      winner_players = players.where(id: ron_claimer_ids)
+      winner_players.min_by { |player| RELATION_ORDER.fetch(player.relation_from_current_player) }
+    end
+
+    def create_game_records
+      players.each do |player|
+        score = player.score + player.point
+        player.game_records.create!(score:, honba: latest_honba)
+      end
+    end
+
+    def give_riichi_bonus_point(ron_claimer_ids)
+      winner = ron_claimer_ids ? find_riichi_bonus_winner(ron_claimer_ids) : current_player
+      riichi_bonus = latest_honba.riichi_stick_count * RIICHI_BONUS
+      winner.add_point(riichi_bonus)
+    end
+
+    def give_honba_bonus_point(ron_claimer_ids)
+      winners = ron_claimer_ids ? players.where(id: ron_claimer_ids) : [ current_player ]
+      losers  = ron_claimer_ids ? [ current_player ] : other_players
+      honba_bonus  = latest_honba.number * HONBA_BONUS
+      winners.each { |winner| winner.add_point(honba_bonus) }
+
+      bonus_payment = losers.size == 1 ? -honba_bonus * winners.count : -honba_bonus / losers.count
+      losers.each { |loser| loser.add_point(bonus_payment) }
     end
 end
