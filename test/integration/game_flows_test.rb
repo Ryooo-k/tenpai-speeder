@@ -151,10 +151,28 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
       assert_dom 'button[type=submit]', { text: 'ツモ', count: 1 }
     end
 
-    assert_dom 'form[action=?][method=?]', game_action_through_path(@game), 'post' do
-      assert_dom 'button[type=submit]', { text: 'スルー', count: 1 }
+    assert_dom 'form[action=?][method=?]', game_action_pass_path(@game), 'get' do
+      assert_dom 'button[type=submit]', { text: 'パス', count: 1 }
     end
   end
+
+  test 'renders selectable hands form when user select tsumo_pass' do
+    set_user_turn(@game)
+    set_hands('m123456789 p23 s99', @game.user_player)
+    assign_draw_tile('p1', @game)
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    get game_action_pass_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'input[type=radio][name=chosen_hand_id]'
+  end
+
 
   test 'advances to next honba when host player tsumo' do
     host = @game.user_player
