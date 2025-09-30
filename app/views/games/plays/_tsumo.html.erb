@@ -1,12 +1,19 @@
-<div class="absolute bottom-1/8 right-1/10">
-  <div class="flex gap-2">
-    <%= button_to "ツモ",
-                  game_action_tsumo_path(@game),
-                  class: "rounded border px-2 py-1" %>
+<% if @game.current_player.user? %>
+  <div class="absolute bottom-1/8 right-1/10">
+    <div class="flex gap-2">
+      <%= button_to "ツモ",
+                    game_action_tsumo_path(@game),
+                    class: "rounded border px-2 py-1" %>
 
-    <%= button_to "パス",
-                  game_action_pass_path(@game),
-                  method: :get,
-                  class: "rounded border px-2 py-1" %>
+      <%= button_to "パス",
+                    game_action_pass_path(@game),
+                    method: :get,
+                    class: "rounded border px-2 py-1" %>
+    </div>
   </div>
-</div>
+
+<% else %>
+  <%= form_with url: game_action_tsumo_path(@game),
+              method: :post,
+              data: { controller: "auto-submit" } %>
+<% end %>

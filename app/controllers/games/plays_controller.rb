@@ -14,7 +14,7 @@ class Games::PlaysController < ApplicationController
       @riichi_candidates = @game.user_player.find_riichi_candidates
     end
 
-    if @action == :furo
+    if @action == :confirm_furo
       target_tile = @game.tiles.find(@discarded_tile_id)
       @furo_candidates = @game.user_player.find_furo_candidates(target_tile, @game.current_player)
     end
