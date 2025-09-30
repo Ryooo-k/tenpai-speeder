@@ -563,6 +563,26 @@ class PlayerTest < ActiveSupport::TestCase
     assert @user_player.can_riichi?
   end
 
+  test '#find_riichi_candidates returns possible riichi hand when tenpai and non-melds' do
+    set_hands('m123456789 p12 s225', @user_player) # s5（5索）切りでリーチ可能な手牌
+    candidates = @user_player.find_riichi_candidates
+    assert_equal '5索', candidates.first.name
+  end
+
+  test '#find_riichi_candidates returns [] when player have melds' do
+    set_hands('m456789 p12 s225', @user_player)
+    set_melds('m111=', @user_player)
+    candidates = @user_player.find_riichi_candidates
+    assert_equal [], candidates
+  end
+
+  test '#find_riichi_candidates returns possible riichi hand when player have only ankan' do
+    set_hands('m456789 p12 s225', @user_player)
+    set_melds('m1111', @user_player)
+    candidates = @user_player.find_riichi_candidates
+    assert_equal '5索', candidates.first.name
+  end
+
   test '#point returns latest_game_record point' do
     ton_1 = Round.create!(game: @game, number: 0)
     ton_1_honba_0 = Honba.create!(round: ton_1, number: 0)

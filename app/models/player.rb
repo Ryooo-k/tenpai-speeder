@@ -130,6 +130,11 @@ class Player < ApplicationRecord
     tenpai? && ( melds.empty? || melds.all? { |meld| meld.kind == 'ankan' } )
   end
 
+  def find_riichi_candidates
+    return [] if melds.present? && melds.all? { |meld| meld.kind != 'ankan' }
+    HandEvaluator.find_riichi_candidates(hands, melds)
+  end
+
   def point
     latest_game_record.point
   end
