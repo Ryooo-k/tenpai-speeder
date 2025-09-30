@@ -514,6 +514,55 @@ class PlayerTest < ActiveSupport::TestCase
     assert @user_player.drawn?
   end
 
+  test '#riichi? returns true when player called riichi' do
+    assert_not @user_player.riichi?
+
+    step_2 = steps(:step_2)
+    @user_player.stub(:current_step_number, step_2.number) do
+      @user_player.player_states.create!(step: step_2, riichi: true)
+      assert @user_player.riichi?
+    end
+
+    step_3 = steps(:step_3)
+    @user_player.stub(:current_step_number, step_3.number) do
+      @user_player.player_states.create!(step: step_3, riichi: false)
+      assert @user_player.riichi?
+    end
+  end
+
+  test '#can_riichi? returns true when player is tenpai' do
+    set_hands('m123456789 p12 s22', @user_player)
+    assert @user_player.can_riichi?
+  end
+
+  test '#can_riichi? returns false when player called riichi' do
+    set_hands('m123456789 p12 s22', @user_player)
+
+    step_2 = steps(:step_2)
+    @user_player.stub(:current_step_number, step_2.number) do
+      @user_player.player_states.create!(step: step_2, riichi: true)
+      assert_not @user_player.can_riichi?
+    end
+
+    step_3 = steps(:step_3)
+    @user_player.stub(:current_step_number, step_3.number) do
+      @user_player.player_states.create!(step: step_3, riichi: false)
+      assert_not @user_player.can_riichi?
+    end
+  end
+
+  test '#can_riichi? returns false when player called furo' do
+    set_hands('m456789 p12 s22', @user_player)
+    set_melds('m123', @user_player)
+    assert_not @user_player.can_riichi?
+  end
+
+  test '#can_riichi? returns true when player called ankan' do
+    set_hands('m456789 p12 s22', @user_player)
+    set_melds('m1111', @user_player)
+    assert @user_player.can_riichi?
+  end
+
   test '#point returns latest_game_record point' do
     ton_1 = Round.create!(game: @game, number: 0)
     ton_1_honba_0 = Honba.create!(round: ton_1, number: 0)

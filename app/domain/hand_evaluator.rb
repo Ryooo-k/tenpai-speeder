@@ -219,9 +219,10 @@ module HandEvaluator
     end
 
     def calculate_shanten(hands, melds)
-      normal_shanten = calculate_normal_shanten(hands, melds)
-      chiitoitsu_shanten = calculate_chiitoitsu_shanten(hands, melds)
-      kokushi_shanten = calculate_kokushi_shanten(hands, melds)
+      compact_melds = melds.select { |meld| meld.position != 3 }
+      normal_shanten = calculate_normal_shanten(hands, compact_melds)
+      chiitoitsu_shanten = calculate_chiitoitsu_shanten(hands, compact_melds)
+      kokushi_shanten = calculate_kokushi_shanten(hands, compact_melds)
       [ normal_shanten, chiitoitsu_shanten, kokushi_shanten ].min
     end
   end

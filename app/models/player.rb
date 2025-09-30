@@ -125,6 +125,11 @@ class Player < ApplicationRecord
     base_states.exists?(riichi: true)
   end
 
+  def can_riichi?
+    return false if riichi?
+    tenpai? && ( melds.empty? || melds.all? { |meld| meld.kind == 'ankan' } )
+  end
+
   def point
     latest_game_record.point
   end
