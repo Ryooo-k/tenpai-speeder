@@ -172,7 +172,7 @@ class Player < ApplicationRecord
   end
 
   def can_furo?(target_tile, target_player)
-    return if self == target_player
+    return false if self == target_player || riichi?
     can_pon?(target_tile) || can_chi?(target_tile, target_player)
   end
 

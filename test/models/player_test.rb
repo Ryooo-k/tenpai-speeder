@@ -802,6 +802,22 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#can_furo? returns false when player called riichi' do
+    set_hands('m11', @user_player)
+    kamicha_player = @ai_player
+
+    kamicha_player.stub(:seat_order, 3) do
+      @user_player.stub(:seat_order, 0) do
+        is_furo = @user_player.can_furo?(tiles(:first_manzu_1), kamicha_player)
+        assert is_furo
+
+        @user_player.current_state.update!(riichi: true)
+        is_furo = @user_player.can_furo?(tiles(:first_manzu_1), kamicha_player)
+        assert_not is_furo
+      end
+    end
+  end
+
   test 'player can not chi zihai' do
     ton = @user_player.current_state.hands.create!(tile: tiles(:first_ton))
     nan = @user_player.current_state.hands.create!(tile: tiles(:first_nan))
