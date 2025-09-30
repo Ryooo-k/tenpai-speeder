@@ -7,6 +7,9 @@
 <% when :tsumo %>
     <%= render partial: "tsumo" %>
 
+<% when :riichi_confirmation %>
+    <%= render partial: "riichi_confirmation" %>
+
 <% when :choose %>
   <% if @game.current_player.ai? %>
     <%= form_with url: game_action_choose_path(@game),

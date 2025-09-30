@@ -8,6 +8,8 @@ class Games::ActionsController < ApplicationController
 
     if @game.current_player.can_tsumo?
       flash[:next_action] = :tsumo
+    elsif @game.current_player.can_riichi?
+      flash[:next_action] = :riichi_confirmation
     else
       flash[:next_action] = :choose
     end
@@ -90,6 +92,11 @@ class Games::ActionsController < ApplicationController
 
     @game.deal_initial_hands
     flash[:next_action] = :draw
+    redirect_to game_play_path(@game)
+  end
+
+  def riichi
+    flash[:next_action] = :riichi_choose
     redirect_to game_play_path(@game)
   end
 
