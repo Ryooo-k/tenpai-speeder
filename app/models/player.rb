@@ -74,9 +74,13 @@ class Player < ApplicationRecord
   end
 
   # ai用打牌選択のメソッド
-  # 現状は手牌の中からランダムに選択。aiの実装は別issueで対応。
+  # 現状は状況に合わせて手牌の中からランダムに選択。aiの実装は別issueで対応。
   def choose
-    current_state.hands.sample.id
+    if current_state.riichi?
+      find_riichi_candidates.sample.id
+    else
+      current_state.hands.sample.id
+    end
   end
 
   def name

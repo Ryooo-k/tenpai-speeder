@@ -431,6 +431,14 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#choose returns riichi_candidates when ai riichi' do
+    set_hands('m123456789 p23 s9 z11', @ai_player)
+    @ai_player.current_state.update!(riichi: true)
+    result = @ai_player.choose
+    expected = @ai_player.hands.find { |hand| hand.name == '9索' }.id
+    assert_equal expected, result
+  end
+
   test '#ai?' do
     assert_not @user_player.ai?
     assert @ai_player.ai?
