@@ -770,8 +770,13 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 0, result
   end
 
+  test '#calculate_shanten：m1133777 p1199 s11 z1（七対子）4枚使い不可 → 1' do
+    hands = set_hands('m1133777 p1199 s19 z1', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 2, result
+  end
+
   test '#get_score_statements：九蓮宝燈 → 合計13飜' do
-    # m11112345678999
     hands = set_hands('m11112345678999', players(:ryo))
     agari_tile = tiles(:first_manzu_1)
     relation = :toimen
@@ -781,6 +786,13 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     expected = [ { name: '九蓮宝燈', han: 13 } ]
     assert_equal expected, result[:yaku_list]
     assert_equal 13, result[:han_total]
+  end
+
+  test '#find_riichi_candidates returns all possible riichi hand' do
+    hands = set_hands('m1155599 p115599 s1', players(:ryo)) # m5（5萬）を切ってリーチ可能な手牌
+    riichi_candidates = HandEvaluator.find_riichi_candidates(hands, @empty_melds)
+    assert riichi_candidates.all? { |candidate| candidate.name == '5萬' }
+    assert_equal 3, riichi_candidates.count
   end
 
   # コアとなるprivateメソッドを個別にテストを行う。
