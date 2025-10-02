@@ -10,7 +10,7 @@ class Games::ActionsController < ApplicationController
       flash[:next_action] = :tsumo
     elsif @game.current_player.riichi?
       flash[:next_action] = :discard
-      flash[:chosen_hand_id] = @game.current_player.hands.last.id
+      flash[:chosen_hand_id] = @game.current_player.hands.find_by(drawn: true).id
     elsif @game.current_player.can_riichi?
       flash[:next_action] = :confirm_riichi
     else
@@ -100,7 +100,7 @@ class Games::ActionsController < ApplicationController
 
   def riichi
     @game.current_player.current_state.update!(riichi: true)
-    flash[:next_action] = :choose
+    flash[:next_action] = :riichi_choose
     redirect_to game_play_path(@game)
   end
 

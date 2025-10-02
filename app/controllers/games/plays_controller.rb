@@ -11,7 +11,7 @@ class Games::PlaysController < ApplicationController
     @ron_claimer_ids = flash[:ron_claimer_ids]
 
     if @action == :riichi_choose
-      @riichi_candidates = @game.user_player.find_riichi_candidates
+      @riichi_candidates = @game.current_player.find_riichi_candidates
     end
 
     if @action == :confirm_furo
