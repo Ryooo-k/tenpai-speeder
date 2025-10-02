@@ -43,6 +43,11 @@ class RiverTest < ActiveSupport::TestCase
     assert_not river.stolen
   end
 
+  test 'riichi default to false' do
+    river = River.new(player_state: @state, tile: @manzu_1, tsumogiri: false)
+    assert_not river.riichi
+  end
+
   test '.ordered' do
     @state.rivers.delete_all
     first_river = @state.rivers.create!(tile: @manzu_3, tsumogiri: false)

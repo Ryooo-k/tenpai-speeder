@@ -8,6 +8,7 @@ class River < ApplicationRecord
   validates :tile, presence: true
   validates :tsumogiri, inclusion: { in: [ true, false ] }
   validates :stolen, inclusion: { in: [ true, false ] }
+  validates :riichi, inclusion: { in: [ true, false ] }
 
   scope :ordered, -> { order(:created_at) }
   scope :not_stolen, -> { where(stolen: false) }
