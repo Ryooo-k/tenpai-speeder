@@ -11,4 +11,20 @@ class River < ApplicationRecord
 
   scope :ordered, -> { order(:created_at) }
   scope :not_stolen, -> { where(stolen: false) }
+
+  def suit
+    tile.suit
+  end
+
+  def name
+    tile.name
+  end
+
+  def number
+    tile.number
+  end
+
+  def code
+    tile.code
+  end
 end
