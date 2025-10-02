@@ -6,7 +6,7 @@
       </div>
     <% end %>
 
-  <% elsif @action == :riichi_choose && @game.current_player.user? %>
+  <% elsif @action == :choose && @game.current_player.user? && @game.user_player.riichi? %>
     <%= form_with url: game_action_discard_path(@game) do |form| %>
       <div class="flex">
         <%= render partial: "games/hands/riichi_form", collection: user.hands, as: :hand, locals: { form: } %>

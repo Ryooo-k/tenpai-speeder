@@ -17,7 +17,7 @@ Rails.application.routes.draw do
       post 'action/ron',     to: 'actions#ron'
       post 'action/furo',    to: 'actions#furo'
       post 'action/tsumo',   to: 'actions#tsumo'
-      get  'action/riichi',   to: 'actions#riichi'
+      post 'action/riichi',  to: 'actions#riichi'
       post 'action/through', to: 'actions#through'
       get  'action/pass',    to: 'actions#pass'
     end
