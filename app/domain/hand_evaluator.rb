@@ -190,9 +190,10 @@ module HandEvaluator
     end
 
     def can_ron?(hands, melds, target, relation, round_wind, player_wind, situational_yaku_list)
-      return true if situational_yaku_list.any? { |_, v|  v }
-
       test_hands = Array(hands) + [ target ]
+      shanten = calculate_shanten(test_hands, melds)
+      return true if situational_yaku_list[:houtei] || situational_yaku_list[:chankan] || (situational_yaku_list[:riichi] && shanten.negative?)
+
       normalized_hands, normalized_melds, normalized_target_tile = ScoreInputNormalizer.normalize(test_hands, melds, target, relation)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_target_tile)
       scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
