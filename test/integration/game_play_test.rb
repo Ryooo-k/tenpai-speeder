@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class GameFlowsTest < ActionDispatch::IntegrationTest
+class GamePlayTest < ActionDispatch::IntegrationTest
   include GameTestHelper
 
   def setup
