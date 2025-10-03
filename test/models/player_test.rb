@@ -248,6 +248,14 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#discard sets river.riichi to true when player is riichi' do
+    @ai_player.current_state.update!(riichi: true)
+    set_hands('m123', @ai_player)
+    hand = @ai_player.hands.sample
+    @ai_player.discard(hand.id, steps(:step_2))
+    assert @ai_player.rivers.last.riichi?
+  end
+
   test '#discard creates player_state' do
     hand_1 = @user_player.current_state.hands.create!(tile: @manzu_1)
     hand_2 = @user_player.current_state.hands.create!(tile: @manzu_2)

@@ -56,9 +56,10 @@ class Player < ApplicationRecord
 
   def discard(chosen_hand_id, step)
     chosen_hand = hands.find(chosen_hand_id)
+    riichi = current_state.riichi?
     player_states.create!(step:)
     create_discarded_hands(chosen_hand)
-    create_discarded_rivers(chosen_hand)
+    create_discarded_rivers(chosen_hand, riichi)
     chosen_hand.tile
   end
 
@@ -287,13 +288,19 @@ class Player < ApplicationRecord
       end
     end
 
-    def create_discarded_rivers(chosen_hand)
+    def create_discarded_rivers(chosen_hand, riichi)
       if rivers
         rivers.each do |river|
-          current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, stolen: river.stolen, created_at: river.created_at)
+          current_state.rivers.create!(
+            tile: river.tile,
+            tsumogiri: river.tsumogiri?,
+            stolen: river.stolen,
+            riichi: river.riichi,
+            created_at: river.created_at
+          )
         end
       end
-      current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
+      current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?, riichi:)
     end
 
     def create_stolen_rivers(discarded_tile)
