@@ -132,7 +132,7 @@ class Player < ApplicationRecord
 
   def can_riichi?
     return false if riichi?
-    tenpai? && ( melds.empty? || melds.all? { |meld| meld.kind == 'ankan' } )
+    tenpai? && (melds.empty? || melds.all? { |meld| meld.kind == 'ankan' })
   end
 
   def find_riichi_candidates
