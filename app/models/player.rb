@@ -56,9 +56,10 @@ class Player < ApplicationRecord
 
   def discard(chosen_hand_id, step)
     chosen_hand = hands.find(chosen_hand_id)
+    riichi = current_state.riichi?
     player_states.create!(step:)
     create_discarded_hands(chosen_hand)
-    create_discarded_rivers(chosen_hand)
+    create_discarded_rivers(chosen_hand, riichi)
     chosen_hand.tile
   end
 
@@ -74,9 +75,13 @@ class Player < ApplicationRecord
   end
 
   # ai用打牌選択のメソッド
-  # 現状は手牌の中からランダムに選択。aiの実装は別issueで対応。
+  # 現状は状況に合わせて手牌の中からランダムに選択。aiの実装は別issueで対応。
   def choose
-    current_state.hands.sample.id
+    if current_state.riichi?
+      find_riichi_candidates.sample.id
+    else
+      current_state.hands.sample.id
+    end
   end
 
   def name
@@ -125,6 +130,16 @@ class Player < ApplicationRecord
     base_states.exists?(riichi: true)
   end
 
+  def can_riichi?
+    return false if riichi?
+    tenpai? && (melds.empty? || melds.all? { |meld| meld.kind == 'ankan' })
+  end
+
+  def find_riichi_candidates
+    return [] if melds.present? && melds.all? { |meld| meld.kind != 'ankan' }
+    HandEvaluator.find_riichi_candidates(hands, melds)
+  end
+
   def point
     latest_game_record.point
   end
@@ -162,7 +177,7 @@ class Player < ApplicationRecord
   end
 
   def can_furo?(target_tile, target_player)
-    return if self == target_player
+    return false if self == target_player || riichi?
     can_pon?(target_tile) || can_chi?(target_tile, target_player)
   end
 
@@ -273,13 +288,19 @@ class Player < ApplicationRecord
       end
     end
 
-    def create_discarded_rivers(chosen_hand)
+    def create_discarded_rivers(chosen_hand, riichi)
       if rivers
         rivers.each do |river|
-          current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, stolen: river.stolen, created_at: river.created_at)
+          current_state.rivers.create!(
+            tile: river.tile,
+            tsumogiri: river.tsumogiri?,
+            stolen: river.stolen,
+            riichi: river.riichi,
+            created_at: river.created_at
+          )
         end
       end
-      current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?)
+      current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?, riichi:)
     end
 
     def create_stolen_rivers(discarded_tile)

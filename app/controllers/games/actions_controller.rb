@@ -8,6 +8,11 @@ class Games::ActionsController < ApplicationController
 
     if @game.current_player.can_tsumo?
       flash[:next_action] = :tsumo
+    elsif @game.current_player.riichi?
+      flash[:next_action] = :discard
+      flash[:chosen_hand_id] = @game.current_player.hands.find_by(drawn: true).id
+    elsif @game.current_player.can_riichi?
+      flash[:next_action] = :confirm_riichi
     else
       flash[:next_action] = :choose
     end
@@ -28,7 +33,7 @@ class Games::ActionsController < ApplicationController
 
     ron_claimers = @game.find_ron_claimers(discarded_tile)
     if ron_claimers.present?
-      flash[:next_action] = ron_claimers.all?(&:ai?) ? :ron : :ron_confirmation
+      flash[:next_action] = :confirm_ron
       flash[:discarded_tile_id] = discarded_tile.id
       flash[:ron_claimer_ids] = ron_claimers.map(&:id)
     else
@@ -37,7 +42,7 @@ class Games::ActionsController < ApplicationController
       # aiが副露を学習後、ai用副露処理の実装を行う。
       is_user_furo = @game.user_player.can_furo?(discarded_tile, @game.current_player)
       if is_user_furo
-        flash[:next_action] = :furo
+        flash[:next_action] = :confirm_furo
         flash[:discarded_tile_id] = discarded_tile.id
       else
         @game.advance_current_player!
@@ -90,6 +95,12 @@ class Games::ActionsController < ApplicationController
 
     @game.deal_initial_hands
     flash[:next_action] = :draw
+    redirect_to game_play_path(@game)
+  end
+
+  def riichi
+    @game.current_player.current_state.update!(riichi: true)
+    flash[:next_action] = :riichi_choose
     redirect_to game_play_path(@game)
   end
 

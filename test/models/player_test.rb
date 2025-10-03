@@ -248,6 +248,14 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#discard sets river.riichi to true when player is riichi' do
+    @ai_player.current_state.update!(riichi: true)
+    set_hands('m123', @ai_player)
+    hand = @ai_player.hands.sample
+    @ai_player.discard(hand.id, steps(:step_2))
+    assert @ai_player.rivers.last.riichi?
+  end
+
   test '#discard creates player_state' do
     hand_1 = @user_player.current_state.hands.create!(tile: @manzu_1)
     hand_2 = @user_player.current_state.hands.create!(tile: @manzu_2)
@@ -431,6 +439,14 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#choose returns riichi_candidates when ai riichi' do
+    set_hands('m123456789 p23 s9 z11', @ai_player)
+    @ai_player.current_state.update!(riichi: true)
+    result = @ai_player.choose
+    expected = @ai_player.hands.find { |hand| hand.name == '9索' }.id
+    assert_equal expected, result
+  end
+
   test '#ai?' do
     assert_not @user_player.ai?
     assert @ai_player.ai?
@@ -512,6 +528,75 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.current_state.hands.create!(tile: @manzu_2, drawn: true)
     assert @user_player.drawn?
+  end
+
+  test '#riichi? returns true when player called riichi' do
+    assert_not @user_player.riichi?
+
+    step_2 = steps(:step_2)
+    @user_player.stub(:current_step_number, step_2.number) do
+      @user_player.player_states.create!(step: step_2, riichi: true)
+      assert @user_player.riichi?
+    end
+
+    step_3 = steps(:step_3)
+    @user_player.stub(:current_step_number, step_3.number) do
+      @user_player.player_states.create!(step: step_3, riichi: false)
+      assert @user_player.riichi?
+    end
+  end
+
+  test '#can_riichi? returns true when player is tenpai' do
+    set_hands('m123456789 p12 s22', @user_player)
+    assert @user_player.can_riichi?
+  end
+
+  test '#can_riichi? returns false when player called riichi' do
+    set_hands('m123456789 p12 s22', @user_player)
+
+    step_2 = steps(:step_2)
+    @user_player.stub(:current_step_number, step_2.number) do
+      @user_player.player_states.create!(step: step_2, riichi: true)
+      assert_not @user_player.can_riichi?
+    end
+
+    step_3 = steps(:step_3)
+    @user_player.stub(:current_step_number, step_3.number) do
+      @user_player.player_states.create!(step: step_3, riichi: false)
+      assert_not @user_player.can_riichi?
+    end
+  end
+
+  test '#can_riichi? returns false when player called furo' do
+    set_hands('m456789 p12 s22', @user_player)
+    set_melds('m123', @user_player)
+    assert_not @user_player.can_riichi?
+  end
+
+  test '#can_riichi? returns true when player called ankan' do
+    set_hands('m456789 p12 s22', @user_player)
+    set_melds('m1111', @user_player)
+    assert @user_player.can_riichi?
+  end
+
+  test '#find_riichi_candidates returns possible riichi hand when tenpai and non-melds' do
+    set_hands('m123456789 p12 s225', @user_player) # s5（5索）切りでリーチ可能な手牌
+    candidates = @user_player.find_riichi_candidates
+    assert_equal '5索', candidates.first.name
+  end
+
+  test '#find_riichi_candidates returns [] when player have melds' do
+    set_hands('m456789 p12 s225', @user_player)
+    set_melds('m111=', @user_player)
+    candidates = @user_player.find_riichi_candidates
+    assert_equal [], candidates
+  end
+
+  test '#find_riichi_candidates returns possible riichi hand when player have only ankan' do
+    set_hands('m456789 p12 s225', @user_player)
+    set_melds('m1111', @user_player)
+    candidates = @user_player.find_riichi_candidates
+    assert_equal '5索', candidates.first.name
   end
 
   test '#point returns latest_game_record point' do
@@ -729,6 +814,22 @@ class PlayerTest < ActiveSupport::TestCase
           is_furo = @user_player.can_furo?(tiles(:first_manzu_3), kamicha_player)
           assert_not is_furo
         end
+      end
+    end
+  end
+
+  test '#can_furo? returns false when player called riichi' do
+    set_hands('m11', @user_player)
+    kamicha_player = @ai_player
+
+    kamicha_player.stub(:seat_order, 3) do
+      @user_player.stub(:seat_order, 0) do
+        is_furo = @user_player.can_furo?(tiles(:first_manzu_1), kamicha_player)
+        assert is_furo
+
+        @user_player.current_state.update!(riichi: true)
+        is_furo = @user_player.can_furo?(tiles(:first_manzu_1), kamicha_player)
+        assert_not is_furo
       end
     end
   end

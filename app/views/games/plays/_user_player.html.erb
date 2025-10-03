@@ -5,6 +5,14 @@
         <%= render partial: "games/hands/hand_form", collection: user.hands, as: :hand, locals: { form: } %>
       </div>
     <% end %>
+
+  <% elsif @action == :riichi_choose && @game.current_player.user? %>
+    <%= form_with url: game_action_discard_path(@game) do |form| %>
+      <div class="flex">
+        <%= render partial: "games/hands/riichi_form", collection: user.hands, as: :hand, locals: { form: } %>
+      </div>
+    <% end %>
+
   <% else %>
     <div class="flex">
       <%= render partial: "games/hands/hand_plain", collection: user.hands, as: :hand %>

@@ -27,6 +27,7 @@ module HandEvaluator
   CHIITOITSU_PAIR_COUNT = 7
   KOKUSHI_TILE_CODES = [ 0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33 ].to_set.freeze
   MAX_SHANTEN_COUNT = 13
+  MAX_RIICHI_CANDIDATE_COUNT = 2
 
   # 通常手の向聴数を計算するのに使用するリスト
   # [ manzu, pinzu, souzu, zihai ] の和了枚数テーブル
@@ -189,9 +190,10 @@ module HandEvaluator
     end
 
     def can_ron?(hands, melds, target, relation, round_wind, player_wind, situational_yaku_list)
-      return true if situational_yaku_list.any? { |_, v|  v }
-
       test_hands = Array(hands) + [ target ]
+      shanten = calculate_shanten(test_hands, melds)
+      return true if situational_yaku_list[:houtei] || situational_yaku_list[:chankan] || (situational_yaku_list[:riichi] && shanten.negative?)
+
       normalized_hands, normalized_melds, normalized_target_tile = ScoreInputNormalizer.normalize(test_hands, melds, target, relation)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_target_tile)
       scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
@@ -219,10 +221,19 @@ module HandEvaluator
     end
 
     def calculate_shanten(hands, melds)
-      normal_shanten = calculate_normal_shanten(hands, melds)
-      chiitoitsu_shanten = calculate_chiitoitsu_shanten(hands, melds)
-      kokushi_shanten = calculate_kokushi_shanten(hands, melds)
+      compact_melds = melds.select { |meld| meld.position != 3 }
+      normal_shanten = calculate_normal_shanten(hands, compact_melds)
+      chiitoitsu_shanten = calculate_chiitoitsu_shanten(hands, compact_melds)
+      kokushi_shanten = calculate_kokushi_shanten(hands, compact_melds)
       [ normal_shanten, chiitoitsu_shanten, kokushi_shanten ].min
+    end
+
+    def find_riichi_candidates(hands, melds)
+      hands.select do |hand|
+        test_hands = hands - [ hand ]
+        shanten = calculate_shanten(test_hands, melds)
+        shanten.zero?
+      end
     end
   end
 
@@ -864,7 +875,7 @@ module HandEvaluator
         return 7 if melds.present?
         code_counts = hands.map(&:code).tally
         pair_count = 0
-        code_counts.each_value { |count| pair_count += 1 if count >= 2 }
+        code_counts.each_value { |count| pair_count += 1 if count == 2 }
         CHIITOITSU_PAIR_COUNT - pair_count - 1
       end
 

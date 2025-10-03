@@ -1,37 +1,26 @@
 <% case @action %>
 <% when :draw %>
-  <%= form_with url: game_action_draw_path(@game),
-                method: :post,
-                data: { controller: "auto-submit" } %>
+  <%= render partial: "draw" %>
 
 <% when :tsumo %>
-    <%= render partial: "tsumo" %>
+  <%= render partial: "tsumo" %>
+
+<% when :confirm_riichi %>
+  <%= render partial: "confirm_riichi" %>
+
+<% when :riichi_choose %>
+  <%= render partial: "riichi_choose_ai" %>
 
 <% when :choose %>
-  <% if @game.current_player.ai? %>
-    <%= form_with url: game_action_choose_path(@game),
-                  method: :get,
-                  data: { controller: "auto-submit" } %>
-  <% end %>
+  <%= render partial: "choose_ai" %>
 
 <% when :discard %>
-  <%= form_with url: game_action_discard_path(@game),
-                method: :post,
-                data: { controller: "auto-submit" } do |form| %>
-    <%= form.hidden_field :chosen_hand_id, value: @chosen_hand_id %>
-  <% end %>
+  <%= render partial: "discard" %>
 
-<% when :ron_confirmation %>
-    <%= render partial: "ron_confirmation" %>
+<% when :confirm_ron %>
+  <%= render partial: "confirm_ron" %>
 
-<% when :ron %>
-  <%= form_with url: game_action_ron_path(@game),
-                method: :post,
-                data: { controller: "auto-submit" } do |form| %>
-    <%= form.hidden_field :discard_tile_id, value: @discard_tile_id %>
-    <%= form.hidden_field :ron_claimer_ids, value: @ron_claimer_ids %>
-  <% end %>
+<% when :confirm_furo %>
+  <%= render partial: "confirm_furo" %>
 
-<% when :furo %>
-    <%= render partial: "furos" %>
 <% end %>

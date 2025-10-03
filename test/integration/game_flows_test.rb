@@ -426,4 +426,104 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
       assert_dom %(div[data-role="wind"]), text: '西'
     end
   end
+
+  test 'renders Riichi form when user_player is menzen tenpai' do
+    set_user_turn(@game)
+    set_hands('m123456789 p2 s11 z1', @game.user_player)
+    assign_draw_tile('p3', @game)
+
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'form[action=?][method=?]', game_action_riichi_path(@game), 'post' do
+      assert_dom 'button[type=submit]', { text: 'リーチ', count: 1 }
+    end
+
+    assert_dom 'form[action=?][method=?]', game_action_pass_path(@game), 'get' do
+      assert_dom 'button[type=submit]', { text: 'パス', count: 1 }
+    end
+  end
+
+  test 'auto-submit Riichi when ai is menzen tenpai' do
+    set_opponent_turn(@game)
+    ai = @game.current_player
+    set_hands('m123456789 p2 s11 z1', ai)
+    assign_draw_tile('p3', @game)
+
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'form[action=?][method=?][data-controller=?]',
+              game_action_riichi_path(@game), 'post', 'auto-submit'
+  end
+
+  test 'user can select only riichi candidates when riichi' do
+    set_user_turn(@game)
+    set_hands('m123456789 p2 s11 z1', @game.user_player)
+    assign_draw_tile('p3', @game)
+
+    post game_action_draw_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    @game.reload
+    assert_response :success
+    post game_action_riichi_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    candidates = @game.user_player.find_riichi_candidates
+    non_candidates = @game.user_player.hands - candidates
+
+    assert_dom 'input[type=radio][name="chosen_hand_id"]', count: candidates.count
+
+    candidates.each do |hand|
+      assert_dom 'input[type=radio][name="chosen_hand_id"][value=?]', hand.id.to_s
+    end
+
+    non_candidates.each do |hand|
+      assert_not_dom 'input[type=radio][name="chosen_hand_id"][value=?]', hand.id.to_s
+    end
+  end
+
+  test 'auto-submit riichi candidates when ai is riichi' do
+    set_opponent_turn(@game)
+    ai = @game.current_player
+    set_hands('m123456789 p2 s11 z1', ai)
+    assign_draw_tile('p3', @game)
+
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    @game.reload
+    assert_response :success
+    post game_action_riichi_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'form[action=?][method=?][data-controller=?]',
+              game_action_discard_path(@game), 'post', 'auto-submit'
+  end
+
+  test 'discard drawn tile when riichi' do
+    @game.current_player.current_state.update!(riichi: true)
+
+    post game_action_draw_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    @game.reload
+    hand_id = @game.current_player.hands.find_by(drawn: true).id.to_s
+    assert_response :success
+    assert_dom 'form[action=?][method=?][data-controller=?]', game_action_discard_path(@game), 'post', 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', 'chosen_hand_id', hand_id
+    end
+  end
 end

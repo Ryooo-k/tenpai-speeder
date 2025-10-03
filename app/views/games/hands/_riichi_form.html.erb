@@ -1,0 +1,12 @@
+<div class="relative <%= 'ml-3' if hand.drawn? %>">
+  <% if @riichi_candidates.include?(hand) %>
+    <%= form.radio_button :chosen_hand_id, hand.id, class: "hidden peer" %>
+    <%= form.label :chosen_hand_id, value: hand.id, class: "block peer-checked:-translate-y-2" do %>
+      <%= inline_svg_tag("tiles/#{hand.suit}_#{hand.number}.svg", class: "w-[3.8cqw]") %>
+    <% end %>
+    <%= form.submit "", class: "absolute inset-0 hidden peer-checked:block" %>
+
+  <% else %>
+    <%= inline_svg_tag("tiles/#{hand.suit}_#{hand.number}.svg", class: "w-[3.8cqw]") %>
+  <% end %>
+</div>

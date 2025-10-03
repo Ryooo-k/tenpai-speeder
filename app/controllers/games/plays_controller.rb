@@ -10,7 +10,11 @@ class Games::PlaysController < ApplicationController
     @discarded_tile_id = flash[:discarded_tile_id]
     @ron_claimer_ids = flash[:ron_claimer_ids]
 
-    if @action == :furo
+    if @action == :riichi_choose
+      @riichi_candidates = @game.current_player.find_riichi_candidates
+    end
+
+    if @action == :confirm_furo
       target_tile = @game.tiles.find(@discarded_tile_id)
       @furo_candidates = @game.user_player.find_furo_candidates(target_tile, @game.current_player)
     end
