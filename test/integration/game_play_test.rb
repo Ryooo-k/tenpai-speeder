@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class GameFlowsTest < ActionDispatch::IntegrationTest
+class GamePlayTest < ActionDispatch::IntegrationTest
   include GameTestHelper
 
   def setup
@@ -138,6 +138,24 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'renders Ron auto-form (with hidden) when ai can ron' do
+    set_user_turn(@game)
+    opponent = @game.opponents.sample
+    set_hands('m123456789 p23 s99', opponent)
+    set_hands('p1', @game.user_player)
+
+    pinzu_1 = @game.user_player.hands.first
+    post game_action_discard_path, params: { game_id: @game.id, chosen_hand_id: pinzu_1.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'form[action=?][method=?][data-controller=?]', game_action_ron_path(@game), 'post', 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?]', 'discarded_tile_id', count: 1
+      assert_dom 'input[type=hidden][name=?]', 'ron_claimer_ids[]', minimum: 1
+    end
+  end
+
   test 'renders Tsumo form when user can tsumo' do
     set_user_turn(@game)
     set_hands('m123456789 p23 s99', @game.user_player)
@@ -154,6 +172,18 @@ class GameFlowsTest < ActionDispatch::IntegrationTest
     assert_dom 'form[action=?][method=?]', game_action_pass_path(@game), 'get' do
       assert_dom 'button[type=submit]', { text: 'パス', count: 1 }
     end
+  end
+
+  test 'renders Tsumo auto-form when ai can tsumo' do
+    set_opponent_turn(@game)
+    set_hands('m123456789 p23 s99', @game.current_player)
+    assign_draw_tile('p1', @game)
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'form[action=?][method=?][data-controller=?]', game_action_tsumo_path(@game), 'post', 'auto-submit'
   end
 
   test 'renders selectable hands form when user select tsumo_pass' do

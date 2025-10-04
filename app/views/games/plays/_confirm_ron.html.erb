@@ -19,7 +19,9 @@
   <%= form_with url: game_action_ron_path(@game),
                 method: :post,
                 data: { controller: "auto-submit" } do |form| %>
-    <%= form.hidden_field :discard_tile_id, value: @discard_tile_id %>
-    <%= form.hidden_field :ron_claimer_ids, value: @ron_claimer_ids %>
+    <%= form.hidden_field :discarded_tile_id, value: @discarded_tile_id %>
+    <% @ron_claimer_ids.each do |player_id| %>
+      <%= hidden_field_tag 'ron_claimer_ids[]', player_id %>
+    <% end %>
   <% end %>
 <% end %>

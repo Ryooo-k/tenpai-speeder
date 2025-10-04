@@ -2,9 +2,11 @@
 
 module GameTestHelper
   RELATION_BY_MARK = { '-' => :shimocha, '=' => :toimen, '+' => :kamicha }.freeze
+  NORMAL_RELATION_INDEX = { shimocha: 0, toimen: 1, kamicha: 2 }.freeze
+  ABNORMAL_RELATION_INDEX = { shimocha: 0, toimen: 1, kamicha: 3 }.freeze
   SUIT_NAMES  = { 'm' => 'manzu', 'p' => 'pinzu', 's' => 'souzu', 'z' => 'zihai' }.freeze
   ZIHAI_NAMES = %w[ton nan sha pei haku hatsu chun].freeze
-  ORDER_WORDS = %w[first second third fourth].freeze
+  KANS        = %w[daiminkan ankan kakan].freeze
   CHI_RE = /\A([mps])(?:[1-9]\+[1-9]{2}|[1-9]{2}\+[1-9]|[1-9]{3}\+)\z/
   MPS_TRIPLET_OR_QUAD_RE = /\A(?<suit>[mps])(?<number>[1-9])\k<number>{2,3}(?<rel>[+=-])?\z/
   Z_TRIPLET_OR_QUAD_RE   = /\A(?<suit>z)(?<number>[1-7])\k<number>{2,3}(?<rel>[+=-])?\z/
@@ -102,13 +104,14 @@ module GameTestHelper
           end
 
         relation = mark && RELATION_BY_MARK[mark]
+        from_index = KANS.include?(kind) ? ABNORMAL_RELATION_INDEX[relation] : NORMAL_RELATION_INDEX[relation]
 
         build_meld_set(
           kind:,
           suit:,
           numbers: Array.new(tiles_n, number),
-          from_index: (tiles_n == 4 ? 3 : 2),
           relation:,
+          from_index:,
           player:
         )
       end

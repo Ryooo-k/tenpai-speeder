@@ -34,13 +34,13 @@ class HandTest < ActiveSupport::TestCase
     assert_equal false, hand.rinshan
   end
 
-  test '.sorted' do
-    state = players(:ryo).player_states.last
-    hand_1 = state.hands.create!(tile: tiles(:first_manzu_1), drawn: true)
-    hand_2 = state.hands.create!(tile: tiles(:first_manzu_2), drawn: false)
-    hand_second_3 = state.hands.create!(tile: tiles(:second_manzu_3), drawn: false)
-    hand_first_3 = state.hands.create!(tile: tiles(:first_manzu_3), drawn: false)
-    assert_equal [ hand_2, hand_first_3, hand_second_3, hand_1 ], state.hands.sorted
+  test '.sorted orders by drawn ASC then tile ASC (ties by id)' do
+    state = players(:ryo).current_state
+    drawn_tile = state.hands.create!(tile: tiles(:first_manzu_1), drawn: true)
+    manzu_2 = state.hands.create!(tile: tiles(:first_manzu_2))
+    manzu_3_b = state.hands.create!(tile: tiles(:second_manzu_3))
+    manzu_3_a = state.hands.create!(tile: tiles(:first_manzu_3))
+    assert_equal [ manzu_2, manzu_3_a, manzu_3_b, drawn_tile ], state.hands.sorted
   end
 
   test '#suit returns suit of tile' do
