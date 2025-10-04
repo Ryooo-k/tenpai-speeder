@@ -16,7 +16,6 @@ module ShantenInputNormalizer
         when :pon
           code_map[code] += 1
         else
-          next if meld.from.present?
           code_map[code] += 1
         end
       end
