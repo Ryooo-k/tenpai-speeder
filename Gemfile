@@ -18,7 +18,6 @@ gem 'bootsnap', require: false
 gem 'kamal', require: false
 gem 'thruster', require: false
 gem 'tailwindcss-rails', '~> 4.3'
-gem 'inline_svg'
 gem 'omniauth'
 gem 'omniauth-rails_csrf_protection'
 gem 'omniauth-twitter'

@@ -1,3 +1,10 @@
-<div class="relative <%= 'rotate-90' if river.riichi? %>">
-  <%= inline_svg_tag("tiles/#{river.suit}_#{river.number}.svg", class: "w-[3.8cqw]") %>
-</div>
+<% if river.riichi? %>
+  <div class="relative">
+    <%= image_tag("tiles/rotated_#{river.suit}_#{river.number}.gif", class: "w-[3.8cqw]") %>
+  </div>
+
+<% else %>
+  <div class="relative">
+    <%= image_tag("tiles/#{river.suit}_#{river.number}.gif", class: "w-[3.8cqw]") %>
+  </div>
+<% end %>

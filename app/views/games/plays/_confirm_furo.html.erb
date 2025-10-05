@@ -12,7 +12,7 @@
                           },
                         class: "inline-flex items-end gap-1 rounded border px-2 py-1" do %>
             <% chi_combinations.each do |hand| %>
-              <%= inline_svg_tag("tiles/#{hand.suit}_#{hand.number}.svg", class: "w-[3.0cqw]") %>
+              <%= image_tag("tiles/#{hand.suit}_#{hand.number}.gif", class: "w-[3.0cqw]") %>
             <% end %>
           <% end %>
         <% end %>
@@ -25,7 +25,7 @@
                         },
                       class: "inline-flex items-end gap-1 rounded border px-2 py-1" do %>
           <% furo_combinations.each do |hand| %>
-            <%= inline_svg_tag("tiles/#{hand.suit}_#{hand.number}.svg", class: "w-[3.0cqw]") %>
+            <%= image_tag("tiles/#{hand.suit}_#{hand.number}.gif", class: "w-[3.0cqw]") %>
           <% end %>
         <% end %>
       <% end %>

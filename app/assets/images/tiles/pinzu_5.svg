@@ -1,8 +1,0 @@
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 28'>
-  <rect x='1' y='1' width='19' height='27' rx='2' ry='2' fill='#FFFFFF' stroke='#111111' stroke-width='1'/>
-  <circle cx='6.5'  cy='7.75'  r='3.8' fill='#034590'/>
-  <circle cx='14.5' cy='7.75'  r='3.8' fill='#034590'/>
-  <circle cx='10.5' cy='14.5'  r='3.8' fill='#C62828'/>
-  <circle cx='6.5'  cy='21.25' r='3.8' fill='#034590'/>
-  <circle cx='14.5' cy='21.25' r='3.8' fill='#034590'/>
-</svg>
