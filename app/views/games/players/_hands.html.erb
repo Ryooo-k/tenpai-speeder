@@ -1,21 +1,17 @@
 <div class="absolute <%= build_hand_position_class(player) %>">
-  <% if @action == :choose && player.user? %>
+  <% needs_form  = discard_form_needed?(@action, player) %>
+  <% partial_path = build_hand_partial_path(@action, player) %>
+  <% row_classes = build_hand_row_classes(player, needs_form) %>
+
+  <% if needs_form %>
     <%= form_with url: game_action_discard_path(@game) do |form| %>
-      <div class="flex">
-        <%= render partial: "games/players/hand_form", collection: player.hands, as: :hand, locals: { form: } %>
+      <div class="<%= row_classes %>">
+        <%= render partial: partial_path, collection: player.hands, as: :hand, locals: { form: } %>
       </div>
     <% end %>
-
-  <% elsif @action == :riichi_choose && player.user? %>
-    <%= form_with url: game_action_discard_path(@game) do |form| %>
-      <div class="flex">
-        <%= render partial: "games/players/riichi_form", collection: player.hands, as: :hand, locals: { form: } %>
-      </div>
-    <% end %>
-
   <% else %>
-    <div class="flex <%= '-translate-y-1/2' if player.relation_from_user.in?([ :shimocha, :kamicha ]) %>">
-      <%= render partial: "games/players/hand_plain", collection: player.hands, as: :hand %>
+    <div class="<%= row_classes %>">
+      <%= render partial: partial_path, collection: player.hands, as: :hand %>
     </div>
   <% end %>
 </div>
