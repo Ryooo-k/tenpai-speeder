@@ -22,6 +22,8 @@ module GamesHelper
       'top-1/20 left-1/2 -translate-x-1/2 rotate-180'
     when :kamicha
       'top-1/2 right-1/2 -translate-x-1/2 -translate-y-1/2 rotate-90'
+    when :self
+      'top-2/3 left-1/2 -translate-x-1/2'
     end
   end
 
