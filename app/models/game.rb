@@ -132,9 +132,12 @@ class Game < ApplicationRecord
     latest_round.wind_number
   end
 
-  def advance_next_round!
+  def advance_next_round!(ryukyoku: false)
+    next_honba_number = ryukyoku ? latest_honba.number + 1 : 0
+    riichi_stick_count = ryukyoku ? latest_honba.riichi_stick_count : 0
     next_round_number = latest_round.number + 1
     rounds.create!(number: next_round_number)
+    latest_honba.update!(number: next_honba_number, riichi_stick_count:)
 
     next_seat_number = next_round_number % PLAYERS_COUNT
     update!(current_seat_number: next_seat_number)
@@ -142,10 +145,10 @@ class Game < ApplicationRecord
     create_game_records
   end
 
-  def advance_next_honba!
+  def advance_next_honba!(ryukyoku: false)
     next_honba_number = latest_honba.number + 1
-    riichi_stick_count = latest_honba.riichi_stick_count
-    latest_round.honbas.create!(number: next_honba_number, riichi_stick_count: riichi_stick_count)
+    riichi_stick_count = ryukyoku ? latest_honba.riichi_stick_count : 0
+    latest_round.honbas.create!(number: next_honba_number, riichi_stick_count:)
 
     seat_number = latest_round.number % PLAYERS_COUNT
     update!(current_seat_number: seat_number)

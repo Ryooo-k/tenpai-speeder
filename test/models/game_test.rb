@@ -348,33 +348,34 @@ class GameTest < ActiveSupport::TestCase
     end
   end
 
-  test '#advance_next_round! updates every player score by addition point' do
-    @game.players.each do |player|
-      assert_equal 25000, player.score
-      player.add_point(5000)
-    end
+  test '#advance_next_round! updates score by addition point' do
+    player = @game.players.sample
+    assert_equal 25000, player.score
+    player.add_point(12000)
 
     @game.advance_next_round!
-    @game.players.each do |player|
-      assert_equal 30000, player.score
-      player.add_point(-20000)
-    end
+    assert_equal 37000, player.score
+  end
 
-    @game.advance_next_round!
-    @game.players.each do |player|
-      assert_equal 10000, player.score
-    end
+  test '#advance_next_round! resets riichi_stick_count to 0 when ryukyoku is false' do
+    @game.latest_honba.update!(riichi_stick_count: 1)
+    @game.advance_next_round!(ryukyoku: false)
+    assert_equal 0, @game.latest_honba.riichi_stick_count
+  end
+
+  test '#advance_next_round! carries over riichi_stick_count when ryukyoku is true' do
+    @game.latest_honba.update!(riichi_stick_count: 1)
+    @game.advance_next_round!(ryukyoku: true)
+    assert_equal 1, @game.latest_honba.riichi_stick_count
   end
 
   test '#advance_next_honba! creates new honba' do
     before_honba_count = @game.latest_round.honbas.count
     before_honba_number = @game.latest_honba.number
-    @game.latest_honba.update!(riichi_stick_count: 10)
 
     @game.advance_next_honba!
     assert_equal before_honba_count + 1, @game.latest_round.honbas.count
     assert_equal before_honba_number + 1, @game.latest_honba.number
-    assert_equal 10, @game.latest_honba.riichi_stick_count
   end
 
   test '#advance_next_honba! resets current_seat_number' do
@@ -409,22 +410,24 @@ class GameTest < ActiveSupport::TestCase
     end
   end
 
-  test '#advance_next_honba! updates every player score by addition point' do
-    @game.players.each do |player|
-      assert_equal 25000, player.score
-      player.add_point(5000)
-    end
+  test '#advance_next_honba! updates score by addition point' do
+    assert_equal 25000, @game.host.score
+    @game.host.add_point(12000)
 
     @game.advance_next_honba!
-    @game.players.each do |player|
-      assert_equal 30000, player.score
-      player.add_point(-20000)
-    end
+    assert_equal 37000, @game.host.score
+  end
 
-    @game.advance_next_honba!
-    @game.players.each do |player|
-      assert_equal 10000, player.score
-    end
+  test '#advance_next_honba! resets riichi_stick_count to 0 when ryukyoku is false' do
+    @game.latest_honba.update!(riichi_stick_count: 1)
+    @game.advance_next_honba!(ryukyoku: false)
+    assert_equal 0, @game.latest_honba.riichi_stick_count
+  end
+
+  test '#advance_next_honba! carries over riichi_stick_count when ryukyoku is true' do
+    @game.latest_honba.update!(riichi_stick_count: 1)
+    @game.advance_next_honba!(ryukyoku: true)
+    assert_equal 1, @game.latest_honba.riichi_stick_count
   end
 
   test '#find_ron_claimers returns players that can_ron? == true' do
