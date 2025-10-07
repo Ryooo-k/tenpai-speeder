@@ -61,7 +61,7 @@ class Games::ActionsController < ApplicationController
     @game.give_ron_point(score_statements)
     @game.give_bonus_point(ron_claimer_ids:)
 
-    if ron_claimer_ids.include?(@game.host_player.id)
+    if ron_claimer_ids.include?(@game.host.id)
       @game.advance_next_honba!
     else
       @game.advance_next_round!

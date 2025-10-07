@@ -428,7 +428,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#host?' do
-    @game.stub(:host_player, @user_player) do
+    @game.stub(:host, @user_player) do
       assert @user_player.host?
       assert_not @ai_player.host?
     end
@@ -1011,7 +1011,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#score_statements：13飜20符（天和）' do
-    host = @game.host_player
+    host = @game.host
     set_hands('m123456789 p55 s234', host)
 
     score_statements = host.score_statements
@@ -1025,7 +1025,7 @@ class PlayerTest < ActiveSupport::TestCase
   test '#score_statements：13飜20符（地和）' do
     child = @game.players.find_by!(seat_order: 1)
     set_hands('m123456789 p55 s234', child)
-    set_rivers('z1', @game.host_player)
+    set_rivers('z1', @game.host)
 
     @game.stub(:current_player, child) do
       score_statements = child.score_statements

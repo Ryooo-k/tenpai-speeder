@@ -270,9 +270,9 @@ class GameTest < ActiveSupport::TestCase
     assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.dora_indicator_tiles.map(&:class)
   end
 
-  test '#host_player' do
+  test '#host' do
     expected = @game.rounds.order(:number).last.host_seat_number
-    assert_equal expected, @game.host_player.seat_order
+    assert_equal expected, @game.host.seat_order
   end
 
   test '#riichi_stick_count' do

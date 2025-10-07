@@ -26,7 +26,7 @@ module GameTestHelper
     game.advance_current_player! unless game.current_player.ai?
   end
 
-  def assign_host_player(player, game)
+  def assign_host(player, game)
     host_seat_number = game.latest_round.host_seat_number
     game.players.find_by(seat_order: host_seat_number).update!(seat_order: player.seat_order)
     player.update!(seat_order: host_seat_number)

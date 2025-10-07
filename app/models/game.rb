@@ -105,7 +105,7 @@ class Game < ApplicationRecord
     latest_honba.dora_indicator_tiles.values_at(..4)
   end
 
-  def host_player
+  def host
     players.find_by!(seat_order: latest_round.host_seat_number)
   end
 
@@ -187,6 +187,10 @@ class Game < ApplicationRecord
   def give_bonus_point(ron_claimer_ids: false)
     give_riichi_bonus_point(ron_claimer_ids)
     give_honba_bonus_point(ron_claimer_ids)
+  end
+
+  def live_wall_empty?
+    remaining_tile_count.zero?
   end
 
   private

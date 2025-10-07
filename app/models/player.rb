@@ -97,7 +97,7 @@ class Player < ApplicationRecord
   end
 
   def host?
-    self == game.host_player
+    self == game.host
   end
 
   def relation_from_user
@@ -315,7 +315,7 @@ class Player < ApplicationRecord
     end
 
     def host_seat_number
-      game.host_player.seat_order
+      game.host.seat_order
     end
 
     def find_kan_candidates(target_tile)
