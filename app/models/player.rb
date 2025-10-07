@@ -216,6 +216,10 @@ class Player < ApplicationRecord
     )
   end
 
+  def tenpai?
+    shanten.zero?
+  end
+
   private
 
     def validate_player_type
@@ -379,10 +383,6 @@ class Player < ApplicationRecord
 
     def shanten
       HandEvaluator.calculate_shanten(hands, melds)
-    end
-
-    def tenpai?
-      shanten.zero?
     end
 
     def complete?

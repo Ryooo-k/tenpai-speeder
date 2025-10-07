@@ -1092,4 +1092,14 @@ class PlayerTest < ActiveSupport::TestCase
       ], score_statements[:yaku_list]
     end
   end
+
+  test '#tenpai? returns true when shanten == 0' do
+    set_hands('m123456789 p123 s1', @user_player)
+    assert @user_player.tenpai?
+  end
+
+  test '#tenpai? returns true when shanten > 0' do
+    set_hands('m123456789 p159 s1', @user_player)
+    assert_not @user_player.tenpai?
+  end
 end
