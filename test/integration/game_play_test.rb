@@ -556,4 +556,56 @@ class GamePlayTest < ActionDispatch::IntegrationTest
       assert_dom 'input[type=hidden][name=?][value=?]', 'chosen_hand_id', hand_id
     end
   end
+
+  test 'renders advance form when ryukyoku' do
+    @game.latest_honba.update!(draw_count: 122)
+
+    post game_action_draw_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'form[action=?][method=?]', game_action_ryukyoku_path(@game), 'post'
+  end
+
+  test 'ryukyoku advances round and increments honba when host is no-ten' do
+    @game.latest_honba.update!(draw_count: 122)
+
+    post game_action_draw_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom 'span', text: '東一局'
+    assert_dom 'span', text: '〇本場'
+
+    assert_response :success
+    post game_action_ryukyoku_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom 'span', text: '東二局'
+    assert_dom 'span', text: '一本場'
+  end
+
+
+  test 'ryukyoku advances increments honba when host is tenpai' do
+    @game.latest_honba.update!(draw_count: 122)
+    set_hands('m123456789 p123 s1', @game.host)
+    assign_draw_tile('s1', @game)
+
+    post game_action_draw_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom 'span', text: '東一局'
+    assert_dom 'span', text: '〇本場'
+
+    assert_response :success
+    post game_action_ryukyoku_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom 'span', text: '東一局'
+    assert_dom 'span', text: '一本場'
+  end
 end

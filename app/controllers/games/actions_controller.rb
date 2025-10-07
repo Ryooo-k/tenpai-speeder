@@ -2,6 +2,7 @@
 
 class Games::ActionsController < ApplicationController
   before_action :set_game
+  before_action :interrupt_if_ryukyoku, only: %i[ draw ]
 
   def draw
     @game.draw_for_current_player
@@ -115,6 +116,18 @@ class Games::ActionsController < ApplicationController
     redirect_to game_play_path(@game)
   end
 
+  def ryukyoku
+    if @game.host.tenpai?
+      @game.advance_next_honba!(ryukyoku: true)
+    else
+      @game.advance_next_round!(ryukyoku: true)
+    end
+
+    @game.deal_initial_hands
+    flash[:next_action] = :draw
+    redirect_to game_play_path(@game)
+  end
+
   private
 
     def set_game
@@ -137,5 +150,13 @@ class Games::ActionsController < ApplicationController
           ]
         ] }
       ).find(params[:game_id])
+    end
+
+    def interrupt_if_ryukyoku
+      return unless @game.live_wall_empty?
+
+      @game.give_tenpai_point
+      flash[:next_action] = :ryukyoku
+      return redirect_to game_play_path(@game)
     end
 end
