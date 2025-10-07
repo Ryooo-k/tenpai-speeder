@@ -157,6 +157,6 @@ class Games::ActionsController < ApplicationController
 
       @game.give_tenpai_point
       flash[:next_action] = :ryukyoku
-      return redirect_to game_play_path(@game)
+      redirect_to game_play_path(@game)
     end
 end

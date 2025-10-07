@@ -600,7 +600,7 @@ class GameTest < ActiveSupport::TestCase
     set_hands('m123456789 p123 s1', @game.user_player)
 
     @game.give_tenpai_point
-    assert_equal  3000, tenpai_player.point
+    assert_equal 3000, tenpai_player.point
     assert_equal -1000, no_ten_player_1.point
     assert_equal -1000, no_ten_player_2.point
     assert_equal -1000, no_ten_player_3.point
