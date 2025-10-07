@@ -41,20 +41,20 @@ module GamesHelper
   end
 
   def build_hand_partial_path(action, player)
-    return "games/players/hand_plain" unless player.user?
+    return 'games/players/hand_plain' unless player.user?
 
     case action
-    when :choose        then "games/players/hand_form"
-    when :riichi_choose then "games/players/riichi_form"
-    else                     "games/players/hand_plain"
+    when :choose        then 'games/players/hand_form'
+    when :riichi_choose then 'games/players/riichi_form'
+    else                     'games/players/hand_plain'
     end
   end
 
   def discard_form_needed?(action, player)
-    player.user? && action.in?([:choose, :riichi_choose])
+    player.user? && action.in?([ :choose, :riichi_choose ])
   end
 
   def build_hand_row_classes(player, needs_form)
-    "flex#{(!needs_form && player.relation_from_user.in?([:shimocha, :kamicha]) ? ' -translate-y-1/2' : '')}"
+    "flex#{(!needs_form && player.relation_from_user.in?([ :shimocha, :kamicha ]) ? ' -translate-y-1/2' : '')}"
   end
 end
