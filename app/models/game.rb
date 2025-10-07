@@ -8,6 +8,13 @@ class Game < ApplicationRecord
   RELATION_ORDER = { shimocha: 0, toimen: 1, kamicha: 2 }.freeze
   RIICHI_BONUS = 1000
   HONBA_BONUS = 300
+  TENPAI_POINT = {
+    0 => 0,
+    1 => 3000,
+    2 => 1500,
+    3 => 1000,
+    4 => 0
+  }.freeze
 
   belongs_to :game_mode
 
@@ -191,6 +198,16 @@ class Game < ApplicationRecord
 
   def live_wall_empty?
     remaining_tile_count.zero?
+  end
+
+  def give_tenpai_point
+    tenpai_players = players.select { |player| player.tenpai? }
+    point = TENPAI_POINT.fetch(tenpai_players.count)
+    tenpai_players.each { |player| player.add_point(point) }
+
+    no_ten_players = players.select { |player| !player.tenpai? }
+    payment = -TENPAI_POINT.fetch(no_ten_players.count)
+    no_ten_players.each { |player| player.add_point(payment) }
   end
 
   private

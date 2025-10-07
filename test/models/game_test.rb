@@ -588,4 +588,79 @@ class GameTest < ActiveSupport::TestCase
     assert_equal -16000, loser_2.point
     assert_equal -16000, loser_3.point
   end
+
+  test '#give_tenpai_point adds 3000 point when there is exactly one tenpai player' do
+    tenpai_player = @game.user_player
+    no_ten_player_1 = @game.opponents[0]
+    no_ten_player_2 = @game.opponents[1]
+    no_ten_player_3 = @game.opponents[2]
+    set_hands('m123456789 p123 s1', @game.user_player)
+
+    @game.give_tenpai_point
+    assert_equal  3000, tenpai_player.point
+    assert_equal -1000, no_ten_player_1.point
+    assert_equal -1000, no_ten_player_2.point
+    assert_equal -1000, no_ten_player_3.point
+  end
+
+  test '#give_tenpai_point adds +-1500 point when there is exactly two tenpai player' do
+    tenpai_player_1 = @game.user_player
+    tenpai_player_2 = @game.opponents[0]
+    no_ten_player_1 = @game.opponents[1]
+    no_ten_player_2 = @game.opponents[2]
+    set_hands('m123456789 p123 s1', tenpai_player_1)
+    set_hands('m123456789 p123 s1', tenpai_player_2)
+
+    @game.give_tenpai_point
+    assert_equal  1500, tenpai_player_1.point
+    assert_equal  1500, tenpai_player_2.point
+    assert_equal -1500, no_ten_player_1.point
+    assert_equal -1500, no_ten_player_2.point
+  end
+
+  test '#give_tenpai_point adds +-1500 point when there is exactly three tenpai player' do
+    tenpai_player_1 = @game.user_player
+    tenpai_player_2 = @game.opponents[0]
+    tenpai_player_3 = @game.opponents[1]
+    no_ten_player = @game.opponents[2]
+    set_hands('m123456789 p123 s1', tenpai_player_1)
+    set_hands('m123456789 p123 s1', tenpai_player_2)
+    set_hands('m123456789 p123 s1', tenpai_player_3)
+
+    @game.give_tenpai_point
+    assert_equal  1000, tenpai_player_1.point
+    assert_equal  1000, tenpai_player_2.point
+    assert_equal  1000, tenpai_player_3.point
+    assert_equal -3000, no_ten_player.point
+  end
+
+  test '#give_tenpai_point does not add point when all players are no-ten' do
+    no_ten_player_1 = @game.user_player
+    no_ten_player_2 = @game.opponents[0]
+    no_ten_player_3 = @game.opponents[1]
+    no_ten_player_4 = @game.opponents[2]
+
+    @game.give_tenpai_point
+    assert_equal 0, no_ten_player_1.point
+    assert_equal 0, no_ten_player_2.point
+    assert_equal 0, no_ten_player_3.point
+    assert_equal 0, no_ten_player_4.point
+  end
+
+  test '#give_tenpai_point does not add point when all players are tenpai' do
+    tenpai_player_1 = @game.user_player
+    tenpai_player_2 = @game.opponents[0]
+    tenpai_player_3 = @game.opponents[1]
+    tenpai_player_4 = @game.opponents[2]
+    set_hands('m123456789 p123 s1', tenpai_player_1)
+    set_hands('m123456789 p123 s1', tenpai_player_2)
+    set_hands('m123456789 p123 s1', tenpai_player_3)
+    set_hands('m123456789 p123 s1', tenpai_player_4)
+
+    @game.give_tenpai_point
+    assert_equal 0, tenpai_player_1.point
+    assert_equal 0, tenpai_player_2.point
+    assert_equal 0, tenpai_player_3.point
+    assert_equal 0, tenpai_player_4.point
+  end
 end
