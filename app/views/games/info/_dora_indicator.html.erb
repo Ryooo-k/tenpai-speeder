@@ -1,0 +1,9 @@
+<div class="flex justify-center">
+  <% @game.dora_indicator_tiles.each do |tile| %>
+    <% if tile %>
+      <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "w-[2.5cqw]") %>
+    <% else %>
+      <%= image_tag("tiles/back_board.gif", class: "w-[2.5cqw]") %>
+    <% end %>
+  <% end %>
+</div>

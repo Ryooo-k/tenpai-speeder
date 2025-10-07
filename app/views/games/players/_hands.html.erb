@@ -1,0 +1,17 @@
+<div class="absolute <%= build_hand_position_class(player) %>">
+  <% needs_form  = discard_form_needed?(@action, player) %>
+  <% partial_path = build_hand_partial_path(@action, player) %>
+  <% row_classes = build_hand_row_classes(player, needs_form) %>
+
+  <% if needs_form %>
+    <%= form_with url: game_action_discard_path(@game) do |form| %>
+      <div class="<%= row_classes %>">
+        <%= render partial: partial_path, collection: player.hands, as: :hand, locals: { form: } %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="<%= row_classes %>">
+      <%= render partial: partial_path, collection: player.hands, as: :hand %>
+    </div>
+  <% end %>
+</div>
