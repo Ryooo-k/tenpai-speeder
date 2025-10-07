@@ -206,7 +206,7 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
   test 'advances to next honba when host player tsumo' do
     host = @game.user_player
-    assign_host_player(host, @game)
+    assign_host(host, @game)
     set_user_turn(@game)
     set_hands('m123456789 p23 s99', host)
     assign_draw_tile('p1', @game)
@@ -238,7 +238,7 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
   test 'advances to next round when non-host player tsumo' do
     host = @game.opponents.sample
-    assign_host_player(host, @game)
+    assign_host(host, @game)
     set_user_turn(@game)
     set_hands('m123456789 p23 s99', @game.user_player)
     assign_draw_tile('p1', @game)
@@ -270,7 +270,7 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
   test 'advances to next honba when host player ron' do
     host = @game.user_player
-    assign_host_player(host, @game)
+    assign_host(host, @game)
     set_hands('m123456789 p23 s99', host)
 
     set_opponent_turn(@game)
@@ -306,7 +306,7 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
   test 'advances to next round when non-host player ron' do
     host = @game.opponents.sample
-    assign_host_player(host, @game)
+    assign_host(host, @game)
     set_opponent_turn(@game)
     set_hands('p1', host)
     set_hands('m123456789 p23 s99', @game.user_player)
@@ -340,7 +340,7 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
   test 'host mangan ron updates score: +12000 to winner, -12000 to loser, bonus 1600' do
     host = @game.user_player
-    assign_host_player(host, @game)
+    assign_host(host, @game)
     set_hands('m234567 p23 s23455', host, drawn: false) # 4筒ロンで親萬 12000点の加点
     set_opponent_turn(@game)
     opponent = @game.current_player
@@ -377,7 +377,7 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
   test 'host mangan tsumo updates score: +12000 to host, -4000 to children' do
     host = @game.user_player
-    assign_host_player(host, @game)
+    assign_host(host, @game)
     set_hands('m234567 p23 s23455', host, drawn: false) # 4筒ツモで親萬 12000点の加点
     set_rivers('m1', host)
     set_user_turn(@game)
@@ -555,5 +555,57 @@ class GamePlayTest < ActionDispatch::IntegrationTest
     assert_dom 'form[action=?][method=?][data-controller=?]', game_action_discard_path(@game), 'post', 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', 'chosen_hand_id', hand_id
     end
+  end
+
+  test 'renders advance form when ryukyoku' do
+    @game.latest_honba.update!(draw_count: 122)
+
+    post game_action_draw_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'form[action=?][method=?]', game_action_ryukyoku_path(@game), 'post'
+  end
+
+  test 'ryukyoku advances round and increments honba when host is no-ten' do
+    @game.latest_honba.update!(draw_count: 122)
+
+    post game_action_draw_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom 'span', text: '東一局'
+    assert_dom 'span', text: '〇本場'
+
+    assert_response :success
+    post game_action_ryukyoku_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom 'span', text: '東二局'
+    assert_dom 'span', text: '一本場'
+  end
+
+
+  test 'ryukyoku advances increments honba when host is tenpai' do
+    @game.latest_honba.update!(draw_count: 122)
+    set_hands('m123456789 p123 s1', @game.host)
+    assign_draw_tile('s1', @game)
+
+    post game_action_draw_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom 'span', text: '東一局'
+    assert_dom 'span', text: '〇本場'
+
+    assert_response :success
+    post game_action_ryukyoku_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom 'span', text: '東一局'
+    assert_dom 'span', text: '一本場'
   end
 end

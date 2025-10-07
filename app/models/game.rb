@@ -8,6 +8,13 @@ class Game < ApplicationRecord
   RELATION_ORDER = { shimocha: 0, toimen: 1, kamicha: 2 }.freeze
   RIICHI_BONUS = 1000
   HONBA_BONUS = 300
+  TENPAI_POINT = {
+    0 => 0,
+    1 => 3000,
+    2 => 1500,
+    3 => 1000,
+    4 => 0
+  }.freeze
 
   belongs_to :game_mode
 
@@ -105,7 +112,7 @@ class Game < ApplicationRecord
     latest_honba.dora_indicator_tiles.values_at(..4)
   end
 
-  def host_player
+  def host
     players.find_by!(seat_order: latest_round.host_seat_number)
   end
 
@@ -125,9 +132,12 @@ class Game < ApplicationRecord
     latest_round.wind_number
   end
 
-  def advance_next_round!
+  def advance_next_round!(ryukyoku: false)
+    next_honba_number = ryukyoku ? latest_honba.number + 1 : 0
+    riichi_stick_count = ryukyoku ? latest_honba.riichi_stick_count : 0
     next_round_number = latest_round.number + 1
     rounds.create!(number: next_round_number)
+    latest_honba.update!(number: next_honba_number, riichi_stick_count:)
 
     next_seat_number = next_round_number % PLAYERS_COUNT
     update!(current_seat_number: next_seat_number)
@@ -135,10 +145,10 @@ class Game < ApplicationRecord
     create_game_records
   end
 
-  def advance_next_honba!
+  def advance_next_honba!(ryukyoku: false)
     next_honba_number = latest_honba.number + 1
-    riichi_stick_count = latest_honba.riichi_stick_count
-    latest_round.honbas.create!(number: next_honba_number, riichi_stick_count: riichi_stick_count)
+    riichi_stick_count = ryukyoku ? latest_honba.riichi_stick_count : 0
+    latest_round.honbas.create!(number: next_honba_number, riichi_stick_count:)
 
     seat_number = latest_round.number % PLAYERS_COUNT
     update!(current_seat_number: seat_number)
@@ -187,6 +197,20 @@ class Game < ApplicationRecord
   def give_bonus_point(ron_claimer_ids: false)
     give_riichi_bonus_point(ron_claimer_ids)
     give_honba_bonus_point(ron_claimer_ids)
+  end
+
+  def live_wall_empty?
+    remaining_tile_count.zero?
+  end
+
+  def give_tenpai_point
+    tenpai_players = players.select { |player| player.tenpai? }
+    point = TENPAI_POINT.fetch(tenpai_players.count)
+    tenpai_players.each { |player| player.add_point(point) }
+
+    no_ten_players = players.select { |player| !player.tenpai? }
+    payment = -TENPAI_POINT.fetch(no_ten_players.count)
+    no_ten_players.each { |player| player.add_point(payment) }
   end
 
   private

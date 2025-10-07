@@ -270,9 +270,9 @@ class GameTest < ActiveSupport::TestCase
     assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.dora_indicator_tiles.map(&:class)
   end
 
-  test '#host_player' do
+  test '#host' do
     expected = @game.rounds.order(:number).last.host_seat_number
-    assert_equal expected, @game.host_player.seat_order
+    assert_equal expected, @game.host.seat_order
   end
 
   test '#riichi_stick_count' do
@@ -348,33 +348,34 @@ class GameTest < ActiveSupport::TestCase
     end
   end
 
-  test '#advance_next_round! updates every player score by addition point' do
-    @game.players.each do |player|
-      assert_equal 25000, player.score
-      player.add_point(5000)
-    end
+  test '#advance_next_round! updates score by addition point' do
+    player = @game.players.sample
+    assert_equal 25000, player.score
+    player.add_point(12000)
 
     @game.advance_next_round!
-    @game.players.each do |player|
-      assert_equal 30000, player.score
-      player.add_point(-20000)
-    end
+    assert_equal 37000, player.score
+  end
 
-    @game.advance_next_round!
-    @game.players.each do |player|
-      assert_equal 10000, player.score
-    end
+  test '#advance_next_round! resets riichi_stick_count to 0 when ryukyoku is false' do
+    @game.latest_honba.update!(riichi_stick_count: 1)
+    @game.advance_next_round!(ryukyoku: false)
+    assert_equal 0, @game.latest_honba.riichi_stick_count
+  end
+
+  test '#advance_next_round! carries over riichi_stick_count when ryukyoku is true' do
+    @game.latest_honba.update!(riichi_stick_count: 1)
+    @game.advance_next_round!(ryukyoku: true)
+    assert_equal 1, @game.latest_honba.riichi_stick_count
   end
 
   test '#advance_next_honba! creates new honba' do
     before_honba_count = @game.latest_round.honbas.count
     before_honba_number = @game.latest_honba.number
-    @game.latest_honba.update!(riichi_stick_count: 10)
 
     @game.advance_next_honba!
     assert_equal before_honba_count + 1, @game.latest_round.honbas.count
     assert_equal before_honba_number + 1, @game.latest_honba.number
-    assert_equal 10, @game.latest_honba.riichi_stick_count
   end
 
   test '#advance_next_honba! resets current_seat_number' do
@@ -409,22 +410,24 @@ class GameTest < ActiveSupport::TestCase
     end
   end
 
-  test '#advance_next_honba! updates every player score by addition point' do
-    @game.players.each do |player|
-      assert_equal 25000, player.score
-      player.add_point(5000)
-    end
+  test '#advance_next_honba! updates score by addition point' do
+    assert_equal 25000, @game.host.score
+    @game.host.add_point(12000)
 
     @game.advance_next_honba!
-    @game.players.each do |player|
-      assert_equal 30000, player.score
-      player.add_point(-20000)
-    end
+    assert_equal 37000, @game.host.score
+  end
 
-    @game.advance_next_honba!
-    @game.players.each do |player|
-      assert_equal 10000, player.score
-    end
+  test '#advance_next_honba! resets riichi_stick_count to 0 when ryukyoku is false' do
+    @game.latest_honba.update!(riichi_stick_count: 1)
+    @game.advance_next_honba!(ryukyoku: false)
+    assert_equal 0, @game.latest_honba.riichi_stick_count
+  end
+
+  test '#advance_next_honba! carries over riichi_stick_count when ryukyoku is true' do
+    @game.latest_honba.update!(riichi_stick_count: 1)
+    @game.advance_next_honba!(ryukyoku: true)
+    assert_equal 1, @game.latest_honba.riichi_stick_count
   end
 
   test '#find_ron_claimers returns players that can_ron? == true' do
@@ -587,5 +590,80 @@ class GameTest < ActiveSupport::TestCase
     assert_equal -16000, loser_1.point
     assert_equal -16000, loser_2.point
     assert_equal -16000, loser_3.point
+  end
+
+  test '#give_tenpai_point adds 3000 point when there is exactly one tenpai player' do
+    tenpai_player = @game.user_player
+    no_ten_player_1 = @game.opponents[0]
+    no_ten_player_2 = @game.opponents[1]
+    no_ten_player_3 = @game.opponents[2]
+    set_hands('m123456789 p123 s1', @game.user_player)
+
+    @game.give_tenpai_point
+    assert_equal 3000, tenpai_player.point
+    assert_equal -1000, no_ten_player_1.point
+    assert_equal -1000, no_ten_player_2.point
+    assert_equal -1000, no_ten_player_3.point
+  end
+
+  test '#give_tenpai_point adds +-1500 point when there is exactly two tenpai player' do
+    tenpai_player_1 = @game.user_player
+    tenpai_player_2 = @game.opponents[0]
+    no_ten_player_1 = @game.opponents[1]
+    no_ten_player_2 = @game.opponents[2]
+    set_hands('m123456789 p123 s1', tenpai_player_1)
+    set_hands('m123456789 p123 s1', tenpai_player_2)
+
+    @game.give_tenpai_point
+    assert_equal  1500, tenpai_player_1.point
+    assert_equal  1500, tenpai_player_2.point
+    assert_equal -1500, no_ten_player_1.point
+    assert_equal -1500, no_ten_player_2.point
+  end
+
+  test '#give_tenpai_point adds +-1500 point when there is exactly three tenpai player' do
+    tenpai_player_1 = @game.user_player
+    tenpai_player_2 = @game.opponents[0]
+    tenpai_player_3 = @game.opponents[1]
+    no_ten_player = @game.opponents[2]
+    set_hands('m123456789 p123 s1', tenpai_player_1)
+    set_hands('m123456789 p123 s1', tenpai_player_2)
+    set_hands('m123456789 p123 s1', tenpai_player_3)
+
+    @game.give_tenpai_point
+    assert_equal  1000, tenpai_player_1.point
+    assert_equal  1000, tenpai_player_2.point
+    assert_equal  1000, tenpai_player_3.point
+    assert_equal -3000, no_ten_player.point
+  end
+
+  test '#give_tenpai_point does not add point when all players are no-ten' do
+    no_ten_player_1 = @game.user_player
+    no_ten_player_2 = @game.opponents[0]
+    no_ten_player_3 = @game.opponents[1]
+    no_ten_player_4 = @game.opponents[2]
+
+    @game.give_tenpai_point
+    assert_equal 0, no_ten_player_1.point
+    assert_equal 0, no_ten_player_2.point
+    assert_equal 0, no_ten_player_3.point
+    assert_equal 0, no_ten_player_4.point
+  end
+
+  test '#give_tenpai_point does not add point when all players are tenpai' do
+    tenpai_player_1 = @game.user_player
+    tenpai_player_2 = @game.opponents[0]
+    tenpai_player_3 = @game.opponents[1]
+    tenpai_player_4 = @game.opponents[2]
+    set_hands('m123456789 p123 s1', tenpai_player_1)
+    set_hands('m123456789 p123 s1', tenpai_player_2)
+    set_hands('m123456789 p123 s1', tenpai_player_3)
+    set_hands('m123456789 p123 s1', tenpai_player_4)
+
+    @game.give_tenpai_point
+    assert_equal 0, tenpai_player_1.point
+    assert_equal 0, tenpai_player_2.point
+    assert_equal 0, tenpai_player_3.point
+    assert_equal 0, tenpai_player_4.point
   end
 end

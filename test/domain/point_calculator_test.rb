@@ -5,7 +5,7 @@ require 'test_helper'
 class PointCalculatorTest < ActiveSupport::TestCase
   def setup
     game = games(:tonpuu)
-    @host = game.host_player
+    @host = game.host
     @child = game.opponents.sample
   end
 
