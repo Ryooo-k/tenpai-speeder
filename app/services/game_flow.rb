@@ -33,7 +33,7 @@ class GameFlow
     def draw
       if @game.live_wall_empty?
         @game.give_tenpai_point
-        @payloads[:event] = :kyoku_result
+        @payloads[:event] = :ryukyoku
         return
       end
 
@@ -102,13 +102,13 @@ class GameFlow
       @game.give_bonus_point(ron_player_ids:)
       @payloads[:discarded_tile_id] = discarded_tile_id
       @payloads[:score_statements] = score_statements
-      @payloads[:event] = :kyoku_result
+      @payloads[:event] = :agari
     end
 
     def tsumo
       @game.give_tsumo_point
       @game.give_bonus_point
-      @payloads[:event] = :kyoku_result
+      @payloads[:event] = :agari
     end
 
     def through
