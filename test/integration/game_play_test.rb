@@ -218,7 +218,7 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_dom 'h2', text: '結果'
-    assert_dom "form[action=?][method=?]", game_action_agari_path(@game), 'post'
+    assert_dom 'form[action=?][method=?]', game_action_agari_path(@game), 'post'
     assert_dom 'input[type=?][value=?]', 'submit', '次局へ'
   end
 
@@ -231,7 +231,7 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_dom 'h2', text: '結果'
-    assert_dom "form[action=?][method=?]", game_action_ryukyoku_path(@game), 'post'
+    assert_dom 'form[action=?][method=?]', game_action_ryukyoku_path(@game), 'post'
     assert_dom 'input[type=?][value=?]', 'submit', '次局へ'
   end
 
