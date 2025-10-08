@@ -203,6 +203,37 @@ class GamePlayTest < ActionDispatch::IntegrationTest
     assert_dom 'input[type=radio][name=chosen_hand_id]'
   end
 
+  test 'renders result when someone wins' do
+    set_hands('m123456789 p23 s99', @game.host)
+    assign_draw_tile('p1', @game)
+
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    post game_action_tsumo_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'h2', text: '結果'
+    assert_dom "form[action=?][method=?]", game_action_agari_path(@game), 'post'
+    assert_dom 'input[type=?][value=?]', 'submit', '次局へ'
+  end
+
+  test 'renders result when ryukyoku' do
+    @game.latest_honba.update!(draw_count: 122)
+
+    post game_action_draw_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_dom 'h2', text: '結果'
+    assert_dom "form[action=?][method=?]", game_action_ryukyoku_path(@game), 'post'
+    assert_dom 'input[type=?][value=?]', 'submit', '次局へ'
+  end
 
   test 'advances to next honba when host player tsumo' do
     host = @game.user_player
@@ -226,6 +257,12 @@ class GamePlayTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
 
+    assert_response :success
+    post game_action_agari_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
     assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
     assert_dom 'span', text: '東一局'
     assert_dom 'span', text: '一本場'
@@ -255,6 +292,11 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     post game_action_tsumo_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    post game_action_agari_path(@game)
     assert_response :redirect
     follow_redirect!
 
@@ -294,6 +336,11 @@ class GamePlayTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
 
+    assert_response :success
+    post game_action_agari_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
     assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
     assert_dom 'span', text: '東一局'
     assert_dom 'span', text: '一本場'
@@ -328,6 +375,11 @@ class GamePlayTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
 
+    assert_response :success
+    post game_action_agari_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
     assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
     assert_dom 'span', text: '東二局'
     assert_dom 'span', text: '〇本場'
@@ -335,6 +387,36 @@ class GamePlayTest < ActionDispatch::IntegrationTest
     @game.reload
     assert_equal before_rounds_count + 1, @game.rounds.count
     assert_equal before_round_number + 1, @game.latest_round.number
+    assert_equal 0, @game.current_step_number
+  end
+
+  test 'advances to next round and next honba when ryukyoku' do
+    @game.latest_honba.update!(draw_count: 122)
+    before_rounds_count = @game.rounds.count
+    before_round_number = @game.latest_round.number
+    before_honba_number = @game.latest_honba.number
+    before_step_number  = @game.current_step_number
+
+    assert_dom 'span', text: '東一局'
+    assert_dom 'span', text: '〇本場'
+
+    post game_action_draw_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    post game_action_ryukyoku_path(@game)
+    assert_response :redirect
+    follow_redirect!
+
+    assert_dom "form[data-controller='auto-submit'][action='#{game_action_draw_path(@game)}']"
+    assert_dom 'span', text: '東二局'
+    assert_dom 'span', text: '一本場'
+
+    @game.reload
+    assert_equal before_rounds_count + 1, @game.rounds.count
+    assert_equal before_round_number + 1, @game.latest_round.number
+    assert_equal before_honba_number + 1, @game.latest_honba.number
     assert_equal 0, @game.current_step_number
   end
 
@@ -362,6 +444,11 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     post game_action_ron_path, params: { game_id: @game.id, discarded_tile_id: pinzu_4.tile.id, ron_claimer_ids: [ host.id ] }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    post game_action_agari_path(@game)
     assert_response :redirect
     follow_redirect!
 
@@ -396,6 +483,11 @@ class GamePlayTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     post game_action_tsumo_path, params: { game_id: @game.id }
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    post game_action_agari_path(@game)
     assert_response :redirect
     follow_redirect!
 
