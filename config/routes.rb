@@ -9,19 +9,8 @@ Rails.application.routes.draw do
 
   resources :games, only: :create do
     scope module: :games do
-      resource :play, only: :show
-
-      post 'action/draw',    to: 'actions#draw'
-      get  'action/choose',  to: 'actions#choose'
-      post 'action/discard', to: 'actions#discard'
-      post 'action/ron',     to: 'actions#ron'
-      post 'action/furo',    to: 'actions#furo'
-      post 'action/tsumo',   to: 'actions#tsumo'
-      post 'action/riichi',  to: 'actions#riichi'
-      post 'action/through', to: 'actions#through'
-      get  'action/pass',    to: 'actions#pass'
-      post 'action/ryukyoku', to: 'actions#ryukyoku'
-      post 'action/agari',   to: 'actions#agari'
+      get  'play', to: 'plays#show',    as: :play
+      post 'play', to: 'plays#command', as: :play_command
     end
   end
 end

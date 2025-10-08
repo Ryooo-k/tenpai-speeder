@@ -2,22 +2,15 @@
 
 class Games::PlaysController < ApplicationController
   before_action :set_game
-  before_action :set_players
+  before_action :set_instance_variable, only: [ 'show' ]
 
   def show
-    @action = flash[:next_action]&.to_sym
-    @chosen_hand_id = flash[:chosen_hand_id]
-    @discarded_tile_id = flash[:discarded_tile_id]
-    @ron_claimer_ids = flash[:ron_claimer_ids]
+  end
 
-    if @action == :riichi_choose
-      @riichi_candidates = @game.current_player.find_riichi_candidates
-    end
-
-    if @action == :confirm_furo
-      target_tile = @game.tiles.find(@discarded_tile_id)
-      @furo_candidates = @game.user_player.find_furo_candidates(target_tile, @game.current_player)
-    end
+  def command
+    game_flow = GameFlow.new(@game)
+    payloads = game_flow.run(params)
+    redirect_to game_play_path(@game), flash: payloads
   end
 
   private
@@ -44,8 +37,18 @@ class Games::PlaysController < ApplicationController
       ).find(params[:game_id])
     end
 
-    def set_players
-      @user_player = @game.user_player
-      @opponents = @game.opponents
+    def set_instance_variable
+      flash.each do |key, value|
+        instance_variable_set("@#{key}", value)
+      end
+
+      if @event == 'riichi_choose'
+        riichi_candidates = @game.current_player.find_riichi_candidates
+        instance_variable_set(:@riichi_candidates, riichi_candidates)
+      elsif @event == 'confirm_furo'
+        discarded_tile = @game.tiles.find(@discarded_tile_id)
+        furo_candidates = @game.user_player.find_furo_candidates(discarded_tile, @game.current_player)
+        instance_variable_set(:@furo_candidates, furo_candidates)
+      end
     end
 end
