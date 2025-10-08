@@ -1,5 +1,0 @@
-<% if @game.current_player.ai? %>
-  <%= form_with url: game_action_choose_path(@game),
-                method: :get,
-                data: { controller: "auto-submit" } %>
-<% end %>

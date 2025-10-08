@@ -1,0 +1,6 @@
+<% if @game.current_player.ai? %>
+  <%= form_with url: game_play_command_path(@game),
+                data: { controller: "auto-submit" } do |form| %>
+    <%= form.hidden_field :event, value: 'choose' %>
+  <% end %>
+<% end %>

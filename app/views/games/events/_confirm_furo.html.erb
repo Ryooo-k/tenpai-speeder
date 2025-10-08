@@ -1,11 +1,12 @@
 <div class="absolute bottom-1/8 right-1/10">
   <div class="flex gap-2">
     <% @furo_candidates.each do |furo_name, furo_combinations| %>
-      <% case furo_name %>
+      <% case furo_name.to_sym %>
       <% when :chi %>
         <% furo_combinations.each do |chi_combinations| %>
-          <%= button_to game_action_furo_path(@game),
+          <%= button_to game_play_command_path(@game),
                         params: {
+                          event: 'furo',
                           discarded_tile_id: @discarded_tile_id,
                           furo_type: furo_name,
                           furo_ids: chi_combinations.map(&:id)
@@ -17,8 +18,9 @@
           <% end %>
         <% end %>
       <% when :pon, :kan %>
-        <%= button_to game_action_furo_path(@game),
+        <%= button_to game_play_command_path(@game),
                       params: {
+                        event: 'furo',
                         discarded_tile_id: @discarded_tile_id,
                         furo_type: furo_name,
                         furo_ids: furo_combinations.map(&:id)
@@ -32,7 +34,8 @@
     <% end %>
 
     <%= button_to "スルー",
-                  game_action_through_path(@game),
+                  game_play_command_path(@game),
+                  params: { event: 'through' },
                   class: "rounded border px-2 py-1" %>
   </div>
 </div>
