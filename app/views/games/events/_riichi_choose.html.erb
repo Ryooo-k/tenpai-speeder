@@ -1,7 +1,6 @@
 <% if @game.current_player.ai? %>
   <%= chosen_hand_id = @riichi_candidates.sample %>
   <%= form_with url: game_play_command_path(@game),
-                method: :post,
                 data: { controller: "auto-submit" } do |form| %>
     <%= form.hidden_field :event, value: 'discard' %>
     <%= form.hidden_field :chosen_hand_id, value: chosen_hand_id %>

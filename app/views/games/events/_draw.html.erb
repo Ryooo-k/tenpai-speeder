@@ -1,5 +1,4 @@
 <%= form_with url: game_play_command_path(@game),
-              method: :post,
               data: { controller: "auto-submit" } do |form| %>
   <%= form.hidden_field :event, value: 'draw' %>
 <% end %>
