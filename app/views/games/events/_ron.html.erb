@@ -19,7 +19,6 @@
 
 <% else %>
   <%= form_with url: game_play_command_path(@game),
-                method: :post,
                 data: { controller: "auto-submit" } do |form| %>
     <%= form.hidden_field :event, value: 'ron' %>
     <%= form.hidden_field :discarded_tile_id, value: @discarded_tile_id %>

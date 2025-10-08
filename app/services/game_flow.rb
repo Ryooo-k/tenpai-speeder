@@ -40,12 +40,12 @@ class GameFlow
       @game.draw_for_current_player
 
       if @game.current_player.can_tsumo?
-        @payloads[:event] = :confirm_tsumo
+        @payloads[:event] = :tsumo
       elsif @game.current_player.riichi?
         @payloads[:chosen_hand_id] = @game.current_player.hands.find_by(drawn: true).id
         @payloads[:event] = :discard
       elsif @game.current_player.can_riichi?
-        @payloads[:event] = :confirm_riichi
+        @payloads[:event] = :riichi
       else
         @payloads[:event] = :choose
       end
@@ -65,7 +65,7 @@ class GameFlow
       if ron_players.present?
         @payloads[:discarded_tile_id] = discarded_tile.id
         @payloads[:ron_player_ids] = ron_players.map(&:id)
-        @payloads[:event] = :confirm_ron
+        @payloads[:event] = :ron
         return
       end
 
@@ -73,7 +73,7 @@ class GameFlow
       is_user_furo = @game.user_player.can_furo?(discarded_tile, @game.current_player)
       if is_user_furo
         @payloads[:discarded_tile_id] = discarded_tile.id
-        @payloads[:event] = :confirm_furo
+        @payloads[:event] = :furo
       else
         @game.advance_current_player!
         @payloads[:event] = :draw

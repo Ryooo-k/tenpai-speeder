@@ -16,6 +16,5 @@
 <% else %>
   <%= form_with url: game_play_command_path(@game),
                 params: { event: 'riichi' },
-                method: :post,
                 data: { controller: "auto-submit" } %>
 <% end %>
