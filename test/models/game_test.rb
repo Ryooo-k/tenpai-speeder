@@ -430,7 +430,7 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 1, @game.latest_honba.riichi_stick_count
   end
 
-  test '#find_ron_claimers returns players that can_ron? == true' do
+  test '#find_ron_players returns players that can_ron? == true' do
     player_1 = Minitest::Mock.new
     player_2 = Minitest::Mock.new
     player_3 = Minitest::Mock.new
@@ -441,12 +441,12 @@ class GameTest < ActiveSupport::TestCase
     player_3.expect(:can_ron?, true,  [ tile ])
 
     @game.stub(:other_players, [ player_1, player_2, player_3 ]) do
-      result = @game.find_ron_claimers(tile)
+      result = @game.find_ron_players(tile)
       assert_equal [ player_2, player_3 ], result
     end
   end
 
-  test '#find_ron_claimers returns empty array when nobody can ron' do
+  test '#find_ron_players returns empty array when nobody can ron' do
     player_1 = Minitest::Mock.new
     player_2 = Minitest::Mock.new
     player_3 = Minitest::Mock.new
@@ -457,7 +457,7 @@ class GameTest < ActiveSupport::TestCase
     player_3.expect(:can_ron?, false, [ tile ])
 
     @game.stub(:other_players, [ player_1, player_2, player_3 ]) do
-      result = @game.find_ron_claimers(tile)
+      result = @game.find_ron_players(tile)
       assert_empty result
     end
   end
@@ -541,7 +541,7 @@ class GameTest < ActiveSupport::TestCase
     shimocha = @game.opponents.ordered[0]
     toimen = @game.opponents.ordered[1]
     kamicha = @game.opponents.ordered[2]
-    ron_claimer_ids = [ shimocha.id, toimen.id, kamicha.id ]
+    ron_player_ids = [ shimocha.id, toimen.id, kamicha.id ]
     @game.latest_honba.update!(riichi_stick_count: 1, number: 1)
 
     assert_equal 0, loser.point
@@ -549,7 +549,7 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 0, toimen.point
     assert_equal 0, kamicha.point
 
-    @game.give_bonus_point(ron_claimer_ids:)
+    @game.give_bonus_point(ron_player_ids:)
     assert_equal -900, loser.point
     assert_equal 1300, shimocha.point
     assert_equal  300, toimen.point
@@ -560,14 +560,14 @@ class GameTest < ActiveSupport::TestCase
     loser = @game.current_player
     toimen = @game.opponents.ordered[1]
     kamicha = @game.opponents.ordered[2]
-    ron_claimer_ids = [ toimen.id, kamicha.id ]
+    ron_player_ids = [ toimen.id, kamicha.id ]
     @game.latest_honba.update!(riichi_stick_count: 1, number: 2)
 
     assert_equal 0, loser.point
     assert_equal 0, toimen.point
     assert_equal 0, kamicha.point
 
-    @game.give_bonus_point(ron_claimer_ids:)
+    @game.give_bonus_point(ron_player_ids:)
     assert_equal -1200, loser.point
     assert_equal 1600, toimen.point
     assert_equal 600, kamicha.point
