@@ -666,4 +666,10 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 0, tenpai_player_3.point
     assert_equal 0, tenpai_player_4.point
   end
+
+  test '#host_winner? return true when host get point' do
+    assert_not @game.host_winner?
+    @game.host.add_point(1000)
+    assert @game.host_winner?
+  end
 end

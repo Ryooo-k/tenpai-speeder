@@ -57,19 +57,11 @@ class Games::ActionsController < ApplicationController
   def ron
     discarded_tile_id = params.expect(:discarded_tile_id).to_i
     ron_claimer_ids = params.expect(ron_claimer_ids: []).map(&:to_i)
-
     score_statements = @game.build_ron_score_statements(discarded_tile_id, ron_claimer_ids)
     @game.give_ron_point(score_statements)
     @game.give_bonus_point(ron_claimer_ids:)
 
-    if ron_claimer_ids.include?(@game.host.id)
-      @game.advance_next_honba!
-    else
-      @game.advance_next_round!
-    end
-
-    @game.deal_initial_hands
-    flash[:next_action] = :draw
+    flash[:next_action] = :agari
     redirect_to game_play_path(@game)
   end
 
@@ -77,9 +69,9 @@ class Games::ActionsController < ApplicationController
     furo_type = params.expect(:furo_type)
     furo_ids = params.expect(furo_ids: []).map(&:to_i)
     discarded_tile_id = params.expect(:discarded_tile_id).to_i
-
     @game.apply_furo(furo_type, furo_ids, discarded_tile_id)
     @game.advance_to_player!(@game.user_player)
+
     flash[:next_action] = :choose
     redirect_to game_play_path(@game)
   end
@@ -87,15 +79,7 @@ class Games::ActionsController < ApplicationController
   def tsumo
     @game.give_tsumo_point
     @game.give_bonus_point
-
-    if @game.current_player.host?
-      @game.advance_next_honba!
-    else
-      @game.advance_next_round!
-    end
-
-    @game.deal_initial_hands
-    flash[:next_action] = :draw
+    flash[:next_action] = :agari
     redirect_to game_play_path(@game)
   end
 
@@ -121,6 +105,18 @@ class Games::ActionsController < ApplicationController
       @game.advance_next_honba!(ryukyoku: true)
     else
       @game.advance_next_round!(ryukyoku: true)
+    end
+
+    @game.deal_initial_hands
+    flash[:next_action] = :draw
+    redirect_to game_play_path(@game)
+  end
+
+  def agari
+    if @game.host_winner?
+      @game.advance_next_honba!
+    else
+      @game.advance_next_round!
     end
 
     @game.deal_initial_hands

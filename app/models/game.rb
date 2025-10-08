@@ -213,6 +213,10 @@ class Game < ApplicationRecord
     no_ten_players.each { |player| player.add_point(payment) }
   end
 
+  def host_winner?
+    host.point.positive?
+  end
+
   private
 
     def create_tiles_and_round

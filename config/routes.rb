@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       post 'action/through', to: 'actions#through'
       get  'action/pass',    to: 'actions#pass'
       post 'action/ryukyoku', to: 'actions#ryukyoku'
+      post 'action/agari',   to: 'actions#agari'
     end
   end
 end
