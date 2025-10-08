@@ -44,8 +44,16 @@ class Games::PlaysController < ApplicationController
 
       if @event == 'riichi_choose'
         riichi_candidates = @game.current_player.find_riichi_candidates
-        instance_variable_set(:@riichi_candidates, riichi_candidates)
-      elsif @event == 'furo'
+
+        if @game.current_player.user?
+          instance_variable_set(:@riichi_candidates, riichi_candidates)
+        else
+          chosen_hand_id = riichi_candidates.sample.id
+          instance_variable_set(:@chosen_hand_id, chosen_hand_id)
+        end
+      end
+
+      if @event == 'furo'
         discarded_tile = @game.tiles.find(@discarded_tile_id)
         furo_candidates = @game.user_player.find_furo_candidates(discarded_tile, @game.current_player)
         instance_variable_set(:@furo_candidates, furo_candidates)
