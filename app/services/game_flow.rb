@@ -60,7 +60,7 @@ class GameFlow
     end
 
     def discard(params)
-      chosen_hand_id = params[:chosen_hand_id].to_i
+      chosen_hand_id = params[:chosen_hand_id]
       discarded_tile = @game.discard_for_current_player(chosen_hand_id)
 
       ron_players = @game.find_ron_players(discarded_tile)
@@ -84,8 +84,8 @@ class GameFlow
 
     def furo(params)
       furo_type = params[:furo_type]
-      furo_ids = params[:furo_ids].map(&:to_i)
-      discarded_tile_id = params[:discarded_tile_id].to_i
+      furo_ids = params[:furo_ids]
+      discarded_tile_id = params[:discarded_tile_id]
       @game.apply_furo(furo_type, furo_ids, discarded_tile_id)
       @game.advance_to_player!(@game.user_player)
       @payloads[:event] = :choose
@@ -97,8 +97,8 @@ class GameFlow
     end
 
     def ron(params)
-      discarded_tile_id = params[:discarded_tile_id].to_i
-      ron_player_ids = params[:ron_player_ids].map(&:to_i)
+      discarded_tile_id = params[:discarded_tile_id]
+      ron_player_ids = params[:ron_player_ids]
       score_statements = @game.build_ron_score_statements(discarded_tile_id, ron_player_ids)
       @game.give_ron_point(score_statements)
       @game.give_bonus_point(ron_player_ids:)
