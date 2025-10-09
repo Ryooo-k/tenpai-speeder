@@ -8,11 +8,13 @@
                       discarded_tile_id: @discarded_tile_id,
                       ron_player_ids: @ron_player_ids
                     },
+                    form: { data: { testid: "ron" } },
                     class: "rounded border px-2 py-1" %>
 
       <%= button_to "スルー",
                     game_play_command_path(@game),
                     params: { event: 'through' },
+                    form: { data: { testid: "through" } },
                     class: "rounded border px-2 py-1" %>
     </div>
   </div>

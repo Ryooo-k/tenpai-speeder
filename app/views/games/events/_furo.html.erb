@@ -11,6 +11,7 @@
                           furo_type: furo_name,
                           furo_ids: chi_combinations.map(&:id)
                           },
+                        form: { data: { testid: "furo_combinations" } },
                         class: "inline-flex items-end gap-1 rounded border px-2 py-1" do %>
             <% chi_combinations.each do |hand| %>
               <%= image_tag("tiles/#{hand.suit}_#{hand.number}.gif", class: "w-[3.0cqw]") %>
@@ -25,6 +26,7 @@
                         furo_type: furo_name,
                         furo_ids: furo_combinations.map(&:id)
                         },
+                        form: { data: { testid: "furo_combinations" } },
                       class: "inline-flex items-end gap-1 rounded border px-2 py-1" do %>
           <% furo_combinations.each do |hand| %>
             <%= image_tag("tiles/#{hand.suit}_#{hand.number}.gif", class: "w-[3.0cqw]") %>
@@ -36,6 +38,7 @@
     <%= button_to "スルー",
                   game_play_command_path(@game),
                   params: { event: 'through' },
+                  form: { data: { testid: "through" } },
                   class: "rounded border px-2 py-1" %>
   </div>
 </div>

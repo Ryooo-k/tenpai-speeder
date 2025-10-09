@@ -1,11 +1,7 @@
 <div class="absolute <%= build_hand_position_class(player) %>">
   <% needs_form = discard_form_needed?(@event, player) %>
-  <% partial_path = build_hand_partial_path(@event, player) %>
+  <% partial_path = build_hand_partial_path(@event, @game, player) %>
   <% row_classes = build_hand_row_classes(player, needs_form) %>
-
-  <% if player.user? %>
-  <div></div>
-  <% end %>
 
   <% if needs_form %>
     <%= form_with url: game_play_command_path(@game) do |form| %>
