@@ -40,8 +40,8 @@ module GamesHelper
     end
   end
 
-  def build_hand_partial_path(event, player)
-    return 'games/players/hand_plain' unless player.user?
+  def build_hand_partial_path(event, game, player)
+    return 'games/players/hand_plain' if game.current_player.ai? || player.ai?
 
     case event.to_sym
     when :choose        then 'games/players/hand_form'
