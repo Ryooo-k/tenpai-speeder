@@ -2,7 +2,7 @@
 
 class Games::PlaysController < ApplicationController
   before_action :set_game
-  before_action :set_instance_variable, only: [ 'show' ]
+  before_action :set_instance_variable, only: :show
 
   def show
   end

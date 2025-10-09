@@ -27,7 +27,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'first visit renders draw event with auto-submit form' do
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
   end
@@ -55,7 +55,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   test 'AI player renders auto-submit forms in order: draw → choose → discard' do
     set_player_turn(@game, @game.ais.sample)
 
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
     post game_play_command_path(@game, params: { event: 'draw' })
@@ -63,7 +63,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :choose
     end
     post game_play_command_path(@game, params: { event: 'choose' })
@@ -71,7 +71,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
     end
   end
@@ -79,7 +79,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   test 'user player renders forms in order: draw → discard' do
     set_player_turn(@game, @game.user_player)
 
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
     post game_play_command_path(@game, params: { event: 'draw' })
@@ -87,7 +87,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_dom "form[action=?]", game_play_command_path(@game) do
+    assert_dom 'form[action=?]', game_play_command_path(@game) do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
     end
 
@@ -320,7 +320,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
     assert_dom 'span', text: '東一局'
@@ -353,7 +353,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
 
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
     assert_dom 'span', text: '東二局'
@@ -386,7 +386,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
 
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
     assert_dom 'span', text: '東一局'
@@ -419,7 +419,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
 
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
     assert_dom 'span', text: '東二局'
@@ -444,7 +444,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
 
-    assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
     assert_dom 'span', text: '東二局'
