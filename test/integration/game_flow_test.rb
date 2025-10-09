@@ -18,6 +18,14 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     @game.players.each { |player| set_hands('m159 p159 s159 z1234', player) }
   end
 
+  test 'redirects to home with alert on unknown event' do
+    post game_play_command_path(@game, params: { event: 'unknown_event' })
+    assert_redirected_to home_path
+    follow_redirect!
+    assert_response :success
+    assert_includes @response.body, '不明なイベント名です：unknown_event'
+  end
+
   test 'first visit renders draw event with auto-submit form' do
     assert_dom "form[action=?][data-controller=?]", game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw

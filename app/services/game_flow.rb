@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class GameFlow
+  class UnknownEvent < StandardError; end
+
   def initialize(game)
     @game = game
     @payloads = {}
@@ -22,7 +24,7 @@ class GameFlow
     when :ryukyoku then ryukyoku
     when :agari    then agari
     else
-      raise ArgumentError, "Unknown event: #{event.inspect}"
+      raise UnknownEvent, "不明なイベント名です：#{event}"
     end
 
     @payloads

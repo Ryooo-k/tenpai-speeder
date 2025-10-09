@@ -11,6 +11,9 @@ class Games::PlaysController < ApplicationController
     game_flow = GameFlow.new(@game)
     payloads = game_flow.run(params)
     redirect_to game_play_path(@game), flash: payloads
+
+  rescue GameFlow::UnknownEvent => e
+    redirect_to home_path, alert: e.message
   end
 
   private
