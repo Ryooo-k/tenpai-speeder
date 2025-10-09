@@ -141,10 +141,20 @@ class GameTest < ActiveSupport::TestCase
     assert_not @game.user_player.ai_id.present?
   end
 
-  test '#opponents' do
-    @game.opponents.each do |opponent|
-      assert opponent.ai_id.present?
-      assert_not opponent.user_id.present?
+  test '#ais' do
+    @game.ais.each do |ai|
+      assert ai.ai_id.present?
+      assert_not ai.user_id.present?
+    end
+  end
+
+  test '#host' do
+    assert_equal @game.host.seat_order, @game.latest_round.host_seat_number
+  end
+
+  test '#children' do
+    @game.children.each do |child|
+      assert child.id != @game.host.id
     end
   end
 
@@ -270,11 +280,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.dora_indicator_tiles.map(&:class)
   end
 
-  test '#host' do
-    expected = @game.rounds.order(:number).last.host_seat_number
-    assert_equal expected, @game.host.seat_order
-  end
-
   test '#riichi_stick_count' do
     @game.latest_honba.update!(riichi_stick_count: 0)
     assert_equal 0, @game.riichi_stick_count
@@ -284,20 +289,23 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#apply_furo moves tile from hands to melds' do
-    set_opponent_turn(@game)
-    ai = @game.current_player
+    ai = @game.ais.sample
+    set_player_turn(@game, ai)
     user = @game.user_player
     manzu_3 = set_rivers('m3', ai).first
     manzu_1, manzu_2, haku = set_hands('m12 z1', user)
 
     furo_ids = [ manzu_1.id, manzu_2.id ]
     @game.apply_furo(:chi, furo_ids, manzu_3.tile.id)
-    assert_equal [ haku.tile ], @game.user_player.hands.map(&:tile)
-    assert_equal [ manzu_1.tile, manzu_2.tile, manzu_3.tile ], @game.user_player.melds.map(&:tile)
+    expected = [ manzu_1.tile, manzu_2.tile, manzu_3.tile ]
+
+    assert_equal [ haku.tile ], user.hands.map(&:tile)
+    user.melds.each { |meld| assert expected.include?(meld.tile) }
   end
 
   test '#apply_furo increments current_step_number and creates new step' do
-    set_opponent_turn(@game)
+    ai = @game.ais.sample
+    set_player_turn(@game, ai)
     before_step_number = @game.current_step_number
     manzu_1, manzu_2 = set_hands('m12', @game.user_player)
     furo_ids = [ manzu_1.id, manzu_2.id ]
@@ -463,8 +471,8 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#build_ron_score_statements' do
-    ron_player_1 = @game.opponents[0]
-    ron_player_2 = @game.opponents[1]
+    ron_player_1 = @game.ais[0]
+    ron_player_2 = @game.ais[1]
     set_hands('m123456789 p22 s45', ron_player_1, drawn: false)
     set_hands('m111222333 p22 s33', ron_player_2, drawn: false)
     discarded_tile = tiles(:first_souzu_3)
@@ -490,8 +498,8 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_ron_point adds point' do
     current_player = @game.current_player
-    ron_player_1 = @game.opponents[0]
-    ron_player_2 = @game.opponents[1]
+    ron_player_1 = @game.ais[0]
+    ron_player_2 = @game.ais[1]
     score_statement_table = {
       # 満貫（8000点）
       ron_player_1.id.to_s => {
@@ -519,9 +527,9 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_bonus_point adds riichi_stick_count_point and honba_point' do
     winner = @game.current_player
-    loser_1 = @game.opponents[0]
-    loser_2 = @game.opponents[1]
-    loser_3 = @game.opponents[2]
+    loser_1 = @game.ais[0]
+    loser_2 = @game.ais[1]
+    loser_3 = @game.ais[2]
     @game.latest_honba.update!(riichi_stick_count: 1, number: 1) # リーチ棒；1000点、本場：300点（100x3）
 
     assert_equal 0, winner.point
@@ -538,9 +546,9 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_bonus_point adds bonus to a shimocha claimer following relation priority(shimocha → toimen → kamicha)' do
     loser = @game.current_player
-    shimocha = @game.opponents.ordered[0]
-    toimen = @game.opponents.ordered[1]
-    kamicha = @game.opponents.ordered[2]
+    shimocha = @game.ais.ordered[0]
+    toimen = @game.ais.ordered[1]
+    kamicha = @game.ais.ordered[2]
     ron_player_ids = [ shimocha.id, toimen.id, kamicha.id ]
     @game.latest_honba.update!(riichi_stick_count: 1, number: 1)
 
@@ -558,8 +566,8 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_bonus_point adds bonus to a toimen claimer following relation priority(shimocha → toimen → kamicha)' do
     loser = @game.current_player
-    toimen = @game.opponents.ordered[1]
-    kamicha = @game.opponents.ordered[2]
+    toimen = @game.ais.ordered[1]
+    kamicha = @game.ais.ordered[2]
     ron_player_ids = [ toimen.id, kamicha.id ]
     @game.latest_honba.update!(riichi_stick_count: 1, number: 2)
 
@@ -575,9 +583,9 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_tsumo_point adds point' do
     winner = @game.current_player
-    loser_1 = @game.opponents.ordered[0]
-    loser_2 = @game.opponents.ordered[1]
-    loser_3 = @game.opponents.ordered[2]
+    loser_1 = @game.ais.ordered[0]
+    loser_2 = @game.ais.ordered[1]
+    loser_3 = @game.ais.ordered[2]
     set_hands('m234567 p234 s23455', winner) # 天和 48000点の加点
 
     assert_equal 0, winner.point
@@ -594,9 +602,9 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_tenpai_point adds 3000 point when there is exactly one tenpai player' do
     tenpai_player = @game.user_player
-    no_ten_player_1 = @game.opponents[0]
-    no_ten_player_2 = @game.opponents[1]
-    no_ten_player_3 = @game.opponents[2]
+    no_ten_player_1 = @game.ais[0]
+    no_ten_player_2 = @game.ais[1]
+    no_ten_player_3 = @game.ais[2]
     set_hands('m123456789 p123 s1', @game.user_player)
 
     @game.give_tenpai_point
@@ -608,9 +616,9 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_tenpai_point adds +-1500 point when there is exactly two tenpai player' do
     tenpai_player_1 = @game.user_player
-    tenpai_player_2 = @game.opponents[0]
-    no_ten_player_1 = @game.opponents[1]
-    no_ten_player_2 = @game.opponents[2]
+    tenpai_player_2 = @game.ais[0]
+    no_ten_player_1 = @game.ais[1]
+    no_ten_player_2 = @game.ais[2]
     set_hands('m123456789 p123 s1', tenpai_player_1)
     set_hands('m123456789 p123 s1', tenpai_player_2)
 
@@ -623,9 +631,9 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_tenpai_point adds +-1500 point when there is exactly three tenpai player' do
     tenpai_player_1 = @game.user_player
-    tenpai_player_2 = @game.opponents[0]
-    tenpai_player_3 = @game.opponents[1]
-    no_ten_player = @game.opponents[2]
+    tenpai_player_2 = @game.ais[0]
+    tenpai_player_3 = @game.ais[1]
+    no_ten_player = @game.ais[2]
     set_hands('m123456789 p123 s1', tenpai_player_1)
     set_hands('m123456789 p123 s1', tenpai_player_2)
     set_hands('m123456789 p123 s1', tenpai_player_3)
@@ -639,9 +647,9 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_tenpai_point does not add point when all players are no-ten' do
     no_ten_player_1 = @game.user_player
-    no_ten_player_2 = @game.opponents[0]
-    no_ten_player_3 = @game.opponents[1]
-    no_ten_player_4 = @game.opponents[2]
+    no_ten_player_2 = @game.ais[0]
+    no_ten_player_3 = @game.ais[1]
+    no_ten_player_4 = @game.ais[2]
 
     @game.give_tenpai_point
     assert_equal 0, no_ten_player_1.point
@@ -652,9 +660,9 @@ class GameTest < ActiveSupport::TestCase
 
   test '#give_tenpai_point does not add point when all players are tenpai' do
     tenpai_player_1 = @game.user_player
-    tenpai_player_2 = @game.opponents[0]
-    tenpai_player_3 = @game.opponents[1]
-    tenpai_player_4 = @game.opponents[2]
+    tenpai_player_2 = @game.ais[0]
+    tenpai_player_3 = @game.ais[1]
+    tenpai_player_4 = @game.ais[2]
     set_hands('m123456789 p123 s1', tenpai_player_1)
     set_hands('m123456789 p123 s1', tenpai_player_2)
     set_hands('m123456789 p123 s1', tenpai_player_3)

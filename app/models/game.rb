@@ -56,8 +56,16 @@ class Game < ApplicationRecord
     players.users.first
   end
 
-  def opponents
+  def ais
     players.ais
+  end
+
+  def host
+    players.find_by!(seat_order: latest_round.host_seat_number)
+  end
+
+  def children
+    players.where.not(seat_order: latest_round.host_seat_number)
   end
 
   def current_player
@@ -110,10 +118,6 @@ class Game < ApplicationRecord
 
   def dora_indicator_tiles
     latest_honba.dora_indicator_tiles.values_at(..4)
-  end
-
-  def host
-    players.find_by!(seat_order: latest_round.host_seat_number)
   end
 
   def riichi_stick_count

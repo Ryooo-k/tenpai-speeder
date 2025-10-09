@@ -6,7 +6,7 @@ class PointCalculatorTest < ActiveSupport::TestCase
   def setup
     game = games(:tonpuu)
     @host = game.host
-    @child = game.opponents.sample
+    @child = game.ais.sample
   end
 
   test '親 1飜30符 ツモ和了：500オール' do

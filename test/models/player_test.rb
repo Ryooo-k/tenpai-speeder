@@ -997,7 +997,7 @@ class PlayerTest < ActiveSupport::TestCase
     set_rivers('z1', player)
     player.current_state.update!(riichi: true)
 
-    assign_draw_tile('s1', @game)
+    set_draw_tile('s1', @game)
     @game.draw_for_current_player
 
     score_statements = player.score_statements
