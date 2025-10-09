@@ -332,7 +332,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'advances to next round when non-host player tsumo' do
-    non_host_player = @game.ais.sample
+    non_host_player = @game.children.sample
     set_hands('m123456789 p123 s99', non_host_player)
     set_player_turn(@game, non_host_player)
 
