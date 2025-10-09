@@ -1,10 +1,11 @@
 <div class="absolute <%= build_hand_position_class(player) %>">
-  <% needs_form  = discard_form_needed?(@action, player) %>
-  <% partial_path = build_hand_partial_path(@action, player) %>
+  <% needs_form = discard_form_needed?(@event, player) %>
+  <% partial_path = build_hand_partial_path(@event, @game, player) %>
   <% row_classes = build_hand_row_classes(player, needs_form) %>
 
   <% if needs_form %>
-    <%= form_with url: game_action_discard_path(@game) do |form| %>
+    <%= form_with url: game_play_command_path(@game) do |form| %>
+      <%= form.hidden_field :event, value: 'discard' %>
       <div class="<%= row_classes %>">
         <%= render partial: partial_path, collection: player.hands, as: :hand, locals: { form: } %>
       </div>

@@ -18,18 +18,24 @@ module GameTestHelper
     Game.find(game_id)
   end
 
-  def set_user_turn(game)
-    game.advance_current_player! while game.current_player.ai?
+  def set_player_turn(game, player)
+    game.advance_current_player! while game.current_player.id != player.id
   end
 
-  def set_opponent_turn(game)
-    game.advance_current_player! unless game.current_player.ai?
-  end
-
-  def assign_host(player, game)
+  def set_host(game, player)
     host_seat_number = game.latest_round.host_seat_number
     game.players.find_by(seat_order: host_seat_number).update!(seat_order: player.seat_order)
     player.update!(seat_order: host_seat_number)
+  end
+
+  def set_draw_tile(tile_name, game)
+    draw_count = game.draw_count
+    suit = SUIT_NAMES[tile_name[0]]
+    number = tile_name[1].to_i
+
+    target_tile = game.latest_honba.tile_orders.joins(tile: :base_tile).find_by(base_tiles: { number:, suit: })
+    game.latest_honba.tile_orders.find_by(order: draw_count).update!(order: target_tile.order)
+    target_tile.update!(order: draw_count)
   end
 
   def build_situational_yaku_list(tenhou: false, chiihou: false, riichi: false, double_riichi: false, ippatsu: false, haitei: false, houtei: false, rinshan: false, chankan: false)
@@ -129,15 +135,5 @@ module GameTestHelper
       from = relation if relation && position == from_index
       player.current_state.melds.create!(tile:, kind:, position:, from:)
     end
-  end
-
-  def assign_draw_tile(tile_name, game)
-    draw_count = game.draw_count
-    suit = SUIT_NAMES[tile_name[0]]
-    number = tile_name[1].to_i
-
-    target_tile = game.latest_honba.tile_orders.joins(tile: :base_tile).find_by(base_tiles: { number:, suit: })
-    game.latest_honba.tile_orders.find_by(order: draw_count).update!(order: target_tile.order)
-    target_tile.update!(order: draw_count)
   end
 end

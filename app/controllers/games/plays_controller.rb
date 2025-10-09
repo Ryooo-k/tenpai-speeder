@@ -2,22 +2,18 @@
 
 class Games::PlaysController < ApplicationController
   before_action :set_game
-  before_action :set_players
+  before_action :set_instance_variable, only: :show
 
   def show
-    @action = flash[:next_action]&.to_sym
-    @chosen_hand_id = flash[:chosen_hand_id]
-    @discarded_tile_id = flash[:discarded_tile_id]
-    @ron_claimer_ids = flash[:ron_claimer_ids]
+  end
 
-    if @action == :riichi_choose
-      @riichi_candidates = @game.current_player.find_riichi_candidates
-    end
+  def command
+    game_flow = GameFlow.new(@game)
+    payloads = game_flow.run(game_flow_params)
+    redirect_to game_play_path(@game), flash: payloads
 
-    if @action == :confirm_furo
-      target_tile = @game.tiles.find(@discarded_tile_id)
-      @furo_candidates = @game.user_player.find_furo_candidates(target_tile, @game.current_player)
-    end
+  rescue GameFlow::UnknownEvent => e
+    redirect_to home_path, alert: e.message
   end
 
   private
@@ -44,8 +40,48 @@ class Games::PlaysController < ApplicationController
       ).find(params[:game_id])
     end
 
-    def set_players
-      @user_player = @game.user_player
-      @opponents = @game.opponents
+    def set_instance_variable
+      flash.each do |key, value|
+        instance_variable_set("@#{key}", value)
+      end
+
+      if @event == 'riichi_choose'
+        riichi_candidates = @game.current_player.find_riichi_candidates
+
+        if @game.current_player.user?
+          instance_variable_set(:@riichi_candidates, riichi_candidates)
+        else
+          chosen_hand_id = riichi_candidates.sample.id
+          instance_variable_set(:@chosen_hand_id, chosen_hand_id)
+        end
+      end
+
+      if @event == 'furo'
+        discarded_tile = @game.tiles.find(@discarded_tile_id)
+        furo_candidates = @game.user_player.find_furo_candidates(discarded_tile, @game.current_player)
+        instance_variable_set(:@furo_candidates, furo_candidates)
+      end
+    end
+
+    def game_flow_params
+      event = params.expect(:event)
+      flow_requests = { event: }
+
+      case event.to_sym
+      when :discard
+        chosen_hand_id = params.expect(:chosen_hand_id)
+        flow_requests[:chosen_hand_id] = chosen_hand_id.to_i
+      when :furo
+        discarded_tile_id, furo_type, furo_ids = params.expect(:discarded_tile_id, :furo_type, furo_ids: [])
+        flow_requests[:discarded_tile_id] = discarded_tile_id.to_i
+        flow_requests[:furo_type] = furo_type.to_s
+        flow_requests[:furo_ids] = furo_ids.map(&:to_i)
+      when :ron
+        discarded_tile_id, ron_player_ids = params.expect(:discarded_tile_id, ron_player_ids: [])
+        flow_requests[:discarded_tile_id] = discarded_tile_id.to_i
+        flow_requests[:ron_player_ids] = ron_player_ids.map(&:to_i)
+      end
+
+      flow_requests
     end
 end

@@ -56,8 +56,16 @@ class Game < ApplicationRecord
     players.users.first
   end
 
-  def opponents
+  def ais
     players.ais
+  end
+
+  def host
+    players.find_by!(seat_order: latest_round.host_seat_number)
+  end
+
+  def children
+    players.where.not(seat_order: latest_round.host_seat_number)
   end
 
   def current_player
@@ -112,10 +120,6 @@ class Game < ApplicationRecord
     latest_honba.dora_indicator_tiles.values_at(..4)
   end
 
-  def host
-    players.find_by!(seat_order: latest_round.host_seat_number)
-  end
-
   def riichi_stick_count
     latest_honba.riichi_stick_count
   end
@@ -156,14 +160,14 @@ class Game < ApplicationRecord
     create_game_records
   end
 
-  def find_ron_claimers(tile)
+  def find_ron_players(tile)
     other_players.map do |player|
       player.can_ron?(tile) ? player : next
     end.compact
   end
 
-  def build_ron_score_statements(discarded_tile_id, ron_claimer_ids)
-    ron_players = players.where(id: ron_claimer_ids)
+  def build_ron_score_statements(discarded_tile_id, ron_player_ids)
+    ron_players = players.where(id: ron_player_ids)
     tile = tiles.find(discarded_tile_id)
     score_statement_table = {}
 
@@ -194,9 +198,9 @@ class Game < ApplicationRecord
     end
   end
 
-  def give_bonus_point(ron_claimer_ids: false)
-    give_riichi_bonus_point(ron_claimer_ids)
-    give_honba_bonus_point(ron_claimer_ids)
+  def give_bonus_point(ron_player_ids: false)
+    give_riichi_bonus_point(ron_player_ids)
+    give_honba_bonus_point(ron_player_ids)
   end
 
   def live_wall_empty?
@@ -262,8 +266,8 @@ class Game < ApplicationRecord
       players.where.not(seat_order: current_seat_number)
     end
 
-    def find_riichi_bonus_winner(ron_claimer_ids)
-      winner_players = players.where(id: ron_claimer_ids)
+    def find_riichi_bonus_winner(ron_player_ids)
+      winner_players = players.where(id: ron_player_ids)
       winner_players.min_by { |player| RELATION_ORDER.fetch(player.relation_from_current_player) }
     end
 
@@ -274,15 +278,15 @@ class Game < ApplicationRecord
       end
     end
 
-    def give_riichi_bonus_point(ron_claimer_ids)
-      winner = ron_claimer_ids ? find_riichi_bonus_winner(ron_claimer_ids) : current_player
+    def give_riichi_bonus_point(ron_player_ids)
+      winner = ron_player_ids ? find_riichi_bonus_winner(ron_player_ids) : current_player
       riichi_bonus = latest_honba.riichi_stick_count * RIICHI_BONUS
       winner.add_point(riichi_bonus)
     end
 
-    def give_honba_bonus_point(ron_claimer_ids)
-      winners = ron_claimer_ids ? players.where(id: ron_claimer_ids) : [ current_player ]
-      losers  = ron_claimer_ids ? [ current_player ] : other_players
+    def give_honba_bonus_point(ron_player_ids)
+      winners = ron_player_ids ? players.where(id: ron_player_ids) : [ current_player ]
+      losers  = ron_player_ids ? [ current_player ] : other_players
       honba_bonus  = latest_honba.number * HONBA_BONUS
       winners.each { |winner| winner.add_point(honba_bonus) }
 

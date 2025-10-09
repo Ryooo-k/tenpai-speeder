@@ -1,0 +1,31 @@
+<% if @ron_player_ids.include?(@game.user_player.id) %>
+  <div class="absolute bottom-1/8 right-1/10">
+    <div class="flex gap-2">
+      <%= button_to "ロン",
+                    game_play_command_path(@game),
+                    params: {
+                      event: 'ron',
+                      discarded_tile_id: @discarded_tile_id,
+                      ron_player_ids: @ron_player_ids
+                    },
+                    form: { data: { testid: "ron" } },
+                    class: "rounded border px-2 py-1" %>
+
+      <%= button_to "スルー",
+                    game_play_command_path(@game),
+                    params: { event: 'through' },
+                    form: { data: { testid: "through" } },
+                    class: "rounded border px-2 py-1" %>
+    </div>
+  </div>
+
+<% else %>
+  <%= form_with url: game_play_command_path(@game),
+                data: { controller: "auto-submit" } do |form| %>
+    <%= form.hidden_field :event, value: 'ron' %>
+    <%= form.hidden_field :discarded_tile_id, value: @discarded_tile_id %>
+    <% @ron_player_ids.each do |player_id| %>
+      <%= hidden_field_tag 'ron_player_ids[]', player_id %>
+    <% end %>
+  <% end %>
+<% end %>
