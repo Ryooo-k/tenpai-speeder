@@ -25,7 +25,7 @@ module HandEvaluator
   ZIHAI_SUIT = 'z'
   AGARI_DISTANCE_MAP = JSON.parse(Rails.root.join('app/domain', 'agari_distance_map.json').read).freeze
   CHIITOITSU_PAIR_COUNT = 7
-  KOKUSHI_TILE_CODES = [ 0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33 ].to_set.freeze
+  KOKUSHI_TILE_CODES = [ 0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33 ].freeze
   MAX_SHANTEN_COUNT = 13
   MAX_RIICHI_CANDIDATE_COUNT = 2
 
@@ -234,6 +234,18 @@ module HandEvaluator
         shanten = calculate_shanten(test_hands, melds)
         shanten.zero?
       end
+    end
+
+    def find_outs(player)
+      normal_outs = find_normal_outs(player)
+      chiitoitsu_outs = find_chiitoitsu_outs(player)
+      kokushi_outs = find_kokushi_outs(player)
+
+      {
+        normal_outs:,
+        chiitoitsu_outs:,
+        kokushi_outs:
+      }
     end
   end
 
@@ -886,6 +898,47 @@ module HandEvaluator
         unique_count = used_kokushi_codes.keys.size
         has_head = used_kokushi_codes.values.any? { |count| count >= 2 }
         MAX_SHANTEN_COUNT - unique_count - (has_head ? 1 : 0)
+      end
+
+      def find_normal_outs(player)
+        hands = player.hands
+        melds = player.melds
+        current_shanten = calculate_shanten(hands, melds)
+        hand_and_meld_tiles = hands.map { |hand| hand.tile } + melds.map { |meld| meld.tile }
+
+        player.game.tiles.select do |tile|
+          next if hand_and_meld_tiles.include?(tile)
+
+          test_hands = hands + [ tile ]
+          shanten = calculate_shanten(test_hands, melds)
+          shanten < current_shanten
+        end
+      end
+
+      def find_chiitoitsu_outs(player)
+        return nil if player.melds.present?
+
+        single_tile_codes = player.hands.map(&:code).tally.select { |_, count| count == 1 }.keys
+
+        player.game.tiles.select do |tile|
+          next if player.hands.map(&:tile).include?(tile)
+          single_tile_codes.include?(tile.code)
+        end
+      end
+
+      def find_kokushi_outs(player)
+        return nil if player.melds.present?
+
+        used_kokushi_codes = player.hands.map(&:code).select { |code| KOKUSHI_TILE_CODES.include?(code) }
+        is_head = used_kokushi_codes.tally.values.any? { |count| count >= 2 }
+        kokushi_tiles = player.game.tiles.select { |tile| KOKUSHI_TILE_CODES.include?(tile.code) }
+
+        if is_head
+          unused_codes = (KOKUSHI_TILE_CODES - used_kokushi_codes)
+          kokushi_tiles.select { |tile| unused_codes.include?(tile.code) }
+        else
+          kokushi_tiles.reject { |tile| player.hands.include?(tile) }
+        end
       end
     end
 end
