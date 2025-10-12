@@ -242,9 +242,9 @@ module HandEvaluator
       kokushi_outs = find_kokushi_outs(player)
 
       {
-        normal_outs:,
-        chiitoitsu_outs:,
-        kokushi_outs:
+        normal: normal_outs,
+        chiitoitsu: chiitoitsu_outs,
+        kokushi: kokushi_outs
       }
     end
   end
@@ -912,7 +912,7 @@ module HandEvaluator
           test_hands = hands + [ tile ]
           shanten = calculate_shanten(test_hands, melds)
           shanten < current_shanten
-        end
+        end.sort_by(&:code)
       end
 
       def find_chiitoitsu_outs(player)
@@ -923,7 +923,7 @@ module HandEvaluator
         player.game.tiles.select do |tile|
           next if player.hands.map(&:tile).include?(tile)
           single_tile_codes.include?(tile.code)
-        end
+        end.sort_by(&:code)
       end
 
       def find_kokushi_outs(player)
@@ -935,9 +935,9 @@ module HandEvaluator
 
         if is_head
           unused_codes = (KOKUSHI_TILE_CODES - used_kokushi_codes)
-          kokushi_tiles.select { |tile| unused_codes.include?(tile.code) }
+          kokushi_tiles.select { |tile| unused_codes.include?(tile.code) }.sort_by(&:code)
         else
-          kokushi_tiles.reject { |tile| player.hands.include?(tile) }
+          kokushi_tiles.reject { |tile| player.hands.include?(tile) }.sort_by(&:code)
         end
       end
     end
