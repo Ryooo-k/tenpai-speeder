@@ -74,14 +74,15 @@ class Player < ApplicationRecord
     create_stolen_rivers(discarded_tile)
   end
 
-  # ai用打牌選択のメソッド
-  # 現状は状況に合わせて手牌の中からランダムに選択。aiの実装は別issueで対応。
+  # ai用 牌選択メソッド
   def choose
     if current_state.riichi?
       find_riichi_candidates.sample.id
     else
       current_state.hands.sample.id
     end
+
+
   end
 
   def name
@@ -218,6 +219,14 @@ class Player < ApplicationRecord
 
   def tenpai?
     shanten.zero?
+  end
+
+  def shanten
+    HandEvaluator.calculate_shanten(hands, melds)
+  end
+
+  def outs
+    HandEvaluator.find_outs(self)
   end
 
   private
@@ -379,10 +388,6 @@ class Player < ApplicationRecord
       candidates << [ code - 1, code + 1 ] if (2..8).include?(number)
       candidates << [ code + 1, code + 2 ] if number <= 7
       candidates
-    end
-
-    def shanten
-      HandEvaluator.calculate_shanten(hands, melds)
     end
 
     def complete?

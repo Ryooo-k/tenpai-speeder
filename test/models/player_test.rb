@@ -1098,8 +1098,53 @@ class PlayerTest < ActiveSupport::TestCase
     assert @user_player.tenpai?
   end
 
-  test '#tenpai? returns true when shanten > 0' do
+  test '#tenpai? returns false when shanten > 0' do
     set_hands('m123456789 p159 s1', @user_player)
     assert_not @user_player.tenpai?
+  end
+
+  test '#shanten returns shanten count' do
+    set_hands('m123456789 p19 s5 z1', @user_player)
+    assert_equal 2, @user_player.shanten
+  end
+
+  test '#shanten returns -1 when player is complete' do
+    set_hands('m123456789 p123 s55', @user_player)
+    assert_equal -1, @user_player.shanten
+  end
+
+  test '#outs(normal)' do
+    set_hands('m223344 p55667 s22', @user_player)
+    outs = @user_player.outs
+    assert_equal [
+      '4筒', '4筒', '4筒', '4筒',
+      '7筒', '7筒', '7筒'
+    ], outs[:normal].map(&:name)
+  end
+
+  test '#outs(chiitoitsu)' do
+    set_hands('m223344 p55667 s22', @user_player)
+    outs = @user_player.outs
+    assert_equal [ '7筒', '7筒', '7筒' ], outs[:chiitoitsu].map(&:name)
+  end
+
+  test '#outs(kokushi)' do
+    set_hands('m223344 p55667 s22', @user_player)
+    outs = @user_player.outs
+
+    assert_equal [
+      '1萬', '1萬', '1萬', '1萬',
+      '9萬', '9萬', '9萬', '9萬',
+      '1筒', '1筒', '1筒', '1筒',
+      '9筒', '9筒', '9筒', '9筒',
+      '1索', '1索', '1索', '1索',
+      '9索', '9索', '9索', '9索',
+      '東', '東', '東', '東',
+      '南', '南', '南', '南',
+      '西', '西', '西', '西',
+      '北', '北', '北', '北',
+      '白', '白', '白', '白',
+      '發', '發', '發', '發',
+      '中', '中', '中', '中'], outs[:kokushi].map(&:name)
   end
 end
