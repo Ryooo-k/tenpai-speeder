@@ -15,7 +15,7 @@ module StateEncoder
   class << self
     def call(game, player)
       case player.ai_version
-      when 'v1' then build_v1_states(game, player)
+      when 'v1.0' then build_v1_states(game, player)
       else
         raise UnsupportedAi, "AIバージョンが未対応です"
       end
@@ -28,7 +28,7 @@ module StateEncoder
                                 main_player.tenpai? ? 1.0 : 0.0,
                                 encode_hands(main_player.hands),
                                 encode_melds(main_player.melds),
-                                encode_rivers(main_player.rivers), 
+                                encode_rivers(main_player.rivers),
                                 main_player.shanten,
                                 main_player.outs.map { |_, v| v.count }.min / NORMALIZATION_BASE_OUTS
                               ].flatten

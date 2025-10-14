@@ -1,5 +1,5 @@
-v1:
-  path: app/ais/models/v1.pth
+v1.0:
+  path: app/ais/models/v1.0.pth
   input_size: 206
   hidden_layers: [128, 64] 
   output_size: 14
