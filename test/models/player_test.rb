@@ -409,11 +409,23 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test '#choose returns riichi_candidates when ai riichi' do
+  test '#ai_version' do
+    version_number = @ai_player.ai.version
+    assert_equal "v#{version_number}", @ai_player.ai_version
+  end
+
+  test '#choose returns inferred tile' do
+    hands = set_hands('m123456789 z12345', @ai_player)
+    result = @ai_player.choose
+    hand_index = MahjongAi.infer(@game, @ai_player)
+    assert_equal hands.sorted_base[hand_index], result
+  end
+
+  test '#choose returns riichi_candidates when ai is riichi' do
     set_hands('m123456789 p23 s9 z11', @ai_player)
     @ai_player.current_state.update!(riichi: true)
     result = @ai_player.choose
-    expected = @ai_player.hands.find { |hand| hand.name == '9索' }.id
+    expected = @ai_player.hands.find { |hand| hand.name == '9索' }
     assert_equal expected, result
   end
 

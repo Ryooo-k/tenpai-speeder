@@ -30,7 +30,7 @@ class Player < ApplicationRecord
   scope :ais, -> { where.not(ai_id: nil) }
 
   def hands
-    base_hands.present? ? base_hands.sorted : Hand.none
+    base_hands.present? ? base_hands.sorted_with_drawn : Hand.none
   end
 
   def rivers
@@ -77,12 +77,11 @@ class Player < ApplicationRecord
   # ai用 牌選択メソッド
   def choose
     if current_state.riichi?
-      find_riichi_candidates.sample.id
+      find_riichi_candidates.sample
     else
-      current_state.hands.sample.id
+      hand_index = MahjongAi.infer(game, self)
+      base_hands.sorted_base[hand_index]
     end
-
-
   end
 
   def name
@@ -91,6 +90,11 @@ class Player < ApplicationRecord
 
   def ai?
     ai_id.present?
+  end
+
+  def ai_version
+    return if user?
+    "v#{ai.version}"
   end
 
   def user?
