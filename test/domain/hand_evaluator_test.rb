@@ -78,7 +78,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test '#can_ron? returns true：手役無し状況役ありの場合' do
     hands = set_hands('m11145678 p11 s999', players(:ryo))
-    target_meld = Meld.create!(tile: tiles(:first_manzu_9), kind: 'kakan', player_state: player_states(:tenpai_speeder), position: 3)
+    target_meld = Meld.create!(tile: tiles(:first_manzu_9), kind: 'kakan', player_state: player_states(:ai_1), position: 3)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list(chankan: true)
     result = HandEvaluator.can_ron?(hands, @empty_melds, target_meld, relation, @round_wind, @player_wind, situational_yaku_list)
@@ -801,12 +801,12 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     outs_list = HandEvaluator.find_outs(player)
 
     expected = ['1筒', '2筒', '3筒', '7筒', '8筒', '9筒', '東', '南']
-    outs_list[:normal_outs].each do |outs|
+    outs_list[:normal].each do |outs|
       assert expected.include?(outs.name)
       assert_not hands.map(&:tile).include?(outs)
     end
 
-    assert_equal 28, outs_list[:normal_outs].count
+    assert_equal 28, outs_list[:normal].count
   end
 
   test '#find_outs：（chiitoitsu_outs）手牌の同種牌がない1枚のみの牌が対象' do
@@ -815,12 +815,12 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     outs_list = HandEvaluator.find_outs(player)
 
     expected = ['1萬', '2萬', '3萬', '4萬', '5萬', '6萬', '7萬', '8萬', '9萬']
-    outs_list[:chiitoitsu_outs].each do |outs|
+    outs_list[:chiitoitsu].each do |outs|
       assert expected.include?(outs.name)
       assert_not hands.map(&:tile).include?(outs)
     end
 
-    assert_equal 27, outs_list[:chiitoitsu_outs].count
+    assert_equal 27, outs_list[:chiitoitsu].count
   end
 
   test '#find_outs：（chiitoitsu_outs）鳴いている場合、アウツ無し' do
@@ -828,7 +828,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     hands = set_hands('m123456789 z11', player)
     set_melds('p111=', player)
     outs_list = HandEvaluator.find_outs(player)
-    assert_nil outs_list[:chiitoitsu_outs]
+    assert_nil outs_list[:chiitoitsu]
   end
 
   test '#find_outs：（kokushi_outs）国士無双の対象牌のみアウツ' do
@@ -837,12 +837,12 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     outs_list = HandEvaluator.find_outs(player)
 
     expected = ['1萬', '9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中']
-    outs_list[:kokushi_outs].each do |outs|
+    outs_list[:kokushi].each do |outs|
       assert expected.include?(outs.name)
       assert_not hands.map(&:tile).include?(outs)
     end
 
-    assert_equal 52, outs_list[:kokushi_outs].count
+    assert_equal 52, outs_list[:kokushi].count
   end
 
   test '#find_outs：（kokushi_outs）頭の牌はアウツ対象外' do
@@ -851,12 +851,12 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     outs_list = HandEvaluator.find_outs(player)
 
     expected = ['9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中']
-    outs_list[:kokushi_outs].each do |outs|
+    outs_list[:kokushi].each do |outs|
       assert expected.include?(outs.name)
       assert_not hands.map(&:tile).include?(outs)
     end
 
-    assert_equal 48, outs_list[:kokushi_outs].count
+    assert_equal 48, outs_list[:kokushi].count
   end
 
 
@@ -865,7 +865,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     hands = set_hands('m19 p19 s19 z1234', player)
     set_melds('z555=', player)
     outs_list = HandEvaluator.find_outs(player)
-    assert_nil outs_list[:kokushi_outs]
+    assert_nil outs_list[:kokushi]
   end
 
   # コアとなるprivateメソッドを個別にテストを行う。
