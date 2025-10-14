@@ -3,17 +3,17 @@ ryo:
   player: ryo
   riichi: false
 
-menzen_tenpai_speeder:
+ai_1:
   step: step_1
-  player: menzen_tenpai_speeder
+  player: ai_1
   riichi: false
 
-tenpai_speeder:
+ai_2:
   step: step_1
-  player: tenpai_speeder
+  player: ai_2
   riichi: false
 
-high_pointer:
+ai_3:
   step: step_1
-  player: high_pointer
+  player: ai_3
   riichi: false

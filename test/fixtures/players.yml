@@ -4,20 +4,20 @@ ryo:
   game: tonpuu
   seat_order: 0
 
-menzen_tenpai_speeder:
+ai_1:
   user:
-  ai: menzen_tenpai_speeder
+  ai: v1
   game: tonpuu
   seat_order: 1
 
-tenpai_speeder:
+ai_2:
   user:
-  ai: tenpai_speeder
+  ai: v1
   game: tonpuu
   seat_order: 2
 
-high_pointer:
+ai_3:
   user:
-  ai: high_pointer
+  ai: v1
   game: tonpuu
   seat_order: 3

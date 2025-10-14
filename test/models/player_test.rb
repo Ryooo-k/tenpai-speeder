@@ -7,7 +7,7 @@ class PlayerTest < ActiveSupport::TestCase
 
   def setup
     @user_player = players(:ryo)
-    @ai_player = players(:menzen_tenpai_speeder)
+    @ai_player = players(:ai_1)
     @user = users(:ryo)
     @game = games(:tonpuu)
     @manzu_1 = tiles(:first_manzu_1)
@@ -43,7 +43,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test 'is valid with ai and seat_order and game' do
-    ai = ais(:tenpai_speeder)
+    ai = ais(:v1)
     player = Player.new(ai:, game: @game, seat_order: 0)
     assert player.valid?
   end
@@ -68,7 +68,7 @@ class PlayerTest < ActiveSupport::TestCase
     assert player.invalid?
     assert_includes player.errors[:base], 'UserまたはAIのいずれかを指定してください'
 
-    ai = ais(:tenpai_speeder)
+    ai = ais(:v1)
     player = Player.new(user: @user, ai:, game: @game, seat_order: 0)
     assert player.invalid?
     assert_includes player.errors[:base], 'UserとAIの両方を同時に指定することはできません'
@@ -76,7 +76,7 @@ class PlayerTest < ActiveSupport::TestCase
 
   test '.ordered orders by seat_order' do
     game = games(:training)
-    ai = ais(:tenpai_speeder)
+    ai = ais(:v1)
     game.players.delete_all
     player_4 = game.players.create!(user: @user, seat_order: 3)
     player_3 = game.players.create!(ai:, seat_order: 2)
@@ -341,8 +341,8 @@ class PlayerTest < ActiveSupport::TestCase
 
   test '#steal consecutive furo remove hands and sets melds' do
     manzu_1, manzu_2, ton_1, ton_2, haku = set_hands('m12 z11 z5', @user_player)
-    toimen_player = @ai_player
-    kamicha_player = players(:tenpai_speeder)
+    toimen_player = players(:ai_1)
+    kamicha_player = players(:ai_2)
     step_2 = steps(:step_2)
     step_3 = steps(:step_3)
 

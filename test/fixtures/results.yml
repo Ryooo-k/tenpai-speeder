@@ -1,6 +1,6 @@
 result_1:
   game: tonpuu
-  player: high_pointer
+  player: ai_3
   score: 40_000
   rank: 1
 
@@ -12,12 +12,12 @@ result_2:
 
 result_3:
   game: tonpuu
-  player: tenpai_speeder
+  player: ai_2
   score: 20_000
   rank: 3
 
 result_4:
   game: tonpuu
-  player: menzen_tenpai_speeder
+  player: ai_1
   score: 10_000
   rank: 4

@@ -4,20 +4,20 @@ ryo:
   score: 25_000
   point: 0
 
-menzen_tenpai_speeder:
-  player: menzen_tenpai_speeder
+ai_1:
+  player: ai_1
   honba: honba_0
   score: 25_000
   point: 0
 
-tenpai_speeder:
-  player: tenpai_speeder
+ai_2:
+  player: ai_2
   honba: honba_0
   score: 25_000
   point: 0
 
-high_pointer:
-  player: high_pointer
+ai_3:
+  player: ai_3
   honba: honba_0
   score: 25_000
   point: 0
