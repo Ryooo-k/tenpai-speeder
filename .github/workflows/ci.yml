@@ -9,6 +9,9 @@ jobs:
   scan_ruby:
     runs-on: ubuntu-latest
 
+    env:
+      BUNDLE_WITHOUT: torch
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,6 +28,9 @@ jobs:
   scan_js:
     runs-on: ubuntu-latest
 
+    env:
+      BUNDLE_WITHOUT: torch
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,6 +46,10 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+
+    env:
+      BUNDLE_WITHOUT: torch
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -74,6 +84,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      LIBTORCH_VERSION: "2.8.0"
+      LIBTORCH_DIR: ${{ github.workspace }}/libtorch
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -82,10 +96,28 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
-          bundler-cache: true
+          bundler-cache: false
 
-      - name: Install dependencies
-        run: bundle install
+      - name: Cache LibTorch
+        id: cache-libtorch
+        uses: actions/cache@v4
+        with:
+          path: libtorch
+          key: libtorch-${{ runner.os }}-x86_64-${{ env.LIBTORCH_VERSION }}-cpu-shared
+
+      - name: Download LibTorch (if not cached)
+        if: steps.cache-libtorch.outputs.cache-hit != 'true'
+        run: |
+          url="https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-${LIBTORCH_VERSION}%2Bcpu.zip"
+          curl -L "$url" -o libtorch.zip
+          unzip -q libtorch.zip
+          rm libtorch.zip
+
+      - name: Bundle install
+        run: |
+          bundle config set build.torch-rb "--with-torch-dir=$LIBTORCH_DIR"
+          bundle config set path 'vendor/bundle'
+          bundle install
 
       - name: Set up Database
         run: bin/rails db:prepare

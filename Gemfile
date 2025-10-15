@@ -22,7 +22,10 @@ gem 'omniauth'
 gem 'omniauth-rails_csrf_protection'
 gem 'omniauth-twitter'
 gem 'dotenv-rails'
-gem 'torch-rb'
+
+group :torch do
+  gem 'torch-rb', require: false
+end
 
 group :development, :test do
   gem 'debug', platforms: %i[ mri windows ], require: 'debug/prelude'
