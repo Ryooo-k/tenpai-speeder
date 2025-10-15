@@ -1,0 +1,1 @@
+Object.autoload(:Torch, 'torch')
