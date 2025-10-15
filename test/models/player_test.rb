@@ -1157,6 +1157,6 @@ class PlayerTest < ActiveSupport::TestCase
       '北', '北', '北', '北',
       '白', '白', '白', '白',
       '發', '發', '發', '發',
-      '中', '中', '中', '中'], outs[:kokushi].map(&:name)
+      '中', '中', '中', '中' ], outs[:kokushi].map(&:name)
   end
 end

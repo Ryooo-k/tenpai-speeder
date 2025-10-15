@@ -5,7 +5,7 @@ module MahjongAi
 
   class << self
     def infer(game, player)
-      raise UnsupportedAi, "AIバージョンが未対応です" unless supported_ai_version?(player)
+      raise UnsupportedAi, 'AIバージョンが未対応です' unless supported_ai_version?(player)
 
       config = AI_CONFIGS[player.ai_version]
       q_net = QNet.new(config['input_size'], config['hidden_layers'], config['output_size'])

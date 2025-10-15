@@ -17,7 +17,7 @@ module StateEncoder
       case player.ai_version
       when 'v1.0' then build_v1_states(game, player)
       else
-        raise UnsupportedAi, "AIバージョンが未対応です"
+        raise UnsupportedAi, 'AIバージョンが未対応です'
       end
     end
 
@@ -66,7 +66,7 @@ module StateEncoder
       end
 
       def encode_rivers(rivers)
-        encoded_rivers= Array.new(MAX_RIVER_COUNT, PLACEHOLDER_VALUE)
+        encoded_rivers = Array.new(MAX_RIVER_COUNT, PLACEHOLDER_VALUE)
         rivers.each_with_index do |river, order|
           encoded_rivers[order] = river.code / TILE_KIND_COUNT
         end
@@ -81,5 +81,5 @@ module StateEncoder
         end
         encoded_indicators
       end
-    end
+  end
 end

@@ -800,7 +800,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     hands = set_hands('m123456789 p19 z12', player) # 有効牌 → p123789 z12（28枚）
     outs_list = HandEvaluator.find_outs(player)
 
-    expected = ['1筒', '2筒', '3筒', '7筒', '8筒', '9筒', '東', '南']
+    expected = [ '1筒', '2筒', '3筒', '7筒', '8筒', '9筒', '東', '南' ]
     outs_list[:normal].each do |outs|
       assert expected.include?(outs.name)
       assert_not hands.map(&:tile).include?(outs)
@@ -814,7 +814,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     hands = set_hands('m123456789 p11 z11', player) # 有効牌 → m123456789（27枚）
     outs_list = HandEvaluator.find_outs(player)
 
-    expected = ['1萬', '2萬', '3萬', '4萬', '5萬', '6萬', '7萬', '8萬', '9萬']
+    expected = [ '1萬', '2萬', '3萬', '4萬', '5萬', '6萬', '7萬', '8萬', '9萬' ]
     outs_list[:chiitoitsu].each do |outs|
       assert expected.include?(outs.name)
       assert_not hands.map(&:tile).include?(outs)
@@ -836,7 +836,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     hands = set_hands('m2345678 p234 s234', player)
     outs_list = HandEvaluator.find_outs(player)
 
-    expected = ['1萬', '9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中']
+    expected = [ '1萬', '9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中' ]
     outs_list[:kokushi].each do |outs|
       assert expected.include?(outs.name)
       assert_not hands.map(&:tile).include?(outs)
@@ -850,7 +850,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     hands = set_hands('m1145678 p234 s234', player)
     outs_list = HandEvaluator.find_outs(player)
 
-    expected = ['9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中']
+    expected = [ '9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中' ]
     outs_list[:kokushi].each do |outs|
       assert expected.include?(outs.name)
       assert_not hands.map(&:tile).include?(outs)
