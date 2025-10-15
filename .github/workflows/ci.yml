@@ -86,17 +86,10 @@ jobs:
 
     env:
       LIBTORCH_VERSION: "2.8.0"
-      LIBTORCH_DIR: ${{ github.workspace }}/libtorch
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: false
 
       - name: Cache LibTorch
         id: cache-libtorch
@@ -113,9 +106,22 @@ jobs:
           unzip -q libtorch.zip
           rm libtorch.zip
 
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: false
+
+      - name: Cache vendor/bundle
+        id: cache-bundle
+        uses: actions/cache@v4
+        with:
+          path: vendor/bundle
+          key: bundle-${{ runner.os }}-ruby-3.4.4-${{ hashFiles('**/Gemfile.lock') }}-libtorch-${{ env.LIBTORCH_VERSION }}
+
       - name: Bundle install
         run: |
-          bundle config set build.torch-rb "--with-torch-dir=$LIBTORCH_DIR"
+          bundle config build.torch-rb --with-torch-dir=${{ github.workspace }}/libtorch
           bundle config set path 'vendor/bundle'
           bundle install
 
