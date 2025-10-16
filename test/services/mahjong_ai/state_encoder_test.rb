@@ -9,8 +9,8 @@ class StateEncoderTest < ActiveSupport::TestCase
   end
 
   test 'returns UnsupportedAiVersionError when player is user' do
-    assert_raise(StateEncoder::UnsupportedAi) do
-      StateEncoder.call(@game, @game.user_player)
+    assert_raise(MahjongAi::StateEncoder::UnsupportedAi) do
+      MahjongAi::StateEncoder.call(@game, @game.user_player)
     end
   end
 
@@ -18,8 +18,8 @@ class StateEncoderTest < ActiveSupport::TestCase
     ai = @game.ais.sample
     ai.ai.update!(version: 'unknown_v999"')
 
-    assert_raise(StateEncoder::UnsupportedAi) do
-      StateEncoder.call(@game, ai)
+    assert_raise(MahjongAi::StateEncoder::UnsupportedAi) do
+      MahjongAi::StateEncoder.call(@game, ai)
     end
   end
 
@@ -27,7 +27,7 @@ class StateEncoderTest < ActiveSupport::TestCase
     ai = @game.ais.sample
     ai.ai.update!(version: '1.0')
 
-    states = StateEncoder.call(@game, @game.ais.sample)
+    states = MahjongAi::StateEncoder.call(@game, @game.ais.sample)
     assert_equal 206, states.count
     assert states.all? { |state| state.is_a?(Torch::Tensor) }
   end
