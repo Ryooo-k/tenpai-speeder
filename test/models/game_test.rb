@@ -8,7 +8,7 @@ class GameTest < ActiveSupport::TestCase
   def setup
     @game = games(:tonpuu)
     @user = users(:ryo)
-    @ai = ais(:v1)
+    @ai = ais('v0.1')
   end
 
   test 'destroying game should also destroy players' do

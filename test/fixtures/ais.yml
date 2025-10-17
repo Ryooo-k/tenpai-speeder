@@ -1,4 +1,4 @@
-v1:
+v0.1:
   name: menzen_tenpai_speeder
-  version: "1.0"
-  description: 鳴き無しの面前で最速聴牌を目指すAIです。
+  version: "0.1"
+  description: 開発用のAI。麻雀は強くない。

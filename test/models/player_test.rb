@@ -43,8 +43,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test 'is valid with ai and seat_order and game' do
-    ai = ais(:v1)
-    player = Player.new(ai:, game: @game, seat_order: 0)
+    player = Player.new(ai: ais('v0.1'), game: @game, seat_order: 0)
     assert player.valid?
   end
 
@@ -68,15 +67,14 @@ class PlayerTest < ActiveSupport::TestCase
     assert player.invalid?
     assert_includes player.errors[:base], 'UserまたはAIのいずれかを指定してください'
 
-    ai = ais(:v1)
-    player = Player.new(user: @user, ai:, game: @game, seat_order: 0)
+    player = Player.new(user: @user, ai: ais('v0.1'), game: @game, seat_order: 0)
     assert player.invalid?
     assert_includes player.errors[:base], 'UserとAIの両方を同時に指定することはできません'
   end
 
   test '.ordered orders by seat_order' do
     game = games(:training)
-    ai = ais(:v1)
+    ai = ais('v0.1')
     game.players.delete_all
     player_4 = game.players.create!(user: @user, seat_order: 3)
     player_3 = game.players.create!(ai:, seat_order: 2)

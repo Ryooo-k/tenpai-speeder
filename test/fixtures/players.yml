@@ -6,18 +6,18 @@ ryo:
 
 ai_1:
   user:
-  ai: v1
+  ai: v0.1
   game: tonpuu
   seat_order: 1
 
 ai_2:
   user:
-  ai: v1
+  ai: v0.1
   game: tonpuu
   seat_order: 2
 
 ai_3:
   user:
-  ai: v1
+  ai: v0.1
   game: tonpuu
   seat_order: 3

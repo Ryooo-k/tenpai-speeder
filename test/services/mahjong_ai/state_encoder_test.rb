@@ -23,9 +23,9 @@ class StateEncoderTest < ActiveSupport::TestCase
     end
   end
 
-  test '#build_v1_states returns 206 Torch::Tensor states' do
+  test '#build_v0_1_states returns 206 Torch::Tensor states' do
     ai = @game.ais.sample
-    ai.ai.update!(version: '1.0')
+    ai.ai.update!(version: '0.1')
 
     states = MahjongAi::StateEncoder.call(@game, @game.ais.sample)
     assert_equal 206, states.count
