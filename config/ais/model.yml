@@ -1,0 +1,6 @@
+v0.1:
+  path: app/services/mahjong_ai/models/v0.1.pth
+  input_size: 133
+  hidden_layers: [256, 128, 64]
+  output_size: 14
+  description: 開発用のAI。学習回数は少ないため弱い。

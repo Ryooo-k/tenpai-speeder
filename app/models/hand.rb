@@ -8,7 +8,13 @@ class Hand < ApplicationRecord
   validates :tile, presence: true
   validates :drawn, inclusion: { in: [ true, false ] }
 
-  scope :sorted, -> {
+  scope :sorted_base, -> {
+    joins(tile: :base_tile)
+      .includes(tile: :base_tile)
+      .order('base_tiles.code ASC')
+      .order('tile.kind ASC')
+  }
+  scope :sorted_with_drawn, -> {
     joins(tile: :base_tile)
       .includes(tile: :base_tile)
       .order(drawn: :asc)

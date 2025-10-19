@@ -78,7 +78,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
 
   test '#can_ron? returns true：手役無し状況役ありの場合' do
     hands = set_hands('m11145678 p11 s999', players(:ryo))
-    target_meld = Meld.create!(tile: tiles(:first_manzu_9), kind: 'kakan', player_state: player_states(:tenpai_speeder), position: 3)
+    target_meld = Meld.create!(tile: tiles(:first_manzu_9), kind: 'kakan', player_state: player_states(:ai_1), position: 3)
     relation = :toimen
     situational_yaku_list = build_situational_yaku_list(chankan: true)
     result = HandEvaluator.can_ron?(hands, @empty_melds, target_meld, relation, @round_wind, @player_wind, situational_yaku_list)
@@ -793,6 +793,79 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     riichi_candidates = HandEvaluator.find_riichi_candidates(hands, @empty_melds)
     assert riichi_candidates.all? { |candidate| candidate.name == '5萬' }
     assert_equal 3, riichi_candidates.count
+  end
+
+  test '#find_outs：（normal_outs）向聴数が下がる牌のみアウツ、手牌の牌はアウツに含まれない' do
+    player = players(:ryo)
+    hands = set_hands('m123456789 p19 z12', player) # 有効牌 → p123789 z12（28枚）
+    outs_list = HandEvaluator.find_outs(player)
+
+    expected = [ '1筒', '2筒', '3筒', '7筒', '8筒', '9筒', '東', '南' ]
+    outs_list[:normal].each do |outs|
+      assert expected.include?(outs.name)
+      assert_not hands.map(&:tile).include?(outs)
+    end
+
+    assert_equal 28, outs_list[:normal].count
+  end
+
+  test '#find_outs：（chiitoitsu_outs）手牌の同種牌がない1枚のみの牌が対象' do
+    player = players(:ryo)
+    hands = set_hands('m123456789 p11 z11', player) # 有効牌 → m123456789（27枚）
+    outs_list = HandEvaluator.find_outs(player)
+
+    expected = [ '1萬', '2萬', '3萬', '4萬', '5萬', '6萬', '7萬', '8萬', '9萬' ]
+    outs_list[:chiitoitsu].each do |outs|
+      assert expected.include?(outs.name)
+      assert_not hands.map(&:tile).include?(outs)
+    end
+
+    assert_equal 27, outs_list[:chiitoitsu].count
+  end
+
+  test '#find_outs：（chiitoitsu_outs）鳴いている場合、アウツ無し' do
+    player = players(:ryo)
+    hands = set_hands('m123456789 z11', player)
+    set_melds('p111=', player)
+    outs_list = HandEvaluator.find_outs(player)
+    assert_nil outs_list[:chiitoitsu]
+  end
+
+  test '#find_outs：（kokushi_outs）国士無双の対象牌のみアウツ' do
+    player = players(:ryo)
+    hands = set_hands('m2345678 p234 s234', player)
+    outs_list = HandEvaluator.find_outs(player)
+
+    expected = [ '1萬', '9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中' ]
+    outs_list[:kokushi].each do |outs|
+      assert expected.include?(outs.name)
+      assert_not hands.map(&:tile).include?(outs)
+    end
+
+    assert_equal 52, outs_list[:kokushi].count
+  end
+
+  test '#find_outs：（kokushi_outs）頭の牌はアウツ対象外' do
+    player = players(:ryo)
+    hands = set_hands('m1145678 p234 s234', player)
+    outs_list = HandEvaluator.find_outs(player)
+
+    expected = [ '9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中' ]
+    outs_list[:kokushi].each do |outs|
+      assert expected.include?(outs.name)
+      assert_not hands.map(&:tile).include?(outs)
+    end
+
+    assert_equal 48, outs_list[:kokushi].count
+  end
+
+
+  test '#find_outs：（kokushi_outs）鳴いている場合、アウツ無し' do
+    player = players(:ryo)
+    hands = set_hands('m19 p19 s19 z1234', player)
+    set_melds('z555=', player)
+    outs_list = HandEvaluator.find_outs(player)
+    assert_nil outs_list[:kokushi]
   end
 
   # コアとなるprivateメソッドを個別にテストを行う。
@@ -1955,7 +2028,6 @@ class HandEvaluatorTest < ActiveSupport::TestCase
       }, result
     )
   end
-
 
   test '槓子（么九牌）+ 門前ツモ：20 + 32(kantsu) + 2(tsumo) = 54 → 60' do
     agari = [

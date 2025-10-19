@@ -30,7 +30,7 @@ class Player < ApplicationRecord
   scope :ais, -> { where.not(ai_id: nil) }
 
   def hands
-    base_hands.present? ? base_hands.sorted : Hand.none
+    base_hands.present? ? base_hands.sorted_with_drawn : Hand.none
   end
 
   def rivers
@@ -74,13 +74,13 @@ class Player < ApplicationRecord
     create_stolen_rivers(discarded_tile)
   end
 
-  # ai用打牌選択のメソッド
-  # 現状は状況に合わせて手牌の中からランダムに選択。aiの実装は別issueで対応。
+  # ai用 牌選択メソッド
   def choose
     if current_state.riichi?
-      find_riichi_candidates.sample.id
+      find_riichi_candidates.sample
     else
-      current_state.hands.sample.id
+      hand_index = MahjongAi.infer(game, self)
+      base_hands.sorted_base[hand_index]
     end
   end
 
@@ -90,6 +90,11 @@ class Player < ApplicationRecord
 
   def ai?
     ai_id.present?
+  end
+
+  def ai_version
+    return if user?
+    "v#{ai.version}"
   end
 
   def user?
@@ -218,6 +223,14 @@ class Player < ApplicationRecord
 
   def tenpai?
     shanten.zero?
+  end
+
+  def shanten
+    HandEvaluator.calculate_shanten(hands, melds)
+  end
+
+  def outs
+    HandEvaluator.find_outs(self)
   end
 
   private
@@ -379,10 +392,6 @@ class Player < ApplicationRecord
       candidates << [ code - 1, code + 1 ] if (2..8).include?(number)
       candidates << [ code + 1, code + 2 ] if number <= 7
       candidates
-    end
-
-    def shanten
-      HandEvaluator.calculate_shanten(hands, melds)
     end
 
     def complete?

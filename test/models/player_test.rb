@@ -7,7 +7,7 @@ class PlayerTest < ActiveSupport::TestCase
 
   def setup
     @user_player = players(:ryo)
-    @ai_player = players(:menzen_tenpai_speeder)
+    @ai_player = players(:ai_1)
     @user = users(:ryo)
     @game = games(:tonpuu)
     @manzu_1 = tiles(:first_manzu_1)
@@ -43,8 +43,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test 'is valid with ai and seat_order and game' do
-    ai = ais(:tenpai_speeder)
-    player = Player.new(ai:, game: @game, seat_order: 0)
+    player = Player.new(ai: ais('v0.1'), game: @game, seat_order: 0)
     assert player.valid?
   end
 
@@ -68,15 +67,14 @@ class PlayerTest < ActiveSupport::TestCase
     assert player.invalid?
     assert_includes player.errors[:base], 'UserまたはAIのいずれかを指定してください'
 
-    ai = ais(:tenpai_speeder)
-    player = Player.new(user: @user, ai:, game: @game, seat_order: 0)
+    player = Player.new(user: @user, ai: ais('v0.1'), game: @game, seat_order: 0)
     assert player.invalid?
     assert_includes player.errors[:base], 'UserとAIの両方を同時に指定することはできません'
   end
 
   test '.ordered orders by seat_order' do
     game = games(:training)
-    ai = ais(:tenpai_speeder)
+    ai = ais('v0.1')
     game.players.delete_all
     player_4 = game.players.create!(user: @user, seat_order: 3)
     player_3 = game.players.create!(ai:, seat_order: 2)
@@ -341,8 +339,8 @@ class PlayerTest < ActiveSupport::TestCase
 
   test '#steal consecutive furo remove hands and sets melds' do
     manzu_1, manzu_2, ton_1, ton_2, haku = set_hands('m12 z11 z5', @user_player)
-    toimen_player = @ai_player
-    kamicha_player = players(:tenpai_speeder)
+    toimen_player = players(:ai_1)
+    kamicha_player = players(:ai_2)
     step_2 = steps(:step_2)
     step_3 = steps(:step_3)
 
@@ -409,11 +407,23 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test '#choose returns riichi_candidates when ai riichi' do
+  test '#ai_version' do
+    version_number = @ai_player.ai.version
+    assert_equal "v#{version_number}", @ai_player.ai_version
+  end
+
+  test '#choose returns inferred tile' do
+    hands = set_hands('m123456789 z12345', @ai_player)
+    result = @ai_player.choose
+    hand_index = MahjongAi.infer(@game, @ai_player)
+    assert_equal hands.sorted_base[hand_index], result
+  end
+
+  test '#choose returns riichi_candidates when ai is riichi' do
     set_hands('m123456789 p23 s9 z11', @ai_player)
     @ai_player.current_state.update!(riichi: true)
     result = @ai_player.choose
-    expected = @ai_player.hands.find { |hand| hand.name == '9索' }.id
+    expected = @ai_player.hands.find { |hand| hand.name == '9索' }
     assert_equal expected, result
   end
 
@@ -1098,8 +1108,53 @@ class PlayerTest < ActiveSupport::TestCase
     assert @user_player.tenpai?
   end
 
-  test '#tenpai? returns true when shanten > 0' do
+  test '#tenpai? returns false when shanten > 0' do
     set_hands('m123456789 p159 s1', @user_player)
     assert_not @user_player.tenpai?
+  end
+
+  test '#shanten returns shanten count' do
+    set_hands('m123456789 p19 s5 z1', @user_player)
+    assert_equal 2, @user_player.shanten
+  end
+
+  test '#shanten returns -1 when player is complete' do
+    set_hands('m123456789 p123 s55', @user_player)
+    assert_equal -1, @user_player.shanten
+  end
+
+  test '#outs(normal)' do
+    set_hands('m223344 p55667 s22', @user_player)
+    outs = @user_player.outs
+    assert_equal [
+      '4筒', '4筒', '4筒', '4筒',
+      '7筒', '7筒', '7筒'
+    ], outs[:normal].map(&:name)
+  end
+
+  test '#outs(chiitoitsu)' do
+    set_hands('m223344 p55667 s22', @user_player)
+    outs = @user_player.outs
+    assert_equal [ '7筒', '7筒', '7筒' ], outs[:chiitoitsu].map(&:name)
+  end
+
+  test '#outs(kokushi)' do
+    set_hands('m223344 p55667 s22', @user_player)
+    outs = @user_player.outs
+
+    assert_equal [
+      '1萬', '1萬', '1萬', '1萬',
+      '9萬', '9萬', '9萬', '9萬',
+      '1筒', '1筒', '1筒', '1筒',
+      '9筒', '9筒', '9筒', '9筒',
+      '1索', '1索', '1索', '1索',
+      '9索', '9索', '9索', '9索',
+      '東', '東', '東', '東',
+      '南', '南', '南', '南',
+      '西', '西', '西', '西',
+      '北', '北', '北', '北',
+      '白', '白', '白', '白',
+      '發', '發', '發', '發',
+      '中', '中', '中', '中' ], outs[:kokushi].map(&:name)
   end
 end

@@ -1,14 +1,4 @@
-menzen_tenpai_speeder:
+v0.1:
   name: menzen_tenpai_speeder
-  version: "1.0"
-  description: 鳴き無しの面前で最速聴牌を目指すAIです。
-
-tenpai_speeder:
-  name: tenpai_speeder
-  version: "1.1"
-  description: 鳴き有りで最速聴牌を目指すAIです。
-
-high_pointer:
-  name: high_pointer
-  version: "2.0"
-  description: 高打点を目指すAIです。
+  version: "0.1"
+  description: 開発用のAI。麻雀は強くない。

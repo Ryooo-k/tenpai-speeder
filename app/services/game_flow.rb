@@ -54,8 +54,8 @@ class GameFlow
     end
 
     def choose
-      chosen_hand_id = @game.current_player.choose
-      @payloads[:chosen_hand_id] = chosen_hand_id
+      chosen_hand = @game.current_player.choose
+      @payloads[:chosen_hand_id] = chosen_hand.id
       @payloads[:event] = :discard
     end
 
