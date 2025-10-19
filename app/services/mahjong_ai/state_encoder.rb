@@ -26,9 +26,7 @@ module MahjongAi
 
         def build_v0_1_states(game, main_player)
           main_player_states = [
-                                  main_player.tenpai? ? 1.0 : 0.0,
                                   encode_hands(main_player.hands),
-                                  encode_melds(main_player.melds),
                                   encode_rivers(main_player.rivers),
                                   main_player.shanten,
                                   main_player.outs.map { |_, v| v.count }.min / NORMALIZATION_BASE_OUTS
@@ -36,17 +34,10 @@ module MahjongAi
 
           other_player_states = game.players.map do |player|
                                   next if main_player == player
-                                  [
-                                    player.riichi? ? 1.0 : 0.0,
-                                    encode_melds(player.melds),
-                                    encode_rivers(player.rivers)
-                                  ]
+                                  encode_rivers(player.rivers)
                                 end.compact.flatten
 
-          game_states = [
-                          game.remaining_tile_count / NORMALIZATION_DRAW_COUNT,
-                          encode_dora_indicators(game.dora_indicator_tiles)
-                        ].flatten
+          game_states = [ game.remaining_tile_count / NORMALIZATION_DRAW_COUNT ]
 
           states = main_player_states + other_player_states + game_states
           Torch.tensor(states, dtype: :float32)
