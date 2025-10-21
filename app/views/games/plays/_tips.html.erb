@@ -1,0 +1,11 @@
+<section class="rounded-3xl border border-slate-900 bg-slate-900/70 p-6 shadow-xl shadow-emerald-500/10">
+  <div class="flex flex-col gap-2">
+    <h2 class="text-xl font-semibold text-emerald-300">TIPS</h2>
+    <p class="text-lg text-slate-400">
+      現在の手牌状況を把握し、向聴数を減らすためのヒントを表示します。
+    </p>
+  </div>
+  <div class="mt-4 space-y-4">
+    <%= render partial: "games/analysis/hand_efficiency" %>
+  </div>
+</section>
