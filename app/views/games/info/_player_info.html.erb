@@ -1,9 +1,0 @@
-<% @game.players.each do |player| %>
-  <div
-    class="absolute <%= build_player_info_class(player) %> text-center leading-tight"
-    data-player-board-test-id="<%= player.id %>">
-    <div data-role="name"><%= player.name %></div>
-    <div data-role="wind"><%= player.wind_name %></div>
-    <div data-role="score"><%= player.score %></div>
-  </div>
-<% end %>
