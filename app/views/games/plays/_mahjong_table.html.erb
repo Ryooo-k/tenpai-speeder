@@ -2,9 +2,9 @@
   <div class="flex flex-col gap-6">
     <div class="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4">
       <div class="relative aspect-[10/7] w-full rounded-xl bg-emerald-900/30 @container">
-        <%= render partial: "games/players/player", collection: @game.players %>
-        <%= render partial: "games/info/panel" %>
-        <%= render partial: "games/events/#{@event}" %>
+        <%= render partial: "games/mahjong_table/kyoku_status" %>
+        <%= render partial: "games/mahjong_table/player", collection: @game.players %>
+        <%= render partial: "games/mahjong_table/events/#{@event}" %>
       </div>
       <div aria-hidden="true" class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-emerald-500/15"></div>
     </div>
