@@ -7,12 +7,12 @@
     <%= form_with url: game_play_command_path(@game) do |form| %>
       <%= form.hidden_field :event, value: 'discard' %>
       <div class="<%= row_classes %>">
-        <%= render partial: partial_path, collection: player.hands, as: :hand, locals: { form: } %>
+        <%= render partial: partial_path, collection: player.hands, as: :hand, locals: { form:, player: } %>
       </div>
     <% end %>
   <% else %>
     <div class="<%= row_classes %>">
-      <%= render partial: partial_path, collection: player.hands, as: :hand %>
+      <%= render partial: partial_path, collection: player.hands, as: :hand, locals: { player: } %>
     </div>
   <% end %>
 </div>
