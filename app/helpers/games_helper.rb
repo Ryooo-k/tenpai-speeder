@@ -37,6 +37,19 @@ module GamesHelper
     end
   end
 
+  def build_player_status_position_class(player)
+    case player.relation_from_user
+    when :shimocha
+      'right-0 top-1/2 translate-x-1/2 -translate-y-1/2 origin-center -rotate-90'
+    when :toimen
+      'left-1/2 top-0 -translate-x-1/2 rotate-180'
+    when :kamicha
+      'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 origin-center rotate-90'
+    when :self
+      'left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2'
+    end
+  end
+
   def discard_form_needed?(event, player)
     player.user? && event.in?([ 'choose', 'riichi_choose' ])
   end

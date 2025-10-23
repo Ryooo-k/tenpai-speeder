@@ -1,24 +1,39 @@
-<div class="absolute left-1/2 top-1/2 w-[25cqw] aspect-[4/3] -translate-x-1/2 -translate-y-1/2 rounded-xl px-[2cqw] py-[4cqw] text-emerald-100">
-  <div class="space-y-[3cqw] text-center">
-    <div class="flex justify-center">
-      <% @game.dora_indicator_tiles.each do |tile| %>
-        <div class="w-[3.2cqw]">
-          <% if tile %>
-            <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "block w-full h-auto") %>
-          <% else %>
-            <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
-          <% end %>
+<div class="absolute left-1/2 top-1/2 w-[25cqw] aspect-[4/3] -translate-x-1/2 -translate-y-1/2">
+  <div class="relative h-full w-full text-center text-emerald-100">
+    <div class="text-[clamp(0.4rem,1.2cqw,1rem)]">
+      <% @game.players.ordered.each do |player| %>
+        <% player_status_position_class = build_player_status_position_class(player) %>
+        <div class="absolute <%= player_status_position_class %> flex items-center">
+          <span class="font-semibold tracking-[0.3em] text-emerald-200/85">
+            <%= player.wind_name %>
+          </span>
+          <span class="font-semibold text-emerald-100 tracking-wide">
+            <%= number_with_delimiter(player.score) %>
+          </span>
         </div>
       <% end %>
     </div>
-    <div class="grid grid-cols-2 gap-[1.5cqw] text-[clamp(0.65rem,1.1cqw,0.95rem)]">
-      <div>
-        <p class="tracking-[0.35em] text-emerald-300">残</p>
-        <p class="mt-[0.8cqw] text-[clamp(1.3rem,2cqw,1.8rem)] font-semibold"><%= @game.remaining_tile_count %></p>
+    <div class="space-y-[3cqw] pt-[3.5cqw]">
+      <div class="flex justify-center">
+        <% @game.dora_indicator_tiles.each do |tile| %>
+          <div class="w-[3.2cqw]">
+            <% if tile %>
+              <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "block w-full h-auto") %>
+            <% else %>
+              <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
+            <% end %>
+          </div>
+        <% end %>
       </div>
-      <div>
-        <p class="tracking-[0.35em] text-emerald-300">リーチ棒</p>
-        <p class="mt-[0.8cqw] text-[clamp(1.3rem,2cqw,1.8rem)] font-semibold"><%= @game.riichi_stick_count %></p>
+      <div class="grid grid-cols-2 text-[clamp(0.4rem,1.2cqw,1rem)]">
+        <div>
+          <p class="text-emerald-300">残</p>
+          <p class="mt-[0.6cqw] text-[clamp(1.0rem,2cqw,1.8rem)] font-semibold"><%= @game.remaining_tile_count %></p>
+        </div>
+        <div>
+          <p class="text-emerald-300">リーチ棒</p>
+          <p class="mt-[0.6cqw] text-[clamp(1.0rem,2cqw,1.8rem)] font-semibold"><%= @game.riichi_stick_count %></p>
+        </div>
       </div>
     </div>
   </div>
