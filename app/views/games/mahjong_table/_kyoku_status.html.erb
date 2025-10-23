@@ -1,24 +1,24 @@
-<div class="absolute inset-0 pointer-events-none">
-  <div class="absolute left-1/2 top-1/2 w-[26cqw] min-w-[14rem] max-w-[20rem] -translate-x-1/2 -translate-y-1/2 rounded-[1.75rem] border border-emerald-400/30 bg-emerald-950/70 p-5 text-emerald-100 shadow-2xl backdrop-blur">
-    <div class="space-y-4 text-center">
-      <div class="mt-3 flex justify-center">
-        <% @game.dora_indicator_tiles.each do |tile| %>
+<div class="absolute left-1/2 top-1/2 w-[25cqw] aspect-[4/3] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-emerald-400/30 bg-emerald-950/70 px-[2cqw] py-[3cqw] text-emerald-100 shadow-2xl backdrop-blur">
+  <div class="space-y-[3cqw] text-center">
+    <div class="flex justify-center">
+      <% @game.dora_indicator_tiles.each do |tile| %>
+        <div class="w-[3.2cqw]">
           <% if tile %>
-            <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "w-10") %>
+            <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "block w-full h-auto") %>
           <% else %>
-            <%= image_tag("tiles/back_board.gif", class: "w-10") %>
+            <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
           <% end %>
-        <% end %>
+        </div>
+      <% end %>
+    </div>
+    <div class="grid grid-cols-2 gap-[1.5cqw] text-[clamp(0.65rem,1.1cqw,0.95rem)]">
+      <div>
+        <p class="tracking-[0.35em] text-emerald-300">残</p>
+        <p class="mt-[0.8cqw] text-[clamp(1.3rem,2cqw,1.8rem)] font-semibold"><%= @game.remaining_tile_count %></p>
       </div>
-      <div class="grid grid-cols-2 gap-3 text-sm">
-        <div class="rounded-2xl border border-emerald-400/20 bg-emerald-900/40 px-4 py-3">
-          <p class="text-md tracking-[0.35em] text-emerald-300">ツモ山</p>
-          <p class="mt-1 text-2xl font-semibold">残 <%= @game.remaining_tile_count %></p>
-        </div>
-        <div class="rounded-2xl border border-emerald-400/20 bg-emerald-900/40 px-4 py-3">
-          <p class="text-md tracking-[0.35em] text-emerald-300">リーチ棒</p>
-          <p class="mt-2 text-2xl font-semibold"><%= @game.riichi_stick_count %></p>
-        </div>
+      <div>
+        <p class="tracking-[0.35em] text-emerald-300">リーチ棒</p>
+        <p class="mt-[0.8cqw] text-[clamp(1.3rem,2cqw,1.8rem)] font-semibold"><%= @game.riichi_stick_count %></p>
       </div>
     </div>
   </div>
