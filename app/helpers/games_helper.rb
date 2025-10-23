@@ -17,11 +17,11 @@ module GamesHelper
   def build_river_position_class(player)
     case player.relation_from_user
     when :shimocha
-      'top-1/2 right-1/20 -translate-x-1/2 -translate-y-1/2 -rotate-90'
+      'top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 -rotate-90'
     when :toimen
-      'top-1/20 left-1/2 -translate-x-1/2 rotate-180'
+      'top-1/9 left-1/2 -translate-x-1/2 rotate-180'
     when :kamicha
-      'top-1/2 right-1/2 -translate-x-1/2 -translate-y-1/2 rotate-90'
+      'top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 rotate-90'
     when :self
       'top-2/3 left-1/2 -translate-x-1/2'
     end
