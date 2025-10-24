@@ -2,8 +2,9 @@
   <div class="relative h-full w-full text-center text-emerald-100">
     <div class="text-[clamp(0.4rem,1.2cqw,1rem)]">
       <% @game.players.ordered.each do |player| %>
-        <% player_status_position_class = build_player_status_position_class(player) %>
-        <div class="absolute <%= player_status_position_class %> flex items-center">
+        <% position_class = build_player_status_position_class(player) %>
+        <% highlight_class = player == @game.current_player ? 'border-2 border-red-500/80 rounded-md' : '' %>
+        <div class="absolute <%= position_class %> flex items-center gap-[0.6cqw] px-[0.6cqw] py-[0.3cqw] <%= highlight_class %>">
           <span class="font-semibold tracking-[0.3em] text-emerald-200/85">
             <%= player.wind_name %>
           </span>
@@ -13,7 +14,7 @@
         </div>
       <% end %>
     </div>
-    <div class="space-y-[3cqw] pt-[3.5cqw]">
+    <div class="space-y-[3cqw] pt-[4cqw]">
       <div class="flex justify-center">
         <% @game.dora_indicator_tiles.each do |tile| %>
           <div class="w-[3.2cqw]">
