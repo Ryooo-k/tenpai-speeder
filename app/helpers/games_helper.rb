@@ -17,13 +17,13 @@ module GamesHelper
   def build_river_position_class(player)
     case player.relation_from_user
     when :shimocha
-      'top-[62.8%] left-2/3 -rotate-90'
+      'top-[63.13%] left-2/3 -rotate-90'
     when :toimen
-      'top-1/3 left-[59.6%] rotate-180'
+      'top-1/3 left-[59.85%] rotate-180'
     when :kamicha
-      'top-[37.2%] left-1/3 rotate-90'
+      'top-[36.87%] left-1/3 rotate-90'
     when :self
-      'top-2/3 left-[40.4%]'
+      'top-2/3 left-[40.15%]'
     end
   end
 
