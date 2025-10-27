@@ -4,13 +4,13 @@ module GamesHelper
   def build_hand_position_class(player)
     case player.relation_from_user
     when :shimocha
-      'right-0 top-1/2 translate-x-1/2 -translate-y-1/2 origin-center -rotate-90'
+      'left-[100%] top-[84.7%] -rotate-90'
     when :toimen
-      'left-1/2 -translate-x-1/2 rotate-180'
+      'left-[78.6%] translate-y-full rotate-180'
     when :kamicha
-      'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 origin-center rotate-90'
+      'left-0 top-[15.3%] rotate-90'
     when :self
-      'left-1/2 bottom-0 -translate-x-1/2'
+      'left-[21.4%] bottom-0'
     end
   end
 
@@ -55,6 +55,6 @@ module GamesHelper
   end
 
   def build_hand_row_classes(player, needs_form)
-    "flex#{(!needs_form && player.relation_from_user.in?([ :shimocha, :kamicha ]) ? ' -translate-y-1/2' : '')}"
+    "flex#{(!needs_form && player.relation_from_user.in?([ :shimocha, :kamicha ]) ? ' -translate-y-[100%]' : '')}"
   end
 end
