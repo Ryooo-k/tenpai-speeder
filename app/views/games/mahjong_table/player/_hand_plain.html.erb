@@ -1,0 +1,7 @@
+<div class="w-[4cqw] <%= 'ml-3' if hand.drawn? %>">
+  <% if player.user? %>
+    <%= image_tag("tiles/#{hand.suit}_#{hand.number}.gif", class: "block w-full h-auto") %>
+  <% else %>
+    <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
+  <% end %>
+</div>

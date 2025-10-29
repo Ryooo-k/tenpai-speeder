@@ -61,6 +61,10 @@ class Games::PlaysController < ApplicationController
         furo_candidates = @game.user_player.find_furo_candidates(discarded_tile, @game.current_player)
         instance_variable_set(:@furo_candidates, furo_candidates)
       end
+
+      @shanten = @game.user_player.shanten
+      @outs = @game.user_player.outs[:normal]
+      @outs_kind = @outs.map(&:code).tally.keys.count
     end
 
     def game_flow_params

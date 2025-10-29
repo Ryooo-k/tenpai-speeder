@@ -1,0 +1,19 @@
+east_player:
+  user: ryo
+  game: test
+  seat_order: 0
+
+south_player:
+  ai: v0.1
+  game: test
+  seat_order: 1
+
+west_player:
+  ai: v0.1
+  game: test
+  seat_order: 2
+
+north_player:
+  ai: v0.1
+  game: test
+  seat_order: 3

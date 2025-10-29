@@ -467,11 +467,11 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     pinzu_4_id = set_hands('p4', loser).first.tile.id
 
     assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
-      assert_dom %(div[data-role="score"]), text: '25000'
+      assert_dom %(span[data-role="score"]), text: '25,000'
     end
 
     assert_dom %(div[data-player-board-test-id="#{loser.id}"]) do
-      assert_dom %(div[data-role="score"]), text: '25000'
+      assert_dom %(span[data-role="score"]), text: '25,000'
     end
 
     assert_response :success
@@ -486,11 +486,11 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
-      assert_dom %(div[data-role="score"]), text: '38600' # 25000 + 12000 + 1000 + 600
+      assert_dom %(span[data-role="score"]), text: '38,600' # 25000 + 12000 + 1000 + 600
     end
 
     assert_dom %(div[data-player-board-test-id="#{loser.id}"]) do
-      assert_dom %(div[data-role="score"]), text: '12400' # 25000 - 12000 - 600
+      assert_dom %(span[data-role="score"]), text: '12,400' # 25000 - 12000 - 600
     end
   end
 
@@ -502,7 +502,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
     @game.players.each do |player|
       assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
-        assert_dom %(div[data-role="score"]), text: '25000'
+        assert_dom %(span[data-role="score"]), text: '25,000'
       end
     end
 
@@ -520,9 +520,9 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     @game.players.each do |player|
       assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
         if player.host?
-          assert_dom %(div[data-role="score"]), text: '38600' # 25000 + 12000 + 1000 + 600
+          assert_dom %(span[data-role="score"]), text: '38,600' # 25000 + 12000 + 1000 + 600
         else
-          assert_dom %(div[data-role="score"]), text: '20800' # 25000 - 4000 - 200
+          assert_dom %(span[data-role="score"]), text: '20,800' # 25000 - 4000 - 200
         end
       end
     end
@@ -535,19 +535,19 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     pei_wind_player = @game.players.ordered[3]
 
     assert_dom %(div[data-player-board-test-id="#{ton_wind_player.id}"]) do
-      assert_dom %(div[data-role="wind"]), text: '東'
+      assert_dom %(span[data-role="wind"]), text: '東'
     end
 
     assert_dom %(div[data-player-board-test-id="#{nan_wind_player.id}"]) do
-      assert_dom %(div[data-role="wind"]), text: '南'
+      assert_dom %(span[data-role="wind"]), text: '南'
     end
 
     assert_dom %(div[data-player-board-test-id="#{sha_wind_player.id}"]) do
-      assert_dom %(div[data-role="wind"]), text: '西'
+      assert_dom %(span[data-role="wind"]), text: '西'
     end
 
     assert_dom %(div[data-player-board-test-id="#{pei_wind_player.id}"]) do
-      assert_dom %(div[data-role="wind"]), text: '北'
+      assert_dom %(span[data-role="wind"]), text: '北'
     end
 
     post game_play_command_path(@game, params: { event: 'ryukyoku' })
@@ -555,19 +555,19 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_dom %(div[data-player-board-test-id="#{ton_wind_player.id}"]) do
-      assert_dom %(div[data-role="wind"]), text: '北'
+      assert_dom %(span[data-role="wind"]), text: '北'
     end
 
     assert_dom %(div[data-player-board-test-id="#{nan_wind_player.id}"]) do
-      assert_dom %(div[data-role="wind"]), text: '東'
+      assert_dom %(span[data-role="wind"]), text: '東'
     end
 
     assert_dom %(div[data-player-board-test-id="#{sha_wind_player.id}"]) do
-      assert_dom %(div[data-role="wind"]), text: '南'
+      assert_dom %(span[data-role="wind"]), text: '南'
     end
 
     assert_dom %(div[data-player-board-test-id="#{pei_wind_player.id}"]) do
-      assert_dom %(div[data-role="wind"]), text: '西'
+      assert_dom %(span[data-role="wind"]), text: '西'
     end
   end
 

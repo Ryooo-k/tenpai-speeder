@@ -1,0 +1,13 @@
+<div class="absolute <%= build_melds_position_class(player) %>">
+  <div class="flex gap-[0.1cqw]">
+    <% player.melds.each do |meld| %>
+      <div class="flex justify-start items-center gap-[0.1cqw] h-[5.6cqw]">
+        <% image_name = meld.from? ? "tiles/rotated_#{meld.suit}_#{meld.number}.gif" : "tiles/#{meld.suit}_#{meld.number}.gif" %>
+        <% width_class = meld.from? ? 'w-[5.6cqw]' : 'w-[4cqw]' %>
+        <div class="<%= width_class %> h-full flex items-end">
+          <%= image_tag(image_name, class: "block h-auto max-h-full w-full") %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

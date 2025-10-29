@@ -1,0 +1,43 @@
+<div class="absolute left-1/2 top-1/2 w-[25cqw] aspect-[4/3] -translate-x-1/2 -translate-y-1/2">
+  <div class="relative h-full w-full text-center text-emerald-100">
+    <div class="text-[clamp(0.4rem,1.5cqw,1rem)]">
+      <% @game.players.ordered.each do |player| %>
+        <% position_class = build_player_status_position_class(player) %>
+        <% highlight_class = player == @game.current_player ? 'border-2 border-red-500/80 rounded-md' : '' %>
+        <div
+          class="absolute <%= position_class %> flex items-center gap-[0.6cqw] px-[0.6cqw] <%= highlight_class %>"
+          data-player-board-test-id="<%= player.id %>">
+          <span class="font-semibold tracking-[0.3em] text-emerald-200/85" data-role="wind">
+            <%= player.wind_name %>
+          </span>
+          <span class="font-semibold text-emerald-100 tracking-wide" data-role="score">
+            <%= number_with_delimiter(player.score) %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+    <div class="space-y-[3cqw] pt-[4cqw]">
+      <div class="flex justify-center">
+        <% @game.dora_indicator_tiles.each do |tile| %>
+          <div class="w-[3.2cqw]">
+            <% if tile %>
+              <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "block w-full h-auto") %>
+            <% else %>
+              <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="grid grid-cols-2 text-[clamp(0.4rem,1.2cqw,1rem)]">
+        <div>
+          <p class="text-emerald-300">残</p>
+          <p class="mt-[0.6cqw] text-[clamp(1.0rem,2cqw,1.8rem)] font-semibold"><%= @game.remaining_tile_count %></p>
+        </div>
+        <div>
+          <p class="text-emerald-300">リーチ棒</p>
+          <p class="mt-[0.6cqw] text-[clamp(1.0rem,2cqw,1.8rem)] font-semibold"><%= @game.riichi_stick_count %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

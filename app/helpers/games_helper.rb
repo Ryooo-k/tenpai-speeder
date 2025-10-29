@@ -1,52 +1,78 @@
 # frozen_string_literal: true
 
 module GamesHelper
+  EVENT_PARTIALS = %w[
+    agari
+    choose
+    discard
+    draw
+    furo
+    riichi
+    riichi_choose
+    ron
+    ryukyoku
+    tsumo
+  ].freeze
+
   def build_hand_position_class(player)
     case player.relation_from_user
     when :shimocha
-      'right-0 top-1/2 translate-x-1/2 -translate-y-1/2 origin-center -rotate-90'
+      'left-[100%] top-[84.7%] -rotate-90'
     when :toimen
-      'left-1/2 -translate-x-1/2 rotate-180'
+      'left-[78.6%] translate-y-full rotate-180'
     when :kamicha
-      'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 origin-center rotate-90'
+      'left-0 top-[15.3%] rotate-90'
     when :self
-      'left-1/2 bottom-0 -translate-x-1/2'
+      'left-[21.4%] bottom-0'
     end
   end
 
   def build_river_position_class(player)
     case player.relation_from_user
     when :shimocha
-      'top-1/2 right-1/20 -translate-x-1/2 -translate-y-1/2 -rotate-90'
+      'top-[63.13%] left-2/3 -rotate-90'
     when :toimen
-      'top-1/20 left-1/2 -translate-x-1/2 rotate-180'
+      'top-1/3 left-[59.85%] rotate-180'
     when :kamicha
-      'top-1/2 right-1/2 -translate-x-1/2 -translate-y-1/2 rotate-90'
+      'top-[36.87%] left-1/3 rotate-90'
     when :self
-      'top-2/3 left-1/2 -translate-x-1/2'
+      'top-2/3 left-[40.15%]'
     end
   end
 
-  def build_player_info_class(player)
+  def build_melds_position_class(player)
     case player.relation_from_user
     when :shimocha
-      'right-0 top-1/2 -translate-y-1/2 -rotate-90'
+      'origin-bottom-right right-0 -translate-y-full -rotate-90'
     when :toimen
-      'left-1/2 -translate-x-1/2 rotate-180'
+      'origin-bottom-right rotate-180 -translate-x-full -translate-y-full'
     when :kamicha
-      'left-0 top-1/2 -translate-y-1/2 rotate-90'
+      'origin-bottom-right bottom-0 -translate-x-full rotate-90'
     when :self
-      'left-1/2 bottom-0 -translate-x-1/2'
+      'origin-bottom-right bottom-0 right-0'
     end
   end
 
   def build_hand_partial_path(event, game, player)
-    return 'games/players/hand_plain' if game.current_player.ai? || player.ai?
+    return 'games/mahjong_table/player/hand_plain' if game.current_player.ai? || player.ai?
 
-    case event.to_sym
-    when :choose        then 'games/players/hand_form'
-    when :riichi_choose then 'games/players/riichi_form'
-    else                     'games/players/hand_plain'
+    case event&.to_sym
+    when :choose        then 'games/mahjong_table/player/hand_form'
+    when :riichi_choose then 'games/mahjong_table/player/riichi_form'
+    else                     'games/mahjong_table/player/hand_plain'
+    end
+  end
+
+  def build_player_status_position_class(player)
+    case player.relation_from_user
+    when :shimocha
+      'right-0 top-1/2 translate-x-1/2 -translate-y-1/2 origin-center -rotate-90'
+    when :toimen
+      'left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rotate-180'
+    when :kamicha
+      'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 origin-center rotate-90'
+    when :self
+      'left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2'
     end
   end
 
@@ -55,6 +81,13 @@ module GamesHelper
   end
 
   def build_hand_row_classes(player, needs_form)
-    "flex#{(!needs_form && player.relation_from_user.in?([ :shimocha, :kamicha ]) ? ' -translate-y-1/2' : '')}"
+    "flex#{(!needs_form && player.relation_from_user.in?([ :shimocha, :kamicha ]) ? ' -translate-y-[100%]' : '')}"
+  end
+
+  def event_partial_path(event)
+    event_name = event.to_s
+    return unless EVENT_PARTIALS.include?(event_name)
+
+    "games/mahjong_table/events/#{event_name}"
   end
 end
