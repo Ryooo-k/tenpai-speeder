@@ -1,0 +1,111 @@
+east_player_hand_1:
+  player_state: east_player_state_2
+  tile: fourth_manzu_1
+
+east_player_hand_2:
+  player_state: east_player_state_2
+  tile: fourth_manzu_2
+
+east_player_hand_3:
+  player_state: east_player_state_2
+  tile: fourth_manzu_3
+
+east_player_hand_4:
+  player_state: east_player_state_2
+  tile: fourth_manzu_4
+
+east_player_hand_5:
+  player_state: east_player_state_2
+  tile: fourth_manzu_5
+
+east_player_hand_6:
+  player_state: east_player_state_2
+  tile: fourth_manzu_6
+
+east_player_hand_7:
+  player_state: east_player_state_2
+  tile: fourth_manzu_7
+
+south_player_hand_1:
+  player_state: south_player_state_2
+  tile: fourth_pinzu_1
+
+south_player_hand_2:
+  player_state: south_player_state_2
+  tile: fourth_pinzu_2
+
+south_player_hand_3:
+  player_state: south_player_state_2
+  tile: fourth_pinzu_3
+
+south_player_hand_4:
+  player_state: south_player_state_2
+  tile: fourth_pinzu_4
+
+south_player_hand_5:
+  player_state: south_player_state_2
+  tile: fourth_pinzu_5
+
+south_player_hand_6:
+  player_state: south_player_state_2
+  tile: fourth_pinzu_6
+
+south_player_hand_7:
+  player_state: south_player_state_2
+  tile: fourth_pinzu_7
+
+west_player_hand_1:
+  player_state: west_player_state_2
+  tile: fourth_souzu_1
+
+west_player_hand_2:
+  player_state: west_player_state_2
+  tile: fourth_souzu_2
+
+west_player_hand_3:
+  player_state: west_player_state_2
+  tile: fourth_souzu_3
+
+west_player_hand_4:
+  player_state: west_player_state_2
+  tile: fourth_souzu_4
+
+west_player_hand_5:
+  player_state: west_player_state_2
+  tile: fourth_souzu_5
+
+west_player_hand_6:
+  player_state: west_player_state_2
+  tile: fourth_souzu_6
+
+west_player_hand_7:
+  player_state: west_player_state_2
+  tile: fourth_souzu_7
+
+north_player_hand_1:
+  player_state: north_player_state_2
+  tile: fourth_ton
+
+north_player_hand_2:
+  player_state: north_player_state_2
+  tile: fourth_nan
+
+north_player_hand_3:
+  player_state: north_player_state_2
+  tile: fourth_sha
+
+north_player_hand_4:
+  player_state: north_player_state_2
+  tile: fourth_pei
+
+north_player_hand_5:
+  player_state: north_player_state_2
+  tile: fourth_haku
+
+north_player_hand_6:
+  player_state: north_player_state_2
+  tile: fourth_hatsu
+
+north_player_hand_7:
+  player_state: north_player_state_2
+  tile: fourth_chun

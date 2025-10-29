@@ -1,4 +1,4 @@
-mode1:
+training:
   name: トレーニング
   description: 牌効率が表示される１局勝負の練習モードです。
   round_type: 0 # 1局戦
@@ -6,7 +6,7 @@ mode1:
   aka_dora: true
   created_at: "2025-01-01 00:00:00"
 
-mode2:
+tonpuu:
   name: 赤あり東風戦
   description: 赤ドラあり東風戦の実践モードです。
   round_type: 1 # 東風戦
@@ -14,7 +14,7 @@ mode2:
   aka_dora: true
   created_at: "2025-01-02 00:00:00"
 
-mode3:
+tonnan:
   name: 赤あり東南戦
   description: 赤ドラあり東南戦の実践モードです。
   round_type: 2 # 東南戦
