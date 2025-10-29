@@ -85,7 +85,8 @@ module GamesHelper
   end
 
   def event_partial_path(event)
-    return unless EVENT_PARTIALS.include?(event.to_s)
+    event_name = event.to_s
+    return unless EVENT_PARTIALS.include?(event_name)
 
     "games/mahjong_table/events/#{event_name}"
   end

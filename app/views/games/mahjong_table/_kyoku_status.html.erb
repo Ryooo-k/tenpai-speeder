@@ -4,11 +4,13 @@
       <% @game.players.ordered.each do |player| %>
         <% position_class = build_player_status_position_class(player) %>
         <% highlight_class = player == @game.current_player ? 'border-2 border-red-500/80 rounded-md' : '' %>
-        <div class="absolute <%= position_class %> flex items-center gap-[0.6cqw] px-[0.6cqw] <%= highlight_class %>">
-          <span class="font-semibold tracking-[0.3em] text-emerald-200/85">
+        <div
+          class="absolute <%= position_class %> flex items-center gap-[0.6cqw] px-[0.6cqw] <%= highlight_class %>"
+          data-player-board-test-id="<%= player.id %>">
+          <span class="font-semibold tracking-[0.3em] text-emerald-200/85" data-role="wind">
             <%= player.wind_name %>
           </span>
-          <span class="font-semibold text-emerald-100 tracking-wide">
+          <span class="font-semibold text-emerald-100 tracking-wide" data-role="score">
             <%= number_with_delimiter(player.score) %>
           </span>
         </div>
