@@ -1,6 +1,19 @@
 # frozen_string_literal: true
 
 module GamesHelper
+  EVENT_PARTIALS = %w[
+    agari
+    choose
+    discard
+    draw
+    furo
+    riichi
+    riichi_choose
+    ron
+    ryukyoku
+    tsumo
+  ].freeze
+
   def build_hand_position_class(player)
     case player.relation_from_user
     when :shimocha
@@ -69,5 +82,11 @@ module GamesHelper
 
   def build_hand_row_classes(player, needs_form)
     "flex#{(!needs_form && player.relation_from_user.in?([ :shimocha, :kamicha ]) ? ' -translate-y-[100%]' : '')}"
+  end
+
+  def event_partial_path(event)
+    return unless EVENT_PARTIALS.include?(event.to_s)
+
+    "games/mahjong_table/events/#{event_name}"
   end
 end
