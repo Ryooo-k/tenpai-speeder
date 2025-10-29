@@ -27,10 +27,23 @@ module GamesHelper
     end
   end
 
+  def build_melds_position_class(player)
+    case player.relation_from_user
+    when :shimocha
+      'origin-bottom-right right-0 -translate-y-full -rotate-90'
+    when :toimen
+      'origin-bottom-right rotate-180 -translate-x-full -translate-y-full'
+    when :kamicha
+      'origin-bottom-right bottom-0 -translate-x-full rotate-90'
+    when :self
+      'origin-bottom-right bottom-0 right-0'
+    end
+  end
+
   def build_hand_partial_path(event, game, player)
     return 'games/mahjong_table/player/hand_plain' if game.current_player.ai? || player.ai?
 
-    case event.to_sym
+    case event&.to_sym
     when :choose        then 'games/mahjong_table/player/hand_form'
     when :riichi_choose then 'games/mahjong_table/player/riichi_form'
     else                     'games/mahjong_table/player/hand_plain'
