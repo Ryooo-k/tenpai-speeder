@@ -1,13 +1,13 @@
-<div class="space-y-4">
-  <div class="flex items-center justify-between rounded-2xl border border-emerald-400/40 bg-slate-900/90 px-4 py-3">
-    <p class="text-2xl font-semibold tracking-[0.35em] text-emerald-300">向聴数</p>
-    <p class="text-xl font-semibold text-emerald-100"><%= @shanten %></p>
+<div class="space-y-4 text-xl">
+  <div class="flex items-center justify-between rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
+    <p class="font-semibold tracking-[0.35em] text-emerald-300">向聴数</p>
+    <p class="font-semibold text-emerald-100"><%= @shanten %></p>
   </div>
-  <div class="space-y-4 rounded-2xl border border-emerald-400/40 bg-slate-900/90 px-4 py-3">
+  <div class="space-y-4 rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
     <div class="flex items-center gap-4">
       <div class="flex w-full items-center justify-between">
-        <p class="text-2xl font-semibold tracking-[0.35em] text-emerald-300">有効牌</p>
-        <p class="text-xl font-semibold text-emerald-100"><%= @outs_kind %>種<%= @outs.count %>枚</p>
+        <p class="font-semibold tracking-[0.35em] text-emerald-300">有効牌</p>
+        <p class="font-semibold text-emerald-100"><%= @outs_kind %>種<%= @outs.count %>枚</p>
       </div>
     </div>
     <% grouped_outs = Array(@outs).group_by(&:code) %>
@@ -15,8 +15,8 @@
       <div class="flex flex-wrap justify-center gap-2">
         <% grouped_outs.each_value do |tiles| %>
           <% tile = tiles.first %>
-          <div class="flex items-center gap-1 rounded-xl border border-emerald-400/40 bg-emerald-900/40 px-2 py-1">
-            <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: 'w-10') %>
+          <div class="flex items-center gap-1 rounded-lg border border-emerald-400/40 bg-emerald-900/40 px-2 py-1">
+            <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: 'w-7') %>
             <span class="text-lg text-emerald-100">×<%= tiles.count %></span>
           </div>
         <% end %>
