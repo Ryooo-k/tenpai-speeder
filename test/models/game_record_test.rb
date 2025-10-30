@@ -29,7 +29,7 @@ class GameRecordTest < ActiveSupport::TestCase
 
   test '.ordered orders by honba_id asc' do
     @player.game_records.delete_all
-    game = games(:training)
+    game = games(:tonnan)
     ton_1 = game.rounds.create!(number: 0)
     ton_1_honba_0 = ton_1.honbas.create!(number: 0)
     ton_1_honba_1 = ton_1.honbas.create!(number: 1)

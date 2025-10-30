@@ -1,23 +1,23 @@
 result_1:
-  game: tonpuu
+  game: tonnan
   player: ai_3
   score: 40_000
   rank: 1
 
 result_2:
-  game: tonpuu
+  game: tonnan
   player: ryo
   score: 30_000
   rank: 2
 
 result_3:
-  game: tonpuu
+  game: tonnan
   player: ai_2
   score: 20_000
   rank: 3
 
 result_4:
-  game: tonpuu
+  game: tonnan
   player: ai_1
   score: 10_000
   rank: 4

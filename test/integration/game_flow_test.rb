@@ -7,7 +7,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
   def setup
     post '/guest_login'
-    post games_path, params: { game_mode_id: game_modes(:tonpuu_mode).id }
+    post games_path, params: { game_mode_id: game_modes(:match).id }
     @game = find_game_from_url
     create_random_hands
     follow_redirect!

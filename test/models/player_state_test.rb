@@ -65,7 +65,7 @@ class PlayerStateTest < ActiveSupport::TestCase
   end
 
   test '.for_honba' do
-    game = games(:tonpuu)
+    game = games(:tonnan)
     honba_1 = game.latest_round.honbas.create!(number: 1)
     honba_2 = game.latest_round.honbas.create!(number: 2)
 

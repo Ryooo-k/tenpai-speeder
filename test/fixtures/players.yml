@@ -1,23 +1,23 @@
 ryo:
   user: ryo
   ai:
-  game: tonpuu
+  game: tonnan
   seat_order: 0
 
 ai_1:
   user:
   ai: v0.1
-  game: tonpuu
+  game: tonnan
   seat_order: 1
 
 ai_2:
   user:
   ai: v0.1
-  game: tonpuu
+  game: tonnan
   seat_order: 2
 
 ai_3:
   user:
   ai: v0.1
-  game: tonpuu
+  game: tonnan
   seat_order: 3

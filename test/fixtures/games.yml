@@ -1,8 +1,2 @@
-training:
-  game_mode: training_mode
-
-tonpuu:
-  game_mode: tonpuu_mode
-
 tonnan:
-  game_mode: tonnan_mode
+  game_mode: match

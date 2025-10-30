@@ -241,7 +241,7 @@ class Game < ApplicationRecord
     end
 
     def aka_dora_tile?(code, kind)
-      game_mode.aka_dora? && AKA_DORA_TILE_CODES.include?(code) && kind.zero?
+      AKA_DORA_TILE_CODES.include?(code) && kind.zero?
     end
 
     def current_step
