@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_02_205059) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_30_214911) do
   create_table "ais", force: :cascade do |t|
     t.string "name", null: false
     t.string "version", null: false
@@ -42,8 +42,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_02_205059) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "description", null: false
-    t.integer "round_type", null: false
-    t.boolean "aka_dora", default: true, null: false
+    t.integer "round_count", null: false
     t.integer "mode_type", null: false
   end
 
