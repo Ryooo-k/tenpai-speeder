@@ -6,7 +6,7 @@ class GameTest < ActiveSupport::TestCase
   include GameTestHelper
 
   def setup
-    @game = games(:tonpuu)
+    @game = games(:tonnan)
     @user = users(:ryo)
     @ai = ais('v0.1')
   end
@@ -42,7 +42,7 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test 'is valid with game_mode' do
-    game_mode = game_modes(:tonpuu_mode)
+    game_mode = game_modes(:match)
     game = Game.new(game_mode:)
     assert game.valid?
   end
@@ -61,7 +61,7 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test 'creates first round and 136 tiles when after_create calls create_tiles_and_round' do
-    game = Game.new(game_mode: game_modes(:tonpuu_mode))
+    game = Game.new(game_mode: game_modes(:match))
     assert_equal 0, game.rounds.count
     assert_equal 0, game.tiles.count
 
@@ -80,7 +80,7 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#setup_players creates 4 players and game_record' do
-    game = Game.new(game_mode: game_modes(:tonpuu_mode))
+    game = Game.new(game_mode: game_modes(:match))
     assert_equal 0, game.players.count
 
     game.save
@@ -98,13 +98,29 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test 'create aka_dora tiles with correct aka flag' do
-    game = Game.new(game_mode: game_modes(:tonpuu_mode))
+    game = Game.new(game_mode: game_modes(:match))
     game.save
 
     game.tiles.each do |tile|
       aka_dora_flag = Game::AKA_DORA_TILE_CODES.include?(tile.code) && tile.kind.zero?
       assert_equal aka_dora_flag, tile.aka?
     end
+  end
+
+  test '#apply_game_mode assign 25_000 score and first round when game mode is not final_found' do
+    game = Game.new(game_mode: game_modes(:match))
+    game.save
+    game.apply_game_mode
+    assert_equal '東一局', game.latest_round.name
+    assert game.players.all? { |player| player.score == 25_000 }
+  end
+
+  test '#apply_game_mode assign random score and final round when game mode is final_found' do
+    game = Game.new(game_mode: game_modes(:final_round))
+    game.save
+    game.apply_game_mode
+    assert_equal '南四局', game.latest_round.name
+    assert game.players.all? { |player| player.score != 25_000 }
   end
 
   test '#deal_initial_hands creates 13 hands for each player' do

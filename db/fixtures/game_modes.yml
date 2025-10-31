@@ -1,23 +1,11 @@
-training:
-  name: トレーニング
-  description: 牌効率が表示される１局勝負の練習モードです。
-  round_type: 0 # 1局戦
-  mode_type: 0 # training
-  aka_dora: true
-  created_at: "2025-01-01 00:00:00"
-
-tonpuu:
-  name: 赤あり東風戦
-  description: 赤ドラあり東風戦の実践モードです。
-  round_type: 1 # 東風戦
-  mode_type: 1 # match
-  aka_dora: true
-  created_at: "2025-01-02 00:00:00"
+final_round:
+  name: 着順UP練習
+  description: オーラス、ランダムなスコアで着順UPの練習ができるモードです。
+  round_count: 0
+  mode_type: 0
 
 tonnan:
-  name: 赤あり東南戦
-  description: 赤ドラあり東南戦の実践モードです。
-  round_type: 2 # 東南戦
-  mode_type: 1 # match
-  aka_dora: true
-  created_at: "2025-01-03 00:00:00"
+  name: 実践
+  description: 赤あり東南戦の実践モードです。
+  round_count: 7
+  mode_type: 1

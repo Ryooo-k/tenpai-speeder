@@ -14,7 +14,7 @@ class RoundTest < ActiveSupport::TestCase
   end
 
   test 'is valid with game' do
-    round = Round.new(game: games(:tonpuu))
+    round = Round.new(game: games(:tonnan))
     assert round.valid?
   end
 
@@ -24,12 +24,12 @@ class RoundTest < ActiveSupport::TestCase
   end
 
   test 'number default to 0' do
-    round = Round.new(game: games(:tonpuu))
+    round = Round.new(game: games(:tonnan))
     assert_equal 0, round.number
   end
 
   test 'create first honba when after_create calls create_step' do
-    round = Round.new(game: games(:tonpuu))
+    round = Round.new(game: games(:tonnan))
     assert_equal 0, round.honbas.count
     round.save
     assert_equal 1, round.honbas.count

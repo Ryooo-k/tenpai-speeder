@@ -4,7 +4,7 @@ require 'test_helper'
 
 class StateEncoderTest < ActiveSupport::TestCase
   def setup
-    @game = games(:tonpuu)
+    @game = games(:tonnan)
     @game.deal_initial_hands
   end
 

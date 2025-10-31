@@ -15,6 +15,8 @@ class Game < ApplicationRecord
     3 => 1000,
     4 => 0
   }.freeze
+  FINAL_ROUND_NUMBER = 7
+
 
   belongs_to :game_mode
 
@@ -38,6 +40,13 @@ class Game < ApplicationRecord
         players.create!(ai: player, seat_order:)
       end
       new_player.game_records.create!(honba: latest_honba)
+    end
+  end
+
+  def apply_game_mode
+    if game_mode.mode_type == 'final_round'
+      assign_random_scores!
+      latest_round.update!(number: FINAL_ROUND_NUMBER)
     end
   end
 
@@ -241,7 +250,26 @@ class Game < ApplicationRecord
     end
 
     def aka_dora_tile?(code, kind)
-      game_mode.aka_dora? && AKA_DORA_TILE_CODES.include?(code) && kind.zero?
+      AKA_DORA_TILE_CODES.include?(code) && kind.zero?
+    end
+
+    def assign_random_scores!
+      # 5000点〜45000点の間でスコアを割り振る
+      # 合計スコアが100000点となる
+      pair_score = 50_000
+      min = 50
+      max = 450
+
+      random_scores = 2.times.map do |_|
+                        random_score_1 = rand(min..max) * 100
+                        random_score_2 = pair_score - random_score_1
+                        [ random_score_1, random_score_2 ]
+                      end.flatten.shuffle
+
+      players.each_with_index do |player, index|
+        random_score = random_scores[index]
+        player.game_records.last.update!(score: random_score)
+      end
     end
 
     def current_step

@@ -1,20 +1,11 @@
-training_mode:
-  name: トレーニング
-  description: 牌効率が表示される１局勝負の練習モードです。
-  round_type: 0 # 1局戦
-  mode_type: 0 # training
-  aka_dora: true
+final_round:
+  name: 着順UP練習
+  description: オーラス、ランダムなスコアで着順UPの練習ができるモードです。
+  round_count: 0
+  mode_type: 0
 
-tonpuu_mode:
-  name: 東風戦
-  description: 東風戦の実践モードです。
-  round_type: 1 # 東風戦
-  mode_type: 1 # match
-  aka_dora: true
-
-tonnan_mode:
-  name: 東南戦
-  description: 東南戦の実践モードです。
-  round_type: 2 # 東南戦
-  mode_type: 1 # match
-  aka_dora: true
+match:
+  name: 実践
+  description: 赤あり東南戦の実践モードです。
+  round_count: 7
+  mode_type: 1

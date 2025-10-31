@@ -9,7 +9,7 @@ class PlayerTest < ActiveSupport::TestCase
     @user_player = players(:ryo)
     @ai_player = players(:ai_1)
     @user = users(:ryo)
-    @game = games(:tonpuu)
+    @game = games(:tonnan)
     @manzu_1 = tiles(:first_manzu_1)
     @manzu_2 = tiles(:first_manzu_2)
     @manzu_3 = tiles(:first_manzu_3)
@@ -72,15 +72,12 @@ class PlayerTest < ActiveSupport::TestCase
     assert_includes player.errors[:base], 'UserとAIの両方を同時に指定することはできません'
   end
 
-  test '.ordered orders by seat_order' do
-    game = games(:training)
-    ai = ais('v0.1')
-    game.players.delete_all
-    player_4 = game.players.create!(user: @user, seat_order: 3)
-    player_3 = game.players.create!(ai:, seat_order: 2)
-    player_2 = game.players.create!(ai:, seat_order: 1)
-    player_1 = game.players.create!(ai:, seat_order: 0)
-    assert_equal [ player_1, player_2, player_3, player_4 ], game.players.ordered.to_a
+  test '.ordered sort by seat_order' do
+    player_1 = @game.players.find_by(seat_order: 0)
+    player_2 = @game.players.find_by(seat_order: 1)
+    player_3 = @game.players.find_by(seat_order: 2)
+    player_4 = @game.players.find_by(seat_order: 3)
+    assert_equal [ player_1, player_2, player_3, player_4 ], @game.players.ordered.to_a
   end
 
   test '#hands returns sorted hands from latest state with hands' do
