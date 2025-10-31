@@ -16,7 +16,7 @@ class Game < ApplicationRecord
     4 => 0
   }.freeze
   FINAL_ROUND_NUMBER = 7
-  
+
 
   belongs_to :game_mode
 
@@ -35,10 +35,10 @@ class Game < ApplicationRecord
 
     all_players.each_with_index do |player, seat_order|
       new_player = if user.id == player.id
-                    players.create!(user: player, seat_order:)
-                  else
-                    players.create!(ai: player, seat_order:)
-                  end
+        players.create!(user: player, seat_order:)
+      else
+        players.create!(ai: player, seat_order:)
+      end
       new_player.game_records.create!(honba: latest_honba)
     end
   end
