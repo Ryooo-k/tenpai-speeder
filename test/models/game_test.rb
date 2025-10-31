@@ -107,6 +107,22 @@ class GameTest < ActiveSupport::TestCase
     end
   end
 
+  test '#apply_game_mode assign 25_000 score and first round when game mode is not final_found' do
+    game = Game.new(game_mode: game_modes(:match))
+    game.save
+    game.apply_game_mode
+    assert_equal '東一局', game.latest_round.name
+    assert game.players.all? { |player| player.score == 25_000 }
+  end
+
+  test '#apply_game_mode assign random score and final round when game mode is final_found' do
+    game = Game.new(game_mode: game_modes(:final_round))
+    game.save
+    game.apply_game_mode
+    assert_equal '南四局', game.latest_round.name
+    assert game.players.all? { |player| player.score != 25_000 }
+  end
+
   test '#deal_initial_hands creates 13 hands for each player' do
     @game.players.each do |player|
       assert_equal 0, player.hands.count

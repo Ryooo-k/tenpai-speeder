@@ -9,6 +9,7 @@ class GamesController < ApplicationController
 
     if game.save
       game.setup_players(current_user, ai)
+      game.apply_game_mode
       game.deal_initial_hands
       flash[:event] = :draw
       redirect_to game_play_path(game)
