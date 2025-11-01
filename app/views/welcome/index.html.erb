@@ -1,25 +1,58 @@
-<div class="container mx-auto px-4 py-10 bg-sky-100">
-  <h1 class="text-3xl font-bold text-gray-800 mb-4">
-    牌効率を上げたい人向けのサービスです
-  </h1>
+<div class='relative min-h-screen overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-800 to-emerald-600 text-white'>
+  <div class='pointer-events-none absolute inset-0'>
+    <div class='absolute -top-36 -left-32 h-80 w-80 rounded-full bg-emerald-400/30 blur-3xl'></div>
+    <div class='absolute bottom-0 right-0 h-96 w-96 rounded-full bg-lime-300/20 blur-3xl'></div>
+    <div class='absolute top-1/4 right-1/3 h-48 w-48 rotate-12 rounded-3xl border border-white/10 bg-white/5 blur-xl'></div>
+  </div>
 
-  <p class="text-gray-700 mb-6">
-    このサービスは、麻雀の手牌効率を視覚的に学べるツールです。
-  </p>
+  <div class='relative mx-auto max-w-5xl px-6 py-10'>
+    <header class='mx-auto max-w-3xl text-center'>
+      <h1 class='mt-3 text-3xl font-black tracking-tight sm:text-4xl'>
+        <span class='block text-lime-200'>Tenpai Speeder</span>
+      </h1>
+      <div class='mt-6 text-sm leading-relaxed text-emerald-100/90'>
+        <p>牌効率を視覚的に学べるトレーニング環境を用意しました。</p>
+        <p>登録なしでもすぐにプレイでき、実戦に近いテンポで判断力を磨けます。</p>
+      </div>
+    </header>
 
-  <ul class="text-gray-700 mb-6 list-disc list-inside space-y-1">
-    <li>登録不要ですぐに練習が可能です</li>
-    <li>牌効率を自動判定</li>
-    <li>打牌ミスを視覚的に学習</li>
-  </ul>
+    <div class='mt-8 grid gap-6 lg:grid-cols-[1.2fr,0.8fr]'>
+      <section class='rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur'>
+        <div class='font-semibold tracking-[0.3em] text-emerald-200'>Why Tenpai Speeder</div>
+        <div class='mt-6 grid gap-4 sm:grid-cols-2'>
+          <div class='rounded-2xl border border-white/10 bg-white/10 p-5 text-left shadow-lg'>
+            <p class='text-lg font-semibold text-white'>登録不要ですぐ開始</p>
+            <p class='mt-2 text-sm text-emerald-100/80'>ゲストログインで利用が可能です。セットアップなしでテンポ良く練習できます。</p>
+          </div>
+          <div class='rounded-2xl border border-white/10 bg-white/10 p-5 text-left shadow-lg'>
+            <p class='text-lg font-semibold text-white'>牌効率を自動判定</p>
+            <p class='mt-2 text-sm text-emerald-100/80'>有効牌や向聴数の変化をリアルタイムに可視化します。</p>
+          </div>
+          <div class='rounded-2xl border border-white/10 bg-white/10 p-5 text-left shadow-lg'>
+            <p class='text-lg font-semibold text-white'>巻き戻し機能</p>
+            <p class='mt-2 text-sm text-emerald-100/80'>ミスした局面まで戻り、やり直すことが可能です。</p>
+          </div>
+          <div class='rounded-2xl border border-white/10 bg-white/10 p-5 text-left shadow-lg'>
+            <p class='text-lg font-semibold text-white'>ゲームモード</p>
+            <p class='mt-2 text-sm text-emerald-100/80'>トレーニングしたい能力に応じてモードを選択しましょう。</p>
+          </div>
+        </div>
+      </section>
 
-  <div class="space-y-3">
-    <% login_path = Rails.env.development? ? '/auth/developer' : '/auth/twitter' %>
-    <%= button_to '登録せずに利用開始', '/guest_login',
-      method: :post, data: { turbo: false },
-      class: 'w-full flex justify-center items-center bg-gray-500 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700' %>
-    <%= button_to 'X（旧Twitter）でログイン', login_path,
-      method: :post, data: { turbo: false },
-      class: 'w-full flex justify-center items-center bg-blue-400 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600' %>
+      <aside class='flex flex-col rounded-3xl border border-white/10 bg-white/10 p-4 text-center shadow-2xl backdrop-blur'>
+        <h2 class='mt-3 text-xl font-bold text-white'>今すぐ開始する</h2>
+        <p class='mt-3 text-sm text-emerald-100/80'>
+          ログイン方法を選択してゲームを始めましょう。
+        </p>
+        <div class='mt-6 space-y-4'>
+          <%= button_to '登録せずに利用開始', '/guest_login',
+            method: :post, data: { turbo: false },
+            class: 'w-full rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-300 py-3 text-sm font-semibold text-emerald-950 shadow-lg transition hover:-translate-y-1 hover:text-emerald-900 hover:shadow-xl' %>
+          <%= button_to 'X（旧Twitter）でログイン', @login_path,
+            method: :post, data: { turbo: false },
+            class: 'w-full rounded-2xl bg-white/10 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:bg-white/15 hover:shadow-xl' %>
+        </div>
+      </aside>
+    </div>
   </div>
 </div>
