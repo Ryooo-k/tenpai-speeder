@@ -1,11 +1,13 @@
 <% flash.to_h.slice('notice', 'alert').each do |type, message| %>
-  <% color =
+  <% classes =
     case type
-    when 'notice' then 'bg-emerald-100 text-emerald-800'
-    when 'alert'  then 'bg-red-100 text-red-800'
+    when 'notice' then 'bg-white/15 text-emerald-50 ring-emerald-300/40'
+    when 'alert'  then 'bg-red-500/20 text-red-50 ring-red-300/40'
     end %>
 
-  <div class="mx-auto max-w-xl my-4 rounded p-3 <%= color %>">
-    <%= message %>
+  <div data-controller="flash" class="pointer-events-none fixed inset-x-0 top-5 z-99 flex justify-center px-4 transition-all duration-400">
+    <div class="pointer-events-auto w-full max-w-md rounded-2xl border border-white/10 px-5 py-2 text-sm font-semibold shadow-xl backdrop-blur ring-1 <%= classes %>">
+      <%= message %>
+    </div>
   </div>
 <% end %>
