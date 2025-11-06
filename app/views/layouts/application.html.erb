@@ -24,8 +24,14 @@
 
   <body>
     <%= render 'application/flash' %>
-    <main>
+    <main class="flex-1">
       <%= yield %>
     </main>
+    <footer class="bg-slate-950/90 py-5 text-xs text-center text-white">
+      <div class="flex justify-center gap-10">
+        <%= link_to '利用規約', terms_path %>
+        <%= link_to 'プライバシーポリシー', privacy_path %>
+      </div>
+    </footer>
   </body>
 </html>

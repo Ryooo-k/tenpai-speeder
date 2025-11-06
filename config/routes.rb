@@ -6,6 +6,8 @@ Rails.application.routes.draw do
   post "/guest_login", to: "sessions#guest"
   root "welcome#index"
   get "/home", to: "home#index", as: :home
+  get "/terms", to: "terms#show", as: :terms
+  get "/privacy", to: "privacy#show", as: :privacy
 
   resources :games, only: :create do
     scope module: :games do
