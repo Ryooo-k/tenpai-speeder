@@ -1,0 +1,32 @@
+<% if @favorites.any? %>
+  <div class='space-y-4'>
+    <% @favorites.each do |favorite| %>
+      <% game = favorite.game %>
+      <section class='flex flex-col gap-4 rounded-3xl border border-white/15 bg-white/10 p-5 shadow-lg shadow-emerald-900/30 backdrop-blur sm:flex-row sm:items-center sm:justify-between'>
+        <div>
+          <p class='text-xs text-emerald-200'>Game Mode</p>
+          <p class='text-xl font-semibold text-white'><%= game.game_mode.name %></p>
+          <p class='mt-2 text-xs text-emerald-100/80'>
+            追加日: <%= l(favorite.created_at, format: '%Y/%-m/%d %H:%M') %>
+          </p>
+        </div>
+        <div class='flex flex-wrap gap-3'>
+          <%= link_to 'プレイ画面へ',
+                      game_play_path(game),
+                      target: "_top",
+                      class: 'inline-flex items-center rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-300 px-4 py-2 text-sm font-semibold text-emerald-900/80 shadow-lg transition hover:text-emerald-950' %>
+          <%= button_to 'お気に入り解除',
+                        favorite_path(game, context: 'index'),
+                        method: :delete,
+                        class: 'inline-flex items-center rounded-2xl border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/50',
+                        data: { turbo_confirm: '削除してもよろしいですか？' } %>
+        </div>
+      </section>
+    <% end %>
+  </div>
+<% else %>
+  <div class='rounded-3xl border border-dashed border-white/20 bg-white/5 p-8 text-center'>
+    <p class='text-lg font-semibold text-white'>お気に入りはまだありません</p>
+    <p class='mt-2 text-sm text-emerald-100/80'>ゲームプレイ画面から「お気に入りに追加」を押すと登録できます。</p>
+  </div>
+<% end %>
