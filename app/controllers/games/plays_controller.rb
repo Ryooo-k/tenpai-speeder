@@ -65,6 +65,7 @@ class Games::PlaysController < ApplicationController
       @shanten = @game.user_player.shanten
       @outs = @game.user_player.outs[:normal]
       @outs_kind = @outs.map(&:code).tally.keys.count
+      @favorite = current_user&.favorites&.find_by(game: @game)
     end
 
     def game_flow_params
