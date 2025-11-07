@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   get "/terms", to: "terms#show", as: :terms
   get "/privacy", to: "privacy#show", as: :privacy
 
+  resources :favorites, param: :game_id, only: [:index, :create, :destroy]
+
   resources :games, only: :create do
     scope module: :games do
       get  'play', to: 'plays#show',    as: :play

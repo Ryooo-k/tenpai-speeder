@@ -3,10 +3,6 @@
 require 'application_system_test_case'
 
 class LoginTest < ApplicationSystemTestCase
-  teardown do
-    OmniAuth.config.mock_auth[:twitter] = nil
-  end
-
   test 'guest login' do
     visit root_path
     click_button '登録せずに利用開始'
