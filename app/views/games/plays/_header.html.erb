@@ -1,17 +1,23 @@
 <% mode = @game.game_mode %>
 
 <header class="rounded-3xl border border-slate-800 bg-slate-900/70 p-5 shadow-xl shadow-emerald-500/10">
-  <div class="space-y-0.5">
-    <p class="font-semibold text-emerald-300">ROUND</p>
-    <div class="flex flex-wrap items-baseline gap-3">
-      <span class="text-xl font-semibold"><%= @game.current_round_name %></span>
-      <span class="text-lg font-medium tracking-wide text-slate-400"><%= @game.current_honba_name %></span>
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div class="space-y-0.5">
+      <p class="font-semibold text-emerald-300">ROUND</p>
+      <div class="flex flex-wrap items-baseline gap-3">
+        <span class="text-xl font-semibold"><%= @game.current_round_name %></span>
+        <span class="text-lg font-medium tracking-wide text-slate-400"><%= @game.current_honba_name %></span>
+      </div>
+      <p class="text-xs text-slate-400">
+        <span class="font-semibold"><%= mode&.name || "Game Mode" %></span>
+        <% if mode&.description.present? %>
+          ： <%= mode.description %>
+        <% end %>
+      </p>
     </div>
-    <p class="text-xs text-slate-400">
-      <span class="font-semibold"><%= mode&.name || "Game Mode" %></span>
-      <% if mode&.description.present? %>
-        ： <%= mode.description %>
-      <% end %>
-    </p>
+
+    <%= turbo_frame_tag dom_id(@game, :favorite_toggle), class: 'self-start lg:self-auto lg:ml-auto' do %>
+      <%= render 'favorites/toggle_button' %>
+    <% end %>
   </div>
 </header>

@@ -1,0 +1,13 @@
+<% if current_user&.provider.present? %>
+  <% if @favorite&.persisted? %>
+    <%= button_to 'お気に入り解除',
+                  favorite_path(@game),
+                  method: :delete,
+                  class: 'inline-flex items-center gap-2 rounded-full border border-emerald-400/50 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-500/20' %>
+  <% else %>
+    <%= button_to 'お気に入りに追加',
+                  favorites_path,
+                  params: { game_id: @game.id },
+                  class: 'inline-flex items-center gap-2 rounded-full border border-emerald-400/60 bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400' %>
+  <% end %>
+<% end %>
