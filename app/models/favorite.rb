@@ -6,4 +6,13 @@ class Favorite < ApplicationRecord
 
   validates :user, presence: true
   validates :game, presence: true
+
+  validate :user_must_be_oauth
+
+  private
+
+    def user_must_be_oauth
+      return if user&.provider.present?
+      errors.add(:base, 'お気に入り機能を使うにはSNSログインが必要です')
+    end
 end
