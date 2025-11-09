@@ -13,18 +13,19 @@ class GameFlow
     event = params[:event].to_sym
 
     case event
-    when :draw     then draw
-    when :choose   then choose
-    when :discard  then discard(params)
-    when :riichi   then riichi
-    when :furo     then furo(params)
-    when :ron      then ron(params)
-    when :tsumo    then tsumo
-    when :through  then through
-    when :pass     then pass
-    when :ryukyoku then ryukyoku
-    when :agari    then agari
-    when :undo     then undo
+    when :draw      then draw
+    when :tsumogiri then tsumogiri
+    when :choose    then choose
+    when :discard   then discard(params)
+    when :riichi    then riichi
+    when :furo      then furo(params)
+    when :ron       then ron(params)
+    when :tsumo     then tsumo
+    when :through   then through
+    when :pass      then pass
+    when :ryukyoku  then ryukyoku
+    when :agari     then agari
+    when :undo      then undo
     else
       raise UnknownEvent, "不明なイベント名です：#{event}"
     end
@@ -44,15 +45,23 @@ class GameFlow
       @game.draw_for_current_player
 
       if @current_player.can_tsumo?
-        @payloads[:next_event] = :tsumo
+        next_event = 'tsumo'
       elsif @current_player.riichi?
-        @payloads[:chosen_hand_id] = @current_player.hands.find_by(drawn: true).id
-        @payloads[:next_event] = :discard
+        next_event = 'tsumogiri'
       elsif @current_player.can_riichi?
-        @payloads[:next_event] = :riichi
+        next_event = 'riichi'
       else
-        @payloads[:next_event] = :choose
+        next_event = 'choose'
       end
+
+      @game.current_step.update!(next_event:)
+      @payloads[:next_event] = next_event
+    end
+
+    def tsumogiri
+      drawn_hand = @current_player.hands.find_by(drawn: true)
+      @payloads[:chosen_hand_id] = drawn_hand.id
+      @payloads[:next_event] = :discard
     end
 
     def choose

@@ -121,6 +121,10 @@ class Game < ApplicationRecord
     latest_honba.name
   end
 
+  def current_step
+    latest_honba.find_current_step(current_step_number)
+  end
+
   def remaining_tile_count
     latest_honba.remaining_tile_count
   end
@@ -230,6 +234,10 @@ class Game < ApplicationRecord
     host.point.positive?
   end
 
+  def undo
+    update!(current_step_number: current_step_number - 1)
+  end
+
   private
 
     def create_tiles_and_round
@@ -270,10 +278,6 @@ class Game < ApplicationRecord
         random_score = random_scores[index]
         player.game_records.last.update!(score: random_score)
       end
-    end
-
-    def current_step
-      latest_honba.find_current_step(current_step_number)
     end
 
     def top_tile

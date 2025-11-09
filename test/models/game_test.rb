@@ -267,6 +267,14 @@ class GameTest < ActiveSupport::TestCase
     assert_equal '四本場', @game.current_honba_name
   end
 
+  test '#current_step' do
+    target_number = 2
+    @game.update!(current_step_number: target_number)
+    expected_step = @game.latest_honba.steps.find_by!(number: target_number)
+
+    assert_equal expected_step, @game.current_step
+  end
+
   test '#remaining_tile_count' do
     @game.latest_honba.update!(draw_count: 0)
     @game.latest_honba.update!(kan_count: 0)

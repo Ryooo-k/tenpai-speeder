@@ -12,6 +12,7 @@ module GamesHelper
     ron
     ryukyoku
     tsumo
+    tsumogiri
   ].freeze
 
   def build_hand_position_class(player)
