@@ -5,6 +5,7 @@ class GameFlow
 
   def initialize(game)
     @game = game
+    @current_player = @game.current_player
     @payloads = {}
   end
 
@@ -23,6 +24,7 @@ class GameFlow
     when :pass     then pass
     when :ryukyoku then ryukyoku
     when :agari    then agari
+    when :undo     then undo
     else
       raise UnknownEvent, "不明なイベント名です：#{event}"
     end
@@ -41,12 +43,12 @@ class GameFlow
 
       @game.draw_for_current_player
 
-      if @game.current_player.can_tsumo?
+      if @current_player.can_tsumo?
         @payloads[:event] = :tsumo
-      elsif @game.current_player.riichi?
-        @payloads[:chosen_hand_id] = @game.current_player.hands.find_by(drawn: true).id
+      elsif @current_player.riichi?
+        @payloads[:chosen_hand_id] = @current_player.hands.find_by(drawn: true).id
         @payloads[:event] = :discard
-      elsif @game.current_player.can_riichi?
+      elsif @current_player.can_riichi?
         @payloads[:event] = :riichi
       else
         @payloads[:event] = :choose
@@ -54,7 +56,7 @@ class GameFlow
     end
 
     def choose
-      chosen_hand = @game.current_player.choose
+      chosen_hand = @current_player.choose
       @payloads[:chosen_hand_id] = chosen_hand.id
       @payloads[:event] = :discard
     end
@@ -72,7 +74,7 @@ class GameFlow
       end
 
       # 現状aiは副露を学習していないため、userが打牌した際、aiの副露はせずdrawアクションに移行する。
-      is_user_furo = @game.user_player.can_furo?(discarded_tile, @game.current_player)
+      is_user_furo = @game.user_player.can_furo?(discarded_tile, @current_player)
       if is_user_furo
         @payloads[:discarded_tile_id] = discarded_tile.id
         @payloads[:event] = :furo
@@ -92,7 +94,7 @@ class GameFlow
     end
 
     def riichi
-      @game.current_player.current_state.update!(riichi: true)
+      @current_player.current_state.update!(riichi: true)
       @payloads[:event] = :riichi_choose
     end
 
@@ -142,5 +144,9 @@ class GameFlow
 
       @game.deal_initial_hands
       @payloads[:event] = :draw
+    end
+
+    def undo
+      @game.undo
     end
 end
