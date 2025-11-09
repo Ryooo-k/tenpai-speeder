@@ -42,7 +42,8 @@ class Games::PlaysController < ApplicationController
 
     def set_instance_variable
       flash.each do |key, value|
-        instance_variable_set("@#{key}", value)
+        name = key == 'next_event' ? 'event' : key
+        instance_variable_set("@#{name}", value)
       end
 
       if @event == 'riichi_choose'
