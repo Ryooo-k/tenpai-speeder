@@ -80,7 +80,7 @@ class Games::PlaysController < ApplicationController
       @favorite = current_user&.favorites&.find_by(game: @game)
       @can_undo = @game.can_undo?
       @can_redo = @game.can_redo?
-      @can_playback = @event == 'stop'
+      @can_playback = @event == 'stop' || @event.blank?
     end
 
     def game_flow_params
