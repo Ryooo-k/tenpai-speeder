@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       post 'play', to: 'plays#command', as: :play_command
       post 'play/undo', to: 'plays#undo', as: :play_undo
       post 'play/redo', to: 'plays#redo', as: :play_redo
+      post 'play/playback', to: 'plays#playback', as: :play_playback
     end
   end
 end

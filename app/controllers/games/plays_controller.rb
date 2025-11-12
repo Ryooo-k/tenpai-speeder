@@ -17,13 +17,26 @@ class Games::PlaysController < ApplicationController
   end
 
   def undo
-    @game.undo_step if @game.can_undo?
-    redirect_to game_play_path(@game)
+    if @game.can_undo?
+      @game.undo_step
+      @game.sync_current_seat
+    end
+
+    redirect_to game_play_path(@game), flash: { next_event: 'stop' }
   end
 
   def redo
-    @game.redo_step if @game.can_redo?
-    redirect_to game_play_path(@game)
+    if @game.can_redo?
+      @game.redo_step
+      @game.sync_current_seat
+    end
+
+    redirect_to game_play_path(@game), flash: { next_event: 'stop' }
+  end
+
+  def playback
+    @game.destroy_future_steps
+    redirect_to game_play_path(@game), flash: { next_event: @game.current_step.next_event }
   end
 
   private
@@ -67,6 +80,7 @@ class Games::PlaysController < ApplicationController
       @favorite = current_user&.favorites&.find_by(game: @game)
       @can_undo = @game.can_undo?
       @can_redo = @game.can_redo?
+      @can_playback = @event == 'stop'
     end
 
     def game_flow_params

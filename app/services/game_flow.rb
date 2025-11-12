@@ -24,6 +24,7 @@ class GameFlow
     when :confirm_furo   then confirm_furo(params)
     when :ryukyoku       then ryukyoku
     when :result         then result(params)
+    when :stop           then return @payloads
     else
       raise UnknownEvent, "不明なイベント名です：#{event}"
     end

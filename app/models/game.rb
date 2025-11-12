@@ -234,6 +234,14 @@ class Game < ApplicationRecord
     host.point.positive?
   end
 
+  def can_undo?
+    current_step_number > 0
+  end
+
+  def can_redo?
+    current_step_number < latest_step_number
+  end
+
   def undo_step
     update!(current_step_number: current_step_number - 1)
   end
@@ -242,12 +250,14 @@ class Game < ApplicationRecord
     update!(current_step_number: current_step_number + 1)
   end
 
-  def can_undo?
-    current_step_number > 0
+  def destroy_future_steps
+    future_steps = latest_honba.steps.where('number > ?', current_step_number)
+    future_steps.destroy_all
   end
 
-  def can_redo?
-    current_step_number < latest_step_number
+  def sync_current_seat
+    target_seat_number = current_step.player_states.first.player.seat_order
+    update!(current_seat_number: target_seat_number)
   end
 
   private

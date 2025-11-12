@@ -53,11 +53,15 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test 'current_seat_number default to 0' do
-    assert_equal 0, @game.current_seat_number
+    game_mode = game_modes(:match)
+    game = Game.new(game_mode:)
+    assert_equal 0, game.current_seat_number
   end
 
   test 'current_step_number default to 0' do
-    assert_equal 0, @game.current_step_number
+    game_mode = game_modes(:match)
+    game = Game.new(game_mode:)
+    assert_equal 0, game.current_step_number
   end
 
   test 'creates first round and 136 tiles when after_create calls create_tiles_and_round' do
@@ -734,7 +738,40 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#can_redo? returns false when already at latest step' do
-    @game.update!(current_step_number: @game.latest_step_number)
+    latest_step_number = @game.latest_honba.steps.maximum(:number)
+    @game.update!(current_step_number: latest_step_number)
     assert_not @game.can_redo?
+  end
+
+  test '#destroy_future_steps removes steps with higher numbers' do
+    honba = @game.latest_honba
+    future_step = honba.steps.create!(number: @game.current_step_number + 1)
+    player = @game.players.first
+    player.player_states.create!(step: future_step)
+
+    assert_difference -> { honba.steps.count }, -1 do
+      @game.destroy_future_steps
+    end
+
+    assert_nil honba.steps.find_by(id: future_step.id)
+  end
+
+  test '#destroy_future_steps leaves steps untouched when no higher numbers exist' do
+    honba = @game.latest_honba
+    before_count = honba.steps.count
+    @game.destroy_future_steps
+    assert_equal before_count, honba.steps.count
+  end
+
+  test '#sync_current_seat updates seat number to match current step player' do
+    current_player = @game.current_player
+    other_player = @game.players.where.not(id: current_player.id).first
+    @game.update!(current_seat_number: other_player.seat_order)
+    current_step = @game.current_step
+    current_step.player_states.destroy_all
+    current_step.player_states.create!(player: current_player)
+
+    @game.sync_current_seat
+    assert_equal current_player.seat_order, @game.current_seat_number
   end
 end
