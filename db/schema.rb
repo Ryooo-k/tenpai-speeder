@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_08_213826) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_08_235900) do
   create_table "ais", force: :cascade do |t|
     t.string "name", null: false
     t.string "version", null: false
@@ -159,6 +159,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_08_213826) do
     t.datetime "updated_at", null: false
     t.integer "honba_id", null: false
     t.string "next_event"
+    t.integer "draw_count", null: false
+    t.integer "kan_count", null: false
+    t.integer "riichi_stick_count", null: false
     t.index ["honba_id"], name: "index_steps_on_honba_id"
   end
 

@@ -26,4 +26,15 @@ class StepTest < ActiveSupport::TestCase
     step = Step.new(honba:)
     assert_equal 0, step.number
   end
+
+  test 'snapshots honba counters on create' do
+    honba = honbas(:honba_0)
+    honba.update!(draw_count: 10, kan_count: 2, riichi_stick_count: 1)
+
+    step = honba.steps.create!(number: honba.steps.maximum(:number).to_i + 1)
+
+    assert_equal 10, step.draw_count
+    assert_equal 2, step.kan_count
+    assert_equal 1, step.riichi_stick_count
+  end
 end
