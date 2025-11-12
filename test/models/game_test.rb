@@ -704,4 +704,37 @@ class GameTest < ActiveSupport::TestCase
     @game.host.add_point(1000)
     assert @game.host_winner?
   end
+
+  test '#undo_step decrements current_step_number' do
+    @game.update!(current_step_number: 3)
+    @game.undo_step
+    assert_equal 2, @game.current_step_number
+  end
+
+  test '#redo_step increments current_step_number' do
+    @game.update!(current_step_number: 1)
+    @game.redo_step
+    assert_equal 2, @game.current_step_number
+  end
+
+  test '#can_undo? returns true when current_step_number > 0' do
+    @game.update!(current_step_number: 1)
+    assert @game.can_undo?
+  end
+
+  test '#can_undo? returns false when current_step_number == 0' do
+    @game.update!(current_step_number: 0)
+    assert_not @game.can_undo?
+  end
+
+  test '#can_redo? returns true when there are steps ahead' do
+    @game.update!(current_step_number: 0)
+    @game.latest_honba.steps.create!(number: 1)
+    assert @game.can_redo?
+  end
+
+  test '#can_redo? returns false when already at latest step' do
+    @game.update!(current_step_number: @game.latest_step_number)
+    assert_not @game.can_redo?
+  end
 end

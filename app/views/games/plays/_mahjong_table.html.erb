@@ -10,13 +10,33 @@
       </div>
     </div>
 
-    <div class="flex justify-center">
-      <%= form_with url: game_play_command_path(@game),
+    <div class="flex justify-center gap-3">
+      <% undo_button_classes = [
+        "rounded-full border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm font-semibold text-slate-100 shadow-sm shadow-emerald-500/20",
+        ("transition hover:border-emerald-400 hover:text-emerald-200 hover:shadow-emerald-400/30" if @can_undo),
+        ("opacity-50 cursor-not-allowed" unless @can_undo)
+        ].compact.join(" ") %>
+
+      <% redo_button_classes = [
+        "rounded-full border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm font-semibold text-slate-100 shadow-sm shadow-emerald-500/20",
+        ("transition hover:border-emerald-400 hover:text-emerald-200 hover:shadow-emerald-400/30" if @can_redo),
+        ("opacity-50 cursor-not-allowed" unless @can_redo)
+        ].compact.join(" ") %>
+
+      <%= form_with url: game_play_undo_path(@game),
                     class: "inline-block",
                     data: { testid: "undo" } do |form| %>
-        <%= form.hidden_field :event, value: :undo %>
         <%= form.button "戻る",
-                        class: "rounded-full border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm font-semibold text-slate-100 shadow-sm shadow-emerald-500/20 transition hover:border-emerald-400 hover:text-emerald-200 hover:shadow-emerald-400/30" %>
+                        class: undo_button_classes,
+                        disabled: !@can_undo %>
+      <% end %>
+
+      <%= form_with url: game_play_redo_path(@game),
+                    class: "inline-block",
+                    data: { testid: "redo" } do |form| %>
+        <%= form.button "進む",
+                        class: redo_button_classes,
+                        disabled: !@can_redo %>
       <% end %>
     </div>
   </div>

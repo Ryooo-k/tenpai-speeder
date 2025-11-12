@@ -234,8 +234,20 @@ class Game < ApplicationRecord
     host.point.positive?
   end
 
-  def undo
+  def undo_step
     update!(current_step_number: current_step_number - 1)
+  end
+
+  def redo_step
+    update!(current_step_number: current_step_number + 1)
+  end
+
+  def can_undo?
+    current_step_number > 0
+  end
+
+  def can_redo?
+    current_step_number < latest_step_number
   end
 
   private
@@ -324,5 +336,9 @@ class Game < ApplicationRecord
 
       bonus_payment = losers.size == 1 ? -honba_bonus * winners.count : -honba_bonus / losers.count
       losers.each { |loser| loser.add_point(bonus_payment) }
+    end
+
+    def latest_step_number
+      latest_honba.steps.maximum(:number)
     end
 end

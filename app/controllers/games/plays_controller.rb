@@ -16,6 +16,16 @@ class Games::PlaysController < ApplicationController
     redirect_to home_path, alert: e.message
   end
 
+  def undo
+    @game.undo_step if @game.can_undo?
+    redirect_to game_play_path(@game)
+  end
+
+  def redo
+    @game.redo_step if @game.can_redo?
+    redirect_to game_play_path(@game)
+  end
+
   private
 
     def set_game
@@ -55,6 +65,8 @@ class Games::PlaysController < ApplicationController
       @outs = @game.user_player.outs[:normal]
       @outs_kind = @outs.map(&:code).tally.keys.count
       @favorite = current_user&.favorites&.find_by(game: @game)
+      @can_undo = @game.can_undo?
+      @can_redo = @game.can_redo?
     end
 
     def game_flow_params
