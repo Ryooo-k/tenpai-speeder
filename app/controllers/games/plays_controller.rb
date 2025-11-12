@@ -20,6 +20,9 @@ class Games::PlaysController < ApplicationController
     if @game.can_undo?
       @game.undo_step
       @game.sync_current_seat
+      @game.sync_draw_count
+      @game.sync_kan_count
+      @game.sync_riichi_count
     end
 
     redirect_to game_play_path(@game), flash: { next_event: 'stop' }
@@ -29,6 +32,9 @@ class Games::PlaysController < ApplicationController
     if @game.can_redo?
       @game.redo_step
       @game.sync_current_seat
+      @game.sync_draw_count
+      @game.sync_kan_count
+      @game.sync_riichi_count
     end
 
     redirect_to game_play_path(@game), flash: { next_event: 'stop' }

@@ -260,6 +260,18 @@ class Game < ApplicationRecord
     update!(current_seat_number: target_seat_number)
   end
 
+  def sync_draw_count
+    latest_honba.update!(draw_count: current_step.draw_count)
+  end
+
+  def sync_kan_count
+    latest_honba.update!(kan_count: current_step.kan_count)
+  end
+
+  def sync_riichi_count
+    latest_honba.update!(riichi_stick_count: current_step.riichi_stick_count)
+  end
+
   private
 
     def create_tiles_and_round

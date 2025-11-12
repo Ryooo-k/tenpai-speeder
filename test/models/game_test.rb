@@ -774,4 +774,31 @@ class GameTest < ActiveSupport::TestCase
     @game.sync_current_seat
     assert_equal current_player.seat_order, @game.current_seat_number
   end
+
+  test '#sync_draw_count copies draw count from current_step' do
+    @game.current_step.update!(draw_count: 7)
+    @game.latest_honba.update!(draw_count: 0)
+
+    @game.sync_draw_count
+
+    assert_equal 7, @game.latest_honba.draw_count
+  end
+
+  test '#sync_kan_count copies kan count from current_step' do
+    @game.current_step.update!(kan_count: 2)
+    @game.latest_honba.update!(kan_count: 0)
+
+    @game.sync_kan_count
+
+    assert_equal 2, @game.latest_honba.kan_count
+  end
+
+  test '#sync_riichi_count copies riichi sticks from current_step' do
+    @game.current_step.update!(riichi_stick_count: 3)
+    @game.latest_honba.update!(riichi_stick_count: 0)
+
+    @game.sync_riichi_count
+
+    assert_equal 3, @game.latest_honba.riichi_stick_count
+  end
 end
