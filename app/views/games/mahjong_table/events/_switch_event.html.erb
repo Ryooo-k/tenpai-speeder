@@ -1,5 +1,4 @@
 <%= form_with url: game_play_command_path(@game),
               data: { controller: "auto-submit" } do |form| %>
-  <%= form.hidden_field :event, value: "discard" %>
-  <%= form.hidden_field :chosen_hand_id, value: @chosen_hand_id %>
+  <%= form.hidden_field :event, value: "switch_event" %>
 <% end %>

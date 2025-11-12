@@ -2,17 +2,18 @@
 
 module GamesHelper
   EVENT_PARTIALS = %w[
-    agari
+    draw
+    confirm_tsumo
+    tsumogiri
+    confirm_riichi
+    choose_riichi
     choose
     discard
-    draw
-    furo
-    riichi
-    riichi_choose
-    ron
+    switch_event
+    confirm_ron
+    confirm_furo
     ryukyoku
-    tsumo
-    tsumogiri
+    result
   ].freeze
 
   def build_hand_position_class(player)
@@ -59,7 +60,7 @@ module GamesHelper
 
     case event&.to_sym
     when :choose        then 'games/mahjong_table/player/hand_form'
-    when :riichi_choose then 'games/mahjong_table/player/riichi_form'
+    when :choose_riichi then 'games/mahjong_table/player/riichi_form'
     else                     'games/mahjong_table/player/hand_plain'
     end
   end
@@ -78,7 +79,7 @@ module GamesHelper
   end
 
   def discard_form_needed?(event, player)
-    player.user? && event.in?([ 'choose', 'riichi_choose' ])
+    player.user? && event.in?([ 'choose', 'choose_riichi' ])
   end
 
   def build_hand_row_classes(player, needs_form)

@@ -95,14 +95,14 @@ class Game < ApplicationRecord
   end
 
   def draw_for_current_player
-    advance_step!
-    current_player.draw(top_tile, current_step)
+    next_step = advance_step!
+    current_player.draw(top_tile, next_step)
     increase_draw_count
   end
 
   def discard_for_current_player(hand_id)
-    advance_step!
-    current_player.discard(hand_id, current_step)
+    next_step = advance_step!
+    current_player.discard(hand_id, next_step)
   end
 
   def latest_round
@@ -140,9 +140,9 @@ class Game < ApplicationRecord
   def apply_furo(furo_type, furo_ids, discarded_tile_id)
     furo_tiles = furo_ids.map { |furo_id| user_player.hands.find(furo_id).tile }
     discarded_tile = tiles.find(discarded_tile_id)
-    advance_step!
-    current_player.stolen(discarded_tile, current_step)
-    user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, current_step)
+    next_step = advance_step!
+    current_player.stolen(discarded_tile, next_step)
+    user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, next_step)
   end
 
   def round_wind_number

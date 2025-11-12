@@ -9,5 +9,15 @@
         <% end %>
       </div>
     </div>
+
+    <div class="flex justify-center">
+      <%= form_with url: game_play_command_path(@game),
+                    class: "inline-block",
+                    data: { testid: "undo" } do |form| %>
+        <%= form.hidden_field :event, value: :undo %>
+        <%= form.button "戻る",
+                        class: "rounded-full border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm font-semibold text-slate-100 shadow-sm shadow-emerald-500/20 transition hover:border-emerald-400 hover:text-emerald-200 hover:shadow-emerald-400/30" %>
+      <% end %>
+    </div>
   </div>
 </section>
