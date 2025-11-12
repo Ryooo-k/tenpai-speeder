@@ -8,10 +8,11 @@ class GameFlow
     @payloads = {}
   end
 
-  def run(params)
+  def run(params, current_user: nil, ai: nil)
     event = params[:event].to_sym
 
     case event
+    when :game_start     then game_start(current_user, ai)
     when :draw           then draw
     when :confirm_tsumo  then confirm_tsumo(params)
     when :tsumogiri      then tsumogiri
@@ -33,6 +34,16 @@ class GameFlow
   end
 
   private
+
+    def game_start(current_user, ai)
+      @game.setup_players(current_user, ai)
+      @game.apply_game_mode
+      @game.deal_initial_hands
+
+      next_event = 'draw'
+      @game.current_step.update!(next_event:, draw_count: @game.latest_honba.draw_count)
+      @payloads[:next_event] = next_event
+    end
 
     def draw
       @game.draw_for_current_player
