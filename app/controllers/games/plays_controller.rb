@@ -109,7 +109,7 @@ class Games::PlaysController < ApplicationController
       when :confirm_ron
         discarded_tile_id, ron_player_ids = params.expect(:discarded_tile_id, ron_player_ids: [])
         flow_requests[:discarded_tile_id] = discarded_tile_id
-        flow_requests[:ron_player_ids] = ron_player_ids.map(&:to_i)
+        flow_requests[:ron_player_ids] = ron_player_ids.reject(&:blank?).map(&:to_i)
       when :confirm_furo
         furo = params.expect(:furo)
         flow_requests[:furo] = ActiveModel::Type::Boolean.new.cast(furo)
