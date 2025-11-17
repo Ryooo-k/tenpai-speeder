@@ -7,7 +7,7 @@
                       event: "confirm_tsumo",
                       tsumo: true
                     },
-                    form: { data: { testid: "confirm_tsumo" } },
+                    form: { data: { testid: "tsumo" } },
                     class: "rounded border px-2 py-1" %>
 
       <%= button_to "パス",
@@ -16,7 +16,7 @@
                       event: "confirm_tsumo",
                       tsumo: false
                     },
-                    form: { data: { testid: "confirm_tsumo" } },
+                    form: { data: { testid: "pass" } },
                     class: "rounded border px-2 py-1" %>
     </div>
   </div>
@@ -24,7 +24,7 @@
 <% else %>
   <%= form_with url: game_play_command_path(@game),
                 data: { controller: "auto-submit" } do |form| %>
-    <%= form.hidden_field :event, value: "tsumo" %>
+    <%= form.hidden_field :event, value: "confirm_tsumo" %>
     <%= form.hidden_field :tsumo, value: true %>
   <% end %>
 <% end %>
