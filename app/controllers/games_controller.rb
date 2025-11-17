@@ -8,11 +8,9 @@ class GamesController < ApplicationController
     ai = Ai.find_by!(version: '0.1')
 
     if game.save
-      game.setup_players(current_user, ai)
-      game.apply_game_mode
-      game.deal_initial_hands
-      flash[:event] = :draw
-      redirect_to game_play_path(game)
+      game_flow = GameFlow.new(game)
+      payloads = game_flow.run({ event: 'game_start' }, current_user:, ai:)
+      redirect_to game_play_path(game), flash: payloads
     else
       render :home
     end

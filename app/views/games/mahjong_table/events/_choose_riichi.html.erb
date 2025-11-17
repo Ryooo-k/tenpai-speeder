@@ -1,0 +1,9 @@
+<% if @game.current_player.ai? %>
+  <%= form_with url: game_play_command_path(@game),
+                data: { controller: "auto-submit" } do |form| %>
+    <%= form.hidden_field :event, value: "choose_riichi" %>
+    <% @riichi_candidate_ids.each do |candidate_id| %>
+      <%= form.hidden_field :riichi_candidate_ids, value: candidate_id, multiple: true %>
+    <% end %>
+  <% end %>
+<% end %>

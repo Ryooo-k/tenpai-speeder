@@ -8,21 +8,24 @@ class GameFlow
     @payloads = {}
   end
 
-  def run(params)
+  def run(params, current_user: nil, ai: nil)
     event = params[:event].to_sym
 
     case event
-    when :draw     then draw
-    when :choose   then choose
-    when :discard  then discard(params)
-    when :riichi   then riichi
-    when :furo     then furo(params)
-    when :ron      then ron(params)
-    when :tsumo    then tsumo
-    when :through  then through
-    when :pass     then pass
-    when :ryukyoku then ryukyoku
-    when :agari    then agari
+    when :game_start     then game_start(current_user, ai)
+    when :draw           then draw
+    when :confirm_tsumo  then confirm_tsumo(params)
+    when :tsumogiri      then tsumogiri
+    when :confirm_riichi then confirm_riichi(params)
+    when :choose_riichi  then choose_riichi(params)
+    when :choose         then choose
+    when :discard        then discard(params)
+    when :switch_event   then switch_event
+    when :confirm_ron    then confirm_ron(params)
+    when :confirm_furo   then confirm_furo(params)
+    when :ryukyoku       then ryukyoku
+    when :result         then result(params)
+    when :stop           then return @payloads
     else
       raise UnknownEvent, "不明なイベント名です：#{event}"
     end
@@ -32,115 +35,158 @@ class GameFlow
 
   private
 
-    def draw
-      if @game.live_wall_empty?
-        @game.give_tenpai_point
-        @payloads[:event] = :ryukyoku
-        return
-      end
+    def game_start(current_user, ai)
+      @game.setup_players(current_user, ai)
+      @game.apply_game_mode
+      @game.deal_initial_hands
 
+      next_event = 'draw'
+      @game.current_step.update!(next_event:, draw_count: @game.latest_honba.draw_count)
+      @payloads[:next_event] = next_event
+    end
+
+    def draw
       @game.draw_for_current_player
 
       if @game.current_player.can_tsumo?
-        @payloads[:event] = :tsumo
+        next_event = 'confirm_tsumo'
       elsif @game.current_player.riichi?
-        @payloads[:chosen_hand_id] = @game.current_player.hands.find_by(drawn: true).id
-        @payloads[:event] = :discard
+        next_event = 'tsumogiri'
       elsif @game.current_player.can_riichi?
-        @payloads[:event] = :riichi
+        next_event = 'confirm_riichi'
       else
-        @payloads[:event] = :choose
+        next_event = 'choose'
       end
+
+      @game.current_step.update!(next_event:)
+      @payloads[:next_event] = next_event
+    end
+
+    def confirm_tsumo(params)
+      if params[:tsumo]
+        @game.give_tsumo_point
+        @game.give_bonus_point
+        @payloads[:ryukyoku] = false
+        next_event = 'result'
+      else
+        next_event = 'choose'
+      end
+
+      @payloads[:next_event] = next_event
+    end
+
+    def tsumogiri
+      drawn_hand = @game.current_player.hands.find_by(drawn: true)
+      @payloads[:chosen_hand_id] = drawn_hand.id
+      @payloads[:next_event] = 'discard'
+    end
+
+    def confirm_riichi(params)
+      if params[:riichi]
+        @game.current_player.current_state.update!(riichi: true)
+        riichi_candidates = @game.current_player.find_riichi_candidates
+        @payloads[:riichi_candidate_ids] = riichi_candidates.map(&:id)
+        next_event = 'choose_riichi'
+      else
+        next_event = 'choose'
+      end
+
+      @payloads[:next_event] = next_event
+    end
+
+    def choose_riichi(params)
+      @payloads[:chosen_hand_id] = params[:riichi_candidate_ids].sample
+      @payloads[:next_event] = 'discard'
     end
 
     def choose
       chosen_hand = @game.current_player.choose
       @payloads[:chosen_hand_id] = chosen_hand.id
-      @payloads[:event] = :discard
+      @payloads[:next_event] = 'discard'
     end
 
     def discard(params)
       chosen_hand_id = params[:chosen_hand_id]
-      discarded_tile = @game.discard_for_current_player(chosen_hand_id)
+      @game.discard_for_current_player(chosen_hand_id)
+      next_event = 'switch_event'
+      @game.current_step.update!(next_event:)
+      @payloads[:next_event] = next_event
+    end
 
-      ron_players = @game.find_ron_players(discarded_tile)
-      if ron_players.present?
-        @payloads[:discarded_tile_id] = discarded_tile.id
-        @payloads[:ron_player_ids] = ron_players.map(&:id)
-        @payloads[:event] = :ron
-        return
-      end
-
-      # 現状aiは副露を学習していないため、userが打牌した際、aiの副露はせずdrawアクションに移行する。
+    def switch_event
+      discarded_tile = @game.current_player.rivers.last.tile
+      ron_eligible_players = @game.find_ron_players(discarded_tile)
       is_user_furo = @game.user_player.can_furo?(discarded_tile, @game.current_player)
-      if is_user_furo
+
+      if ron_eligible_players.present?
+        @payloads[:ron_eligible_players_ids] = ron_eligible_players.map(&:id)
         @payloads[:discarded_tile_id] = discarded_tile.id
-        @payloads[:event] = :furo
+        next_event = 'confirm_ron'
+      elsif @game.live_wall_empty?
+        next_event = 'ryukyoku'
+      elsif is_user_furo
+        @payloads[:discarded_tile_id] = discarded_tile.id
+        next_event = 'confirm_furo'
       else
         @game.advance_current_player!
-        @payloads[:event] = :draw
+        next_event = 'draw'
       end
+
+      @payloads[:next_event] = next_event
     end
 
-    def furo(params)
-      furo_type = params[:furo_type]
-      furo_ids = params[:furo_ids]
-      discarded_tile_id = params[:discarded_tile_id]
-      @game.apply_furo(furo_type, furo_ids, discarded_tile_id)
-      @game.advance_to_player!(@game.user_player)
-      @payloads[:event] = :choose
-    end
-
-    def riichi
-      @game.current_player.current_state.update!(riichi: true)
-      @payloads[:event] = :riichi_choose
-    end
-
-    def ron(params)
-      discarded_tile_id = params[:discarded_tile_id]
+    def confirm_ron(params)
       ron_player_ids = params[:ron_player_ids]
-      score_statements = @game.build_ron_score_statements(discarded_tile_id, ron_player_ids)
-      @game.give_ron_point(score_statements)
-      @game.give_bonus_point(ron_player_ids:)
-      @payloads[:discarded_tile_id] = discarded_tile_id
-      @payloads[:score_statements] = score_statements
-      @payloads[:event] = :agari
+
+      if ron_player_ids.present?
+        score_statements = @game.build_ron_score_statements(params[:discarded_tile_id], ron_player_ids)
+        @game.give_ron_point(score_statements)
+        @game.give_bonus_point(ron_player_ids:)
+        @payloads[:score_statements] = score_statements
+        @payloads[:ryukyoku] = false
+        next_event = 'result'
+      else
+        @game.advance_current_player!
+        next_event = 'draw'
+      end
+
+      @payloads[:next_event] = next_event
     end
 
-    def tsumo
-      @game.give_tsumo_point
-      @game.give_bonus_point
-      @payloads[:event] = :agari
-    end
+    def confirm_furo(params)
+      if params[:furo]
+        @game.apply_furo(params[:furo_type], params[:furo_ids], params[:discarded_tile_id])
+        @game.advance_to_player!(@game.user_player)
+        next_event = 'choose'
+        @game.current_step.update!(next_event:)
+      else
+        @game.advance_current_player!
+        next_event = 'draw'
+      end
 
-    def through
-      @game.advance_current_player!
-      @payloads[:event] = :draw
-    end
-
-    def pass
-      @payloads[:event] = :choose
+      @payloads[:next_event] = next_event
     end
 
     def ryukyoku
-      if @game.host.tenpai?
-        @game.advance_next_honba!(ryukyoku: true)
-      else
-        @game.advance_next_round!(ryukyoku: true)
-      end
-
-      @game.deal_initial_hands
-      @payloads[:event] = :draw
+      @game.give_tenpai_point
+      @payloads[:ryukyoku] = true
+      @payloads[:next_event] = :result
     end
 
-    def agari
-      if @game.host_winner?
-        @game.advance_next_honba!
+    def result(params)
+      renchan = @game.host_winner?
+      ryukyoku = params[:ryukyoku]
+
+      if renchan
+        @game.advance_next_honba!(ryukyoku:)
+        @game.deal_initial_hands
+        next_event = 'draw'
       else
-        @game.advance_next_round!
+        @game.advance_next_round!(ryukyoku:)
+        @game.deal_initial_hands
+        next_event = 'draw'
       end
 
-      @game.deal_initial_hands
-      @payloads[:event] = :draw
+      @payloads[:next_event] = next_event
     end
 end

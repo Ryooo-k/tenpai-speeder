@@ -1,15 +1,27 @@
 step_1:
   honba: honba_0
   number: 0
+  draw_count: 0
+  kan_count: 0
+  riichi_stick_count: 0
 
 step_2:
   honba: honba_0
   number: 1
+  draw_count: 0
+  kan_count: 0
+  riichi_stick_count: 0
 
 step_3:
   honba: honba_0
   number: 2
+  draw_count: 0
+  kan_count: 0
+  riichi_stick_count: 0
 
 step_4:
   honba: honba_0
   number: 3
+  draw_count: 0
+  kan_count: 0
+  riichi_stick_count: 0

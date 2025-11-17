@@ -3,21 +3,27 @@
     <div class="flex gap-2">
       <%= button_to "リーチ",
                     game_play_command_path(@game),
-                    params: { event: "riichi" },
+                    params: {
+                      event: "confirm_riichi",
+                      riichi: true
+                    },
                     form: { data: { testid: "riichi" } },
                     class: "rounded border px-2 py-1" %>
 
       <%= button_to "パス",
                     game_play_command_path(@game),
-                    params: { event: "pass" },
+                    params: {
+                      event: "confirm_riichi",
+                      riichi: false
+                    },
                     form: { data: { testid: "pass" } },
                     class: "rounded border px-2 py-1" %>
     </div>
   </div>
-
 <% else %>
   <%= form_with url: game_play_command_path(@game),
                 data: { controller: "auto-submit", testid: "riichi-form" } do |form| %>
-    <%= form.hidden_field :event, value: "riichi" %>
+    <%= form.hidden_field :event, value: "confirm_riichi" %>
+    <%= form.hidden_field :riichi, value: true %>
   <% end %>
 <% end %>

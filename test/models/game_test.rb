@@ -53,11 +53,15 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test 'current_seat_number default to 0' do
-    assert_equal 0, @game.current_seat_number
+    game_mode = game_modes(:match)
+    game = Game.new(game_mode:)
+    assert_equal 0, game.current_seat_number
   end
 
   test 'current_step_number default to 0' do
-    assert_equal 0, @game.current_step_number
+    game_mode = game_modes(:match)
+    game = Game.new(game_mode:)
+    assert_equal 0, game.current_step_number
   end
 
   test 'creates first round and 136 tiles when after_create calls create_tiles_and_round' do
@@ -265,6 +269,14 @@ class GameTest < ActiveSupport::TestCase
 
     @game.latest_honba.update!(number: 4)
     assert_equal '四本場', @game.current_honba_name
+  end
+
+  test '#current_step' do
+    target_number = 2
+    @game.update!(current_step_number: target_number)
+    expected_step = @game.latest_honba.steps.find_by!(number: target_number)
+
+    assert_equal expected_step, @game.current_step
   end
 
   test '#remaining_tile_count' do
@@ -695,5 +707,98 @@ class GameTest < ActiveSupport::TestCase
     assert_not @game.host_winner?
     @game.host.add_point(1000)
     assert @game.host_winner?
+  end
+
+  test '#undo_step decrements current_step_number' do
+    @game.update!(current_step_number: 3)
+    @game.undo_step
+    assert_equal 2, @game.current_step_number
+  end
+
+  test '#redo_step increments current_step_number' do
+    @game.update!(current_step_number: 1)
+    @game.redo_step
+    assert_equal 2, @game.current_step_number
+  end
+
+  test '#can_undo? returns true when current_step_number > 0' do
+    @game.update!(current_step_number: 1)
+    assert @game.can_undo?
+  end
+
+  test '#can_undo? returns false when current_step_number == 0' do
+    @game.update!(current_step_number: 0)
+    assert_not @game.can_undo?
+  end
+
+  test '#can_redo? returns true when there are steps ahead' do
+    @game.update!(current_step_number: 0)
+    @game.latest_honba.steps.create!(number: 1)
+    assert @game.can_redo?
+  end
+
+  test '#can_redo? returns false when already at latest step' do
+    latest_step_number = @game.latest_honba.steps.maximum(:number)
+    @game.update!(current_step_number: latest_step_number)
+    assert_not @game.can_redo?
+  end
+
+  test '#destroy_future_steps removes steps with higher numbers' do
+    honba = @game.latest_honba
+    future_step = honba.steps.create!(number: @game.current_step_number + 1)
+    player = @game.players.first
+    player.player_states.create!(step: future_step)
+
+    assert_difference -> { honba.steps.count }, -1 do
+      @game.destroy_future_steps
+    end
+
+    assert_nil honba.steps.find_by(id: future_step.id)
+  end
+
+  test '#destroy_future_steps leaves steps untouched when no higher numbers exist' do
+    honba = @game.latest_honba
+    before_count = honba.steps.count
+    @game.destroy_future_steps
+    assert_equal before_count, honba.steps.count
+  end
+
+  test '#sync_current_seat updates seat number to match current step player' do
+    current_player = @game.current_player
+    other_player = @game.players.where.not(id: current_player.id).first
+    @game.update!(current_seat_number: other_player.seat_order)
+    current_step = @game.current_step
+    current_step.player_states.destroy_all
+    current_step.player_states.create!(player: current_player)
+
+    @game.sync_current_seat
+    assert_equal current_player.seat_order, @game.current_seat_number
+  end
+
+  test '#sync_draw_count copies draw count from current_step' do
+    @game.current_step.update!(draw_count: 7)
+    @game.latest_honba.update!(draw_count: 0)
+
+    @game.sync_draw_count
+
+    assert_equal 7, @game.latest_honba.draw_count
+  end
+
+  test '#sync_kan_count copies kan count from current_step' do
+    @game.current_step.update!(kan_count: 2)
+    @game.latest_honba.update!(kan_count: 0)
+
+    @game.sync_kan_count
+
+    assert_equal 2, @game.latest_honba.kan_count
+  end
+
+  test '#sync_riichi_count copies riichi sticks from current_step' do
+    @game.current_step.update!(riichi_stick_count: 3)
+    @game.latest_honba.update!(riichi_stick_count: 0)
+
+    @game.sync_riichi_count
+
+    assert_equal 3, @game.latest_honba.riichi_stick_count
   end
 end

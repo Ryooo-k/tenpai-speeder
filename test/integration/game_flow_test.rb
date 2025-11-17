@@ -32,82 +32,363 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'ai player event flow : draw_event(auto) → choose_event(auto) → discard_event(auto)' do
+    set_player_turn(@game, @game.ais.sample)
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
+    end
+
+    post game_play_command_path(@game), params: { event: 'draw' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :choose
+    end
+
+    chosen_hand_id = @game.current_player.hands.sample.id
+    post game_play_command_path(@game), params: { event: 'choose', chosen_hand_id: }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
+    end
+  end
+
+  test 'user player event flow : draw_event(auto) → choose_event(manual) + discard_event' do
+    set_player_turn(@game, @game.user_player)
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
+    end
+
+    post game_play_command_path(@game), params: { event: 'draw' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_not_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit'
+    assert_dom 'form[action=?]', game_play_command_path(@game) do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
+      assert_dom 'input[type=radio][name=chosen_hand_id]'
+    end
+  end
+
+  test 'discard sets next_event to switch_event' do
+    chosen_hand_id = @game.current_player.hands.sample.id
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :switch_event
+    end
+  end
+
+  test 'discard triggers advances to draw when nobody not furo, nobody not ron and not game_set' do
+    set_player_turn(@game, @game.ais.first)
+    chosen_hand = @game.current_player.hands.sample
+    next_player = @game.players.find_by(seat_order: @game.current_player.seat_order + 1)
+
+    post game_play_command_path(@game, params: { event: 'discard', chosen_hand_id: chosen_hand.id })
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    ron_eligible_players = @game.find_ron_players(chosen_hand.tile)
+    is_furo = @game.user_player.can_furo?(chosen_hand.tile, @game.current_player)
+    assert_not ron_eligible_players.present?
+    assert_not is_furo
+    assert_not @game.live_wall_empty?
+
+    @game.reload
+    assert_equal next_player, @game.current_player
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
+    end
+  end
+
+  test 'discard triggers confirm_ron when player can ron' do
+    ai = @game.ais.sample
+    set_player_turn(@game, ai)
+
+    # ユーザーをテンパイにし、ロン可能な形にセット（1索でロン可能）
+    set_hands('m123456789 p123 s1', @game.user_player)
+    set_hands('s111', ai)
+    winning_tile = ai.hands.first
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: winning_tile.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), 'ron' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_ron
+      assert_dom 'input[type=hidden][name=?][value=?]', 'discarded_tile_id', winning_tile.tile.id
+      assert_dom 'input[type=hidden][name=?]', 'ron_player_ids[]', minimum: 1
+    end
+  end
+
+  test 'discard triggers ryukyoku when live_wall empty' do
+    @game.latest_honba.update!(draw_count: 122)
+    chosen_hand_id = @game.current_player.hands.sample.id
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :ryukyoku
+    end
+  end
+
+  test 'discard triggers confirm_furo when user can furo' do
+    ai = @game.ais.sample
+    set_player_turn(@game, ai)
+
+    # 1萬をポンできる状態にセット
+    set_hands('m11 p123456789 p12', @game.user_player)
+    set_hands('m111', ai)
+    chosen_hand_id = ai.hands.first.id
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), 'furo_combinations' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_furo
+      assert_dom 'input[type=hidden][name=?]', 'discarded_tile_id'
+      assert_dom 'input[type=hidden][name=?][value=?]', 'furo', :true
+      assert_dom 'input[type=hidden][name=?]', 'furo_type'
+      assert_dom 'input[type=hidden][name=?]', 'furo_ids[]', minimum: 1
+    end
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), 'through' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_furo
+      assert_dom 'input[type=hidden][name=?][value=?]', 'furo', :false
+    end
+  end
+
+  test 'confirm_ron triggers result when ron player exist' do
+    ai = @game.ais.sample
+    set_player_turn(@game, ai)
+
+    # 1萬でロン和了の状態にセット
+    set_hands('m1 p123456789 p123', @game.user_player)
+    set_hands('m111', ai)
+    discarded_tile_id = ai.hands.first.tile.id
+    ron_player_id = @game.user_player.id
+
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id:, ron_player_ids: [ ron_player_id ] }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), 'result' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :result
+      assert_dom 'input[type=hidden][name=?][value=?]', :ryukyoku, :false
+    end
+  end
+
+  test 'confirm_ron advances to draw when no ron players' do
+    ai = @game.ais.sample
+    set_player_turn(@game, ai)
+    discarded_tile_id = ai.hands.first.tile.id
+    next_player = @game.players.find_by(seat_order: @game.current_player.seat_order + 1)
+
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id:, ron_player_ids: [] }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    @game.reload
+    assert_equal next_player, @game.current_player
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
+    end
+  end
+
+  test 'confirm_furo triggers choose when user played furo' do
+    ai = @game.ais.sample
+    set_player_turn(@game, ai)
+
+    # 1萬でポンの状態にセット
+    set_hands('m11 p123', @game.user_player)
+    set_hands('m1 z123', ai)
+    discarded_tile_id = ai.hands.first.tile.id
+    furo_ids = [ @game.user_player.hands.first.id, @game.user_player.hands.second.id ]
+
+    post game_play_command_path(@game), params: { event: 'confirm_furo', furo: true, furo_type: :pon, furo_ids:, discarded_tile_id: }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?]', game_play_command_path(@game) do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
+      assert_dom 'input[type=radio][name=chosen_hand_id]'
+    end
+  end
+
+  test 'confirm_furo advances to draw when no furo players' do
+    ai = @game.ais.first
+    set_player_turn(@game, ai)
+    next_player = @game.players.find_by(seat_order: @game.current_player.seat_order + 1)
+
+    post game_play_command_path(@game), params: { event: 'confirm_furo', furo: false }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    @game.reload
+    assert_equal next_player, @game.current_player
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
+    end
+  end
+
+  test 'ryukyoku sets next_event to result' do
+    post game_play_command_path(@game), params: { event: 'ryukyoku' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), 'result' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :result
+      assert_dom 'input[type=hidden][name=?]', :ryukyoku
+    end
+  end
+
+  test 'play screen shows undo, playback, and redo disabled buttons' do
+    assert_dom 'form[action=?][data-testid=?]', game_play_undo_path(@game), 'undo' do
+      assert_dom 'button[type=submit][disabled]', { text: '戻る', count: 1 }
+    end
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_playback_path(@game), 'playback' do
+      assert_dom 'button[type=submit][disabled]', { text: '▶︎', count: 1 }
+    end
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_redo_path(@game), 'redo' do
+      assert_dom 'button[type=submit][disabled]', { text: '進む', count: 1 }
+    end
+  end
+
+  test 'undo button becomes enabled after game progresses' do
+    post game_play_command_path(@game), params: { event: 'draw' }
+    assert_response :redirect
+
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_undo_path(@game), 'undo' do
+      assert_dom 'button[type=submit]:not([disabled])', { text: '戻る', count: 1 }
+    end
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_playback_path(@game), 'playback' do
+      assert_dom 'button[type=submit][disabled]', { text: '▶︎', count: 1 }
+    end
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_redo_path(@game), 'redo' do
+      assert_dom 'button[type=submit][disabled]', { text: '進む', count: 1 }
+    end
+  end
+
+  test 'redo and playback become enabled after pressing undo' do
+    post game_play_command_path(@game), params: { event: 'draw' }
+    assert_response :redirect
+
+    follow_redirect!
+    assert_response :success
+
+    post game_play_undo_path(@game)
+    assert_response :redirect
+
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_playback_path(@game), 'playback' do
+      assert_dom 'button[type=submit]:not([disabled])', { text: '▶︎', count: 1 }
+    end
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_redo_path(@game), 'redo' do
+      assert_dom 'button[type=submit]:not([disabled])', { text: '進む', count: 1 }
+    end
+  end
+
   test 'draw event increases current player hand' do
     before_hand_count = @game.current_player.hands.count
-    post game_play_command_path(@game, params: { event: 'draw' })
+
+    post game_play_command_path(@game), params: { event: 'draw' }
     assert_response :redirect
+
+    follow_redirect!
+    assert_response :success
+
     @game.reload
     assert_equal before_hand_count + 1, @game.current_player.hands.count
   end
 
   test 'discard event decrements current player hand' do
+    current_player = @game.current_player
+    set_player_turn(@game, current_player)
+    before_hand_count = current_player.hands.count
+    chosen_hand_id = current_player.hands.sample.id
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: }
+    assert_response :redirect
+
+    @game.reload
+    assert_equal before_hand_count - 1, current_player.hands.count
+  end
+
+  test 'discard event stores switch_event on latest step' do
     user = @game.user_player
     set_player_turn(@game, user)
-    before_hand_count = user.hands.count
     chosen_hand_id = user.hands.sample.id
 
     post game_play_command_path(@game, params: { event: 'discard', chosen_hand_id: })
     assert_response :redirect
     @game.reload
-    assert_equal before_hand_count - 1, user.hands.count
+
+    latest_step = @game.latest_honba.steps.order(number: :desc).first
+    assert_equal 'switch_event', latest_step.next_event
   end
 
-  test 'AI player renders auto-submit forms in order: draw → choose → discard' do
-    set_player_turn(@game, @game.ais.sample)
+  test 'playback removes future steps before replaying event' do
+    honba = @game.latest_honba
+    honba.steps.create!(number: 1)
+    honba.steps.create!(number: 2)
+    @game.update!(current_step_number: 0)
 
-    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
-    end
-    post game_play_command_path(@game, params: { event: 'draw' })
-    assert_response :redirect
-    follow_redirect!
-
-    assert_response :success
-    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :choose
-    end
-    post game_play_command_path(@game, params: { event: 'choose' })
-    assert_response :redirect
-    follow_redirect!
-
-    assert_response :success
-    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
-    end
-  end
-
-  test 'user player renders forms in order: draw → discard' do
-    set_player_turn(@game, @game.user_player)
-
-    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
-    end
-    post game_play_command_path(@game, params: { event: 'draw' })
-    assert_response :redirect
-    follow_redirect!
-
-    assert_response :success
-    assert_dom 'form[action=?]', game_play_command_path(@game) do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
-    end
-
+    post game_play_playback_path(@game), params: { event: 'draw' }
+    assert_redirected_to game_play_path(@game)
     @game.reload
-    chosen_hand_id = @game.current_player.hands.sample.id
-    post game_play_command_path(@game, params: { event: 'discard', chosen_hand_id: })
-    assert_response :redirect
-  end
 
-  test 'next player draws when current player discards and nobody not steal' do
-    chosen_hand_id = @game.current_player.hands.sample.id
-    next_player = @game.players.find_by(seat_order: @game.current_player.seat_order + 1)
-
-    post game_play_command_path(@game, params: { event: 'discard', chosen_hand_id: })
-    assert_response :redirect
-    follow_redirect!
-
-    assert_response :success
-    @game.reload
-    assert_equal next_player, @game.current_player
+    assert_equal 0, @game.latest_honba.steps.maximum(:number)
   end
 
   test 'renders selectable hands when user drawn' do
@@ -129,17 +410,22 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     post game_play_command_path(@game, params: { event: 'discard', chosen_hand_id: manzu_1.id })
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
     assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :furo_combinations do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :furo
-      assert_dom 'input[type=hidden][name=?]', 'discarded_tile_id'
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_furo
+      assert_dom 'input[type=hidden][name=?][value=?]', 'discarded_tile_id', manzu_1.tile.id
       assert_dom 'input[type=hidden][name=?]', 'furo_type'
       assert_dom 'input[type=hidden][name=?]', 'furo_ids[]', minimum: 1
     end
 
     assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :through do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :through
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_furo
       assert_dom 'button[type=submit]', { text: 'スルー', count: 1 }
     end
   end
@@ -148,42 +434,58 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     ai = @game.ais.sample
     set_player_turn(@game, ai)
     set_hands('p1', ai)
+
+    # 1筒でロン和了できる状態にセット
     set_hands('m123456789 p23 s99', @game.user_player)
     pinzu_1 = @game.current_player.hands.first
 
     post game_play_command_path(@game, params: { event: 'discard', chosen_hand_id: pinzu_1.id })
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
     assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :ron
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_ron
       assert_dom 'button[type=submit]', { text: 'ロン', count: 1 }
       assert_dom 'input[type=hidden][name=?]', 'discarded_tile_id', count: 1
       assert_dom 'input[type=hidden][name=?]', 'ron_player_ids[]', minimum: 1
     end
 
     assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :through do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :through
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_ron
       assert_dom 'button[type=submit]', { text: 'スルー', count: 1 }
+      assert_dom 'input[type=hidden][name=?]', 'discarded_tile_id', count: 1
+      assert_dom 'input[type=hidden][name=?]', 'ron_player_ids[]', minimum: 0
     end
   end
 
   test 'renders ron auto-form (with hidden) when ai can ron' do
-    ai = @game.ais.sample
     user = @game.user_player
     set_player_turn(@game, user)
-    set_hands('m123456789 p23 s99', ai)
     set_hands('p1', user)
     pinzu_1 = user.hands.first
+
+    # 1筒でロン和了できる状態にセット
+    ai = @game.ais.sample
+    set_hands('m123456789 p23 s99', ai)
 
     post game_play_command_path(@game, params: { event: 'discard', chosen_hand_id: pinzu_1.id })
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :ron
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_ron
       assert_dom 'input[type=hidden][name=?]', 'discarded_tile_id', count: 1
       assert_dom 'input[type=hidden][name=?]', 'ron_player_ids[]', minimum: 1
     end
@@ -195,38 +497,45 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   test 'renders tsumo form when user can tsumo' do
     user = @game.user_player
     set_player_turn(@game, user)
+
+    # 1筒でツモ和了できる状態にセット
     set_hands('m123456789 p23 s99', user)
     set_draw_tile('p1', @game)
 
     post game_play_command_path(@game, params: { event: 'draw' })
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :tsumo do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :tsumo
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_tsumo
       assert_dom 'button[type=submit]', { text: 'ツモ', count: 1 }
+      assert_dom 'input[type=hidden][name=?][value=?]', :tsumo, :true
     end
 
     assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :pass do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :pass
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_tsumo
       assert_dom 'button[type=submit]', { text: 'パス', count: 1 }
+      assert_dom 'input[type=hidden][name=?][value=?]', :tsumo, :false
     end
   end
 
   test 'renders tsumo auto-form when ai can tsumo' do
     ai = @game.ais.sample
     set_player_turn(@game, ai)
+
+    # 1筒でツモ和了できる状態にセット
     set_hands('m123456789 p23 s99', ai)
     set_draw_tile('p1', @game)
 
     post game_play_command_path(@game, params: { event: 'draw' })
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :tsumo
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_tsumo
+      assert_dom 'input[type=hidden][name=?][value=?]', :tsumo, :true
     end
 
     assert_not_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :tsumo
@@ -238,65 +547,46 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     set_player_turn(@game, user)
     set_hands('m123456789 p123 s99', user)
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'pass' })
+    post game_play_command_path(@game), params: { event: 'confirm_tsumo', tsumo: :false }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     assert_dom 'input[type=radio][name=chosen_hand_id]'
   end
 
   test 'renders result when someone wins' do
     set_hands('m123456789 p123 s99', @game.host)
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'tsumo' })
+    post game_play_command_path(@game), params: { event: 'confirm_tsumo', tsumo: :true }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     assert_dom 'h2', text: '結果'
   end
 
   test 'renders next round form when someone wins' do
     set_hands('m123456789 p123 s99', @game.host)
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'tsumo' })
+    post game_play_command_path(@game), params: { event: 'confirm_tsumo', tsumo: :true }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     assert_dom 'form[action=?]', game_play_command_path(@game) do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :agari
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :result
     end
     assert_dom 'input[type=?][value=?]', 'submit', '次局へ'
   end
 
   test 'renders result when ryukyoku' do
-    @game.latest_honba.update!(draw_count: 122)
-
-    post game_play_command_path(@game, params: { event: 'draw' })
+    post game_play_command_path(@game), params: { event: 'ryukyoku' }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     assert_dom 'h2', text: '結果'
-  end
-
-  test 'renders ryukyoku form when ryukyoku' do
-    @game.latest_honba.update!(draw_count: 122)
-
-    post game_play_command_path(@game, params: { event: 'draw' })
-    assert_response :redirect
-    follow_redirect!
-
-    assert_response :success
-    assert_dom 'form[action=?]', game_play_command_path(@game) do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :ryukyoku
-    end
-    assert_dom 'input[type=?][value=?]', 'submit', '次局へ'
   end
 
   test 'advances to next honba when host player tsumo' do
@@ -309,22 +599,22 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_dom 'span', text: '東一局'
     assert_dom 'span', text: '〇本場'
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'tsumo' })
+    post game_play_command_path(@game), params: { event: 'confirm_tsumo', tsumo: :true }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
-    post game_play_command_path(@game, params: { event: 'agari' })
+
+    post game_play_command_path(@game), params: { event: 'result', ryukyoku: :false }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
+    assert_dom 'span', text: '東一局'
+    assert_dom 'span', text: '一本場'
+
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
-    assert_dom 'span', text: '東一局'
-    assert_dom 'span', text: '一本場'
 
     assert_equal before_honbas_count + 1, @game.latest_round.honbas.count
     assert_equal before_honba_number + 1, @game.latest_honba.number
@@ -343,21 +633,21 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_dom 'span', text: '東一局'
     assert_dom 'span', text: '〇本場'
 
+    post game_play_command_path(@game), params: { event: 'tsumo', tsumo: :true }
+    assert_response :redirect
+    follow_redirect!
     assert_response :success
-    post game_play_command_path(@game, params: { event: 'tsumo' })
+
+    post game_play_command_path(@game), params: { event: 'result', ryukyoku: false }
     assert_response :redirect
     follow_redirect!
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'agari' })
-    assert_response :redirect
-    follow_redirect!
+    assert_dom 'span', text: '東二局'
+    assert_dom 'span', text: '〇本場'
 
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
-    assert_dom 'span', text: '東二局'
-    assert_dom 'span', text: '〇本場'
 
     assert_equal before_rounds_count + 1, @game.rounds.count
     assert_equal before_round_number + 1, @game.latest_round.number
@@ -365,10 +655,12 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'advances to next honba when host player ron' do
+    # ホストを1筒でロン和了できる状態にセット
     set_hands('m123456789 p23 s99', @game.host)
+
     non_host_player = @game.children.sample
     set_player_turn(@game, non_host_player)
-    pinzu_1_id = set_hands('p1', non_host_player).first.tile.id
+    discarded_tile_id = set_hands('p1', non_host_player).first.tile.id
 
     before_honbas_count = @game.latest_round.honbas.count
     before_honba_number = @game.latest_honba.number
@@ -377,20 +669,22 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_dom 'span', text: '東一局'
     assert_dom 'span', text: '〇本場'
 
-    post game_play_command_path(@game, params: { event: 'ron', discarded_tile_id: pinzu_1_id, ron_player_ids: [ @game.host.id ] })
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id:, ron_player_ids: [ @game.host.id ] }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
-    post game_play_command_path(@game, params: { event: 'agari' })
+
+    post game_play_command_path(@game), params: { event: 'result', ryukyoku: :false }
     assert_response :redirect
     follow_redirect!
+    assert_response :success
+
+    assert_dom 'span', text: '東一局'
+    assert_dom 'span', text: '一本場'
 
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
-    assert_dom 'span', text: '東一局'
-    assert_dom 'span', text: '一本場'
 
     assert_equal before_honbas_count + 1, @game.latest_round.honbas.count
     assert_equal before_honba_number + 1, @game.latest_honba.number
@@ -400,7 +694,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   test 'advances to next round when non-host player ron' do
     non_host_player = @game.children.sample
     set_hands('m123456789 p23 s99', non_host_player)
-    pinzu_1_id = set_hands('p1', @game.host).first.tile.id
+    discarded_tile_id = set_hands('p1', @game.host).first.tile.id
 
     before_rounds_count = @game.rounds.count
     before_round_number = @game.latest_round.number
@@ -409,21 +703,22 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_dom 'span', text: '東一局'
     assert_dom 'span', text: '〇本場'
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'ron', discarded_tile_id: pinzu_1_id, ron_player_ids: [ non_host_player.id ] })
+    post game_play_command_path(@game, params: { event: 'ron', discarded_tile_id:, ron_player_ids: [ non_host_player.id ] })
     assert_response :redirect
     follow_redirect!
+    assert_response :success
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'agari' })
+    post game_play_command_path(@game), params: { event: 'result', ryukyoku: :false }
     assert_response :redirect
     follow_redirect!
+    assert_response :success
+
+    assert_dom 'span', text: '東二局'
+    assert_dom 'span', text: '〇本場'
 
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
-    assert_dom 'span', text: '東二局'
-    assert_dom 'span', text: '〇本場'
 
     assert_equal before_rounds_count + 1, @game.rounds.count
     assert_equal before_round_number + 1, @game.latest_round.number
@@ -439,16 +734,17 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_dom 'span', text: '東一局'
     assert_dom 'span', text: '〇本場'
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'ryukyoku' })
+    post game_play_command_path(@game), params: { event: 'result', ryukyoku: true }
     assert_response :redirect
     follow_redirect!
+    assert_response :success
+
+    assert_dom 'span', text: '東二局'
+    assert_dom 'span', text: '一本場'
 
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
-    assert_dom 'span', text: '東二局'
-    assert_dom 'span', text: '一本場'
 
     assert_equal before_rounds_count + 1, @game.rounds.count
     assert_equal before_round_number + 1, @game.latest_round.number
@@ -457,13 +753,18 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'host mangan ron updates score: +12000 to winner, -12000 to loser and honba bonus' do
-    @game.latest_honba.update!(riichi_stick_count: 1, number: 2) # リーチ棒：1000点、本場：300x2 = 600点
+    # リーチ棒：1本（1000点）、本場：2本場（300x2 = 600点） をセット
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 2)
 
     host = @game.user_player
-    loser = @game.ais.sample
     set_host(@game, host)
-    set_hands('m234567 p23 s23455', host, drawn: false)    # 4筒ロンで親萬 12000点の加点
+
+    loser = @game.ais.sample
     set_player_turn(@game, loser)
+
+    # ホストを4筒でロン和了できる状態にセット
+    # 4筒ロンで親萬 12000点の加点
+    set_hands('m234567 p23 s23455', host, drawn: false)
     pinzu_4_id = set_hands('p4', loser).first.tile.id
 
     assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
@@ -474,17 +775,16 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom %(span[data-role="score"]), text: '25,000'
     end
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'ron', discarded_tile_id: pinzu_4_id, ron_player_ids: [ @game.host.id ] })
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: pinzu_4_id, ron_player_ids: [ host.id ] }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
-    post game_play_command_path(@game, params: { event: 'agari' })
+
+    post game_play_command_path(@game), params: { event: 'result', ryukyoku: false }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
       assert_dom %(span[data-role="score"]), text: '38,600' # 25000 + 12000 + 1000 + 600
     end
@@ -495,10 +795,17 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'host mangan tsumo updates score: +12000 to host, -4000 to children and honba bonus' do
-    @game.latest_honba.update!(riichi_stick_count: 1, number: 2) # リーチ棒：1000点、本場：300x2 = 600点
+    # リーチ棒：1本（1000点）、本場：2本場（300x2 = 600点） をセット
+    @game.latest_honba.update!(riichi_stick_count: 1, number: 2)
 
-    set_hands('m234567 p234 s23455', @game.host) # 親萬 12000点の加点
-    set_rivers('m1', @game.host) # 天和対策
+    ai = @game.ais.sample
+    set_host(@game, ai)
+    set_player_turn(@game, ai)
+
+    # ホストを4筒でツモ和了できる状態にセット
+    # 親萬 12000点の加点
+    set_hands('m234567 p234 s23455', ai)
+    set_rivers('m1', ai) # 天和対策（河に捨て牌がない状態でツモすると役満となるため）
 
     @game.players.each do |player|
       assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
@@ -506,17 +813,16 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'tsumo' })
+    post game_play_command_path(@game), params: { event: 'confirm_tsumo', tsumo: true }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
-    post game_play_command_path(@game, params: { event: 'agari' })
+
+    post game_play_command_path(@game), params: { event: 'result', ryukyoku: false }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     @game.players.each do |player|
       assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
         if player.host?
@@ -550,9 +856,10 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom %(span[data-role="wind"]), text: '北'
     end
 
-    post game_play_command_path(@game, params: { event: 'ryukyoku' })
+    post game_play_command_path(@game), params: { event: 'result', ryukyoku: true }
     assert_response :redirect
     follow_redirect!
+    assert_response :success
 
     assert_dom %(div[data-player-board-test-id="#{ton_wind_player.id}"]) do
       assert_dom %(span[data-role="wind"]), text: '北'
@@ -577,18 +884,18 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     set_hands('m123456789 p2 s11 z1', user)
     set_draw_tile('p3', @game)
 
-    post game_play_command_path(@game, params: { event: 'draw' })
+    post game_play_command_path(@game), params: { event: 'draw' }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :riichi do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :riichi
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_riichi
       assert_dom 'button[type=submit]', { text: 'リーチ', count: 1 }
     end
 
     assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :pass do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :pass
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_riichi
       assert_dom 'button[type=submit]', { text: 'パス', count: 1 }
     end
   end
@@ -599,13 +906,13 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     set_hands('m123456789 p2 s11 z1', ai)
     set_draw_tile('p3', @game)
 
-    post game_play_command_path(@game, params: { event: 'draw' })
+    post game_play_command_path(@game), params: { event: 'draw' }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :riichi
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_riichi
     end
 
     assert_not_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :riichi
@@ -617,12 +924,11 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     set_player_turn(@game, user)
     set_hands('m123456789 p23 s11 z1', user)
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'riichi' })
+    post game_play_command_path(@game), params: { event: 'confirm_riichi', riichi: true }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
     candidates = @game.user_player.find_riichi_candidates
     non_candidates = @game.user_player.hands - candidates
 
@@ -640,14 +946,26 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   test 'auto-submit riichi choose when ai is riichi' do
     ai = @game.ais.sample
     set_player_turn(@game, ai)
-    set_hands('m123456789 p23 s11 z1', ai)
 
-    assert_response :success
-    post game_play_command_path(@game, params: { event: 'riichi' })
+    # 東（z1）切りでリーチできる状態にセット
+    set_hands('m123456789 p23 s11 z1', ai)
+    riichi_candidate = ai.hands.last
+
+    post game_play_command_path(@game), params: { event: 'confirm_riichi', riichi: true }
     assert_response :redirect
     follow_redirect!
-
     assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :choose_riichi
+      assert_dom 'input[type=hidden][name=?]', 'riichi_candidate_ids[]'
+    end
+
+    post game_play_command_path(@game), params: { event: 'choose_riichi', riichi_candidate_ids: [ riichi_candidate.id ] }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
       assert_dom 'input[type=hidden][name=?]', 'chosen_hand_id'
@@ -657,14 +975,25 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   test 'discard drawn tile when player is riichi' do
     @game.current_player.current_state.update!(riichi: true)
 
-    post game_play_command_path(@game, params: { event: 'draw' })
+    post game_play_command_path(@game), params: { event: 'draw' }
     assert_response :redirect
     follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :tsumogiri
+    end
+
+    post game_play_command_path(@game), params: { event: 'tsumogiri' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
 
     @game.reload
     drawn_hand_id = @game.current_player.hands.find_by(drawn: true).id.to_s
-    assert_response :success
+
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
       assert_dom 'input[type=hidden][name=?][value=?]', 'chosen_hand_id', drawn_hand_id
     end
   end

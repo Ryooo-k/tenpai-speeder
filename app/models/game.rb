@@ -95,14 +95,14 @@ class Game < ApplicationRecord
   end
 
   def draw_for_current_player
-    advance_step!
-    current_player.draw(top_tile, current_step)
+    next_step = advance_step!
+    current_player.draw(top_tile, next_step)
     increase_draw_count
   end
 
   def discard_for_current_player(hand_id)
-    advance_step!
-    current_player.discard(hand_id, current_step)
+    next_step = advance_step!
+    current_player.discard(hand_id, next_step)
   end
 
   def latest_round
@@ -121,6 +121,10 @@ class Game < ApplicationRecord
     latest_honba.name
   end
 
+  def current_step
+    latest_honba.find_current_step(current_step_number)
+  end
+
   def remaining_tile_count
     latest_honba.remaining_tile_count
   end
@@ -136,9 +140,9 @@ class Game < ApplicationRecord
   def apply_furo(furo_type, furo_ids, discarded_tile_id)
     furo_tiles = furo_ids.map { |furo_id| user_player.hands.find(furo_id).tile }
     discarded_tile = tiles.find(discarded_tile_id)
-    advance_step!
-    current_player.stolen(discarded_tile, current_step)
-    user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, current_step)
+    next_step = advance_step!
+    current_player.stolen(discarded_tile, next_step)
+    user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, next_step)
   end
 
   def round_wind_number
@@ -230,6 +234,44 @@ class Game < ApplicationRecord
     host.point.positive?
   end
 
+  def can_undo?
+    current_step_number > 0
+  end
+
+  def can_redo?
+    current_step_number < latest_step_number
+  end
+
+  def undo_step
+    update!(current_step_number: current_step_number - 1)
+  end
+
+  def redo_step
+    update!(current_step_number: current_step_number + 1)
+  end
+
+  def destroy_future_steps
+    future_steps = latest_honba.steps.where('number > ?', current_step_number)
+    future_steps.destroy_all
+  end
+
+  def sync_current_seat
+    target_seat_number = current_step.player_states.first.player.seat_order
+    update!(current_seat_number: target_seat_number)
+  end
+
+  def sync_draw_count
+    latest_honba.update!(draw_count: current_step.draw_count)
+  end
+
+  def sync_kan_count
+    latest_honba.update!(kan_count: current_step.kan_count)
+  end
+
+  def sync_riichi_count
+    latest_honba.update!(riichi_stick_count: current_step.riichi_stick_count)
+  end
+
   private
 
     def create_tiles_and_round
@@ -270,10 +312,6 @@ class Game < ApplicationRecord
         random_score = random_scores[index]
         player.game_records.last.update!(score: random_score)
       end
-    end
-
-    def current_step
-      latest_honba.find_current_step(current_step_number)
     end
 
     def top_tile
@@ -320,5 +358,9 @@ class Game < ApplicationRecord
 
       bonus_payment = losers.size == 1 ? -honba_bonus * winners.count : -honba_bonus / losers.count
       losers.each { |loser| loser.add_point(bonus_payment) }
+    end
+
+    def latest_step_number
+      latest_honba.steps.maximum(:number)
     end
 end

@@ -6,8 +6,9 @@
         <% furo_combinations.each do |chi_combinations| %>
           <%= button_to game_play_command_path(@game),
                         params: {
-                          event: 'furo',
+                          event: "confirm_furo",
                           discarded_tile_id: @discarded_tile_id,
+                          furo: true,
                           furo_type: furo_name,
                           furo_ids: chi_combinations.map(&:id)
                           },
@@ -21,8 +22,9 @@
       <% when :pon, :kan %>
         <%= button_to game_play_command_path(@game),
                       params: {
-                        event: 'furo',
+                        event: "confirm_furo",
                         discarded_tile_id: @discarded_tile_id,
+                        furo: true,
                         furo_type: furo_name,
                         furo_ids: furo_combinations.map(&:id)
                         },
@@ -37,7 +39,10 @@
 
     <%= button_to "スルー",
                   game_play_command_path(@game),
-                  params: { event: 'through' },
+                  params: {
+                    event: "confirm_furo",
+                    furo: false
+                  },
                   form: { data: { testid: "through" } },
                   class: "rounded border px-2 py-1" %>
   </div>
