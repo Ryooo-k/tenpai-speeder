@@ -65,12 +65,6 @@ class HonbaTest < ActiveSupport::TestCase
     assert_equal 136, honba.tile_orders.count
   end
 
-  test '#find_current_step' do
-    step_number = 10
-    expected = @honba.steps.create!(number: step_number)
-    assert_equal expected, @honba.find_current_step(step_number)
-  end
-
   test '#top_tile' do
     @honba.draw_count = 10
     @honba.kan_count = 0

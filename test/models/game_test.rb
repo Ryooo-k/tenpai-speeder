@@ -184,13 +184,13 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#advance_current_player! changes current_player to next_player' do
-    ordered_players = @game.players.ordered
-    ordered_players.each_with_index do |player, seat_number|
+    players = @game.players
+    players.each_with_index do |player, seat_number|
       assert_equal player, @game.current_player
 
       @game.advance_current_player!
-      next_seat_number = (seat_number + 1) % ordered_players.count
-      assert_equal ordered_players[next_seat_number], @game.current_player
+      next_seat_number = (seat_number + 1) % players.count
+      assert_equal players[next_seat_number], @game.current_player
     end
   end
 
@@ -573,10 +573,10 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#give_bonus_point adds bonus to a shimocha claimer following relation priority(shimocha → toimen → kamicha)' do
-    loser = @game.current_player
-    shimocha = @game.ais.ordered[0]
-    toimen = @game.ais.ordered[1]
-    kamicha = @game.ais.ordered[2]
+    loser = @game.players.detect { |p| p.wind_name == '東' }
+    shimocha = @game.players.detect { |p| p.wind_name == '南' }
+    toimen = @game.players.detect { |p| p.wind_name == '西' }
+    kamicha = @game.players.detect { |p| p.wind_name == '北' }
     ron_player_ids = [ shimocha.id, toimen.id, kamicha.id ]
     @game.latest_honba.update!(riichi_stick_count: 1, number: 1)
 
@@ -593,9 +593,9 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#give_bonus_point adds bonus to a toimen claimer following relation priority(shimocha → toimen → kamicha)' do
-    loser = @game.current_player
-    toimen = @game.ais.ordered[1]
-    kamicha = @game.ais.ordered[2]
+    loser = @game.players.detect { |p| p.wind_name == '東' }
+    toimen = @game.players.detect { |p| p.wind_name == '西' }
+    kamicha = @game.players.detect { |p| p.wind_name == '北' }
     ron_player_ids = [ toimen.id, kamicha.id ]
     @game.latest_honba.update!(riichi_stick_count: 1, number: 2)
 
@@ -610,10 +610,10 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#give_tsumo_point adds point' do
-    winner = @game.current_player
-    loser_1 = @game.ais.ordered[0]
-    loser_2 = @game.ais.ordered[1]
-    loser_3 = @game.ais.ordered[2]
+    winner = @game.players.detect { |p| p.wind_name == '東' }
+    loser_1 = @game.players.detect { |p| p.wind_name == '南' }
+    loser_2 = @game.players.detect { |p| p.wind_name == '西' }
+    loser_3 = @game.players.detect { |p| p.wind_name == '北' }
     set_hands('m234567 p234 s23455', winner) # 天和 48000点の加点
 
     assert_equal 0, winner.point

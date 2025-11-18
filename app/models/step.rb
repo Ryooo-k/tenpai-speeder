@@ -3,7 +3,7 @@
 class Step < ApplicationRecord
   belongs_to :honba
 
-  has_many :player_states, dependent: :destroy
+  has_many :player_states, -> { order(:step_id) }, dependent: :destroy
 
   before_validation :snapshot_honba_counters, on: :create
 

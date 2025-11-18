@@ -7,16 +7,12 @@ class Round < ApplicationRecord
 
   belongs_to :game
 
-  has_many :honbas, dependent: :destroy
+  has_many :honbas, -> { order(:number) }, dependent: :destroy
 
   validates :game, presence: true
   validates :number, presence: true
 
   after_create :create_honba
-
-  def latest_honba
-    honbas.order(:number).last
-  end
 
   def name
     case number
@@ -40,6 +36,10 @@ class Round < ApplicationRecord
 
   def host_seat_number
     number % PLAYERS_COUNT
+  end
+
+  def latest_honba
+    honbas.last
   end
 
   private

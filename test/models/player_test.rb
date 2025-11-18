@@ -72,12 +72,12 @@ class PlayerTest < ActiveSupport::TestCase
     assert_includes player.errors[:base], 'UserとAIの両方を同時に指定することはできません'
   end
 
-  test '.ordered sort by seat_order' do
+  test 'players sort by seat_order' do
     player_1 = @game.players.find_by(seat_order: 0)
     player_2 = @game.players.find_by(seat_order: 1)
     player_3 = @game.players.find_by(seat_order: 2)
     player_4 = @game.players.find_by(seat_order: 3)
-    assert_equal [ player_1, player_2, player_3, player_4 ], @game.players.ordered.to_a
+    assert_equal [ player_1, player_2, player_3, player_4 ], @game.players
   end
 
   test '#hands returns sorted hands from latest state with hands' do
@@ -134,7 +134,9 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal [ manzu_1_a, stone_manzu_1, manzu_1_b ], @user_player.melds
   end
 
-  test '#current_state returns state of current_step_number ' do
+  test '#current_state returns state of current_step_number' do
+    @user_player.player_states.delete_all
+
     step_1 = steps(:step_1)
     step_2 = steps(:step_2)
     @user_player.player_states.create!(step: step_1)
@@ -154,12 +156,12 @@ class PlayerTest < ActiveSupport::TestCase
   test '#receive creates hands in current_state' do
     state_count = @user_player.player_states.count
     @user_player.receive(@manzu_2)
-    current_hand_tiles = @user_player.player_states.ordered.last.hands.all.map(&:tile)
+    current_hand_tiles = @user_player.player_states.last.hands.all.map(&:tile)
     assert_equal [ @manzu_2 ], current_hand_tiles
     assert_equal state_count, @user_player.player_states.count
 
     @user_player.receive(@manzu_1)
-    current_hand_tiles = @user_player.player_states.ordered.last.hands.all.map(&:tile)
+    current_hand_tiles = @user_player.player_states.last.hands.all.map(&:tile)
     assert_equal [ @manzu_2, @manzu_1 ], current_hand_tiles
     assert_equal state_count, @user_player.player_states.count
   end
@@ -282,8 +284,8 @@ class PlayerTest < ActiveSupport::TestCase
     kamicha_player.stub(:seat_order, 3) do
       @user_player.stub(:seat_order, 0) do
         @user_player.stub(:current_step_number, step_2.number) do
-          furo_tiles = [ manzu_1.tile, manzu_2.tile ]
-          @user_player.steal(kamicha_player, :chi, furo_tiles, discarded_tile, step_2)
+          furo_tiles = [ manzu_1.id, manzu_2.id ]
+          @user_player.steal(kamicha_player, :chi, furo_tiles, discarded_tile.id, step_2)
 
           assert_equal [ discarded_tile, manzu_1.tile, manzu_2.tile ], @user_player.melds.map(&:tile)
           assert_equal [ 'kamicha', nil, nil ], @user_player.melds.map(&:from)
@@ -303,9 +305,10 @@ class PlayerTest < ActiveSupport::TestCase
     shimocha_player.stub(:seat_order, 0) do
       @user_player.stub(:seat_order, 3) do
         @user_player.stub(:current_step_number, step_2.number) do
-          furo_tiles = [ ton_1.tile, ton_2.tile ]
-          @user_player.steal(shimocha_player, :pon, furo_tiles, discarded_tile, step_2)
+          furo_ids = [ ton_1.id, ton_2.id ]
+          @user_player.steal(shimocha_player, :pon, furo_ids, discarded_tile.id, step_2)
           assert_equal [ ton_1.tile, ton_2.tile, discarded_tile ], @user_player.melds.map(&:tile)
+
           assert_equal [ nil, nil, 'shimocha' ], @user_player.melds.map(&:from)
           assert_equal [ 'pon', 'pon', 'pon' ], @user_player.melds.map(&:kind)
           assert_equal [ manzu_1.tile ], @user_player.hands.map(&:tile)
@@ -323,8 +326,9 @@ class PlayerTest < ActiveSupport::TestCase
     toimen_player.stub(:seat_order, 2) do
       @user_player.stub(:seat_order, 0) do
         @user_player.stub(:current_step_number, step_2.number) do
-          furo_tiles = [ ton_1.tile, ton_2.tile, ton_3.tile ]
-          @user_player.steal(toimen_player, :daiminkan, furo_tiles, discarded_tile, steps(:step_2))
+          furo_ids = [ ton_1.id, ton_2.id, ton_3.id ]
+          @user_player.steal(toimen_player, :daiminkan, furo_ids, discarded_tile.id, steps(:step_2))
+
           assert_equal [ ton_1.tile, discarded_tile, ton_2.tile, ton_3.tile ], @user_player.melds.map(&:tile)
           assert_equal [ nil, 'toimen', nil, nil ], @user_player.melds.map(&:from)
           assert_equal [ 'daiminkan', 'daiminkan', 'daiminkan', 'daiminkan' ], @user_player.melds.map(&:kind)
@@ -345,7 +349,9 @@ class PlayerTest < ActiveSupport::TestCase
       kamicha_player.stub(:seat_order, 3) do
         @user_player.stub(:seat_order, 0) do
           @user_player.stub(:current_step_number, step_2.number) do
-            @user_player.steal(toimen_player, :pon, [ ton_1.tile, ton_2.tile ], @ton_3, step_2)
+            furo_ids = [ ton_1.id, ton_2.id ]
+            @user_player.steal(toimen_player, :pon, furo_ids, @ton_3.id, step_2)
+
             assert_equal [ ton_1.tile, @ton_3, ton_2.tile ], @user_player.melds.map(&:tile)
             assert_equal [ nil, 'toimen', nil ], @user_player.melds.map(&:from)
             assert_equal [ 'pon', 'pon', 'pon' ], @user_player.melds.map(&:kind)
@@ -353,7 +359,11 @@ class PlayerTest < ActiveSupport::TestCase
           end
 
           @user_player.stub(:current_step_number, step_3.number) do
-            @user_player.steal(kamicha_player, :chi, [ manzu_1.tile, manzu_2.tile ], @manzu_3, step_3)
+            manzu_1 = @user_player.hands.first
+            manzu_2 = @user_player.hands.second
+            furo_ids = [ manzu_1.id, manzu_2.id ]
+            @user_player.steal(kamicha_player, :chi, furo_ids, @manzu_3.id, step_3)
+
             assert_equal [ @manzu_3, manzu_1.tile, manzu_2.tile, ton_1.tile, @ton_3, ton_2.tile ], @user_player.melds.map(&:tile)
             assert_equal [ 'kamicha', nil, nil, nil, 'toimen', nil ], @user_player.melds.map(&:from)
             assert_equal [ 'chi', 'chi', 'chi', 'pon', 'pon', 'pon' ], @user_player.melds.map(&:kind)
@@ -373,7 +383,7 @@ class PlayerTest < ActiveSupport::TestCase
     kamicha_player.stub(:seat_order, 3) do
       @user_player.stub(:seat_order, 0) do
         @user_player.stub(:current_step_number, step_2.number) do
-          @user_player.steal(kamicha_player, :chi, [ manzu_1.tile, manzu_2.tile ], @manzu_3, step_2)
+          @user_player.steal(kamicha_player, :chi, [ manzu_1.id, manzu_2.id ], @manzu_3.id, step_2)
           assert_equal before_state_count + 1, @user_player.player_states.count
         end
       end
@@ -382,13 +392,13 @@ class PlayerTest < ActiveSupport::TestCase
 
   test '#stolen marks only the targeted river as stolen' do
     manzu_1, manzu_2 = set_rivers('m12', @ai_player)
-    before_state_count = @ai_player.player_states.count
     assert_not manzu_1.stolen?
 
     step_2 = steps(:step_2)
     @ai_player.stub(:current_step_number, step_2.number) do
-      @ai_player.stolen(manzu_1.tile, step_2)
+      @ai_player.stolen(manzu_1.tile.id, step_2)
       river_manzu_1 = @ai_player.current_state.rivers.first
+
       assert river_manzu_1.stolen?
     end
   end
@@ -413,7 +423,8 @@ class PlayerTest < ActiveSupport::TestCase
     hands = set_hands('m123456789 z12345', @ai_player)
     result = @ai_player.choose
     hand_index = MahjongAi.infer(@game, @ai_player)
-    assert_equal hands.sorted_base[hand_index], result
+
+    assert_equal hands.sort_by(&:code)[hand_index], result
   end
 
   test '#choose returns riichi_candidates when ai is riichi' do
@@ -421,6 +432,7 @@ class PlayerTest < ActiveSupport::TestCase
     @ai_player.current_state.update!(riichi: true)
     result = @ai_player.choose
     expected = @ai_player.hands.find { |hand| hand.name == '9索' }
+
     assert_equal expected, result
   end
 

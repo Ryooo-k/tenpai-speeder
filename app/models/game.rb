@@ -16,14 +16,14 @@ class Game < ApplicationRecord
     4 => 0
   }.freeze
   FINAL_ROUND_NUMBER = 7
-
+  MAX_DORA_COUNT = 5
 
   belongs_to :game_mode
 
-  has_many :players, dependent: :destroy
+  has_many :players, -> { order(:seat_order) }, dependent: :destroy
   has_many :results, dependent: :destroy
   has_many :favorites, dependent: :destroy
-  has_many :rounds, dependent: :destroy
+  has_many :rounds, -> { order(:number) }, dependent: :destroy
   has_many :tiles, dependent: :destroy
 
   validates :game_mode, presence: true
@@ -51,7 +51,7 @@ class Game < ApplicationRecord
   end
 
   def deal_initial_hands
-    players.ordered.each do |player|
+    players.each do |player|
       player.player_states.create!(step: current_step)
 
       INITIAL_HAND_SIZE.times do |_|
@@ -62,23 +62,91 @@ class Game < ApplicationRecord
   end
 
   def user_player
-    players.users.first
+    if players.loaded?
+      players.detect(&:user?)
+    else
+      players.users.first
+    end
   end
 
   def ais
-    players.ais
+    if players.loaded?
+      players.select(&:ai?)
+    else
+      players.ais.to_a
+    end
   end
 
   def host
-    players.find_by!(seat_order: latest_round.host_seat_number)
+    if players.loaded?
+      players.detect(&:host?)
+    else
+      players.find_by!(seat_order: latest_round.host_seat_number)
+    end
   end
 
   def children
-    players.where.not(seat_order: latest_round.host_seat_number)
+    if players.loaded?
+      players.select { |player| !player.host? }
+    else
+      players.where.not(seat_order: latest_round.host_seat_number).to_a
+    end
   end
 
   def current_player
-    players.find_by!(seat_order: current_seat_number)
+    if players.loaded?
+      players.detect { |player| player.seat_order == current_seat_number }
+    else
+      players.find_by!(seat_order: current_seat_number)
+    end
+  end
+
+  def current_step
+    if latest_honba.steps.loaded?
+      latest_honba.steps.detect { |step| step.number == current_step_number }
+    else
+      latest_honba.steps.find_by!(number: current_step_number)
+    end
+  end
+
+  def dora_indicator_tiles
+    latest_honba.dora_indicator_tiles.values_at(...MAX_DORA_COUNT)
+  end
+
+  def latest_round
+    rounds.last
+  end
+
+  def latest_honba
+    latest_round.latest_honba
+  end
+
+  def current_round_name
+    latest_round.name
+  end
+
+  def round_wind_number
+    latest_round.wind_number
+  end
+
+  def current_honba_name
+    latest_honba.name
+  end
+
+  def riichi_stick_count
+    latest_honba.riichi_stick_count
+  end
+
+  def remaining_tile_count
+    latest_honba.remaining_tile_count
+  end
+
+  def live_wall_empty?
+    remaining_tile_count.zero?
+  end
+
+  def draw_count
+    latest_honba.draw_count
   end
 
   def advance_current_player!
@@ -88,10 +156,6 @@ class Game < ApplicationRecord
 
   def advance_to_player!(player)
     update!(current_seat_number: player.seat_order)
-  end
-
-  def draw_count
-    latest_honba.draw_count
   end
 
   def draw_for_current_player
@@ -105,48 +169,10 @@ class Game < ApplicationRecord
     current_player.discard(hand_id, next_step)
   end
 
-  def latest_round
-    rounds.order(:number).last
-  end
-
-  def latest_honba
-    latest_round.latest_honba
-  end
-
-  def current_round_name
-    latest_round.name
-  end
-
-  def current_honba_name
-    latest_honba.name
-  end
-
-  def current_step
-    latest_honba.find_current_step(current_step_number)
-  end
-
-  def remaining_tile_count
-    latest_honba.remaining_tile_count
-  end
-
-  def dora_indicator_tiles
-    latest_honba.dora_indicator_tiles.values_at(..4)
-  end
-
-  def riichi_stick_count
-    latest_honba.riichi_stick_count
-  end
-
   def apply_furo(furo_type, furo_ids, discarded_tile_id)
-    furo_tiles = furo_ids.map { |furo_id| user_player.hands.find(furo_id).tile }
-    discarded_tile = tiles.find(discarded_tile_id)
     next_step = advance_step!
-    current_player.stolen(discarded_tile, next_step)
-    user_player.steal(current_player, furo_type, furo_tiles, discarded_tile, next_step)
-  end
-
-  def round_wind_number
-    latest_round.wind_number
+    current_player.stolen(discarded_tile_id, next_step)
+    user_player.steal(current_player, furo_type, furo_ids, discarded_tile_id, next_step)
   end
 
   def advance_next_round!(ryukyoku: false)
@@ -214,10 +240,6 @@ class Game < ApplicationRecord
   def give_bonus_point(ron_player_ids: false)
     give_riichi_bonus_point(ron_player_ids)
     give_honba_bonus_point(ron_player_ids)
-  end
-
-  def live_wall_empty?
-    remaining_tile_count.zero?
   end
 
   def give_tenpai_point
@@ -329,7 +351,11 @@ class Game < ApplicationRecord
     end
 
     def other_players
-      players.where.not(seat_order: current_seat_number)
+      if players.loaded?
+        players.select { |player| player.seat_order != current_seat_number }
+      else
+        players.where.not(seat_order: current_seat_number).to_a
+      end
     end
 
     def find_riichi_bonus_winner(ron_player_ids)

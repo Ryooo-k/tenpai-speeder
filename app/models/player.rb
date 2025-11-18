@@ -17,32 +17,34 @@ class Player < ApplicationRecord
   belongs_to :game
 
   has_many :results, dependent: :destroy
-  has_many :game_records, dependent: :destroy
-  has_many :player_states, dependent: :destroy
+  has_many :game_records, -> { order(honba_id: :desc) }, dependent: :destroy
+  has_many :player_states, -> { order(:step_id) }, dependent: :destroy
 
   validates :game, presence: true
   validates :seat_order, presence: true
 
   validate :validate_player_type
 
-  scope :ordered, -> { order(:seat_order) }
   scope :users, -> { where.not(user_id: nil) }
   scope :ais, -> { where.not(ai_id: nil) }
 
   def hands
-    base_hands.present? ? base_hands.sorted_with_drawn : Hand.none
+    return Hand.none unless base_hands.present?
+    base_hands.sort_by { |hand| [ hand.drawn? ? 1 : 0, hand.code ] }
   end
 
   def rivers
-    base_rivers.present? ? base_rivers.where(stolen: false) : River.none
+    return River.none unless base_rivers.present?
+    base_rivers.reject(&:stolen)
   end
 
   def melds
-    base_melds.present? ? base_melds.sorted : Meld.none
+    return Meld.none unless base_melds_list.present?
+    base_melds_list.map { |melds| melds.sort_by(&:position) }.flatten
   end
 
   def current_state
-    base_states.ordered.last
+    base_states.last
   end
 
   def receive(tile)
@@ -55,7 +57,7 @@ class Player < ApplicationRecord
   end
 
   def discard(chosen_hand_id, step)
-    chosen_hand = hands.find(chosen_hand_id)
+    chosen_hand = hands.detect { |hand| hand.id == chosen_hand_id }
     riichi = current_state.riichi?
     player_states.create!(step:)
     create_discarded_hands(chosen_hand)
@@ -63,15 +65,16 @@ class Player < ApplicationRecord
     chosen_hand.tile
   end
 
-  def steal(target_player, furo_type, furo_tiles, discarded_tile, step)
+  def steal(target_player, furo_type, furo_ids, discarded_tile_id, step)
+    furo_hands = hands.select { |hand| furo_ids.include?(hand.id) }
     player_states.create!(step:)
-    create_stole_hands(furo_tiles)
-    create_stole_melds(target_player, furo_type, furo_tiles, discarded_tile)
+    create_stole_hands(furo_hands)
+    create_stole_melds(target_player, furo_type, furo_hands, discarded_tile_id)
   end
 
-  def stolen(discarded_tile, step)
+  def stolen(discarded_tile_id, step)
     player_states.create!(step:)
-    create_stolen_rivers(discarded_tile)
+    create_stolen_rivers(discarded_tile_id)
   end
 
   # ai用 牌選択メソッド
@@ -102,7 +105,7 @@ class Player < ApplicationRecord
   end
 
   def host?
-    self == game.host
+    seat_order == game.latest_round.host_seat_number
   end
 
   def relation_from_user
@@ -132,7 +135,7 @@ class Player < ApplicationRecord
   end
 
   def riichi?
-    base_states.exists?(riichi: true)
+    base_states.any?(&:riichi)
   end
 
   def can_riichi?
@@ -207,8 +210,8 @@ class Player < ApplicationRecord
   end
 
   def score_statements(tile: false)
-    target_hands = tile ? Array(hands) + [ tile ] : hands
-    agari_tile = tile ? tile : hands.find_by(drawn: true)
+    target_hands = tile ? hands + [ tile ] : hands
+    agari_tile = tile ? tile : hands.detect(&:drawn)
     situational_yaku_list = build_situational_yaku_list(tile:)
     HandEvaluator.get_score_statements(
       target_hands,
@@ -248,25 +251,41 @@ class Player < ApplicationRecord
     end
 
     def base_states
-      player_states
-        .for_honba(game.latest_honba)
-        .up_to_step(current_step_number)
+      if player_states.loaded? && player_states.all? { |ps| ps.association(:step).loaded? }
+        player_states.select do |ps|
+          ps.step.honba_id == game.latest_honba.id &&
+            ps.step.number <= current_step_number
+        end
+      else
+        player_states
+          .for_honba(game.latest_honba)
+          .up_to_step(current_step_number)
+      end.to_a
     end
 
     def base_hands
-      base_states.with_hands.ordered.last&.hands
+      base_states
+        .select { |bs| bs.hands.present? }
+        .sort_by { |bs| bs.step.number }
+        .last&.hands
     end
 
     def base_rivers
-      base_states.with_rivers.ordered.last&.rivers
+      base_states
+        .select { |bs| bs.rivers.present? }
+        .sort_by { |bs| bs.step.number }
+        .last&.rivers
     end
 
-    def base_melds
-      Meld.where(player_state: base_states.with_melds)
+    def base_melds_list
+      base_states
+        .select { |bs| bs.melds.present? }
+        .sort_by { |bs| bs.step.number }.reverse
+        .map(&:melds)
     end
 
     def latest_game_record
-      game_records.ordered.last
+      game_records.first
     end
 
     def create_drawn_hands(drawn_tile)
@@ -279,21 +298,25 @@ class Player < ApplicationRecord
       new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
     end
 
-    def create_stole_hands(furo_tiles)
-      new_hands = hands.reject { |hand| furo_tiles.include?(hand.tile) }
+    def create_stole_hands(furo_hands)
+      new_hands = hands.reject { |hand| furo_hands.include?(hand) }
       new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
     end
 
-    def create_stole_melds(target_player, furo_type, furo_tiles, discarded_tile)
+    def create_stole_melds(target_player, furo_type, furo_hands, discarded_tile_id)
       relation_seat_number = (target_player.seat_order - seat_order) % PLAYERS_COUNT
-      melds = build_melds(relation_seat_number, furo_tiles, discarded_tile)
-      melds.each_with_index do |tile, position|
-        from = tile == discarded_tile ? relation_seat_number : nil
+      new_melds = build_melds(relation_seat_number, furo_hands, discarded_tile_id)
+
+      new_melds.each_with_index do |tile, position|
+        from = tile.id == discarded_tile_id ? relation_seat_number : nil
         current_state.melds.create!(tile:, kind: furo_type, position:, from:)
       end
     end
 
-    def build_melds(relation_seat_number, furo_tiles, discarded_tile)
+    def build_melds(relation_seat_number, furo_hands, discarded_tile_id)
+      furo_tiles = furo_hands.map(&:tile)
+      discarded_tile = game.tiles.detect { |tile| tile.id == discarded_tile_id }
+
       case relation_seat_number
       when SHIMOCHA_SEAT_NUMBER
         furo_tiles + [ discarded_tile ]
@@ -306,8 +329,8 @@ class Player < ApplicationRecord
     end
 
     def create_discarded_rivers(chosen_hand, riichi)
-      if rivers
-        rivers.each do |river|
+      if base_rivers.present?
+        base_rivers.each do |river|
           current_state.rivers.create!(
             tile: river.tile,
             tsumogiri: river.tsumogiri?,
@@ -320,9 +343,9 @@ class Player < ApplicationRecord
       current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?, riichi:)
     end
 
-    def create_stolen_rivers(discarded_tile)
+    def create_stolen_rivers(discarded_tile_id)
       rivers.each do |river|
-        stolen = river.tile == discarded_tile || river.stolen?
+        stolen = river.tile.id == discarded_tile_id || river.stolen?
         current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, stolen:, created_at: river.created_at)
       end
     end
@@ -399,19 +422,19 @@ class Player < ApplicationRecord
     end
 
     def double_riichi?
-      riichi_state = base_states.find_by(riichi: true)
+      riichi_state = base_states.detect(&:riichi)
       return false unless riichi_state
 
-      is_first_turn = riichi_state.rivers.count == 1
+      is_first_turn = riichi_state.rivers.size == 1
       is_nobody_furo = PlayerState.for_honba(game.latest_honba).up_to_step(riichi_state.step.number).with_melds.empty?
       is_first_turn && is_nobody_furo
     end
 
     def ippatsu?
-      riichi_state = base_states.find_by(riichi: true)
+      riichi_state = base_states.detect(&:riichi)
       return false unless riichi_state
 
-      is_first_tsumo = (rivers.count - riichi_state.rivers.count).zero?
+      is_first_tsumo = (base_rivers.size - riichi_state.rivers.size).zero?
       range = riichi_state.step.number..current_state.step.number
       range_states = PlayerState.for_honba(game.latest_honba).in_step_range(range)
       is_nobody_furo = range_states.with_melds.empty?
@@ -439,7 +462,7 @@ class Player < ApplicationRecord
     end
 
     def houtei_ron?(tile)
-      test_hands = Array(hands) + [ tile ]
+      test_hands = hands + [ tile ]
       shanten = HandEvaluator.calculate_shanten(test_hands, melds)
       game.remaining_tile_count.zero? && shanten.negative?
     end
@@ -452,7 +475,7 @@ class Player < ApplicationRecord
     def chankan?(meld)
       return false unless meld.is_a?(Meld)
 
-      test_hands = Array(hands) + [ meld ]
+      test_hands = hands + [ meld ]
       shanten = HandEvaluator.calculate_shanten(test_hands, melds)
       meld.kind == 'kakan' && shanten.negative?
     end
