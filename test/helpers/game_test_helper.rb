@@ -24,7 +24,7 @@ module GameTestHelper
 
   def set_host(game, player)
     host_seat_number = game.latest_round.host_seat_number
-    game.players.find_by(seat_order: host_seat_number).update!(seat_order: player.seat_order)
+    game.players.detect { |p| p.seat_order == host_seat_number }.update!(seat_order: player.seat_order)
     player.update!(seat_order: host_seat_number)
   end
 
