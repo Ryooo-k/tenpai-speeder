@@ -132,6 +132,7 @@ class GameFlow
         next_event = 'draw'
       end
 
+      @payloads[:non_refresh_kyoku_status] = true
       @payloads[:next_event] = next_event
     end
 
@@ -187,6 +188,7 @@ class GameFlow
         next_event = 'draw'
       end
 
+      @payloads[:refresh_header] = true
       @payloads[:next_event] = next_event
     end
 end

@@ -10,10 +10,17 @@ class Games::PlaysController < ApplicationController
   def command
     game_flow = GameFlow.new(@game)
     payloads = game_flow.run(game_flow_params)
-    redirect_to game_play_path(@game), flash: payloads
+
+    respond_to do |format|
+      format.turbo_stream { render_play_update(payloads) }
+      format.html { redirect_to game_play_path(@game), flash: payloads }
+    end
 
   rescue GameFlow::UnknownEvent => e
-    redirect_to home_path, alert: e.message
+    respond_to do |format|
+      format.turbo_stream { redirect_to home_path, alert: e.message }
+      format.html { redirect_to home_path, alert: e.message }
+    end
   end
 
   def undo
@@ -25,7 +32,12 @@ class Games::PlaysController < ApplicationController
       @game.sync_riichi_count
     end
 
-    redirect_to game_play_path(@game), flash: { next_event: 'stop' }
+    payloads = { next_event: 'stop' }
+
+    respond_to do |format|
+      format.turbo_stream { render_play_update(payloads) }
+      format.html { redirect_to game_play_path(@game), flash: payloads }
+    end
   end
 
   def redo
@@ -37,12 +49,22 @@ class Games::PlaysController < ApplicationController
       @game.sync_riichi_count
     end
 
-    redirect_to game_play_path(@game), flash: { next_event: 'stop' }
+    payloads = { next_event: 'stop' }
+
+    respond_to do |format|
+      format.turbo_stream { render_play_update(payloads) }
+      format.html { redirect_to game_play_path(@game), flash: payloads }
+    end
   end
 
   def playback
     @game.destroy_future_steps
-    redirect_to game_play_path(@game), flash: { next_event: @game.current_step.next_event }
+    payloads = { next_event: @game.current_step.next_event }
+
+    respond_to do |format|
+      format.turbo_stream { render_play_update(payloads) }
+      format.html { redirect_to game_play_path(@game), flash: payloads }
+    end
   end
 
   private
@@ -70,9 +92,11 @@ class Games::PlaysController < ApplicationController
       ).find(params[:game_id])
     end
 
-    def set_instance_variable
-      flash.each do |key, value|
-        name = key == 'next_event' ? 'event' : key
+    def set_instance_variable(payloads = nil)
+      data = payloads || flash.to_hash
+
+      data.each do |key, value|
+        name = key.to_s == 'next_event' ? 'event' : key
         instance_variable_set("@#{name}", value)
       end
 
@@ -127,5 +151,10 @@ class Games::PlaysController < ApplicationController
       end
 
       flow_requests
+    end
+
+    def render_play_update(payloads)
+      set_instance_variable(payloads)
+      render :update
     end
 end

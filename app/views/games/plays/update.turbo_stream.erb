@@ -1,0 +1,23 @@
+<% if @refresh_header %>
+  <%= turbo_stream.update dom_id(@game, :header) do %>
+    <%= render "header" %>
+  <% end %>
+<% end %>
+
+<% if @non_refresh_kyoku_status %>
+  <%= turbo_stream.update dom_id(@game, :mahjong_table_playfield) do %>
+    <%= render "games/mahjong_table/playfield" %>
+  <% end %>
+
+  <%= turbo_stream.update dom_id(@game, :mahjong_table_controls) do %>
+    <%= render "games/mahjong_table/controls" %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.update dom_id(@game, :mahjong_table) do %>
+    <%= render "mahjong_table" %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.update dom_id(@game, :tips) do %>
+  <%= render "tips" %>
+<% end %>

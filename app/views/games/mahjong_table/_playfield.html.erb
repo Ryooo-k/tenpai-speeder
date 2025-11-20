@@ -1,0 +1,4 @@
+<%= render partial: "games/mahjong_table/player", collection: @game.players %>
+<% if (event_partial = event_partial_path(@event)) %>
+  <%= render partial: event_partial %>
+<% end %>
