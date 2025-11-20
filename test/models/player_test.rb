@@ -1112,6 +1112,13 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#final_score returns combined score and point' do
+    assert_equal @user_player.score + @user_player.point, @user_player.final_score
+
+    @user_player.game_records.last.update!(score: 30_000, point: 1_200)
+    assert_equal 31_200, @user_player.final_score
+  end
+
   test '#tenpai? returns true when shanten == 0' do
     set_hands('m123456789 p123 s1', @user_player)
     assert @user_player.tenpai?

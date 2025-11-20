@@ -161,6 +161,10 @@ class Player < ApplicationRecord
     latest_game_record.score
   end
 
+  def final_score
+    latest_game_record.score + latest_game_record.point
+  end
+
   def wind_number
     wind_number = seat_order - host_seat_number
     wind_number.positive? || wind_number.zero? ? wind_number : wind_number + PLAYERS_COUNT
