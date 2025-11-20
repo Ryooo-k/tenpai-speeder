@@ -308,6 +308,10 @@ class Game < ApplicationRecord
     end
   end
 
+  def rankings
+    ranked_players.each_with_index.to_h { |player, index| [ player.id, index + 1 ] }
+  end
+
   private
 
     def create_tiles_and_round
