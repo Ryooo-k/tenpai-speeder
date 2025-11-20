@@ -801,4 +801,25 @@ class GameTest < ActiveSupport::TestCase
 
     assert_equal 3, @game.latest_honba.riichi_stick_count
   end
+
+  test '#game_end? returns true only when round count is exceeded' do
+    @game.latest_round.update!(number: @game.game_mode.round_count - 2)
+    assert_not @game.game_end?
+
+    @game.latest_round.update!(number: @game.game_mode.round_count)
+    assert @game.game_end?
+  end
+
+  test '#ranked_players returns players sorted by total score' do
+    totals = [ 35_000, 28_000, 41_000, 22_000 ]
+    @game.players.each_with_index do |player, index|
+      player.game_records.last.update!(score: totals[index], point: 0)
+    end
+
+    expected_ids = @game.players.map { |player| [ player.id, player.score + player.point ] }
+                          .sort_by { |(_, total)| -total }
+                          .map(&:first)
+
+    assert_equal expected_ids, @game.ranked_players.map(&:id)
+  end
 end

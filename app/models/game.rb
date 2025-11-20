@@ -296,6 +296,18 @@ class Game < ApplicationRecord
     latest_honba.update!(riichi_stick_count: current_step.riichi_stick_count)
   end
 
+  def game_end?
+    latest_round.number + 1 > game_mode.round_count
+  end
+
+  def ranked_players
+    if players.loaded?
+      players.sort_by { |player| -(player.score + player.point) }
+    else
+      players.includes(:game_records).to_a.sort_by { |player| -(player.score + player.point) }
+    end
+  end
+
   private
 
     def create_tiles_and_round
