@@ -55,6 +55,7 @@ class Game < ApplicationRecord
       player.player_states.create!(step: current_step)
 
       INITIAL_HAND_SIZE.times do |_|
+        top_tile = latest_honba.top_tile
         player.receive(top_tile)
         increase_draw_count
       end
@@ -159,9 +160,10 @@ class Game < ApplicationRecord
   end
 
   def draw_for_current_player
+    top_tile = latest_honba.top_tile
+    increase_draw_count
     next_step = advance_step!
     current_player.draw(top_tile, next_step)
-    increase_draw_count
   end
 
   def discard_for_current_player(hand_id)
@@ -334,10 +336,6 @@ class Game < ApplicationRecord
         random_score = random_scores[index]
         player.game_records.last.update!(score: random_score)
       end
-    end
-
-    def top_tile
-      latest_honba.top_tile
     end
 
     def increase_draw_count
