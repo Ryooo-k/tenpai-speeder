@@ -76,7 +76,7 @@ class GameFlow
     end
 
     def tsumogiri
-      drawn_hand = @game.current_player.hands.find_by(drawn: true)
+      drawn_hand = @game.current_player.hands.detect(&:drawn)
       @payloads[:chosen_hand_id] = drawn_hand.id
       @payloads[:next_event] = 'discard'
     end

@@ -7,7 +7,7 @@ class Honba < ApplicationRecord
   belongs_to :round
 
   has_many :steps, dependent: :destroy
-  has_many :tile_orders, dependent: :destroy
+  has_many :tile_orders, -> { order(:order) }, dependent: :destroy
   has_many :game_records, dependent: :destroy
 
   validates :round, presence: true
@@ -15,10 +15,6 @@ class Honba < ApplicationRecord
   validates :riichi_stick_count, presence: true
 
   after_create :create_tile_orders_and_step
-
-  def find_current_step(step_number)
-    steps.find_by!(number: step_number)
-  end
 
   def top_tile
     order = draw_count - kan_count
@@ -36,7 +32,12 @@ class Honba < ApplicationRecord
   end
 
   def dora_indicator_tiles
-    dora_tiles = tile_orders.where(order: DORA_INDICATOR_ORDER_RANGE).order(:order).map(&:tile)
+    if tile_orders.loaded?
+      dora_tiles = tile_orders[DORA_INDICATOR_ORDER_RANGE].map(&:tile)
+    else
+      dora_tiles = tile_orders.where(order: DORA_INDICATOR_ORDER_RANGE).map(&:tile)
+    end
+
     dora_tiles[..kan_count]
   end
 
@@ -56,9 +57,5 @@ class Honba < ApplicationRecord
 
     def tiles
       round.game.tiles
-    end
-
-    def players
-      round.game.players.ordered
     end
 end

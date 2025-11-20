@@ -50,21 +50,22 @@ class Games::PlaysController < ApplicationController
     def set_game
       @game = Game.includes(
         :game_mode,
+        { tiles: :base_tile },
         { players: [
-          :user,
-          :ai,
+          :user, :ai,
           { game_records: :honba },
           { player_states: [
+            { step: :honba },
             { hands: { tile: :base_tile } },
             { melds:  [ { tile: :base_tile } ] },
             { rivers: { tile: :base_tile } }
           ] }
         ] },
         { rounds: [
-          honbas: [
-            { tile_orders: { tile: :base_tile } },
-            :steps
-          ]
+            honbas: [
+              { tile_orders: { tile: :base_tile } },
+              :steps
+            ]
         ] }
       ).find(params[:game_id])
     end

@@ -55,15 +55,6 @@ class PlayerStateTest < ActiveSupport::TestCase
     assert player_state.valid?
   end
 
-  test '.ordered orders step_id' do
-    @player.player_states.delete_all
-    state_4 = @player.player_states.create!(step: steps(:step_4))
-    state_3 = @player.player_states.create!(step: steps(:step_3))
-    state_2 = @player.player_states.create!(step: steps(:step_2))
-    state_1 = @player.player_states.create!(step: steps(:step_1))
-    assert_equal [ state_1, state_2, state_3, state_4 ], @player.player_states.ordered
-  end
-
   test '.for_honba' do
     game = games(:tonnan)
     honba_1 = game.latest_round.honbas.create!(number: 1)

@@ -48,15 +48,6 @@ class RiverTest < ActiveSupport::TestCase
     assert_not river.riichi
   end
 
-  test '.ordered' do
-    @state.rivers.delete_all
-    first_river = @state.rivers.create!(tile: @manzu_3, tsumogiri: false)
-    second_river = @state.rivers.create!(tile: @manzu_1, tsumogiri: false)
-    third_river = @state.rivers.create!(tile: @manzu_2, tsumogiri: false)
-    assert_equal [ first_river, second_river, third_river ], @state.rivers.ordered
-  end
-
-
   test '.not_stolen' do
     @state.rivers.delete_all
     stolen_river = @state.rivers.create!(tile: @manzu_1, tsumogiri: false, stolen: true)

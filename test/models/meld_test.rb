@@ -36,7 +36,7 @@ class MeldTest < ActiveSupport::TestCase
     assert meld.invalid?
   end
 
-  test '.ordered sorts by player_state_id desc and position asc' do
+  test '.sorted sorts by player_state_id desc and position asc' do
     player = players(:ryo)
     state_1 = player.player_states.create!(player:, step: steps(:step_1))
     state_2 = player.player_states.create!(player:, step: steps(:step_2))

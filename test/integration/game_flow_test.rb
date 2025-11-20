@@ -195,7 +195,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'confirm_ron triggers result when ron player exist' do
-    ai = @game.ais.sample
+    ai = @game.ais.first
     set_player_turn(@game, ai)
 
     # 1萬でロン和了の状態にセット
@@ -216,7 +216,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'confirm_ron advances to draw when no ron players' do
-    ai = @game.ais.sample
+    ai = @game.ais.first
     set_player_turn(@game, ai)
     discarded_tile_id = ai.hands.first.tile.id
     next_player = @game.players.find_by(seat_order: @game.current_player.seat_order + 1)
@@ -234,7 +234,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'confirm_furo triggers choose when user played furo' do
-    ai = @game.ais.sample
+    ai = @game.ais.first
     set_player_turn(@game, ai)
 
     # 1萬でポンの状態にセット
@@ -835,10 +835,10 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'rotates wind when advances next round' do
-    ton_wind_player = @game.players.ordered[0]
-    nan_wind_player = @game.players.ordered[1]
-    sha_wind_player = @game.players.ordered[2]
-    pei_wind_player = @game.players.ordered[3]
+    ton_wind_player = @game.players[0]
+    nan_wind_player = @game.players[1]
+    sha_wind_player = @game.players[2]
+    pei_wind_player = @game.players[3]
 
     assert_dom %(div[data-player-board-test-id="#{ton_wind_player.id}"]) do
       assert_dom %(span[data-role="wind"]), text: '東'
@@ -990,7 +990,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     @game.reload
-    drawn_hand_id = @game.current_player.hands.find_by(drawn: true).id.to_s
+    drawn_hand_id = @game.current_player.hands.find(&:drawn).id.to_s
 
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard

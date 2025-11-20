@@ -7,6 +7,4 @@ class GameRecord < ApplicationRecord
   validates :player, presence: true
   validates :honba, presence: true, on: :update
   validates :score, presence: true
-
-  scope :ordered, -> { order(:honba_id) }
 end

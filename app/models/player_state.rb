@@ -12,7 +12,6 @@ class PlayerState < ApplicationRecord
   validates :player, presence: true
   validates :step, presence: true
 
-  scope :ordered, -> { order(step_id: :asc) }
   scope :for_honba, ->(honba) {
     joins(step: :honba)
     .where(honbas: { id: honba.id })
@@ -25,7 +24,5 @@ class PlayerState < ApplicationRecord
     joins(:step)
     .where(steps: { number: range })
   }
-  scope :with_hands, -> { where.associated(:hands) }
-  scope :with_rivers, -> { where.associated(:rivers) }
   scope :with_melds, -> { where.associated(:melds) }
 end

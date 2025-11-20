@@ -1,7 +1,7 @@
 <div class="absolute left-1/2 top-1/2 w-[25cqw] aspect-[4/3] -translate-x-1/2 -translate-y-1/2">
   <div class="relative h-full w-full text-center text-emerald-100">
     <div class="text-[clamp(0.4rem,1.5cqw,1rem)]">
-      <% @game.players.ordered.each do |player| %>
+      <% @game.players.each do |player| %>
         <% position_class = build_player_status_position_class(player) %>
         <% highlight_class = player == @game.current_player ? 'border-2 border-red-500/80 rounded-md' : '' %>
         <div
