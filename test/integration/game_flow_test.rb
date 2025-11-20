@@ -577,7 +577,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_dom 'form[action=?]', game_play_command_path(@game) do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :result
     end
-    assert_dom 'input[type=?][value=?]', 'submit', '次局へ'
+    assert_dom 'input[type=?][value=?]', 'submit', '次へ'
   end
 
   test 'renders result when ryukyoku' do
@@ -750,6 +750,35 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_equal before_round_number + 1, @game.latest_round.number
     assert_equal before_honba_number + 1, @game.latest_honba.number
     assert_equal 0, @game.current_step_number
+  end
+
+  test 'result → game_end_event when game is game_end' do
+    final_round_number = @game.game_mode.round_count
+    @game.latest_round.update!(number: final_round_number)
+
+    # 親がトップでないようにポイントを調整し連荘にならないようにする
+    child = @game.children.first
+    host = @game.host
+    host.game_records.last.update!(point: -1)
+    child.game_records.last.update!(point: 1)
+
+    @game.reload
+    assert_not @game.host_winner?
+    assert @game.game_end?
+
+    post game_play_command_path(@game), params: { event: 'result', ryukyoku: false }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'h2', text: '対局終了'
+    assert_dom 'table' do
+      assert_dom 'th', text: '順位'
+      assert_dom 'th', text: 'プレイヤー'
+      assert_dom 'th', text: '最終スコア'
+    end
+
+    assert_dom 'a[href=?][data-turbo=?]', home_path, 'false', text: 'ホームに戻る'
   end
 
   test 'host mangan ron updates score: +12000 to winner, -12000 to loser and honba bonus' do
