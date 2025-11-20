@@ -3,57 +3,14 @@
     <div class="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4">
       <div class="relative aspect-[4/3] w-full bg-emerald-900/30 overflow-hidden @container">
         <%= render partial: "games/mahjong_table/kyoku_status" %>
-        <%= render partial: "games/mahjong_table/player", collection: @game.players %>
-        <% if (event_partial = event_partial_path(@event)) %>
-          <%= render partial: event_partial %>
-        <% end %>
+        <div id="<%= dom_id(@game, :mahjong_table_playfield) %>">
+          <%= render partial: "games/mahjong_table/playfield" %>
+        </div>
       </div>
     </div>
 
-    <div class="flex justify-center gap-3">
-      <% base_button_class = "rounded-full border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm font-semibold text-slate-100 shadow-sm shadow-emerald-500/20" %>
-      <% hover_class = "transition hover:border-emerald-400 hover:text-emerald-200 hover:shadow-emerald-400/30" %>
-      <% disabled_class = "opacity-50 cursor-not-allowed" %>
-
-      <% undo_button_classes = [
-        base_button_class,
-        (@can_undo ? hover_class : disabled_class)
-        ].compact.join(" ") %>
-
-      <% playback_button_classes = [
-        base_button_class,
-        (@can_playback ? hover_class : disabled_class)
-        ].compact.join(" ") %>
-
-      <% redo_button_classes = [
-        base_button_class,
-        (@can_redo ? hover_class : disabled_class)
-        ].compact.join(" ") %>
-
-      <%= form_with url: game_play_undo_path(@game),
-                    class: "inline-block",
-                    data: { testid: "undo" } do |form| %>
-        <%= form.button "戻る",
-                        class: undo_button_classes,
-                        disabled: !@can_undo %>
-      <% end %>
-
-      <%= form_with url: game_play_playback_path(@game),
-                    class: "inline-block",
-                    data: { testid: "playback" } do |form| %>
-        <%= form.hidden_field :event, value: @event %>
-        <%= form.button "▶︎",
-                        class: playback_button_classes,
-                        disabled: !@can_playback %>
-      <% end %>
-
-      <%= form_with url: game_play_redo_path(@game),
-                    class: "inline-block",
-                    data: { testid: "redo" } do |form| %>
-        <%= form.button "進む",
-                        class: redo_button_classes,
-                        disabled: !@can_redo %>
-      <% end %>
+    <div id="<%= dom_id(@game, :mahjong_table_controls) %>">
+      <%= render partial: "games/mahjong_table/controls" %>
     </div>
   </div>
 </section>
