@@ -209,7 +209,7 @@ class Game < ApplicationRecord
 
   def build_ron_score_statements(discarded_tile_id, ron_player_ids)
     ron_players = players.where(id: ron_player_ids)
-    tile = tiles.find(discarded_tile_id)
+    tile = find_tile(discarded_tile_id)
     score_statement_table = {}
 
     ron_players.each do |player|
@@ -220,8 +220,8 @@ class Game < ApplicationRecord
   end
 
   def give_ron_point(score_statement_table)
-    score_statement_table.each do |player_id, score_statements|
-      player = players.find(player_id)
+    score_statement_table.each do |ron_player_id, score_statements|
+      player = find_player(ron_player_id)
       point = PointCalculator.calculate_point(score_statements, player)
       player.add_point(point[:receiving])
       current_player.add_point(point[:payment])
@@ -406,5 +406,21 @@ class Game < ApplicationRecord
 
     def latest_step_number
       latest_honba.steps.maximum(:number)
+    end
+
+    def find_player(id)
+      if players.loaded?
+        players.detect { |player| player.id == id.to_i }
+      else
+        players.find(id)
+      end
+    end
+
+    def find_tile(id)
+      if tiles.loaded?
+        tiles.detect { |tile| tile.id == id.to_i }
+      else
+        tiles.find(id)
+      end
     end
 end
