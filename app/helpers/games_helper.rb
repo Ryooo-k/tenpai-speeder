@@ -14,6 +14,7 @@ module GamesHelper
     confirm_furo
     ryukyoku
     result
+    game_end
   ].freeze
 
   def build_hand_position_class(player)

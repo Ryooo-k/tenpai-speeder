@@ -182,6 +182,8 @@ class GameFlow
         @game.advance_next_honba!(ryukyoku:)
         @game.deal_initial_hands
         next_event = 'draw'
+      elsif !renchan && @game.game_end?
+        next_event = 'game_end'
       else
         @game.advance_next_round!(ryukyoku:)
         @game.deal_initial_hands
