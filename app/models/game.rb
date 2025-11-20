@@ -312,6 +312,10 @@ class Game < ApplicationRecord
     ranked_players.each_with_index.to_h { |player, index| [ player.id, index + 1 ] }
   end
 
+  def reset_point
+    players.each { |player| player.latest_game_record.update!(point: 0) }
+  end
+
   private
 
     def create_tiles_and_round

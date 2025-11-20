@@ -837,4 +837,13 @@ class GameTest < ActiveSupport::TestCase
 
     assert_equal expected_hash, @game.rankings
   end
+
+  test '#reset_point sets all player points to zero' do
+    @game.players.each_with_index do |player, index|
+      player.latest_game_record.update!(point: 1000)
+    end
+
+    @game.reset_point
+    assert @game.players.all? { |player| player.point.zero? }
+  end
 end
