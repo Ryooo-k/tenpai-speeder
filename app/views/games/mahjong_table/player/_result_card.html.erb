@@ -28,7 +28,7 @@
     <% end %>
 
     <div class="mt-3">
-      <div class="flex justify-center flex-wrap gap-1" data-result-card-role="hands">
+      <div class="flex justify-center flex-wrap" data-result-card-role="hands">
         <% player.hands.each do |hand| %>
           <%= image_tag("tiles/#{hand.tile.suit}_#{hand.tile.number}.gif",
                         class: "w-[18px]",
@@ -37,7 +37,7 @@
       </div>
     </div>
     <div class="mt-3">
-      <div class="flex justify-center flex-wrap gap-1" data-result-card-role="melds">
+      <div class="flex justify-center flex-wrap" data-result-card-role="melds">
         <% player.melds.each do |meld| %>
           <div class="flex justify-center items-center h-[25.2px]" data-result-meld-id="<%= meld.id %>">
             <% image_name = meld.from? ? "tiles/rotated_#{meld.suit}_#{meld.number}.gif" : "tiles/#{meld.suit}_#{meld.number}.gif" %>
