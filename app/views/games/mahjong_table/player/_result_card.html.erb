@@ -1,0 +1,53 @@
+<div class="<%= wrapper_classes %>" data-player-result-card-id="<%= player.id %>">
+  <div class="flex items-center justify-between text-[11px] font-semibold text-emerald-600 sm:text-xs">
+    <span><%= player.wind_name %></span>
+    <span><%= @game.rankings[player.id] %>位</span>
+  </div>
+  <p class="mt-1 text-sm font-bold text-slate-900 text-center truncate sm:text-base" title="<%= player.name %>">
+    <%= player.name %>
+  </p>
+  <p class="text-xl font-black text-center tracking-wide text-slate-950 sm:text-2xl">
+    <%= number_with_delimiter(player.final_score) %>
+  </p>
+  <p class="text-xs font-semibold text-center <%= point_class %>">
+    <%= point_delta.positive? ? "+#{number_with_delimiter(point_delta)}" : number_with_delimiter(point_delta) %>
+  </p>
+
+  <% if point_delta.positive? %>
+    <% if winner_statements %>
+      <div class="mt-2 rounded-xl bg-emerald-50/80 p-2 text-[11px] text-emerald-800">
+        <p class="text-center font-semibold tracking-wide">
+          <%= winner_statements[:han_total] %>飜 <%= winner_statements[:fu_total] %>符
+        </p>
+        <ul class="mt-1 space-y-0.5 text-center">
+          <% Array(winner_statements[:yaku_list]).each do |yaku| %>
+            <li><%= yaku[:name] %>（<%= yaku[:han] %>飜）</li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="mt-3">
+      <div class="flex justify-center flex-wrap gap-1" data-result-card-role="hands">
+        <% player.hands.each do |hand| %>
+          <%= image_tag("tiles/#{hand.tile.suit}_#{hand.tile.number}.gif",
+                        class: "w-[18px]",
+                        data: { result_hand_id: hand.id }) %>
+        <% end %>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="flex justify-center flex-wrap gap-1" data-result-card-role="melds">
+        <% player.melds.each do |meld| %>
+          <div class="flex justify-center items-center h-[25.2px]" data-result-meld-id="<%= meld.id %>">
+            <% image_name = meld.from? ? "tiles/rotated_#{meld.suit}_#{meld.number}.gif" : "tiles/#{meld.suit}_#{meld.number}.gif" %>
+            <% width_class = meld.from? ? 'w-[25.2px]' : 'w-[18px]' %>
+            <div class="<%= width_class %> h-full flex items-end">
+              <%= image_tag(image_name, class: "block h-auto max-h-full w-full") %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

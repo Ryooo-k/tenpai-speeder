@@ -1,37 +1,79 @@
-<div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-  <div role="dialog" aria-modal="true" class="w-[min(92vw,720px)] rounded-2xl bg-white p-5 shadow-xl">
-    <h2 class="text-xl font-bold mb-3">結果</h2>
+<div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6 sm:py-10">
+  <div role="dialog" aria-modal="true" class="w-full max-w-[960px] rounded-3xl bg-white/95 shadow-2xl text-slate-900">
+    <div class="flex h-full flex-col max-h-[90vh]">
+      <div class="px-4 pt-6 sm:px-6 lg:px-8">
+        <div class="text-center mb-4 space-y-0.5">
+          <p class="text-xs font-semibold tracking-[0.3em] text-emerald-600 sm:text-sm">RESULT</p>
+          <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">対局結果</h2>
+          <p class="text-xs text-gray-500 sm:text-sm">各プレイヤーのスコアとポイント変動</p>
+        </div>
+      </div>
 
-    <table class="w-full text-sm mb-4">
-      <thead>
-        <tr class="border-b">
-          <th class="text-left py-1">プレイヤー</th>
-          <th class="text-right py-1">スコア</th>
-          <th class="text-right py-1">ポイント</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @game.players.each do |player| %>
-          <tr class="border-b">
-            <td class="py-1"><%= player.name %></td>
-            <td class="py-1 text-right"><%= player.score + player.point %></td>
-            <td class="py-1 text-right"><%= player.point %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+      <div class="flex-1 overflow-y-auto px-2 pb-4 sm:px-6 lg:px-8">
+        <div class="relative hidden md:block mx-auto w-full max-w-[860px] aspect-[5/3]">
+          <% @game.players.each do |player| %>
+            <% position_class = build_result_position_class(player) %>
+            <% point_delta = player.point %>
+            <% winner_statements = result_score_statement_for(player, @score_statements) %>
+            <% point_class =
+                if point_delta.positive?
+                  'text-emerald-600'
+                elsif point_delta.negative?
+                  'text-rose-500'
+                else
+                  'text-slate-500'
+                end %>
 
-    <div class="text-sm text-gray-600 mb-4">
-      本場: <%= @game.latest_honba.number %>  /  供託リーチ棒: <%= @game.latest_honba.riichi_stick_count %>
-    </div>
+            <%= render partial: "games/mahjong_table/player/result_card",
+              locals: {
+                player:,
+                point_delta:,
+                point_class:,
+                winner_statements:,
+                wrapper_classes: "absolute #{position_class} w-[min(38vw,280px)] rounded-2xl bg-white/95 p-4 shadow-lg shadow-emerald-200/40"
+              } %>
+          <% end %>
+        </div>
 
-    <div class="flex justify-end">
-      <%= form_with url: game_play_command_path(@game),
-                    data: { testid: "result" } do |form| %>
-        <%= form.hidden_field :event, value: "result" %>
-        <%= form.hidden_field :ryukyoku, value: @ryukyoku %>
-        <%= submit_tag "次へ", class: "px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold" %>
-      <% end %>
+        <div class="md:hidden space-y-3">
+          <% @game.players.each do |player| %>
+            <% point_delta = player.point %>
+            <% winner_statements = result_score_statement_for(player, @score_statements) %>
+            <% point_class =
+                if point_delta.positive?
+                  'text-emerald-600'
+                elsif point_delta.negative?
+                  'text-rose-500'
+                else
+                  'text-slate-500'
+                end %>
+
+            <%= render partial: "games/mahjong_table/player/result_card",
+              locals: {
+                player:,
+                point_delta:,
+                point_class:,
+                winner_statements:,
+                wrapper_classes: "w-full rounded-2xl bg-white shadow shadow-slate-200 p-4"
+              } %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-200 px-4 py-4 sm:px-6">
+        <div class="text-xs text-gray-600 text-center sm:text-sm">
+          本場: <%= @game.latest_honba.number %>  /  供託リーチ棒: <%= @game.latest_honba.riichi_stick_count %>
+        </div>
+
+        <div class="flex justify-end">
+          <%= form_with url: game_play_command_path(@game),
+                        data: { testid: "result" } do |form| %>
+            <%= form.hidden_field :event, value: "result" %>
+            <%= form.hidden_field :ryukyoku, value: @ryukyoku %>
+            <%= submit_tag "次へ", class: "px-4 py-2 rounded-2xl bg-emerald-600 text-white text-sm font-semibold shadow-lg shadow-emerald-500/40 transition hover:bg-emerald-500 sm:px-6 sm:py-2.5 sm:text-base" %>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 </div>
