@@ -563,7 +563,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
 
-    assert_dom 'h2', text: '結果'
+    assert_dom 'h2', text: '対局結果'
   end
 
   test 'renders next round form when someone wins' do
@@ -586,7 +586,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
 
-    assert_dom 'h2', text: '結果'
+    assert_dom 'h2', text: '対局結果'
   end
 
   test 'advances to next honba when host player tsumo' do
@@ -779,6 +779,44 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
 
     assert_dom 'a[href=?][data-turbo=?]', home_path, 'false', text: 'ホームに戻る'
+  end
+
+  test 'winner result card displays hands, melds, yaku, han and point' do
+    winner = @game.user_player
+    set_host(@game, winner)
+    loser = @game.ais.first
+    set_player_turn(@game, loser)
+
+    set_hands('m123456789 p5', winner, drawn: false)
+    set_melds('z111=', winner)
+    expected_hand_count = winner.hands.count
+    expected_meld_count = winner.melds.count
+    winning_tile = set_hands('p555', loser).first.tile
+
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: winning_tile.id, ron_player_ids: [ winner.id ] }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom %(div[data-player-result-card-id="#{winner.id}"]) do
+      winner.hands.each do |hand|
+        assert_dom %(div[data-result-card-role="hands"] img[data-result-hand-id="#{hand.id}"])
+      end
+      winner.melds.each do |meld|
+        assert_dom %(div[data-result-card-role="melds"] div[data-result-meld-id="#{meld.id}"])
+      end
+    end
+
+    winner_statements = winner.score_statements(tile: winning_tile)
+    assert_dom 'p', text: "#{winner_statements[:han_total]}飜 #{winner_statements[:fu_total]}符"
+
+    winner_statements[:yaku_list].each do |yaku|
+      assert_dom 'li', text: "#{yaku[:name]}（#{yaku[:han]}飜）"
+    end
+
+    helpers = ApplicationController.helpers
+    point_delta_text = winner.point.positive? ? "+#{helpers.number_with_delimiter(winner.point)}" : helpers.number_with_delimiter(winner.point)
+    assert_dom 'p', text: point_delta_text
   end
 
   test 'host mangan ron updates score: +12000 to winner, -12000 to loser and honba bonus' do
