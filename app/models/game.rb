@@ -208,7 +208,7 @@ class Game < ApplicationRecord
   end
 
   def build_ron_score_statements(discarded_tile_id, ron_player_ids)
-    ron_players = players.where(id: ron_player_ids)
+    ron_players = where_players(ron_player_ids)
     tile = find_tile(discarded_tile_id)
     score_statement_table = {}
 
@@ -413,6 +413,14 @@ class Game < ApplicationRecord
         players.detect { |player| player.id == id.to_i }
       else
         players.find(id)
+      end
+    end
+
+    def where_players(ids)
+      if players.loaded?
+        players.select { |player| ids.include?(player.id) }
+      else
+        players.where(id: ids)
       end
     end
 
