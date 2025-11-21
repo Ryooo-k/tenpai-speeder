@@ -79,6 +79,19 @@ module GamesHelper
     end
   end
 
+  def build_result_position_class(player)
+    case player.relation_from_user
+    when :shimocha
+      'right-0 top-1/2 -translate-y-1/2'
+    when :toimen
+      'left-1/2 -translate-x-1/2'
+    when :kamicha
+      'left-0 top-1/2 -translate-y-1/2'
+    when :self
+      'left-1/2 bottom-0 -translate-x-1/2'
+    end
+  end
+
   def discard_form_needed?(event, player)
     player.user? && event.in?([ 'choose', 'choose_riichi' ])
   end
@@ -92,5 +105,19 @@ module GamesHelper
     return unless EVENT_PARTIALS.include?(event_name)
 
     "games/mahjong_table/events/#{event_name}"
+  end
+
+  def result_score_statement_for(player, score_statements)
+    return unless score_statements.present?
+    return unless score_statements.is_a?(Hash)
+
+    statement = score_statements[player.id] || score_statements[player.id.to_s]
+
+    if statement.nil?
+      player_id_key = score_statements[:player_id] || score_statements['player_id']
+      statement = score_statements if player_id_key == player.id
+    end
+
+    statement&.deep_symbolize_keys
   end
 end

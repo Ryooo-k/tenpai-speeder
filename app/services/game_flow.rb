@@ -64,8 +64,12 @@ class GameFlow
 
     def confirm_tsumo(params)
       if params[:tsumo]
+        winner = @game.current_player
+        score_statements = winner.score_statements
         @game.give_tsumo_point
         @game.give_bonus_point
+
+        @payloads[:score_statements] = { winner.id => score_statements }
         @payloads[:ryukyoku] = false
         next_event = 'result'
       else
@@ -143,6 +147,7 @@ class GameFlow
         score_statements = @game.build_ron_score_statements(params[:discarded_tile_id], ron_player_ids)
         @game.give_ron_point(score_statements)
         @game.give_bonus_point(ron_player_ids:)
+
         @payloads[:score_statements] = score_statements
         @payloads[:ryukyoku] = false
         next_event = 'result'

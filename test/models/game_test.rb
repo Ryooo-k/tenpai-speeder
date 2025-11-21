@@ -816,10 +816,34 @@ class GameTest < ActiveSupport::TestCase
       player.game_records.last.update!(score: totals[index], point: 0)
     end
 
-    expected_ids = @game.players.map { |player| [ player.id, player.score + player.point ] }
-                          .sort_by { |(_, total)| -total }
-                          .map(&:first)
+    expected_ids = @game.players
+                        .map { |player| [ player.id, player.final_score ] }
+                        .sort_by { |(_, total)| -total }
+                        .map(&:first)
 
     assert_equal expected_ids, @game.ranked_players.map(&:id)
+  end
+
+  test '#rankings returns hash of player ids mapped to rank order' do
+    totals = [ 30_000, 27_500, 39_000, 18_000 ]
+    @game.players.each_with_index do |player, index|
+      player.game_records.last.update!(score: totals[index], point: 0)
+    end
+
+    expected_pairs = @game.players
+                          .map { |player| [ player.id, player.final_score ] }
+                          .sort_by { |(_, total)| -total }
+    expected_hash = expected_pairs.each_with_index.to_h { |(player_id, _), idx| [ player_id, idx + 1 ] }
+
+    assert_equal expected_hash, @game.rankings
+  end
+
+  test '#reset_point sets all player points to zero' do
+    @game.players.each_with_index do |player, index|
+      player.latest_game_record.update!(point: 1000)
+    end
+
+    @game.reset_point
+    assert @game.players.all? { |player| player.point.zero? }
   end
 end

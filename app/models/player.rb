@@ -157,8 +157,16 @@ class Player < ApplicationRecord
     latest_game_record.update!(point: new_point)
   end
 
+  def latest_game_record
+    game_records.first
+  end
+
   def score
     latest_game_record.score
+  end
+
+  def final_score
+    latest_game_record.score + latest_game_record.point
   end
 
   def wind_number
@@ -282,10 +290,6 @@ class Player < ApplicationRecord
         .select { |bs| bs.melds.present? }
         .sort_by { |bs| bs.step.number }.reverse
         .map(&:melds)
-    end
-
-    def latest_game_record
-      game_records.first
     end
 
     def create_drawn_hands(drawn_tile)

@@ -630,6 +630,18 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 45000, @user_player.score
   end
 
+  test '#latest_game_record returns newest game_record' do
+    initial_record = @user_player.latest_game_record
+    assert_equal initial_record, @user_player.game_records.first
+
+    ton_1 = Round.create!(game: @game, number: 0)
+    ton_1_honba_1 = Honba.create!(round: ton_1, number: 1)
+    @user_player.game_records.create!(honba: ton_1_honba_1, point: 900)
+
+    assert_equal ton_1_honba_1, @user_player.latest_game_record.honba
+    assert_equal 900, @user_player.latest_game_record.point
+  end
+
   test '#wind_number and wind_name and #wind_code' do
     @user_player.stub(:host_seat_number, 0) do
       @user_player.seat_order = 0
@@ -1110,6 +1122,13 @@ class PlayerTest < ActiveSupport::TestCase
         { name: '槍槓', han: 1 }
       ], score_statements[:yaku_list]
     end
+  end
+
+  test '#final_score returns combined score and point' do
+    assert_equal @user_player.score + @user_player.point, @user_player.final_score
+
+    @user_player.game_records.last.update!(score: 30_000, point: 1_200)
+    assert_equal 31_200, @user_player.final_score
   end
 
   test '#tenpai? returns true when shanten == 0' do
