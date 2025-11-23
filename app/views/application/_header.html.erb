@@ -1,0 +1,14 @@
+<header class="flex items-center justify-between px-4 py-2 bg-slate-950">
+  <% logo_link_path = local_assigns[:logo_path] || root_path %>
+  <%= link_to logo_link_path, class: "flex items-center gap-2" do %>
+    <%= image_tag "/logo.svg", alt: "Tenpai Speeder", class: "h-8 w-auto" %>
+    <span class="text-lg font-semibold tracking-tight text-yellow-500/70">Tenpai Speeder</span>
+  <% end %>
+  <% unless current_page?(root_path) %>
+    <button type="button" class="flex flex-col justify-between w-9 h-8 p-1.5 border border-stone-50/70 rounded-md" aria-label="メニューを開く">
+      <span class="block h-0.5 bg-stone-50/70 rounded"></span>
+      <span class="block h-0.5 bg-stone-50/70 rounded"></span>
+      <span class="block h-0.5 bg-stone-50/70 rounded"></span>
+    </button>
+  <% end %>
+</header>
