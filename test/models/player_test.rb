@@ -1191,7 +1191,7 @@ class PlayerTest < ActiveSupport::TestCase
     hands_to_lower_shanten_and_normal_outs = @user_player.hands_to_lower_shanten_and_normal_outs
 
     # 1筒、5筒、9筒を捨てれば向聴数が減る
-    assert_equal [ '1筒', '5筒', '9筒'], hands_to_lower_shanten_and_normal_outs.keys.map(&:name)
+    assert_equal [ '1筒', '5筒', '9筒' ], hands_to_lower_shanten_and_normal_outs.keys.map(&:name)
 
     # 1筒を捨てた時の有効牌
     pinzu_1 = hands_to_lower_shanten_and_normal_outs.keys[0]
@@ -1237,7 +1237,7 @@ class PlayerTest < ActiveSupport::TestCase
     hands_to_same_shanten_outs = @user_player.hands_to_same_shanten_outs
 
     # 向聴数が変わらない打牌候補
-    assert_equal ["東", "南", "西", "北"], hands_to_same_shanten_outs.keys.map(&:name)
+    assert_equal [ '東', '南', '西', '北' ], hands_to_same_shanten_outs.keys.map(&:name)
 
     # 東を捨てた時の有効牌
     ton = hands_to_same_shanten_outs.keys[0]
