@@ -241,7 +241,7 @@ class Player < ApplicationRecord
   end
 
   def outs
-    HandEvaluator.find_outs(self)
+    HandEvaluator.find_outs(hands, melds, game.tiles, shanten)
   end
 
   def hands_to_lower_shanten_and_normal_outs
