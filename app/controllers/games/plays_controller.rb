@@ -106,9 +106,6 @@ class Games::PlaysController < ApplicationController
         @furo_candidates = @game.user_player.find_furo_candidates(discarded_tile, @game.current_player)
       end
 
-      @shanten = @game.user_player.shanten
-      @outs = @game.user_player.outs[:normal]
-      @outs_kind = @outs.map(&:code).tally.keys.count
       @favorite = current_user&.favorites&.find_by(game: @game)
       @can_undo = @game.can_undo?
       @can_redo = @game.can_redo?
