@@ -14,11 +14,11 @@
       </div>
     </div>
     <% if hands_to_lower_shanten_and_normal_outs.present? %>
-      <% sorted_outs = hands_to_lower_shanten_and_normal_outs.sort_by do |_, outs|
+      <% sorted_outs = hands_to_lower_shanten_and_normal_outs.sort_by do |hand, outs|
         grouped = outs.group_by(&:code)
         total_count = grouped.values.sum(&:size)
         total_kind = grouped.keys.size
-        [ -total_count, -total_kind ]
+        [ -total_count, -total_kind, hand.code ]
       end %>
       <div class="space-y-3">
         <% sorted_outs.each do |hand, outs| %>

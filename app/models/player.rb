@@ -248,7 +248,7 @@ class Player < ApplicationRecord
     not_drawn_hands = hands.reject(&:drawn)
     current_shanten = HandEvaluator.calculate_shanten(not_drawn_hands, melds)
 
-    hands.each_with_object({}) do |hand, outs|
+    unique_hands.each_with_object({}) do |hand, outs|
       tmp_hands = hands - [ hand ]
       new_shanten = HandEvaluator.calculate_shanten(tmp_hands, melds)
 
@@ -516,5 +516,15 @@ class Player < ApplicationRecord
         rinshan:       rinshan_tsumo?,
         chankan:       chankan
       }
+    end
+
+    def unique_hands
+      checker = []
+
+      hands.filter_map do |hand|
+        next if checker.include?(hand.code)
+        checker << hand.code
+        hand
+      end
     end
 end
