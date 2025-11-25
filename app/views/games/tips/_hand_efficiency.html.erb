@@ -10,13 +10,11 @@
   <div class="space-y-4 rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
     <div class="flex items-center gap-4">
       <div class="flex w-full items-center justify-between">
-        <div class="flex flex-col gap-2">
-          <p class="font-semibold tracking-[0.35em] text-emerald-300">打牌候補</p>
-          <p class="text-xs text-slate-400">向聴数が減る打牌候補を有効牌が多い順に表示します。</p>
-        </div>
+        <p class="font-semibold tracking-[0.35em] text-emerald-300">打牌候補</p>
       </div>
     </div>
     <% if hands_to_lower_shanten_and_normal_outs.present? %>
+      <p class="text-xs text-slate-400">向聴数が減る打牌候補を有効牌が多い順に表示します。</p>
       <% sorted_outs = hands_to_lower_shanten_and_normal_outs.sort_by do |hand, outs|
         grouped = outs.group_by(&:code)
         total_count = grouped.values.sum(&:size)
@@ -60,12 +58,10 @@
 
   <div class="space-y-4 rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
     <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-2">
-        <p class="font-semibold tracking-[0.35em] text-emerald-300">受入枚数トップ3</p>
-        <p class="text-xs text-slate-400">向聴数が変わらない打牌候補から受入枚数の多い順に表示します。</p>
-      </div>
+      <p class="font-semibold tracking-[0.35em] text-emerald-300">受入枚数トップ3</p>
     </div>
     <% if hands_to_same_shanten_outs.present? %>
+      <p class="text-xs text-slate-400">向聴数が変わらない打牌候補から受入枚数の多い順に表示します。</p>
       <% top_three_normal = hands_to_same_shanten_outs.sort_by do |hand, outs|
           grouped = outs.group_by(&:code)
           total_count = grouped.values.sum(&:size)
