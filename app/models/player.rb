@@ -244,6 +244,17 @@ class Player < ApplicationRecord
     HandEvaluator.find_outs(self)
   end
 
+  def find_tiles_to_lower_shanten
+    not_drawn_hands = hands.reject(&:drawn)
+    current_shanten = HandEvaluator.calculate_shanten(not_drawn_hands, melds)
+
+    hands.select do |hand|
+      tmp_hand = hands - [ hand ]
+      tmp_shanten = HandEvaluator.calculate_shanten(tmp_hand, melds)
+      tmp_shanten < current_shanten
+    end
+  end
+
   private
 
     def validate_player_type

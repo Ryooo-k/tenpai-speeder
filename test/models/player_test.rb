@@ -1185,4 +1185,11 @@ class PlayerTest < ActiveSupport::TestCase
       '發', '發', '發', '發',
       '中', '中', '中', '中' ], outs[:kokushi].map(&:name)
   end
+
+  test '#find_tiles_to_lower_shanten' do
+    set_hands('m123456789 p159 s11', @user_player)
+    tiles_to_lower_shanten = @user_player.find_tiles_to_lower_shanten
+
+    assert_equal [ '1筒', '5筒', '9筒'], tiles_to_lower_shanten.map(&:name)
+  end
 end
