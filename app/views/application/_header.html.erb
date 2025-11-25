@@ -1,6 +1,6 @@
 <header class="relative z-998 bg-slate-950 text-white px-5 py-2">
   <div class="relative flex items-center justify-between backdrop-blur">
-    <%= link_to local_assigns[:logo_link_path], class: "flex items-center gap-2" do %>
+    <%= link_to local_assigns[:logo_link_path], class: "flex items-center gap-2", data: { test_id: 'logo' } do %>
       <%= image_tag "/logo.svg", alt: "Tenpai Speeder", class: "h-8 w-auto" %>
       <span class="text-lg font-semibold tracking-tight text-yellow-500/80">Tenpai Speeder</span>
     <% end %>
