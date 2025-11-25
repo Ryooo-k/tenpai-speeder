@@ -261,12 +261,20 @@ class Player < ApplicationRecord
     end
   end
 
-  def hands_to_normal_outs
+  def hands_to_same_shanten_outs
+    not_drawn_hands = hands.reject(&:drawn)
+    current_shanten = HandEvaluator.calculate_shanten(not_drawn_hands, melds)
+
     unique_hands.each_with_object({}) do |hand, outs|
       tmp_hands = hands - [ hand ]
-      tmp_shanten = HandEvaluator.calculate_shanten(tmp_hands, melds)
-      normal_outs = HandEvaluator.find_normal_outs(tmp_hands, melds, game.tiles, tmp_shanten)
-      outs[hand] = normal_outs
+      new_shanten = HandEvaluator.calculate_shanten(tmp_hands, melds)
+
+      if new_shanten == current_shanten
+        normal_outs = HandEvaluator.find_normal_outs(tmp_hands, melds, game.tiles, new_shanten)
+        outs[hand] = normal_outs
+      else
+        next
+      end
     end
   end
 
