@@ -5,7 +5,7 @@
     when 'alert'  then 'bg-red-500/20 text-red-50 ring-red-300/40'
     end %>
 
-  <div data-controller="flash" class="pointer-events-none fixed inset-x-0 top-5 z-99 flex justify-center px-4 transition-all duration-400">
+  <div data-controller="flash" class="pointer-events-none fixed inset-x-0 top-1.5 z-999 flex justify-center px-4 transition-all duration-400">
     <div class="pointer-events-auto w-full max-w-md rounded-2xl border border-white/10 px-5 py-2 text-sm font-semibold shadow-xl backdrop-blur ring-1 <%= classes %>">
       <%= message %>
     </div>
