@@ -798,7 +798,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#find_outs：（normal_outs）向聴数が下がる牌のみアウツ、手牌の牌はアウツに含まれない' do
     player = players(:ryo)
     hands = set_hands('m123456789 p19 z12', player) # 有効牌 → p123789 z12（28枚）
-    outs_list = HandEvaluator.find_outs(player)
+    outs_list = HandEvaluator.find_outs(hands, player.melds, player.game.tiles, player.shanten)
 
     expected = [ '1筒', '2筒', '3筒', '7筒', '8筒', '9筒', '東', '南' ]
     outs_list[:normal].each do |outs|
@@ -812,7 +812,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#find_outs：（chiitoitsu_outs）手牌の同種牌がない1枚のみの牌が対象' do
     player = players(:ryo)
     hands = set_hands('m123456789 p11 z11', player) # 有効牌 → m123456789（27枚）
-    outs_list = HandEvaluator.find_outs(player)
+    outs_list = HandEvaluator.find_outs(hands, player.melds, player.game.tiles, player.shanten)
 
     expected = [ '1萬', '2萬', '3萬', '4萬', '5萬', '6萬', '7萬', '8萬', '9萬' ]
     outs_list[:chiitoitsu].each do |outs|
@@ -826,15 +826,15 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#find_outs：（chiitoitsu_outs）鳴いている場合、アウツ無し' do
     player = players(:ryo)
     hands = set_hands('m123456789 z11', player)
-    set_melds('p111=', player)
-    outs_list = HandEvaluator.find_outs(player)
+    melds = set_melds('p111=', player)
+    outs_list = HandEvaluator.find_outs(hands, melds, player.game.tiles, player.shanten)
     assert_nil outs_list[:chiitoitsu]
   end
 
   test '#find_outs：（kokushi_outs）国士無双の対象牌のみアウツ' do
     player = players(:ryo)
     hands = set_hands('m2345678 p234 s234', player)
-    outs_list = HandEvaluator.find_outs(player)
+    outs_list = HandEvaluator.find_outs(hands, player.melds, player.game.tiles, player.shanten)
 
     expected = [ '1萬', '9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中' ]
     outs_list[:kokushi].each do |outs|
@@ -848,7 +848,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#find_outs：（kokushi_outs）頭の牌はアウツ対象外' do
     player = players(:ryo)
     hands = set_hands('m1145678 p234 s234', player)
-    outs_list = HandEvaluator.find_outs(player)
+    outs_list = HandEvaluator.find_outs(hands, player.melds, player.game.tiles, player.shanten)
 
     expected = [ '9萬', '1筒', '9筒', '1索', '9索', '東', '南', '西', '北', '白', '發', '中' ]
     outs_list[:kokushi].each do |outs|
@@ -863,8 +863,8 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#find_outs：（kokushi_outs）鳴いている場合、アウツ無し' do
     player = players(:ryo)
     hands = set_hands('m19 p19 s19 z1234', player)
-    set_melds('z555=', player)
-    outs_list = HandEvaluator.find_outs(player)
+    melds = set_melds('z555=', player)
+    outs_list = HandEvaluator.find_outs(hands, melds, player.game.tiles, player.shanten)
     assert_nil outs_list[:kokushi]
   end
 

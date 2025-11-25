@@ -241,7 +241,41 @@ class Player < ApplicationRecord
   end
 
   def outs
-    HandEvaluator.find_outs(self)
+    HandEvaluator.find_outs(hands, melds, game.tiles, shanten)
+  end
+
+  def hands_to_lower_shanten_and_normal_outs
+    not_drawn_hands = hands.reject(&:drawn)
+    current_shanten = HandEvaluator.calculate_shanten(not_drawn_hands, melds)
+
+    unique_hands.each_with_object({}) do |hand, outs|
+      tmp_hands = hands - [ hand ]
+      new_shanten = HandEvaluator.calculate_shanten(tmp_hands, melds)
+
+      if new_shanten < current_shanten
+        normal_outs = HandEvaluator.find_normal_outs(tmp_hands, melds, game.tiles, new_shanten)
+        outs[hand] = normal_outs
+      else
+        next
+      end
+    end
+  end
+
+  def hands_to_same_shanten_outs
+    not_drawn_hands = hands.reject(&:drawn)
+    current_shanten = HandEvaluator.calculate_shanten(not_drawn_hands, melds)
+
+    unique_hands.each_with_object({}) do |hand, outs|
+      tmp_hands = hands - [ hand ]
+      new_shanten = HandEvaluator.calculate_shanten(tmp_hands, melds)
+
+      if new_shanten == current_shanten
+        normal_outs = HandEvaluator.find_normal_outs(tmp_hands, melds, game.tiles, new_shanten)
+        outs[hand] = normal_outs
+      else
+        next
+      end
+    end
   end
 
   private
@@ -499,5 +533,15 @@ class Player < ApplicationRecord
         rinshan:       rinshan_tsumo?,
         chankan:       chankan
       }
+    end
+
+    def unique_hands
+      checker = []
+
+      hands.filter_map do |hand|
+        next if checker.include?(hand.code)
+        checker << hand.code
+        hand
+      end
     end
 end

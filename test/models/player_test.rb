@@ -1185,4 +1185,106 @@ class PlayerTest < ActiveSupport::TestCase
       '發', '發', '發', '發',
       '中', '中', '中', '中' ], outs[:kokushi].map(&:name)
   end
+
+  test '#hands_to_lower_shanten_and_normal_outs' do
+    set_hands('m123456789 p159 s11', @user_player)
+    hands_to_lower_shanten_and_normal_outs = @user_player.hands_to_lower_shanten_and_normal_outs
+
+    # 1筒、5筒、9筒を捨てれば向聴数が減る
+    assert_equal [ '1筒', '5筒', '9筒' ], hands_to_lower_shanten_and_normal_outs.keys.map(&:name)
+
+    # 1筒を捨てた時の有効牌
+    pinzu_1 = hands_to_lower_shanten_and_normal_outs.keys[0]
+    assert_equal [
+      '3筒', '3筒', '3筒', '3筒',
+      '4筒', '4筒', '4筒', '4筒',
+      '5筒', '5筒', '5筒',
+      '6筒', '6筒', '6筒', '6筒',
+      '7筒', '7筒', '7筒', '7筒',
+      '8筒', '8筒', '8筒', '8筒',
+      '9筒', '9筒', '9筒',
+      '1索', '1索', '1索'
+    ], hands_to_lower_shanten_and_normal_outs[pinzu_1].map(&:name)
+
+    # 5筒を捨てた時の有効牌
+    pinzu_5 = hands_to_lower_shanten_and_normal_outs.keys[1]
+    assert_equal [
+      '1筒', '1筒', '1筒',
+      '2筒', '2筒', '2筒', '2筒',
+      '3筒', '3筒', '3筒', '3筒',
+      '7筒', '7筒', '7筒', '7筒',
+      '8筒', '8筒', '8筒', '8筒',
+      '9筒', '9筒', '9筒',
+      '1索', '1索', '1索'
+    ], hands_to_lower_shanten_and_normal_outs[pinzu_5].map(&:name)
+
+    # 9筒を捨てた時の有効牌
+    pinzu_9 = hands_to_lower_shanten_and_normal_outs.keys[2]
+    assert_equal [
+      '1筒', '1筒', '1筒',
+      '2筒', '2筒', '2筒', '2筒',
+      '3筒', '3筒', '3筒', '3筒',
+      '4筒', '4筒', '4筒', '4筒',
+      '5筒', '5筒', '5筒',
+      '6筒', '6筒', '6筒', '6筒',
+      '7筒', '7筒', '7筒', '7筒',
+      '1索', '1索', '1索'
+    ], hands_to_lower_shanten_and_normal_outs[pinzu_9].map(&:name)
+  end
+
+  test '#hands_to_same_shanten_outs returns outs for each unique hand without the discard tile' do
+    set_hands('m19 z111222333444', @user_player,)
+    hands_to_same_shanten_outs = @user_player.hands_to_same_shanten_outs
+
+    # 向聴数が変わらない打牌候補
+    assert_equal [ '東', '南', '西', '北' ], hands_to_same_shanten_outs.keys.map(&:name)
+
+    # 東を捨てた時の有効牌
+    ton = hands_to_same_shanten_outs.keys[0]
+    assert_equal [
+      '1萬', '1萬', '1萬',
+      '2萬', '2萬', '2萬', '2萬',
+      '3萬', '3萬', '3萬', '3萬',
+      '7萬', '7萬', '7萬', '7萬',
+      '8萬', '8萬', '8萬', '8萬',
+      '9萬', '9萬', '9萬',
+      '東', '東', '東'
+    ], hands_to_same_shanten_outs[ton].map(&:name)
+
+    # 南を捨てた時の有効牌
+    nan = hands_to_same_shanten_outs.keys[1]
+    assert_equal [
+      '1萬', '1萬', '1萬',
+      '2萬', '2萬', '2萬', '2萬',
+      '3萬', '3萬', '3萬', '3萬',
+      '7萬', '7萬', '7萬', '7萬',
+      '8萬', '8萬', '8萬', '8萬',
+      '9萬', '9萬', '9萬',
+      '南', '南', '南'
+    ], hands_to_same_shanten_outs[nan].map(&:name)
+
+    # 西を捨てた時の有効牌
+    sha = hands_to_same_shanten_outs.keys[2]
+    assert_equal [
+      '1萬', '1萬', '1萬',
+      '2萬', '2萬', '2萬', '2萬',
+      '3萬', '3萬', '3萬', '3萬',
+      '7萬', '7萬', '7萬', '7萬',
+      '8萬', '8萬', '8萬', '8萬',
+      '9萬', '9萬', '9萬',
+      '西', '西', '西'
+    ], hands_to_same_shanten_outs[sha].map(&:name)
+
+    # 北を捨てた時の有効牌
+    pei = hands_to_same_shanten_outs.keys[3]
+    assert_equal [
+      '1萬', '1萬', '1萬',
+      '2萬', '2萬', '2萬', '2萬',
+      '3萬', '3萬', '3萬', '3萬',
+      '7萬', '7萬', '7萬', '7萬',
+      '8萬', '8萬', '8萬', '8萬',
+      '9萬', '9萬', '9萬',
+      '北', '北', '北'
+    ], hands_to_same_shanten_outs[pei].map(&:name)
+  end
 end

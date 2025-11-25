@@ -1,28 +1,105 @@
+<% player = @game.user_player %>
+<% hands_to_lower_shanten_and_normal_outs = player.hands_to_lower_shanten_and_normal_outs %>
+<% hands_to_same_shanten_outs = player.hands_to_same_shanten_outs %>
+
 <div class="space-y-4 text-xl">
   <div class="flex items-center justify-between rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
     <p class="font-semibold tracking-[0.35em] text-emerald-300">向聴数</p>
-    <p class="font-semibold text-emerald-100"><%= @shanten %></p>
+    <p class="font-semibold text-emerald-100"><%= player.shanten %></p>
   </div>
   <div class="space-y-4 rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
     <div class="flex items-center gap-4">
       <div class="flex w-full items-center justify-between">
-        <p class="font-semibold tracking-[0.35em] text-emerald-300">有効牌</p>
-        <p class="font-semibold text-emerald-100"><%= @outs_kind %>種<%= @outs.count %>枚</p>
+        <p class="font-semibold tracking-[0.35em] text-emerald-300">打牌候補</p>
       </div>
     </div>
-    <% grouped_outs = Array(@outs).group_by(&:code) %>
-    <% if grouped_outs.present? %>
-      <div class="flex flex-wrap justify-center gap-2">
-        <% grouped_outs.each_value do |tiles| %>
-          <% tile = tiles.first %>
-          <div class="flex items-center gap-1 rounded-lg border border-emerald-400/40 bg-emerald-900/40 px-2 py-1">
-            <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: 'w-7') %>
-            <span class="text-lg text-emerald-100">×<%= tiles.count %></span>
+    <% if hands_to_lower_shanten_and_normal_outs.present? %>
+      <p class="text-xs text-slate-400">向聴数が減る打牌候補を有効牌が多い順に表示します。</p>
+      <% sorted_outs = hands_to_lower_shanten_and_normal_outs.sort_by do |hand, outs|
+        grouped = outs.group_by(&:code)
+        total_count = grouped.values.sum(&:size)
+        total_kind = grouped.keys.size
+        [ -total_count, -total_kind, hand.code ]
+      end %>
+      <div class="space-y-3">
+        <% sorted_outs.each do |hand, outs| %>
+          <% grouped_outs = outs.group_by(&:code) %>
+          <% total_outs_count = grouped_outs.values.sum(&:size) %>
+          <% total_outs_kind = grouped_outs.keys.size %>
+          <div class="rounded-2xl border border-emerald-500/30 bg-emerald-900/40 px-3 py-2 text-base text-emerald-100">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xs tracking-[0.4em] text-emerald-300">打</span>
+                <%= image_tag("tiles/#{hand.tile.suit}_#{hand.tile.number}.gif", class: 'w-8') %>
+              </div>
+              <div class="text-right">
+                <p class="text-xs uppercase tracking-[0.3em] text-emerald-400/80">有効牌</p>
+                <p class="text-lg font-semibold text-emerald-50"><%= total_outs_kind %>種<%= total_outs_count %>枚</p>
+              </div>
+            </div>
+            <div class="mt-3 flex justify-end">
+              <div class="ml-auto flex w-full flex-wrap justify-end gap-1 sm:w-2/3">
+                <% grouped_outs.each_value do |tiles| %>
+                  <% tile = tiles.first %>
+                  <div class="flex items-center gap-1 rounded border border-emerald-500/30 bg-slate-950/50 px-2 py-1">
+                    <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: 'w-5') %>
+                    <span class="text-xs font-semibold text-emerald-100">x<%= tiles.size %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
           </div>
         <% end %>
       </div>
     <% else %>
-      <p class="text-center text-sm text-emerald-200/70">現在有効牌はありません。</p>
+      <p class="text-center text-sm text-emerald-200/70">現在、向聴数が減る打牌候補はありません。</p>
+    <% end %>
+  </div>
+
+  <div class="space-y-4 rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
+    <div class="flex items-center justify-between">
+      <p class="font-semibold tracking-[0.35em] text-emerald-300">受入枚数トップ3</p>
+    </div>
+    <% if hands_to_same_shanten_outs.present? %>
+      <p class="text-xs text-slate-400">向聴数が変わらない打牌候補から受入枚数の多い順に表示します。</p>
+      <% top_three_normal = hands_to_same_shanten_outs.sort_by do |hand, outs|
+          grouped = outs.group_by(&:code)
+          total_count = grouped.values.sum(&:size)
+          total_kind = grouped.keys.size
+          [ -total_count, -total_kind, hand.code ]
+        end.first(3) %>
+      <div class="space-y-3">
+        <% top_three_normal.each do |hand, outs| %>
+          <% grouped_outs = outs.group_by(&:code) %>
+          <% total_outs_count = grouped_outs.values.sum(&:size) %>
+          <% total_outs_kind = grouped_outs.keys.size %>
+          <div class="rounded-xl border border-emerald-500/30 bg-emerald-900/30 px-3 py-2 text-base text-emerald-100">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xs tracking-[0.4em] text-emerald-300">打</span>
+                <%= image_tag("tiles/#{hand.tile.suit}_#{hand.tile.number}.gif", class: 'w-8') %>
+              </div>
+              <div class="text-right">
+                <p class="text-xs uppercase tracking-[0.3em] text-emerald-400/80">有効牌</p>
+                <p class="text-lg font-semibold text-emerald-50"><%= total_outs_kind %>種<%= total_outs_count %>枚</p>
+              </div>
+            </div>
+            <div class="mt-3 flex justify-end">
+              <div class="ml-auto flex w-full flex-wrap justify-end gap-1 sm:w-2/3">
+                <% grouped_outs.each_value do |tiles| %>
+                  <% tile = tiles.first %>
+                  <div class="flex items-center gap-1 rounded border border-emerald-500/30 bg-slate-950/50 px-2 py-1">
+                    <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: 'w-5') %>
+                    <span class="text-xs font-semibold text-emerald-100">x<%= tiles.size %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-center text-sm text-emerald-200/70">受入枚数の情報はありません。</p>
     <% end %>
   </div>
 </div>

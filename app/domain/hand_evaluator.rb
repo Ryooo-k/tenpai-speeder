@@ -236,16 +236,28 @@ module HandEvaluator
       end
     end
 
-    def find_outs(player)
-      normal_outs = find_normal_outs(player)
-      chiitoitsu_outs = find_chiitoitsu_outs(player)
-      kokushi_outs = find_kokushi_outs(player)
+    def find_outs(hands, melds, tiles, shanten)
+      normal_outs = find_normal_outs(hands, melds, tiles, shanten)
+      chiitoitsu_outs = find_chiitoitsu_outs(hands, melds, tiles)
+      kokushi_outs = find_kokushi_outs(hands, melds, tiles)
 
       {
         normal: normal_outs,
         chiitoitsu: chiitoitsu_outs,
         kokushi: kokushi_outs
       }
+    end
+
+    def find_normal_outs(hands, melds, tiles, shanten)
+      hand_and_meld_tiles = hands.map { |hand| hand.tile } + melds.map { |meld| meld.tile }
+
+      tiles.select do |tile|
+        next if hand_and_meld_tiles.include?(tile)
+
+        test_hands = hands + [ tile ]
+        new_shanten = calculate_shanten(test_hands, melds)
+        new_shanten < shanten
+      end.sort_by(&:code)
     end
   end
 
@@ -900,44 +912,29 @@ module HandEvaluator
         MAX_SHANTEN_COUNT - unique_count - (has_head ? 1 : 0)
       end
 
-      def find_normal_outs(player)
-        hands = player.hands
-        melds = player.melds
-        current_shanten = calculate_shanten(hands, melds)
-        hand_and_meld_tiles = hands.map { |hand| hand.tile } + melds.map { |meld| meld.tile }
+      def find_chiitoitsu_outs(hands, melds, tiles)
+        return nil if melds.present?
 
-        player.game.tiles.select do |tile|
-          next if hand_and_meld_tiles.include?(tile)
+        single_tile_codes = hands.map(&:code).tally.select { |_, count| count == 1 }.keys
 
-          test_hands = hands + [ tile ]
-          shanten = calculate_shanten(test_hands, melds)
-          shanten < current_shanten
-        end.sort_by(&:code)
-      end
-
-      def find_chiitoitsu_outs(player)
-        return nil if player.melds.present?
-
-        single_tile_codes = player.hands.map(&:code).tally.select { |_, count| count == 1 }.keys
-
-        player.game.tiles.select do |tile|
-          next if player.hands.map(&:tile).include?(tile)
+        tiles.select do |tile|
+          next if hands.map(&:tile).include?(tile)
           single_tile_codes.include?(tile.code)
         end.sort_by(&:code)
       end
 
-      def find_kokushi_outs(player)
-        return nil if player.melds.present?
+      def find_kokushi_outs(hands, melds, tiles)
+        return nil if melds.present?
 
-        used_kokushi_codes = player.hands.map(&:code).select { |code| KOKUSHI_TILE_CODES.include?(code) }
+        used_kokushi_codes = hands.map(&:code).select { |code| KOKUSHI_TILE_CODES.include?(code) }
         is_head = used_kokushi_codes.tally.values.any? { |count| count >= 2 }
-        kokushi_tiles = player.game.tiles.select { |tile| KOKUSHI_TILE_CODES.include?(tile.code) }
+        kokushi_tiles = tiles.select { |tile| KOKUSHI_TILE_CODES.include?(tile.code) }
 
         if is_head
           unused_codes = (KOKUSHI_TILE_CODES - used_kokushi_codes)
           kokushi_tiles.select { |tile| unused_codes.include?(tile.code) }.sort_by(&:code)
         else
-          kokushi_tiles.reject { |tile| player.hands.include?(tile) }.sort_by(&:code)
+          kokushi_tiles.reject { |tile| hands.include?(tile) }.sort_by(&:code)
         end
       end
     end
