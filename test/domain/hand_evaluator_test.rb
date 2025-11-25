@@ -726,6 +726,18 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result
   end
 
+  test '#calculate_shanten：m111222333 p456 z11（メンゼン通常手 和了） の向聴数 → -1' do
+    hands = set_hands('m111222333 p456 z11', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal -1, result
+  end
+
+  test '#calculate_shanten：m111222333 p45 s1 z11（メンゼン通常手 打s1で聴牌継続） の向聴数 → 0' do
+    hands = set_hands('m111222333 p45 s1 z11', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 0, result
+  end
+
   test '#calculate_shanten：m111222333 p45 z11（メンゼン通常手 聴牌） の向聴数 → 0' do
     hands = set_hands('m111222333 p45 z11', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
