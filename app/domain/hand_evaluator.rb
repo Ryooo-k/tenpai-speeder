@@ -247,6 +247,18 @@ module HandEvaluator
         kokushi: kokushi_outs
       }
     end
+
+    def find_normal_outs(hands, melds, tiles, shanten)
+      hand_and_meld_tiles = hands.map { |hand| hand.tile } + melds.map { |meld| meld.tile }
+
+      tiles.select do |tile|
+        next if hand_and_meld_tiles.include?(tile)
+
+        test_hands = hands + [ tile ]
+        new_shanten = calculate_shanten(test_hands, melds)
+        new_shanten < shanten
+      end.sort_by(&:code)
+    end
   end
 
   private
@@ -898,21 +910,6 @@ module HandEvaluator
         unique_count = used_kokushi_codes.keys.size
         has_head = used_kokushi_codes.values.any? { |count| count >= 2 }
         MAX_SHANTEN_COUNT - unique_count - (has_head ? 1 : 0)
-      end
-
-      def find_normal_outs(player)
-        hands = player.hands
-        melds = player.melds
-        current_shanten = calculate_shanten(hands, melds)
-        hand_and_meld_tiles = hands.map { |hand| hand.tile } + melds.map { |meld| meld.tile }
-
-        player.game.tiles.select do |tile|
-          next if hand_and_meld_tiles.include?(tile)
-
-          test_hands = hands + [ tile ]
-          shanten = calculate_shanten(test_hands, melds)
-          shanten < current_shanten
-        end.sort_by(&:code)
       end
 
       def find_chiitoitsu_outs(player)

@@ -1186,8 +1186,49 @@ class PlayerTest < ActiveSupport::TestCase
       '中', '中', '中', '中' ], outs[:kokushi].map(&:name)
   end
 
-  test '#hands_to_lower_shanten' do
+  test '#hands_to_lower_shanten_and_normal_outs' do
     set_hands('m123456789 p159 s11', @user_player)
-    assert_equal [ '1筒', '5筒', '9筒'], @user_player.hands_to_lower_shanten.map(&:name)
+    hands_to_lower_shanten_and_normal_outs = @user_player.hands_to_lower_shanten_and_normal_outs
+
+    # 1筒、5筒、9筒を捨てれば向聴数が減る
+    assert_equal [ '1筒', '5筒', '9筒'], hands_to_lower_shanten_and_normal_outs.keys.map(&:name)
+
+    # 1筒を捨てた時の有効牌
+    pinzu_1 = hands_to_lower_shanten_and_normal_outs.keys[0]
+    assert_equal [
+      '3筒', '3筒', '3筒', '3筒',
+      '4筒', '4筒', '4筒', '4筒',
+      '5筒', '5筒', '5筒',
+      '6筒', '6筒', '6筒', '6筒',
+      '7筒', '7筒', '7筒', '7筒',
+      '8筒', '8筒', '8筒', '8筒',
+      '9筒', '9筒', '9筒',
+      '1索', '1索', '1索'
+    ], hands_to_lower_shanten_and_normal_outs[pinzu_1].map(&:name)
+
+    # 5筒を捨てた時の有効牌
+    pinzu_5 = hands_to_lower_shanten_and_normal_outs.keys[1]
+    assert_equal [
+      '1筒', '1筒', '1筒',
+      '2筒', '2筒', '2筒', '2筒',
+      '3筒', '3筒', '3筒', '3筒',
+      '7筒', '7筒', '7筒', '7筒',
+      '8筒', '8筒', '8筒', '8筒',
+      '9筒', '9筒', '9筒',
+      '1索', '1索', '1索'
+    ], hands_to_lower_shanten_and_normal_outs[pinzu_5].map(&:name)
+
+    # 9筒を捨てた時の有効牌
+    pinzu_9 = hands_to_lower_shanten_and_normal_outs.keys[2]
+    assert_equal [
+      '1筒', '1筒', '1筒',
+      '2筒', '2筒', '2筒', '2筒',
+      '3筒', '3筒', '3筒', '3筒',
+      '4筒', '4筒', '4筒', '4筒',
+      '5筒', '5筒', '5筒',
+      '6筒', '6筒', '6筒', '6筒',
+      '7筒', '7筒', '7筒', '7筒',
+      '1索', '1索', '1索'
+    ], hands_to_lower_shanten_and_normal_outs[pinzu_9].map(&:name)
   end
 end
