@@ -261,6 +261,15 @@ class Player < ApplicationRecord
     end
   end
 
+  def hands_to_normal_outs
+    unique_hands.each_with_object({}) do |hand, outs|
+      tmp_hands = hands - [ hand ]
+      tmp_shanten = HandEvaluator.calculate_shanten(tmp_hands, melds)
+      normal_outs = HandEvaluator.find_normal_outs(tmp_hands, melds, game.tiles, tmp_shanten)
+      outs[hand] = normal_outs
+    end
+  end
+
   private
 
     def validate_player_type

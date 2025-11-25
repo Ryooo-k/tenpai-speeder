@@ -1231,4 +1231,71 @@ class PlayerTest < ActiveSupport::TestCase
       '1索', '1索', '1索'
     ], hands_to_lower_shanten_and_normal_outs[pinzu_9].map(&:name)
   end
+
+  test '#hands_to_normal_outs returns outs for each unique hand without the discard tile' do
+    set_hands('m19 z111222333444', @user_player,)
+    hands_to_normal_outs = @user_player.hands_to_normal_outs
+
+    assert_equal ["1萬", "9萬", "東", "南", "西", "北"], hands_to_normal_outs.keys.map(&:name)
+
+    # 1萬を捨てた時の有効牌
+    manzu_1 = hands_to_normal_outs.keys[0]
+    assert_equal [
+      '9萬', '9萬', '9萬'
+    ], hands_to_normal_outs[manzu_1].map(&:name)
+
+    # 9萬を捨てた時の有効牌
+    manzu_9 = hands_to_normal_outs.keys[1]
+    assert_equal [
+      '1萬', '1萬', '1萬'
+    ], hands_to_normal_outs[manzu_9].map(&:name)
+
+    # 東を捨てた時の有効牌
+    ton = hands_to_normal_outs.keys[2]
+    assert_equal [
+      '1萬', '1萬', '1萬',
+      '2萬', '2萬', '2萬', '2萬',
+      '3萬', '3萬', '3萬', '3萬',
+      '7萬', '7萬', '7萬', '7萬',
+      '8萬', '8萬', '8萬', '8萬',
+      '9萬', '9萬', '9萬',
+      '東', '東', '東'
+    ], hands_to_normal_outs[ton].map(&:name)
+
+    # 南を捨てた時の有効牌
+    nan = hands_to_normal_outs.keys[3]
+    assert_equal [
+      '1萬', '1萬', '1萬',
+      '2萬', '2萬', '2萬', '2萬',
+      '3萬', '3萬', '3萬', '3萬',
+      '7萬', '7萬', '7萬', '7萬',
+      '8萬', '8萬', '8萬', '8萬',
+      '9萬', '9萬', '9萬',
+      '南', '南', '南'
+    ], hands_to_normal_outs[nan].map(&:name)
+
+    # 西を捨てた時の有効牌
+    sha = hands_to_normal_outs.keys[4]
+    assert_equal [
+      '1萬', '1萬', '1萬',
+      '2萬', '2萬', '2萬', '2萬',
+      '3萬', '3萬', '3萬', '3萬',
+      '7萬', '7萬', '7萬', '7萬',
+      '8萬', '8萬', '8萬', '8萬',
+      '9萬', '9萬', '9萬',
+      '西', '西', '西'
+    ], hands_to_normal_outs[sha].map(&:name)
+
+    # 北を捨てた時の有効牌
+    pei = hands_to_normal_outs.keys[5]
+    assert_equal [
+      '1萬', '1萬', '1萬',
+      '2萬', '2萬', '2萬', '2萬',
+      '3萬', '3萬', '3萬', '3萬',
+      '7萬', '7萬', '7萬', '7萬',
+      '8萬', '8萬', '8萬', '8萬',
+      '9萬', '9萬', '9萬',
+      '北', '北', '北'
+    ], hands_to_normal_outs[pei].map(&:name)
+  end
 end
