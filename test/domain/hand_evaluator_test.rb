@@ -880,6 +880,40 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_nil outs_list[:kokushi]
   end
 
+  test '#find_wining_tiles：向聴数が0になる全ての牌が返る' do
+    player = players(:ryo)
+    hands = set_hands('m123456789 p12 s11', player)
+    target_code = tiles(:first_pinzu_3).code
+
+    wining_tiles = HandEvaluator.find_wining_tiles(hands, player.melds, player.game.tiles)
+
+    assert wining_tiles.all? { |tile| tile.code == target_code }
+    assert_equal 4, wining_tiles.count
+  end
+
+  test '#find_wining_tiles：手牌に含まれる牌は対象外' do
+    player = players(:ryo)
+    hands = set_hands('m123456789 p123 s1', player)
+    target_tile = hands.detect { |hand| hand.name == '1索'}.tile
+
+    wining_tiles = HandEvaluator.find_wining_tiles(hands, player.melds, player.game.tiles)
+
+    assert_not wining_tiles.include?(target_tile)
+    assert_equal 3, wining_tiles.count
+  end
+
+  test '#find_wining_tiles：引いた牌以外の手牌で向聴数が0になる牌を探索' do
+    player = players(:ryo)
+    # 東（z1）がdrawn牌
+    hands = set_hands('m123456789 p12 s11 z1', player)
+    target_code = tiles(:first_pinzu_3).code
+
+    wining_tiles = HandEvaluator.find_wining_tiles(hands, player.melds, player.game.tiles)
+
+    assert wining_tiles.all? { |tile| tile.code == target_code }
+    assert_equal 4, wining_tiles.count
+  end
+
   # コアとなるprivateメソッドを個別にテストを行う。
   # build_agari_mentsu
   test 'empty counts returns one empty meld list' do

@@ -259,6 +259,18 @@ module HandEvaluator
         new_shanten < shanten
       end.sort_by(&:code)
     end
+
+    def find_wining_tiles(hands, melds, tiles)
+      hand_and_meld_tiles = hands.map { |hand| hand.tile } + melds.map { |meld| meld.tile }
+
+      tiles.select do |tile|
+        next if hand_and_meld_tiles.include?(tile)
+
+        test_hands = hands + [ tile ]
+        shanten = calculate_shanten(test_hands, melds)
+        shanten.negative?
+      end.sort_by(&:code)
+    end
   end
 
   private
