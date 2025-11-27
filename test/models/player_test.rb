@@ -1160,6 +1160,15 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 1, @user_player.shanten_without_drawn
   end
 
+  test '#shanten_decreased? returns true when shanten goes down after draw' do
+    set_hands('m123456789 p11 s145', @user_player)
+    assert @user_player.shanten_decreased?
+  end
+
+  test '#shanten_decreased? returns false when shanten stays or increases' do
+    set_hands('m123456789 p11 s149', @user_player)
+    assert_not @user_player.shanten_decreased?
+  end
 
   test '#outs(normal)' do
     set_hands('m223344 p55667 s22', @user_player)

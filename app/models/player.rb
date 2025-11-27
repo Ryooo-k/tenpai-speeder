@@ -245,6 +245,10 @@ class Player < ApplicationRecord
     HandEvaluator.calculate_shanten(hands_without_drawn, melds)
   end
 
+  def shanten_decreased?
+    (shanten - shanten_without_drawn).negative?
+  end
+
   def outs
     HandEvaluator.find_outs(hands, melds, game.tiles, shanten)
   end
