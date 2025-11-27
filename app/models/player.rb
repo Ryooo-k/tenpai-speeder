@@ -278,18 +278,16 @@ class Player < ApplicationRecord
     end
   end
 
-  def yaku_map_by_wining_tiles
-    return {} unless tenpai? || complete?
+  def yaku_map_by_waiting_wining_tile
+    return {} unless waiting_wining_tile?
 
-    wining_tiles = HandEvaluator.find_wining_tiles(hands_without_drawn, melds, game.tiles)
+    wining_tiles = HandEvaluator.find_wining_tiles(hands, melds, game.tiles)
     wining_tiles.each_with_object({}) do |wining_tile, yaku_map|
       next if yaku_map[wining_tile.code].present?
 
-      is_drawn_by_wining_tile = wining_tile.code == drawn_tile&.code
-      target_hands = is_drawn_by_wining_tile ? hands : hands_without_drawn + [ wining_tile ]
-      relation = is_drawn_by_wining_tile ? relation_from_current_player : :toimen # 門前清自摸の役をつけないため:self以外に設定
+      target_hands = hands + [ wining_tile ]
       situational_yaku_list = build_situational_yaku_list(tile: wining_tile)
-      score_statements = HandEvaluator.get_score_statements(target_hands, melds, wining_tile, relation, game.round_wind_number, wind_number, situational_yaku_list)
+      score_statements = HandEvaluator.get_score_statements(target_hands, melds, wining_tile, relation_from_current_player, game.round_wind_number, wind_number, situational_yaku_list)
       yaku_map[wining_tile.code] = score_statements[:yaku_list]
     end
   end
@@ -570,11 +568,7 @@ class Player < ApplicationRecord
       hands.reject(&:drawn)
     end
 
-    def drawn_tile
-      hands.detect(&:drawn)&.tile
-    end
-
     def waiting_turn?
-      WAITING_TURN_HAND_COUNTS.include?(hands.size)
+      WAITING_TURN_HAND_COUNTS.include?(hands.size) && hands.all? { |hand| !hand.drawn? }
     end
 end
