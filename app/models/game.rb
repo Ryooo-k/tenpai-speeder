@@ -114,6 +114,10 @@ class Game < ApplicationRecord
     latest_honba.dora_indicator_tiles.values_at(...MAX_DORA_COUNT)
   end
 
+  def uradora_indicator_tiles
+    latest_honba.uradora_indicator_tiles.values_at(...MAX_DORA_COUNT)
+  end
+
   def latest_round
     rounds.last
   end

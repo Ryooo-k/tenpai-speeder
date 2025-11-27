@@ -109,28 +109,55 @@ class HonbaTest < ActiveSupport::TestCase
 
   test '#dora_indicator_tiles' do
     @honba.kan_count = 0
-    first_dora_order = 122
+    first_dora_order = 126
     first_dora_tile = @honba.tile_orders.find_by(order: first_dora_order).tile
     assert_equal [ first_dora_tile ], @honba.dora_indicator_tiles
 
     @honba.kan_count = 1
-    second_dora_order = 123
+    second_dora_order = 127
     second_dora_tile = @honba.tile_orders.find_by(order: second_dora_order).tile
     assert_equal [ first_dora_tile, second_dora_tile ], @honba.dora_indicator_tiles
 
     @honba.kan_count = 2
-    third_dora_order = 124
+    third_dora_order = 128
     third_dora_tile = @honba.tile_orders.find_by(order: third_dora_order).tile
     assert_equal [ first_dora_tile, second_dora_tile, third_dora_tile ], @honba.dora_indicator_tiles
 
     @honba.kan_count = 3
-    fourth_dora_order = 125
+    fourth_dora_order = 129
     fourth_dora_tile = @honba.tile_orders.find_by(order: fourth_dora_order).tile
     assert_equal [ first_dora_tile, second_dora_tile, third_dora_tile, fourth_dora_tile ], @honba.dora_indicator_tiles
 
     @honba.kan_count = 4
-    fifth_dora_order = 126
+    fifth_dora_order = 130
     fifth_dora_tile = @honba.tile_orders.find_by(order: fifth_dora_order).tile
     assert_equal [ first_dora_tile, second_dora_tile, third_dora_tile, fourth_dora_tile, fifth_dora_tile ], @honba.dora_indicator_tiles
+  end
+
+  test '#uradora_indicator_tiles' do
+    @honba.kan_count = 0
+    first_dora_order = 131
+    first_dora_tile = @honba.tile_orders.find_by(order: first_dora_order).tile
+    assert_equal [ first_dora_tile ], @honba.uradora_indicator_tiles
+
+    @honba.kan_count = 1
+    second_dora_order = 132
+    second_dora_tile = @honba.tile_orders.find_by(order: second_dora_order).tile
+    assert_equal [ first_dora_tile, second_dora_tile ], @honba.uradora_indicator_tiles
+
+    @honba.kan_count = 2
+    third_dora_order = 133
+    third_dora_tile = @honba.tile_orders.find_by(order: third_dora_order).tile
+    assert_equal [ first_dora_tile, second_dora_tile, third_dora_tile ], @honba.uradora_indicator_tiles
+
+    @honba.kan_count = 3
+    fourth_dora_order = 134
+    fourth_dora_tile = @honba.tile_orders.find_by(order: fourth_dora_order).tile
+    assert_equal [ first_dora_tile, second_dora_tile, third_dora_tile, fourth_dora_tile ], @honba.uradora_indicator_tiles
+
+    @honba.kan_count = 4
+    fifth_dora_order = 135
+    fifth_dora_tile = @honba.tile_orders.find_by(order: fifth_dora_order).tile
+    assert_equal [ first_dora_tile, second_dora_tile, third_dora_tile, fourth_dora_tile, fifth_dora_tile ], @honba.uradora_indicator_tiles
   end
 end

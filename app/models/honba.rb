@@ -2,7 +2,8 @@
 
 class Honba < ApplicationRecord
   MAX_DRAW_COUNT = 122
-  DORA_INDICATOR_ORDER_RANGE = (122..126)
+  DORA_INDICATOR_ORDER_RANGE = (126..130)
+  URADORA_INDICATOR_ORDER_RANGE = (131..135)
 
   belongs_to :round
 
@@ -39,6 +40,16 @@ class Honba < ApplicationRecord
     end
 
     dora_tiles[..kan_count]
+  end
+
+  def uradora_indicator_tiles
+    if tile_orders.loaded?
+      uradora_tiles = tile_orders[URADORA_INDICATOR_ORDER_RANGE].map(&:tile)
+    else
+      uradora_tiles = tile_orders.where(order: URADORA_INDICATOR_ORDER_RANGE).map(&:tile)
+    end
+
+    uradora_tiles[..kan_count]
   end
 
   private

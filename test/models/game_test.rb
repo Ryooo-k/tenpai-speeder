@@ -308,6 +308,23 @@ class GameTest < ActiveSupport::TestCase
     assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.dora_indicator_tiles.map(&:class)
   end
 
+  test '#uradora_indicator_tiles' do
+    @game.latest_honba.update!(kan_count: 0)
+    assert_equal [ Tile, NilClass, NilClass, NilClass, NilClass ], @game.uradora_indicator_tiles.map(&:class)
+
+    @game.latest_honba.update!(kan_count: 1)
+    assert_equal [ Tile, Tile, NilClass, NilClass, NilClass ], @game.uradora_indicator_tiles.map(&:class)
+
+    @game.latest_honba.update!(kan_count: 2)
+    assert_equal [ Tile, Tile, Tile, NilClass, NilClass ], @game.uradora_indicator_tiles.map(&:class)
+
+    @game.latest_honba.update!(kan_count: 3)
+    assert_equal [ Tile, Tile, Tile, Tile, NilClass ], @game.uradora_indicator_tiles.map(&:class)
+
+    @game.latest_honba.update!(kan_count: 4)
+    assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.uradora_indicator_tiles.map(&:class)
+  end
+
   test '#riichi_stick_count' do
     @game.latest_honba.update!(riichi_stick_count: 0)
     assert_equal 0, @game.riichi_stick_count
