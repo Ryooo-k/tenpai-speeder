@@ -1287,4 +1287,38 @@ class PlayerTest < ActiveSupport::TestCase
       '北', '北', '北'
     ], hands_to_same_shanten_outs[pei].map(&:name)
   end
+
+  test '#yaku_map_by_wining_tiles returns score statements for each waiting tile when tenpai' do
+    set_player_turn(@game, @ai_player)
+    set_hands('m123456 p23 s12355', @user_player, drawn: false)
+    wining_tile_code_a = tiles(:first_pinzu_1).code
+    wining_tile_code_b = tiles(:first_pinzu_4).code
+    yaku_map_a = [ {name: "平和", han: 1}, {name: "三色同順", han: 2} ]
+    yaku_map_b = [ {name: "平和", han: 1} ]
+
+    result = @user_player.yaku_map_by_wining_tiles
+
+    assert_equal yaku_map_a, result[wining_tile_code_a]
+    assert_equal yaku_map_b, result[wining_tile_code_b]
+  end
+
+  test '#yaku_map_by_wining_tiles returns score statements for each waiting tile when tsumo' do
+    set_hands('m123456 p12399 s234', @user_player) # 4索（s4）でツモ和了の状態
+    set_rivers('z1', @user_player) # 天和対策
+    wining_tile_code_a = tiles(:first_souzu_1).code
+    wining_tile_code_b = tiles(:first_souzu_4).code
+    yaku_map_a = [ {name: "平和", han: 1}, {name: "三色同順", han: 2} ]
+    yaku_map_b = [ {name: "門前清自摸和", han: 1}, {name: "平和", han: 1} ]
+
+    result = @user_player.yaku_map_by_wining_tiles
+
+    assert_equal yaku_map_a, result[wining_tile_code_a]
+    assert_equal yaku_map_b, result[wining_tile_code_b]
+  end
+
+  test '#yaku_map_by_wining_tiles returns empty hash when not tenpai' do
+    @user_player.stub(:tenpai?, false) do
+      assert_equal({}, @user_player.yaku_map_by_wining_tiles)
+    end
+  end
 end
