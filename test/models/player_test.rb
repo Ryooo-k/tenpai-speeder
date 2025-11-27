@@ -1291,15 +1291,15 @@ class PlayerTest < ActiveSupport::TestCase
   test '#yaku_map_by_waiting_wining_tile returns score statements for each waiting tile when waiting_wining_tile' do
     set_player_turn(@game, @ai_player)
     set_hands('m123456 p23 s12355', @user_player, drawn: false)
-    wining_tile_code_a = tiles(:first_pinzu_1).code
-    wining_tile_code_b = tiles(:first_pinzu_4).code
+    wining_tile_a = tiles(:first_pinzu_1).base_tile
+    wining_tile_b = tiles(:first_pinzu_4).base_tile
     yaku_map_a = [ {name: "平和", han: 1}, {name: "三色同順", han: 2} ]
     yaku_map_b = [ {name: "平和", han: 1} ]
 
     result = @user_player.yaku_map_by_waiting_wining_tile
 
-    assert_equal yaku_map_a, result[wining_tile_code_a]
-    assert_equal yaku_map_b, result[wining_tile_code_b]
+    assert_equal yaku_map_a, result[wining_tile_a]
+    assert_equal yaku_map_b, result[wining_tile_b]
   end
 
   test '#yaku_map_by_waiting_wining_tile returns empty hash when not tenpai' do
