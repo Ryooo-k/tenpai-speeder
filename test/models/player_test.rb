@@ -1293,8 +1293,8 @@ class PlayerTest < ActiveSupport::TestCase
     set_hands('m123456 p23 s12355', @user_player, drawn: false)
     wining_tile_a = tiles(:first_pinzu_1).base_tile
     wining_tile_b = tiles(:first_pinzu_4).base_tile
-    yaku_map_a = [ {name: "平和", han: 1}, {name: "三色同順", han: 2} ]
-    yaku_map_b = [ {name: "平和", han: 1} ]
+    yaku_map_a = [ { name: '平和', han: 1 }, { name: '三色同順', han: 2 } ]
+    yaku_map_b = [ { name: '平和', han: 1 } ]
 
     result = @user_player.yaku_map_by_waiting_wining_tile
 

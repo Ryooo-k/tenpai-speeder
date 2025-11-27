@@ -894,7 +894,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
   test '#find_wining_tiles：手牌に含まれる牌は対象外' do
     player = players(:ryo)
     hands = set_hands('m123456789 p123 s1', player)
-    target_tile = hands.detect { |hand| hand.name == '1索'}.tile
+    target_tile = hands.detect { |hand| hand.name == '1索' }.tile
 
     wining_tiles = HandEvaluator.find_wining_tiles(hands, player.melds, player.game.tiles)
 
