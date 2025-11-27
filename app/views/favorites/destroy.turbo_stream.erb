@@ -1,4 +1,4 @@
-<%= turbo_stream.replace dom_id(@game, :favorite_toggle), partial: 'favorites/toggle_button' %>
+<%= turbo_stream.replace dom_id(@game, :favorite_toggle), partial: 'favorites/toggle_frame' %>
 
 <% if defined?(@favorites) %>
   <%= turbo_stream.replace 'favorites_list', partial: 'favorites/list' %>
