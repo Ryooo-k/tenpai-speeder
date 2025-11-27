@@ -43,4 +43,16 @@ class FavoritesTest < ApplicationSystemTestCase
     assert_current_path root_path
     assert_text 'SNSログインが必要です'
   end
+
+  test 'user toggles favorite on play page without reload' do
+    login_with_twitter @member
+    visit game_play_path(@game)
+
+    assert_button 'お気に入りに追加'
+    click_button 'お気に入りに追加'
+    assert_button 'お気に入り解除'
+
+    click_button 'お気に入り解除'
+    assert_button 'お気に入りに追加'
+  end
 end
