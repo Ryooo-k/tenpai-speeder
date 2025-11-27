@@ -204,6 +204,9 @@ module HandEvaluator
     def get_score_statements(hands, melds, agari_tile, relation, round_wind, player_wind, situational_yaku_list)
       normalized_hands, normalized_melds, normalized_agari_tile = ScoreInputNormalizer.normalize(hands, melds, agari_tile, relation)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_agari_tile)
+
+      return { tsumo: false, fu_total: 0, han_total: 0, yaku_list: [] } if agari_all_patterns.blank?
+
       scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
       all_score_statements = scoring_state_table.map do |scoring_states|
         yaku_list = build_yaku_list(scoring_states, situational_yaku_list)
@@ -212,7 +215,6 @@ module HandEvaluator
         {
           tsumo: scoring_states[:tsumo],
           fu_total: scoring_states[:fu_total],
-          fu_components: scoring_states[:fu_components],
           han_total:,
           yaku_list:
         }
