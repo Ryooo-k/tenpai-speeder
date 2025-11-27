@@ -1,11 +1,21 @@
 <% player = @game.user_player %>
 <% hands_to_lower_shanten_and_normal_outs = player.hands_to_lower_shanten_and_normal_outs %>
 <% hands_to_same_shanten_outs = player.hands_to_same_shanten_outs %>
+<% current_shanten = player.shanten %>
+<% previous_shanten = player.shanten_without_drawn %>
 
 <div class="space-y-4 text-xl">
   <div class="flex items-center justify-between rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
     <p class="font-semibold tracking-[0.35em] text-emerald-300">向聴数</p>
-    <p class="font-semibold text-emerald-100"><%= player.shanten %></p>
+    <% if player.shanten_decreased? %>
+      <p class="font-semibold text-emerald-100 flex items-center gap-2">
+        <span><%= previous_shanten %></span>
+        <span class="text-emerald-400">→</span>
+        <span><%= current_shanten %></span>
+      </p>
+    <% else %>
+      <p class="font-semibold text-emerald-100"><%= current_shanten %></p>
+    <% end %>
   </div>
   <div class="space-y-4 rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
     <div class="flex items-center gap-4">
