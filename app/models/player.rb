@@ -11,6 +11,7 @@ class Player < ApplicationRecord
   SHIMOCHA_SEAT_NUMBER = 1
   TOIMEN_SEAT_NUMBER = 2
   KAMICHA_SEAT_NUMBER = 3
+  WAITING_TURN_HAND_COUNTS = [ 1, 4, 7, 10, 13 ].freeze
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -262,8 +263,7 @@ class Player < ApplicationRecord
   end
 
   def hands_to_same_shanten_outs
-    not_drawn_hands = hands.reject(&:drawn)
-    current_shanten = HandEvaluator.calculate_shanten(not_drawn_hands, melds)
+    current_shanten = HandEvaluator.calculate_shanten(hands_without_drawn, melds)
 
     unique_hands.each_with_object({}) do |hand, outs|
       tmp_hands = hands - [ hand ]
@@ -276,6 +276,25 @@ class Player < ApplicationRecord
         next
       end
     end
+  end
+
+  def yaku_map_by_waiting_wining_tile
+    return {} unless waiting_wining_tile?
+
+    wining_tiles = HandEvaluator.find_wining_tiles(hands, melds, game.tiles)
+    wining_tiles.each_with_object({}) do |wining_tile, yaku_map|
+      next if yaku_map[wining_tile.base_tile].present?
+
+      target_hands = hands + [ wining_tile ]
+      situational_yaku_list = build_situational_yaku_list(tile: wining_tile)
+      score_statements = HandEvaluator.get_score_statements(target_hands, melds, wining_tile, relation_from_current_player, game.round_wind_number, wind_number, situational_yaku_list)
+      yaku_map[wining_tile.base_tile] = score_statements[:yaku_list]
+    end
+  end
+
+  def waiting_wining_tile?
+    shanten_without_drawn = HandEvaluator.calculate_shanten(hands_without_drawn, melds)
+    shanten_without_drawn.zero? && waiting_turn?
   end
 
   private
@@ -543,5 +562,13 @@ class Player < ApplicationRecord
         checker << hand.code
         hand
       end
+    end
+
+    def hands_without_drawn
+      hands.reject(&:drawn)
+    end
+
+    def waiting_turn?
+      WAITING_TURN_HAND_COUNTS.include?(hands.size) && hands.all? { |hand| !hand.drawn? }
     end
 end

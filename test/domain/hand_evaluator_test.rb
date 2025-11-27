@@ -726,6 +726,18 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 2, result
   end
 
+  test '#calculate_shanten：m111222333 p456 z11（メンゼン通常手 和了） の向聴数 → -1' do
+    hands = set_hands('m111222333 p456 z11', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal -1, result
+  end
+
+  test '#calculate_shanten：m111222333 p45 s1 z11（メンゼン通常手 打s1で聴牌継続） の向聴数 → 0' do
+    hands = set_hands('m111222333 p45 s1 z11', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 0, result
+  end
+
   test '#calculate_shanten：m111222333 p45 z11（メンゼン通常手 聴牌） の向聴数 → 0' do
     hands = set_hands('m111222333 p45 z11', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
@@ -866,6 +878,40 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     melds = set_melds('z555=', player)
     outs_list = HandEvaluator.find_outs(hands, melds, player.game.tiles, player.shanten)
     assert_nil outs_list[:kokushi]
+  end
+
+  test '#find_wining_tiles：向聴数が0になる全ての牌が返る' do
+    player = players(:ryo)
+    hands = set_hands('m123456789 p12 s11', player)
+    target_code = tiles(:first_pinzu_3).code
+
+    wining_tiles = HandEvaluator.find_wining_tiles(hands, player.melds, player.game.tiles)
+
+    assert wining_tiles.all? { |tile| tile.code == target_code }
+    assert_equal 4, wining_tiles.count
+  end
+
+  test '#find_wining_tiles：手牌に含まれる牌は対象外' do
+    player = players(:ryo)
+    hands = set_hands('m123456789 p123 s1', player)
+    target_tile = hands.detect { |hand| hand.name == '1索' }.tile
+
+    wining_tiles = HandEvaluator.find_wining_tiles(hands, player.melds, player.game.tiles)
+
+    assert_not wining_tiles.include?(target_tile)
+    assert_equal 3, wining_tiles.count
+  end
+
+  test '#find_wining_tiles：引いた牌以外の手牌で向聴数が0になる牌を探索' do
+    player = players(:ryo)
+    # 東（z1）がdrawn牌
+    hands = set_hands('m123456789 p12 s11 z1', player)
+    target_code = tiles(:first_pinzu_3).code
+
+    wining_tiles = HandEvaluator.find_wining_tiles(hands, player.melds, player.game.tiles)
+
+    assert wining_tiles.all? { |tile| tile.code == target_code }
+    assert_equal 4, wining_tiles.count
   end
 
   # コアとなるprivateメソッドを個別にテストを行う。
