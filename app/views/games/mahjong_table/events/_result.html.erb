@@ -6,6 +6,36 @@
           <p class="text-xs font-semibold tracking-[0.3em] text-emerald-600 sm:text-sm">RESULT</p>
           <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">対局結果</h2>
           <p class="text-xs text-gray-500 sm:text-sm">各プレイヤーのスコアとポイント変動</p>
+          <div class="mt-2 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-800 sm:text-xs">
+            <span>ドラ表示牌</span>
+            <div class="flex items-center">
+              <% @game.dora_indicator_tiles.each do |tile| %>
+                <div class="w-6 sm:w-7">
+                  <% if tile %>
+                    <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "block w-full h-auto") %>
+                  <% else %>
+                    <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <% if @game.showing_uradora_necessary? %>
+            <div class="mt-1 inline-flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1 text-[11px] font-semibold text-amber-800 sm:text-xs">
+              <span>裏ドラ</span>
+              <div class="flex items-center">
+                <% @game.uradora_indicator_tiles.each do |tile| %>
+                  <div class="w-6 sm:w-7">
+                    <% if tile %>
+                      <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "block w-full h-auto") %>
+                    <% else %>
+                      <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
         </div>
       </div>
 

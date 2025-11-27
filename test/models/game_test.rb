@@ -308,6 +308,23 @@ class GameTest < ActiveSupport::TestCase
     assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.dora_indicator_tiles.map(&:class)
   end
 
+  test '#uradora_indicator_tiles' do
+    @game.latest_honba.update!(kan_count: 0)
+    assert_equal [ Tile, NilClass, NilClass, NilClass, NilClass ], @game.uradora_indicator_tiles.map(&:class)
+
+    @game.latest_honba.update!(kan_count: 1)
+    assert_equal [ Tile, Tile, NilClass, NilClass, NilClass ], @game.uradora_indicator_tiles.map(&:class)
+
+    @game.latest_honba.update!(kan_count: 2)
+    assert_equal [ Tile, Tile, Tile, NilClass, NilClass ], @game.uradora_indicator_tiles.map(&:class)
+
+    @game.latest_honba.update!(kan_count: 3)
+    assert_equal [ Tile, Tile, Tile, Tile, NilClass ], @game.uradora_indicator_tiles.map(&:class)
+
+    @game.latest_honba.update!(kan_count: 4)
+    assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.uradora_indicator_tiles.map(&:class)
+  end
+
   test '#riichi_stick_count' do
     @game.latest_honba.update!(riichi_stick_count: 0)
     assert_equal 0, @game.riichi_stick_count
@@ -845,5 +862,46 @@ class GameTest < ActiveSupport::TestCase
 
     @game.reset_point
     assert @game.players.all? { |player| player.point.zero? }
+  end
+
+  test '#showing_uradora_necessary? returns true when any player riichi? with positive point' do
+    players = @game.players.to_a
+    @game.instance_variable_set(:@players, players)
+    target = players.first
+
+    target.stub(:riichi?, true) do
+      target.stub(:point, 1500) do
+        assert @game.showing_uradora_necessary?
+      end
+    end
+  end
+
+  test '#showing_uradora_necessary? returns false when no one riichi?' do
+    @game.players.each { |player| player.current_state.update!(riichi: false) }
+    assert_not @game.showing_uradora_necessary?
+  end
+
+  test '#showing_uradora_necessary? returns false when riichi? but point not positive' do
+    player = @game.players.first
+    player.current_state.update!(riichi: true)
+    player.latest_game_record.update!(point: 0)
+
+    assert_not @game.showing_uradora_necessary?
+  end
+
+  test '#showing_uradora_necessary? returns false when point is positive but no riichi' do
+    player = @game.players.first
+    player.current_state.update!(riichi: false)
+    player.latest_game_record.update!(point: 1000)
+
+    assert_not @game.showing_uradora_necessary?
+  end
+
+  test '#showing_uradora_necessary? returns true when point is positive and riichi' do
+    player = @game.players.first
+    player.current_state.update!(riichi: true)
+    player.latest_game_record.update!(point: 1000)
+
+    assert @game.showing_uradora_necessary?
   end
 end

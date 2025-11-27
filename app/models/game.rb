@@ -114,6 +114,10 @@ class Game < ApplicationRecord
     latest_honba.dora_indicator_tiles.values_at(...MAX_DORA_COUNT)
   end
 
+  def uradora_indicator_tiles
+    latest_honba.uradora_indicator_tiles.values_at(...MAX_DORA_COUNT)
+  end
+
   def latest_round
     rounds.last
   end
@@ -314,6 +318,10 @@ class Game < ApplicationRecord
 
   def reset_point
     players.each { |player| player.latest_game_record.update!(point: 0) }
+  end
+
+  def showing_uradora_necessary?
+    players.any? { |player| player.riichi? && player.point.positive? }
   end
 
   private
