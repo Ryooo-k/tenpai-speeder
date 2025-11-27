@@ -1151,6 +1151,16 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal -1, @user_player.shanten
   end
 
+  test '#shanten_without_drawn calls HandEvaluator with hands excluding drawn tile' do
+    # 5索（s5）を引いて聴牌、
+    # 5索を引く前は１向聴の状態
+    set_hands('m123456789 p11 s145', @user_player) # 最後の牌がdrawn
+
+    assert_equal 0, @user_player.shanten
+    assert_equal 1, @user_player.shanten_without_drawn
+  end
+
+
   test '#outs(normal)' do
     set_hands('m223344 p55667 s22', @user_player)
     outs = @user_player.outs
