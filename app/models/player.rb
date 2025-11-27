@@ -287,7 +287,8 @@ class Player < ApplicationRecord
 
       target_hands = hands + [ wining_tile ]
       situational_yaku_list = build_situational_yaku_list(tile: wining_tile)
-      score_statements = HandEvaluator.get_score_statements(target_hands, melds, wining_tile, relation_from_current_player, game.round_wind_number, wind_number, situational_yaku_list)
+      relation = :toimen # self以外になるように設定（役の自摸がつかないようにする）
+      score_statements = HandEvaluator.get_score_statements(target_hands, melds, wining_tile, relation, game.round_wind_number, wind_number, situational_yaku_list)
       yaku_map[wining_tile.base_tile] = score_statements[:yaku_list]
     end
   end
