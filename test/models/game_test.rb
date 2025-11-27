@@ -846,4 +846,45 @@ class GameTest < ActiveSupport::TestCase
     @game.reset_point
     assert @game.players.all? { |player| player.point.zero? }
   end
+
+  test '#showing_uradora_necessary? returns true when any player riichi? with positive point' do
+    players = @game.players.to_a
+    @game.instance_variable_set(:@players, players)
+    target = players.first
+
+    target.stub(:riichi?, true) do
+      target.stub(:point, 1500) do
+        assert @game.showing_uradora_necessary?
+      end
+    end
+  end
+
+  test '#showing_uradora_necessary? returns false when no one riichi?' do
+    @game.players.each { |player| player.current_state.update!(riichi: false) }
+    assert_not @game.showing_uradora_necessary?
+  end
+
+  test '#showing_uradora_necessary? returns false when riichi? but point not positive' do
+    player = @game.players.first
+    player.current_state.update!(riichi: true)
+    player.latest_game_record.update!(point: 0)
+
+    assert_not @game.showing_uradora_necessary?
+  end
+
+  test '#showing_uradora_necessary? returns false when point is positive but no riichi' do
+    player = @game.players.first
+    player.current_state.update!(riichi: false)
+    player.latest_game_record.update!(point: 1000)
+
+    assert_not @game.showing_uradora_necessary?
+  end
+
+  test '#showing_uradora_necessary? returns true when point is positive and riichi' do
+    player = @game.players.first
+    player.current_state.update!(riichi: true)
+    player.latest_game_record.update!(point: 1000)
+
+    assert @game.showing_uradora_necessary?
+  end
 end

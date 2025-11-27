@@ -316,6 +316,10 @@ class Game < ApplicationRecord
     players.each { |player| player.latest_game_record.update!(point: 0) }
   end
 
+  def showing_uradora_necessary?
+    players.any? { |player| player.riichi? && player.point.positive? }
+  end
+
   private
 
     def create_tiles_and_round
