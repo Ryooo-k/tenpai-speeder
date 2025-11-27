@@ -1321,4 +1321,23 @@ class PlayerTest < ActiveSupport::TestCase
       assert_equal({}, @user_player.yaku_map_by_wining_tiles)
     end
   end
+
+  test '#waiting_wining_tile? returns true when shanten 0 on waiting turn' do
+    hands = set_hands('m123456789 p123 s1', @user_player, drawn: false) # 13枚で自摸前の手番
+
+    assert @user_player.waiting_wining_tile?
+    assert_equal 13, hands.count
+  end
+
+  test '#waiting_wining_tile? returns false when not waiting turn even if shanten 0' do
+    set_hands('m123456789 p123 s11', @user_player) # 14枚で自摸後などの手番外
+
+    assert_not @user_player.waiting_wining_tile?
+  end
+
+  test '#waiting_wining_tile? returns false when shanten not 0' do
+    set_hands('m123456789 p19 s19', @user_player)
+
+    assert_not @user_player.waiting_wining_tile?
+  end
 end

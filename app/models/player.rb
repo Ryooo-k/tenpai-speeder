@@ -11,6 +11,7 @@ class Player < ApplicationRecord
   SHIMOCHA_SEAT_NUMBER = 1
   TOIMEN_SEAT_NUMBER = 2
   KAMICHA_SEAT_NUMBER = 3
+  WAITING_TURN_HAND_COUNTS = [ 1, 4, 7, 10, 13 ].freeze
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -293,6 +294,11 @@ class Player < ApplicationRecord
     end
   end
 
+  def waiting_wining_tile?
+    shanten_without_drawn = HandEvaluator.calculate_shanten(hands_without_drawn, melds)
+    shanten_without_drawn.zero? && waiting_turn?
+  end
+
   private
 
     def validate_player_type
@@ -566,5 +572,9 @@ class Player < ApplicationRecord
 
     def drawn_tile
       hands.detect(&:drawn)&.tile
+    end
+
+    def waiting_turn?
+      WAITING_TURN_HAND_COUNTS.include?(hands.size)
     end
 end
