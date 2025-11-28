@@ -39,3 +39,5 @@ node_modules/
 !/app/assets/builds/.keep
 .vscode/
 /vendor/libtorch
+
+.kamal/secrets
