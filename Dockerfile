@@ -9,6 +9,10 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.4.4
+ARG LIBTORCH_VERSION=2.8.0
+ARG LIBTORCH_VARIANT=cpu
+ARG LIBTORCH_URL="https://download.pytorch.org/libtorch/${LIBTORCH_VARIANT}/libtorch-shared-with-deps-${LIBTORCH_VERSION}%2B${LIBTORCH_VARIANT}.zip"
+
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
@@ -23,19 +27,27 @@ RUN apt-get update -qq && \
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+    BUNDLE_WITHOUT="development" \
+    TORCH_HOME="/opt/libtorch" \
+    LD_LIBRARY_PATH="/opt/libtorch/lib:${LD_LIBRARY_PATH}"
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config unzip && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install LibTorch for torch-rb
+RUN curl -L "$LIBTORCH_URL" -o /tmp/libtorch.zip && \
+    unzip -q /tmp/libtorch.zip -d /opt && \
+    rm /tmp/libtorch.zip
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
+RUN bundle config build.torch-rb --with-torch-dir=${TORCH_HOME} && \
+    bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
@@ -56,6 +68,7 @@ FROM base
 
 # Copy built artifacts: gems, application
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+COPY --from=build "${TORCH_HOME}" "${TORCH_HOME}"
 COPY --from=build /rails /rails
 
 # Run and own only the runtime files as a non-root user for security
