@@ -29,7 +29,7 @@ ENV RAILS_ENV="production" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development" \
     TORCH_HOME="/opt/libtorch" \
-    LD_LIBRARY_PATH="/opt/libtorch/lib:${LD_LIBRARY_PATH}"
+    LD_LIBRARY_PATH="/opt/libtorch/lib"
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
