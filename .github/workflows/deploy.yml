@@ -26,10 +26,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.KAMAL_SSH_PRIVATE_KEY }}
 
-      - name: Add server to known_hosts
+      - name: Refresh known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H 133.242.175.35 >> ~/.ssh/known_hosts
+          ssh-keygen -R 133.242.175.35 || true
+          ssh-keyscan -t ed25519 -H 133.242.175.35 >> ~/.ssh/known_hosts
 
       - name: Create Kamal secrets file
         run: |
