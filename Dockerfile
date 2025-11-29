@@ -9,9 +9,6 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.4.4
-ARG LIBTORCH_VERSION=2.8.0
-ARG LIBTORCH_VARIANT=cpu
-ARG LIBTORCH_URL="https://download.pytorch.org/libtorch/${LIBTORCH_VARIANT}/libtorch-shared-with-deps-${LIBTORCH_VERSION}%2B${LIBTORCH_VARIANT}.zip"
 
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
@@ -34,13 +31,16 @@ ENV RAILS_ENV="production" \
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
+ARG LIBTORCH_VERSION=2.8.0
+ARG LIBTORCH_VARIANT=cpu
+
 # Install packages needed to build gems
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config unzip && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install LibTorch for torch-rb
-RUN curl -L "$LIBTORCH_URL" -o /tmp/libtorch.zip && \
+RUN curl -L "https://download.pytorch.org/libtorch/${LIBTORCH_VARIANT}/libtorch-shared-with-deps-${LIBTORCH_VERSION}%2B${LIBTORCH_VARIANT}.zip" -o /tmp/libtorch.zip && \
     unzip -q /tmp/libtorch.zip -d /opt && \
     rm /tmp/libtorch.zip
 
