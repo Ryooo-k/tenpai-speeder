@@ -27,6 +27,7 @@ ENV RAILS_ENV="production" \
     BUNDLE_WITHOUT="development" \
     TORCH_HOME="/opt/libtorch" \
     LD_LIBRARY_PATH="/opt/libtorch/lib"
+    BUNDLE_JOBS=1 MAKEFLAGS=-j1
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
