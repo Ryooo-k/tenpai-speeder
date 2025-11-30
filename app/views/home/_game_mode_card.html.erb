@@ -10,6 +10,6 @@
 
   <%= form_with url: games_path, method: :post, class: 'relative z-10 mt-6' do |f| %>
     <%= f.hidden_field :game_mode_id, value: game_mode_card.id %>
-    <%= f.submit 'このモードで始める', class: 'w-full rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-300 py-3 text-sm font-semibold text-emerald-800/70 shadow-lg transition group-hover:text-emerald-950' %>
+    <%= f.submit 'このモードで始める', class: 'mx-auto block w-fit max-w-full min-w-[12rem] rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-300 px-5 py-3 text-sm font-semibold text-emerald-800/70 shadow-lg transition group-hover:text-emerald-950' %>
   <% end %>
 </div>

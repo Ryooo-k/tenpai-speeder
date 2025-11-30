@@ -15,7 +15,7 @@
                       game_play_path(game),
                       target: "_top",
                       class: 'inline-flex items-center rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-300 px-4 py-2 text-sm font-semibold text-emerald-900/80 shadow-lg transition hover:text-emerald-950' %>
-          <%= button_to 'お気に入り解除',
+          <%= button_to 'お気に入りを解除する',
                         favorite_path(game, context: 'index'),
                         method: :delete,
                         class: 'inline-flex items-center rounded-2xl border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/50',
@@ -27,6 +27,6 @@
 <% else %>
   <div class='rounded-3xl border border-dashed border-white/20 bg-white/5 p-8 text-center'>
     <p class='text-lg font-semibold text-white'>お気に入りはまだありません</p>
-    <p class='mt-2 text-sm text-emerald-100/80'>ゲームプレイ画面から「お気に入りに追加」を押すと登録できます。</p>
+    <p class='mt-2 text-sm text-emerald-100/80'>ゲームプレイ画面から「お気に入りに追加する」を押すと登録できます。</p>
   </div>
 <% end %>
