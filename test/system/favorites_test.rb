@@ -13,8 +13,8 @@ class FavoritesTest < ApplicationSystemTestCase
     login_with_twitter @member
 
     visit game_play_path(@game)
-    click_button 'お気に入りに追加'
-    assert_button 'お気に入り解除'
+    click_button 'お気に入りに追加する'
+    assert_button 'お気に入りを解除する'
 
     visit favorites_path
     assert_selector 'h1', text: 'お気に入り一覧'
@@ -30,7 +30,7 @@ class FavoritesTest < ApplicationSystemTestCase
     assert_text @game.game_mode.name
 
     accept_confirm '削除してもよろしいですか？' do
-      click_button 'お気に入り解除'
+      click_button 'お気に入りを解除する'
     end
 
     assert_text 'お気に入りはまだありません'
@@ -48,11 +48,11 @@ class FavoritesTest < ApplicationSystemTestCase
     login_with_twitter @member
     visit game_play_path(@game)
 
-    assert_button 'お気に入りに追加'
-    click_button 'お気に入りに追加'
-    assert_button 'お気に入り解除'
+    assert_button 'お気に入りに追加する'
+    click_button 'お気に入りに追加する'
+    assert_button 'お気に入りを解除'
 
-    click_button 'お気に入り解除'
-    assert_button 'お気に入りに追加'
+    click_button 'お気に入りを解除する'
+    assert_button 'お気に入りに追加する'
   end
 end
