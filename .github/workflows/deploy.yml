@@ -46,4 +46,4 @@ jobs:
           sudo swapon /swapfile
 
       - name: Deploy with Kamal
-        run: bin/kamal setup
+        run: bin/kamal deploy
