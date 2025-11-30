@@ -48,10 +48,10 @@
         <div class='mt-6 space-y-4'>
           <%= button_to '登録せずに利用開始', '/guest_login',
             method: :post, data: { turbo: false },
-            class: 'w-full rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-300 py-3 text-sm font-semibold text-emerald-950 shadow-lg transition hover:-translate-y-1 hover:text-emerald-900 hover:shadow-xl' %>
+            class: 'mx-auto block w-fit max-w-full min-w-[14rem] rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-300 px-6 py-3 text-sm font-semibold text-emerald-950 shadow-lg transition hover:-translate-y-1 hover:text-emerald-900 hover:shadow-xl' %>
           <%= button_to 'X（旧Twitter）でログイン', @login_path,
             method: :post, data: { turbo: false },
-            class: 'w-full rounded-2xl bg-white/10 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:bg-white/15 hover:shadow-xl' %>
+            class: 'mx-auto block w-fit max-w-full min-w-[14rem] rounded-2xl bg-white/10 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:bg-white/15 hover:shadow-xl' %>
         </div>
       </aside>
     </div>
