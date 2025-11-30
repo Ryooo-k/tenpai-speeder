@@ -29,6 +29,7 @@ jobs:
       - name: Refresh known_hosts
         run: |
           mkdir -p ~/.ssh
+          touch ~/.ssh/known_hosts
           ssh-keygen -R 133.242.175.35 || true
           ssh-keyscan -t ed25519 -H 133.242.175.35 >> ~/.ssh/known_hosts
 
