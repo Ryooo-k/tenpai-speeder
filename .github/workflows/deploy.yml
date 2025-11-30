@@ -26,12 +26,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.KAMAL_SSH_PRIVATE_KEY }}
 
-      - name: Refresh known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          rm -f ~/.ssh/known_hosts
-          ssh-keyscan -t ed25519,rsa -H 133.242.175.35 >> ~/.ssh/known_hosts
-
       - name: Create Kamal secrets file
         run: |
           mkdir -p .kamal
