@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "up", to: "rails/health#show", as: :rails_health_check
+
   get 'auth/:provider/callback', to: 'sessions#create'
   get '/login', to: 'sessions#new'
   delete '/logout', to: 'sessions#destroy', as: :logout
