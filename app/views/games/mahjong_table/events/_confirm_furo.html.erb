@@ -1,6 +1,6 @@
 <div class="absolute bottom-1/8 right-1/10">
   <div class="flex gap-2">
-    <% @furo_candidates.each do |furo_name, furo_combinations| %>
+    <% @game.user_player.furo_candidates.each do |furo_name, furo_combinations| %>
       <% case furo_name.to_sym %>
       <% when :chi %>
         <% furo_combinations.each do |chi_combinations| %>

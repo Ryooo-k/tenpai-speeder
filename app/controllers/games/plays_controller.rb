@@ -101,11 +101,6 @@ class Games::PlaysController < ApplicationController
         instance_variable_set("@#{name}", value)
       end
 
-      if @event == 'confirm_furo'
-        discarded_tile = @game.tiles.find(@discarded_tile_id)
-        @furo_candidates = @game.user_player.find_furo_candidates(discarded_tile, @game.current_player)
-      end
-
       @favorite = current_user&.favorites&.find_by(game: @game)
       @can_undo = @game.can_undo?
       @can_redo = @game.can_redo?
