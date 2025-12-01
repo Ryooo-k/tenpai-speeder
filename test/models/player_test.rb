@@ -826,17 +826,19 @@ class PlayerTest < ActiveSupport::TestCase
   test '#find_furo_candidates only pon' do
     manzu_1_a, manzu_1_b = set_hands('m11', @user_player)
     furo_candidates = @user_player.find_furo_candidates(tiles(:third_manzu_1), @ai_player)
+
     assert_equal [ manzu_1_a, manzu_1_b ], furo_candidates[:pon]
     assert_nil furo_candidates[:chi]
-    assert_nil furo_candidates[:kan]
+    assert_nil furo_candidates[:daiminkan]
   end
 
-  test '#find_furo_candidates only kan' do
+  test '#find_furo_candidates only daiminkan' do
     manzu_1_a, manzu_1_b, manzu_1_c = set_hands('m111', @user_player)
     furo_candidates = @user_player.find_furo_candidates(@manzu_1, @ai_player)
+
     assert_equal [ manzu_1_a, manzu_1_b ], furo_candidates[:pon]
     assert_nil furo_candidates[:chi]
-    assert_equal [ manzu_1_a, manzu_1_b, manzu_1_c ], furo_candidates[:kan]
+    assert_equal [ manzu_1_a, manzu_1_b, manzu_1_c ], furo_candidates[:daiminkan]
   end
 
   test '#find_furo_candidates only chi' do
@@ -848,12 +850,12 @@ class PlayerTest < ActiveSupport::TestCase
         furo_candidates = @user_player.find_furo_candidates(@manzu_3, kamicha_player)
         assert_nil furo_candidates[:pon]
         assert_equal [ [ manzu_1, manzu_2 ], [ manzu_2, manzu_4 ], [ manzu_4, manzu_5 ] ], furo_candidates[:chi]
-        assert_nil furo_candidates[:kan]
+        assert_nil furo_candidates[:daiminkan]
 
         furo_candidates = @user_player.find_furo_candidates(tiles(:first_manzu_7), kamicha_player)
         assert_nil furo_candidates[:pon]
         assert_equal [ [ manzu_5, manzu_6 ], [ manzu_6, manzu_8 ], [ manzu_8, manzu_9 ] ], furo_candidates[:chi]
-        assert_nil furo_candidates[:kan]
+        assert_nil furo_candidates[:daiminkan]
       end
     end
   end
@@ -867,7 +869,7 @@ class PlayerTest < ActiveSupport::TestCase
         furo_candidates = @user_player.find_furo_candidates(tiles(:third_manzu_3), kamicha_player)
         assert_equal [ manzu_3_a, manzu_3_b ], furo_candidates[:pon]
         assert_equal [ [ manzu_1_a, manzu_2_a ], [ manzu_2_a, manzu_4_a ], [ manzu_4_a, manzu_5_a ] ], furo_candidates[:chi]
-        assert_nil furo_candidates[:kan]
+        assert_nil furo_candidates[:daiminkan]
       end
     end
   end

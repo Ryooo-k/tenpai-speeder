@@ -202,7 +202,7 @@ class Player < ApplicationRecord
     {
       pon: find_pon_candidates(target_tile),
       chi: find_chi_candidates(target_tile, target_player),
-      kan: find_kan_candidates(target_tile)
+      daiminkan: find_kan_candidates(target_tile)
     }.compact
   end
 
