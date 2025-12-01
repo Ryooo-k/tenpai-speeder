@@ -834,7 +834,7 @@ class PlayerTest < ActiveSupport::TestCase
     ton_a, ton_b = set_hands('z11', @user_player)
 
     furo_candidates = @user_player.furo_candidates
-    assert_equal [:pon], furo_candidates.keys
+    assert_equal [ :pon ], furo_candidates.keys
     assert_equal [ ton_a, ton_b ], furo_candidates[:pon]
   end
 
