@@ -215,13 +215,61 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'confirm_ron advances to draw when no ron players' do
+  test 'user passes but ai ron moves to result' do
+    ai_discarder = @game.ais.first
+    ai_ronner = @game.ais.second
+    set_player_turn(@game, ai_discarder)
+
+    # 1萬でロン和了できる状態にユーザーと別のAIをセット
+    set_hands('m1 p123456789 p123', @game.user_player)
+    set_hands('m1 p123456789 p123', ai_ronner)
+    set_hands('m111', ai_discarder)
+    discarded_tile = ai_discarder.hands.first
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: discarded_tile.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # スルー＝ユーザーを除外し、AIだけロンさせる
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: discarded_tile.tile.id, ron_player_ids: [ ai_ronner.id ] }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), 'result' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :result
+      assert_dom 'input[type=hidden][name=?][value=?]', :ryukyoku, :false
+    end
+  end
+
+  test 'through button sends empty ron_player_ids without error and advances play' do
     ai = @game.ais.first
     set_player_turn(@game, ai)
-    discarded_tile_id = ai.hands.first.tile.id
-    next_player = @game.players.find_by(seat_order: @game.current_player.seat_order + 1)
 
-    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id:, ron_player_ids: [] }
+    # 1萬でロン和了の状態にセット（ユーザーのみロン可能）
+    set_hands('m1 p123456789 p123', @game.user_player)
+    set_hands('m111', ai)
+    discarded_tile = ai.hands.first.tile
+    next_player = @game.players.find_by(seat_order: ai.seat_order + 1)
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: ai.hands.first.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # スルー押下時は自身を除外し、空配列（空文字入り）で送る想定
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: discarded_tile.id, ron_player_ids: [ '' ] }
     assert_response :redirect
     follow_redirect!
     assert_response :success
