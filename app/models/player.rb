@@ -198,7 +198,12 @@ class Player < ApplicationRecord
     can_pon?(target_tile) || can_chi?(target_tile, target_player)
   end
 
-  def find_furo_candidates(target_tile, target_player)
+  def furo_candidates(target_player: nil, target_tile: nil)
+    target_player ||= game.current_player
+    target_tile ||= target_player&.rivers&.last&.tile
+
+    return {} if target_tile.nil? || target_player == self
+
     {
       pon: find_pon_candidates(target_tile),
       chi: find_chi_candidates(target_tile, target_player),
