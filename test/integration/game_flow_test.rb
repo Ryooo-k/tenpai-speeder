@@ -281,7 +281,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'confirm_furo triggers choose when user played furo' do
+  test 'confirm_furo triggers choose when user played pon' do
     ai = @game.ais.first
     set_player_turn(@game, ai)
 
@@ -292,6 +292,48 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     furo_ids = [ @game.user_player.hands.first.id, @game.user_player.hands.second.id ]
 
     post game_play_command_path(@game), params: { event: 'confirm_furo', furo: true, furo_type: :pon, furo_ids:, discarded_tile_id: }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?]', game_play_command_path(@game) do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
+    assert_dom 'input[type=radio][name=chosen_hand_id]'
+    end
+  end
+
+  test 'confirm_furo triggers choose when user played chi' do
+    ai = @game.ais.first
+    set_player_turn(@game, ai)
+
+    # 1-2萬を持ち、3萬でチーできる状態にセット
+    set_hands('m12 p3456789 z123', @game.user_player)
+    set_hands('m3 z123', ai)
+    discarded_tile = ai.hands.first.tile
+    chi_ids = @game.user_player.hands.select { |h| h.suit == 'manzu' && h.number.in?([ 1, 2 ]) }.map(&:id)
+
+    post game_play_command_path(@game), params: { event: 'confirm_furo', furo: true, furo_type: :chi, furo_ids: chi_ids, discarded_tile_id: discarded_tile.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?]', game_play_command_path(@game) do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
+      assert_dom 'input[type=radio][name=chosen_hand_id]'
+    end
+  end
+
+  test 'confirm_furo triggers choose when user played daiminkan' do
+    ai = @game.ais.first
+    set_player_turn(@game, ai)
+
+    # 1萬を暗槓できる状態にセット（3枚所持＋捨て牌1枚）
+    set_hands('m111 p3456789 z123', @game.user_player)
+    set_hands('m1 z123', ai)
+    discarded_tile = ai.hands.first.tile
+    kan_ids = @game.user_player.hands.select { |h| h.suit == 'manzu' && h.number == 1 }.map(&:id)
+\
+    post game_play_command_path(@game), params: { event: 'confirm_furo', furo: true, furo_type: :daiminkan, furo_ids: kan_ids, discarded_tile_id: discarded_tile.id }
     assert_response :redirect
     follow_redirect!
     assert_response :success

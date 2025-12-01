@@ -823,58 +823,76 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test '#find_furo_candidates only pon' do
+  test '#furo_candidates return {} when current_player is user' do
+    set_player_turn(@user_player.game, @user_player)
+    assert_equal({}, @user_player.furo_candidates)
+  end
+
+  test '#furo_candidates defaults to current player and latest river when args omitted' do
+    set_player_turn(@ai_player.game, @ai_player)
+    set_rivers('z1', @ai_player)
+    ton_a, ton_b = set_hands('z11', @user_player)
+
+    furo_candidates = @user_player.furo_candidates
+    assert_equal [ :pon ], furo_candidates.keys
+    assert_equal [ ton_a, ton_b ], furo_candidates[:pon]
+  end
+
+  test '#furo_candidates only pon' do
     manzu_1_a, manzu_1_b = set_hands('m11', @user_player)
-    furo_candidates = @user_player.find_furo_candidates(tiles(:third_manzu_1), @ai_player)
+    target_tile = tiles(:third_manzu_1)
+    furo_candidates = @user_player.furo_candidates(target_player: @ai_player, target_tile:)
+
     assert_equal [ manzu_1_a, manzu_1_b ], furo_candidates[:pon]
     assert_nil furo_candidates[:chi]
-    assert_nil furo_candidates[:kan]
+    assert_nil furo_candidates[:daiminkan]
   end
 
-  test '#find_furo_candidates only kan' do
+  test '#furo_candidates only daiminkan' do
     manzu_1_a, manzu_1_b, manzu_1_c = set_hands('m111', @user_player)
-    furo_candidates = @user_player.find_furo_candidates(@manzu_1, @ai_player)
+    furo_candidates = @user_player.furo_candidates(target_player: @ai_player, target_tile: @manzu_1)
+
     assert_equal [ manzu_1_a, manzu_1_b ], furo_candidates[:pon]
     assert_nil furo_candidates[:chi]
-    assert_equal [ manzu_1_a, manzu_1_b, manzu_1_c ], furo_candidates[:kan]
+    assert_equal [ manzu_1_a, manzu_1_b, manzu_1_c ], furo_candidates[:daiminkan]
   end
 
-  test '#find_furo_candidates only chi' do
+  test '#furo_candidates only chi' do
     manzu_1, manzu_2, manzu_4, manzu_5, manzu_6, manzu_8, manzu_9 = set_hands('m1245689', @user_player)
     kamicha_player = @ai_player
 
     kamicha_player.stub(:seat_order, 3) do
       @user_player.stub(:seat_order, 0) do
-        furo_candidates = @user_player.find_furo_candidates(@manzu_3, kamicha_player)
+        furo_candidates = @user_player.furo_candidates(target_tile: @manzu_3, target_player: kamicha_player)
         assert_nil furo_candidates[:pon]
         assert_equal [ [ manzu_1, manzu_2 ], [ manzu_2, manzu_4 ], [ manzu_4, manzu_5 ] ], furo_candidates[:chi]
-        assert_nil furo_candidates[:kan]
+        assert_nil furo_candidates[:daiminkan]
 
-        furo_candidates = @user_player.find_furo_candidates(tiles(:first_manzu_7), kamicha_player)
+        furo_candidates = @user_player.furo_candidates(target_tile: tiles(:first_manzu_7), target_player: kamicha_player)
         assert_nil furo_candidates[:pon]
         assert_equal [ [ manzu_5, manzu_6 ], [ manzu_6, manzu_8 ], [ manzu_8, manzu_9 ] ], furo_candidates[:chi]
-        assert_nil furo_candidates[:kan]
+        assert_nil furo_candidates[:daiminkan]
       end
     end
   end
 
-  test '#find_furo_candidates pon_and_chi_candidates' do
+  test '#furo_candidates pon_and_chi_candidates' do
     manzu_1_a, _, manzu_2_a, _, manzu_3_a, manzu_3_b, manzu_4_a, _, manzu_5_a, _ = set_hands('m1122334455', @user_player)
     kamicha_player = @ai_player
 
     kamicha_player.stub(:seat_order, 3) do
       @user_player.stub(:seat_order, 0) do
-        furo_candidates = @user_player.find_furo_candidates(tiles(:third_manzu_3), kamicha_player)
+        furo_candidates = @user_player.furo_candidates(target_tile: tiles(:third_manzu_3), target_player: kamicha_player)
         assert_equal [ manzu_3_a, manzu_3_b ], furo_candidates[:pon]
         assert_equal [ [ manzu_1_a, manzu_2_a ], [ manzu_2_a, manzu_4_a ], [ manzu_4_a, manzu_5_a ] ], furo_candidates[:chi]
-        assert_nil furo_candidates[:kan]
+        assert_nil furo_candidates[:daiminkan]
       end
     end
   end
 
-  test '#find_furo_candidates nothing' do
+  test '#furo_candidates nothing' do
     manzu_1, manzu_5, manzu_9 = set_hands('m159', @user_player)
-    furo_candidates = @user_player.find_furo_candidates(tiles(:second_manzu_1), @ai_player)
+    furo_candidates = @user_player.furo_candidates(target_tile: tiles(:second_manzu_1), target_player: @ai_player)
     assert_equal({}, furo_candidates)
   end
 
