@@ -16,7 +16,7 @@
                     params: {
                       event: "confirm_ron",
                       discarded_tile_id: @discarded_tile_id,
-                      ron_player_ids: @ron_eligible_players_ids - [ @game.user_player.id ]
+                      ron_player_ids: (@ron_eligible_players_ids - [ @game.user_player.id ]).presence || [ "" ]
                     },
                     form: { data: { testid: "through" } },
                     class: "rounded border px-2 py-1" %>
