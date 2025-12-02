@@ -562,7 +562,7 @@ class PlayerTest < ActiveSupport::TestCase
     assert_not @user_player.can_riichi?
   end
 
-  test '#can_riichi? returns true when player called ankan' do
+  test '#can_riichi? returns true when melds is only ankan' do
     set_hands('m456789 p12 s22', @user_player)
     set_melds('m1111', @user_player)
     assert @user_player.can_riichi?
