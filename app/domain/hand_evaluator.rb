@@ -102,10 +102,9 @@ module HandEvaluator
     end
 
     def calculate_shanten(hands, melds)
-      compact_melds = melds.select { |meld| meld.position != 3 }
-      normal_shanten = calculate_normal_shanten(hands, compact_melds)
-      chiitoitsu_shanten = calculate_chiitoitsu_shanten(hands, compact_melds)
-      kokushi_shanten = calculate_kokushi_shanten(hands, compact_melds)
+      normal_shanten = calculate_normal_shanten(hands, melds)
+      chiitoitsu_shanten = calculate_chiitoitsu_shanten(hands, melds)
+      kokushi_shanten = calculate_kokushi_shanten(hands, melds)
       [ normal_shanten, chiitoitsu_shanten, kokushi_shanten ].min
     end
 
@@ -776,7 +775,9 @@ module HandEvaluator
       def calculate_normal_shanten(hands, melds)
         # 既に確定している副露は面子数のボーナスだけ反映し、雀頭候補には使わない
         manzu_code, pinzu_code, souzu_code, zihai_code = normalize(hands)
-        melds_count = melds.count { |meld| meld.from.present? } * 3
+
+        # meldsの確定面子をカウント。槓子は計算の都合上、4枚を3枚に変換する。
+        melds_count = melds.count { |meld| meld.from.present? } * 3 + melds.count { |meld| [ 'ankan', 'kakan' ].include?(meld.kind) } / 4 * 3
 
         min_distance = Float::INFINITY
         NORMAL_AGARI_PATTERNS.each do |m_pattern, p_pattern, s_pattern, z_pattern, melds_pattern|
