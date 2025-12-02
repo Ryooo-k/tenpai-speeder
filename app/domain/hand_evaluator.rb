@@ -2,7 +2,8 @@
 
 module HandEvaluator
   HAND_MAX_COUNT = 14
-  NORMAL_AGARI_MENTSU_COUNT     = 5
+  TILE_KIND_COUNT = 34
+  NORMAL_AGARI_MENTSU_COUNT = 5
   CHIITOITSU_AGARI_MENTSU_COUNT = 7
   RON_RE = /[\-\+\=]\!/
   MELDS_RE  = /[-+=](?!!)/
@@ -774,7 +775,7 @@ module HandEvaluator
 
       def calculate_normal_shanten(hands, melds)
         # 既に確定している副露は面子数のボーナスだけ反映し、雀頭候補には使わない
-        manzu_code, pinzu_code, souzu_code, zihai_code = ShantenInputNormalizer.normalize(hands, [])
+        manzu_code, pinzu_code, souzu_code, zihai_code = normalize(hands)
         melds_count = melds.count { |meld| meld.from.present? } * 3
 
         min_distance = Float::INFINITY
@@ -790,6 +791,17 @@ module HandEvaluator
         end
         shanten = min_distance - 1
         [ shanten, -1 ].max
+      end
+
+      def normalize(tiles)
+        code_map = Array.new(TILE_KIND_COUNT, 0)
+        tiles.each { |tile| code_map[tile.code] += 1 }
+
+        manzu_code  = code_map[0..8].to_s
+        pinzu_code  = code_map[9..17].to_s
+        souzu_code  = code_map[18..26].to_s
+        zihai_code  = code_map[27..33].to_s
+        [ manzu_code, pinzu_code, souzu_code, zihai_code ]
       end
 
       def calculate_chiitoitsu_shanten(hands, melds)
