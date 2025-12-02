@@ -29,150 +29,28 @@ module HandEvaluator
   MAX_SHANTEN_COUNT = 13
   MAX_RIICHI_CANDIDATE_COUNT = 2
 
-  # 通常手の向聴数を計算するのに使用するリスト
-  # [ manzu, pinzu, souzu, zihai ] の和了枚数テーブル
-  NORMAL_AGARI_PATTERNS = [
-    [ 0, 0, 0, 14 ],
-    [ 0, 0, 2, 12 ],
-    [ 0, 0, 3, 11 ],
-    [ 0, 0, 5, 9 ],
-    [ 0, 0, 6, 8 ],
-    [ 0, 0, 8, 6 ],
-    [ 0, 0, 9, 5 ],
-    [ 0, 0, 11, 3 ],
-    [ 0, 0, 12, 2 ],
-    [ 0, 0, 14, 0 ],
-    [ 0, 2, 0, 12 ],
-    [ 0, 2, 3, 9 ],
-    [ 0, 2, 6, 6 ],
-    [ 0, 2, 9, 3 ],
-    [ 0, 2, 12, 0 ],
-    [ 0, 3, 0, 11 ],
-    [ 0, 3, 2, 9 ],
-    [ 0, 3, 3, 8 ],
-    [ 0, 3, 5, 6 ],
-    [ 0, 3, 6, 5 ],
-    [ 0, 3, 8, 3 ],
-    [ 0, 3, 9, 2 ],
-    [ 0, 3, 11, 0 ],
-    [ 0, 5, 0, 9 ],
-    [ 0, 5, 3, 6 ],
-    [ 0, 5, 6, 3 ],
-    [ 0, 5, 9, 0 ],
-    [ 0, 6, 0, 8 ],
-    [ 0, 6, 2, 6 ],
-    [ 0, 6, 3, 5 ],
-    [ 0, 6, 5, 3 ],
-    [ 0, 6, 6, 2 ],
-    [ 0, 6, 8, 0 ],
-    [ 0, 8, 0, 6 ],
-    [ 0, 8, 3, 3 ],
-    [ 0, 8, 6, 0 ],
-    [ 0, 9, 0, 5 ],
-    [ 0, 9, 2, 3 ],
-    [ 0, 9, 3, 2 ],
-    [ 0, 9, 5, 0 ],
-    [ 0, 11, 0, 3 ],
-    [ 0, 11, 3, 0 ],
-    [ 0, 12, 0, 2 ],
-    [ 0, 12, 2, 0 ],
-    [ 0, 14, 0, 0 ],
-    [ 2, 0, 0, 12 ],
-    [ 2, 0, 3, 9 ],
-    [ 2, 0, 6, 6 ],
-    [ 2, 0, 9, 3 ],
-    [ 2, 0, 12, 0 ],
-    [ 2, 3, 0, 9 ],
-    [ 2, 3, 3, 6 ],
-    [ 2, 3, 6, 3 ],
-    [ 2, 3, 9, 0 ],
-    [ 2, 6, 0, 6 ],
-    [ 2, 6, 3, 3 ],
-    [ 2, 6, 6, 0 ],
-    [ 2, 9, 0, 3 ],
-    [ 2, 9, 3, 0 ],
-    [ 2, 12, 0, 0 ],
-    [ 3, 0, 0, 11 ],
-    [ 3, 0, 2, 9 ],
-    [ 3, 0, 3, 8 ],
-    [ 3, 0, 5, 6 ],
-    [ 3, 0, 6, 5 ],
-    [ 3, 0, 8, 3 ],
-    [ 3, 0, 9, 2 ],
-    [ 3, 0, 11, 0 ],
-    [ 3, 2, 0, 9 ],
-    [ 3, 2, 3, 6 ],
-    [ 3, 2, 6, 3 ],
-    [ 3, 2, 9, 0 ],
-    [ 3, 3, 0, 8 ],
-    [ 3, 3, 2, 6 ],
-    [ 3, 3, 3, 5 ],
-    [ 3, 3, 5, 3 ],
-    [ 3, 3, 6, 2 ],
-    [ 3, 3, 8, 0 ],
-    [ 3, 5, 0, 6 ],
-    [ 3, 5, 3, 3 ],
-    [ 3, 5, 6, 0 ],
-    [ 3, 6, 0, 5 ],
-    [ 3, 6, 2, 3 ],
-    [ 3, 6, 3, 2 ],
-    [ 3, 6, 5, 0 ],
-    [ 3, 8, 0, 3 ],
-    [ 3, 8, 3, 0 ],
-    [ 3, 9, 0, 2 ],
-    [ 3, 9, 2, 0 ],
-    [ 3, 11, 0, 0 ],
-    [ 5, 0, 0, 9 ],
-    [ 5, 0, 3, 6 ],
-    [ 5, 0, 6, 3 ],
-    [ 5, 0, 9, 0 ],
-    [ 5, 3, 0, 6 ],
-    [ 5, 3, 3, 3 ],
-    [ 5, 3, 6, 0 ],
-    [ 5, 6, 0, 3 ],
-    [ 5, 6, 3, 0 ],
-    [ 5, 9, 0, 0 ],
-    [ 6, 0, 0, 8 ],
-    [ 6, 0, 2, 6 ],
-    [ 6, 0, 3, 5 ],
-    [ 6, 0, 5, 3 ],
-    [ 6, 0, 6, 2 ],
-    [ 6, 0, 8, 0 ],
-    [ 6, 2, 0, 6 ],
-    [ 6, 2, 3, 3 ],
-    [ 6, 2, 6, 0 ],
-    [ 6, 3, 0, 5 ],
-    [ 6, 3, 2, 3 ],
-    [ 6, 3, 3, 2 ],
-    [ 6, 3, 5, 0 ],
-    [ 6, 5, 0, 3 ],
-    [ 6, 5, 3, 0 ],
-    [ 6, 6, 0, 2 ],
-    [ 6, 6, 2, 0 ],
-    [ 6, 8, 0, 0 ],
-    [ 8, 0, 0, 6 ],
-    [ 8, 0, 3, 3 ],
-    [ 8, 0, 6, 0 ],
-    [ 8, 3, 0, 3 ],
-    [ 8, 3, 3, 0 ],
-    [ 8, 6, 0, 0 ],
-    [ 9, 0, 0, 5 ],
-    [ 9, 0, 2, 3 ],
-    [ 9, 0, 3, 2 ],
-    [ 9, 0, 5, 0 ],
-    [ 9, 2, 0, 3 ],
-    [ 9, 2, 3, 0 ],
-    [ 9, 3, 0, 2 ],
-    [ 9, 3, 2, 0 ],
-    [ 9, 5, 0, 0 ],
-    [ 11, 0, 0, 3 ],
-    [ 11, 0, 3, 0 ],
-    [ 11, 3, 0, 0 ],
-    [ 12, 0, 0, 2 ],
-    [ 12, 0, 2, 0 ],
-    [ 12, 2, 0, 0 ],
-    [ 14, 0, 0, 0 ]
-  ].freeze
+  # 面子手の向聴数を計算するのに使用するリスト
+  # [ manzu, pinzu, souzu, zihai, melds ] の和了枚数テーブル
+  NORMAL_AGARI_PATTERNS = begin
+    patterns = []
+    allowed = [ 0, 2, 3, 5, 6, 8, 9, 11, 12, 14 ]
+    [ 0, 3, 6, 9, 12 ].each do |melds|
+      remaining = HAND_MAX_COUNT - melds
+      allowed.each do |manzu|
+        next if manzu > remaining
+        allowed.each do |pinzu|
+          next if manzu + pinzu > remaining
+          allowed.each do |souzu|
+            next if manzu + pinzu + souzu > remaining
+            zihai = remaining - manzu - pinzu - souzu
+            next unless allowed.include?(zihai)
+            patterns << [ manzu, pinzu, souzu, zihai, melds ]
+          end
+        end
+      end
+    end
+    patterns.freeze
+  end
 
   class << self
     def can_tsumo?(hands, melds, round_wind, player_wind, situational_yaku_list)
@@ -895,10 +773,14 @@ module HandEvaluator
       end
 
       def calculate_normal_shanten(hands, melds)
-        manzu_code, pinzu_code, souzu_code, zihai_code = ShantenInputNormalizer.normalize(hands, melds)
+        # 既に確定している副露は面子数のボーナスだけ反映し、雀頭候補には使わない
+        manzu_code, pinzu_code, souzu_code, zihai_code = ShantenInputNormalizer.normalize(hands, [])
+        melds_count = melds.count { |meld| meld.from.present? } * 3
 
         min_distance = Float::INFINITY
-        NORMAL_AGARI_PATTERNS.each do |m_pattern, p_pattern, s_pattern, z_pattern|
+        NORMAL_AGARI_PATTERNS.each do |m_pattern, p_pattern, s_pattern, z_pattern, melds_pattern|
+          next if melds_pattern != melds_count
+
           distance =
             AGARI_DISTANCE_MAP['suuhai'][manzu_code][m_pattern.to_s] +
             AGARI_DISTANCE_MAP['suuhai'][pinzu_code][p_pattern.to_s] +
@@ -906,7 +788,8 @@ module HandEvaluator
             AGARI_DISTANCE_MAP['zihai'][zihai_code][z_pattern.to_s]
           min_distance = distance if distance < min_distance
         end
-        min_distance - 1
+        shanten = min_distance - 1
+        [ shanten, -1 ].max
       end
 
       def calculate_chiitoitsu_shanten(hands, melds)

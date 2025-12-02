@@ -720,42 +720,135 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 13, result[:han_total]
   end
 
-  test '#calculate_shanten：m111222333 p259 z1（メンゼン通常手ノーテン） の向聴数 → 2' do
-    hands = set_hands('m111222333 p259 z1', players(:ryo))
-    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
-    assert_equal 2, result
-  end
-
-  test '#calculate_shanten：m111222333 p456 z11（メンゼン通常手 和了） の向聴数 → -1' do
+  test '#calculate_shanten：面子4 雀頭あり（和了形）の向聴数 → -1' do
     hands = set_hands('m111222333 p456 z11', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
     assert_equal -1, result
   end
 
-  test '#calculate_shanten：m111222333 p45 s1 z11（メンゼン通常手 打s1で聴牌継続） の向聴数 → 0' do
+  test '#calculate_shanten：面子3 雀頭あり 面子候補あり（聴牌） の向聴数 → 0' do
+    hands = set_hands('m111222333 p23 z11', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 0, result
+  end
+
+  test '#calculate_shanten：面子3 雀頭あり 面子候補無し の向聴数 → 1' do
+    hands = set_hands('m111222333 p29 z11', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 1, result
+  end
+
+  test '#calculate_shanten：面子3 雀頭無し 面子候補無し の向聴数 → 2' do
+    hands = set_hands('m111222333 p29 z17', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 2, result
+  end
+
+  test '#calculate_shanten：面子2 雀頭あり 面子候補1 の向聴数 → 2' do
+    hands = set_hands('m123456 p23 s159 z11', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 2, result
+  end
+
+  test '#calculate_shanten：面子2 雀頭あり 面子候補0 の向聴数 → 3' do
+    hands = set_hands('m123456 p19 s159 z11', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 3, result
+  end
+
+  test '#calculate_shanten：面子2 雀頭なし 面子候補0 の向聴数 → 4' do
+    hands = set_hands('m123456 p19 s159 z17', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 4, result
+  end
+
+  test '#calculate_shanten：面子2 雀頭なし 面子候補1 の向聴数 → 3' do
+    hands = set_hands('m123456 p23 s159 z17', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 3, result
+  end
+
+  test '#calculate_shanten：面子2 雀頭なし 面子候補2 の向聴数 → 2' do
+    hands = set_hands('m123456 p23 s239 z17', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 2, result
+  end
+
+  test '#calculate_shanten：面子1 雀頭あり 面子候補3 の向聴数 → 2' do
+    hands = set_hands('m123 p3478 s23 z1156', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 2, result
+  end
+
+  test '#calculate_shanten：面子1 雀頭あり 面子候補2 の向聴数 → 3' do
+    hands = set_hands('m123 p3478 s28 z1156', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 3, result
+  end
+
+  test '#calculate_shanten：面子1 雀頭あり 面子候補1 の向聴数 → 4' do
+    hands = set_hands('m123 p237 s28 z11456', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 4, result
+  end
+
+  test '#calculate_shanten：面子1 雀頭あり 面子候補0 の向聴数 → 5' do
+    hands = set_hands('m123 p258 s28 z11456', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 5, result
+  end
+
+  test '#calculate_shanten：面子1 雀頭なし 面子候補3 の向聴数 → 3' do
+    hands = set_hands('m123 p3478 s23 z1256', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 3, result
+  end
+
+  test '#calculate_shanten：面子1 雀頭なし 面子候補2 の向聴数 → 4' do
+    hands = set_hands('m123 p3478 s28 z1256', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 4, result
+  end
+
+  test '#calculate_shanten：面子1 雀頭なし 面子候補1 の向聴数 → 5' do
+    hands = set_hands('m123 p237 s28 z1256', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 5, result
+  end
+
+  test '#calculate_shanten：面子1 雀頭なし 面子候補0 の向聴数 → 6' do
+    hands = set_hands('m234 p258 s258 z1456', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 6, result
+  end
+
+  test '#calculate_shanten：面子0 雀頭なし 面子候補0 の向聴数 → 6' do
+    hands = set_hands('m258 p258 s258 z1456', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+
+    # 面子手は７向聴であるが、七対子が6向聴となる。
+    assert_equal 6, result
+  end
+
+  test '#calculate_shanten：面子4 雀頭あり（聴牌）1枚不要牌ツモ時の向聴数 → 0' do
     hands = set_hands('m111222333 p45 s1 z11', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, @empty_melds)
     assert_equal 0, result
   end
 
-  test '#calculate_shanten：m111222333 p45 z11（メンゼン通常手 聴牌） の向聴数 → 0' do
-    hands = set_hands('m111222333 p45 z11', players(:ryo))
-    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
-    assert_equal 0, result
-  end
-
-  test '#calculate_shanten：m111222333 p259 z1（鳴き通常手ノーテン） の向聴数 → 2' do
-    hands = set_hands('m333 p259 z1', players(:ryo))
+  test '#calculate_shanten：槓子の副露面子を面子候補に使わず判定（面子3 雀頭無し 面子候補0）の向聴数 → 2' do
+    hands = set_hands('m234 p259 z1', players(:ryo))
     melds = set_melds('m111- m2222-', players(:ryo))
     result = HandEvaluator.calculate_shanten(hands, melds)
     assert_equal 2, result
   end
 
-  test '#calculate_shanten：m111222333 p45 z11（鳴き通常手 聴牌） の向聴数 → 0' do
-    hands = set_hands('m333 p45 z11', players(:ryo))
-    melds = set_melds('m111- m2222-', players(:ryo))
+  test '#calculate_shanten：副露面子を雀頭に使わず判定（面子3・雀頭無し） の向聴数 → 1' do
+    hands = set_hands('m56 p56678', players(:ryo))
+    melds = set_melds('p444= s456+', players(:ryo))
+
     result = HandEvaluator.calculate_shanten(hands, melds)
-    assert_equal 0, result
+    assert_equal 1, result
   end
 
   test '#calculate_shanten：m159 p159 s159 z1234（国士無双ノーテン）の向聴数 → 3' do
