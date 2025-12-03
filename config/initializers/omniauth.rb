@@ -2,7 +2,10 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :developer unless Rails.env.production?
 
   twitter_options = if Rails.env.production?
-                      { callback_url: 'https://tenpai-speeder.com/auth/twitter2/callback' }
+                      {
+                        callback_url: 'https://tenpai-speeder.com/auth/twitter2/callback',
+                        scope: 'users.read offline.access'
+                      }
                     else
                       {}
                     end
