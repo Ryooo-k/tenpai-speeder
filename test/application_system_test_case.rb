@@ -7,7 +7,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   OmniAuth.config.test_mode = true
 
   teardown do
-    OmniAuth.config.mock_auth[:twitter] = nil
+    OmniAuth.config.mock_auth[:twitter2] = nil
   end
 
   private
@@ -19,8 +19,8 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     end
 
     def login_with_twitter(user)
-      OmniAuth.config.mock_auth[:twitter] = OmniAuth::AuthHash.new(
-        provider: 'twitter',
+      OmniAuth.config.mock_auth[:twitter2] = OmniAuth::AuthHash.new(
+        provider: 'twitter2',
         uid: user.uid,
         info: { name: user.name }
       )

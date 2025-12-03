@@ -2,6 +2,6 @@
 
 class WelcomeController < ApplicationController
   def index
-    @login_path = Rails.env.development? ? '/auth/developer' : '/auth/twitter'
+    @login_path = Rails.env.development? ? '/auth/developer' : '/auth/twitter2'
   end
 end

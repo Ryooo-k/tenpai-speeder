@@ -10,8 +10,8 @@ class LoginTest < ApplicationSystemTestCase
   end
 
   test 'login with twitter' do
-    OmniAuth.config.mock_auth[:twitter] = OmniAuth::AuthHash.new(
-      provider: 'twitter',
+    OmniAuth.config.mock_auth[:twitter2] = OmniAuth::AuthHash.new(
+      provider: 'twitter2',
       uid: '1234',
       info: { name: 'ryo' }
     )
@@ -21,8 +21,8 @@ class LoginTest < ApplicationSystemTestCase
   end
 
   test 'failure login without name' do
-    OmniAuth.config.mock_auth[:twitter] = OmniAuth::AuthHash.new(
-      provider: 'twitter',
+    OmniAuth.config.mock_auth[:twitter2] = OmniAuth::AuthHash.new(
+      provider: 'twitter2',
       uid: '1234',
       info: { name: '' }
     )
