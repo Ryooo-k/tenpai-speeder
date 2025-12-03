@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get "up", to: "rails/health#show", as: :rails_health_check
 
   get 'auth/:provider/callback', to: 'sessions#create'
+  get '/auth/failure', to: 'sessions#failure'
   get '/login', to: 'sessions#new'
   delete '/logout', to: 'sessions#destroy', as: :logout
   resource :session, only: [:destroy]
