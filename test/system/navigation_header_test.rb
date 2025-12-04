@@ -9,7 +9,7 @@ class NavigationHeaderTest < ApplicationSystemTestCase
   end
 
   test 'logged-in user opens hamburger menu and moves to favorites page' do
-    login_with_twitter users(:ryo)
+    login_with_google users(:ryo)
 
     find('button[aria-label="メニューを開く"]').click
     dropdown = find('div[data-dropdown-target="menu"]', text: 'お気に入り一覧')
@@ -22,7 +22,7 @@ class NavigationHeaderTest < ApplicationSystemTestCase
   end
 
   test 'user can logout from hamburger menu and return to welcome page' do
-    login_with_twitter users(:ryo)
+    login_with_google users(:ryo)
     find('button[aria-label="メニューを開く"]').click
 
     accept_confirm 'ログアウトしますか？' do
@@ -35,7 +35,7 @@ class NavigationHeaderTest < ApplicationSystemTestCase
   end
 
   test 'user can navigate back home from hamburger menu' do
-    login_with_twitter users(:ryo)
+    login_with_google users(:ryo)
     visit favorites_path
 
     find('button[aria-label="メニューを開く"]').click
@@ -49,7 +49,7 @@ class NavigationHeaderTest < ApplicationSystemTestCase
   end
 
   test 'clicking the logo navigates to home when current page is not root' do
-    login_with_twitter users(:ryo)
+    login_with_google users(:ryo)
     visit favorites_path
 
     find("header a[data-test-id='logo']").click

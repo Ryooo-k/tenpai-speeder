@@ -7,7 +7,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   OmniAuth.config.test_mode = true
 
   teardown do
-    OmniAuth.config.mock_auth[:twitter2] = nil
+    OmniAuth.config.mock_auth[:google_oauth2] = nil
   end
 
   private
@@ -18,15 +18,15 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
       assert_text 'ログインしました'
     end
 
-    def login_with_twitter(user)
-      OmniAuth.config.mock_auth[:twitter2] = OmniAuth::AuthHash.new(
-        provider: 'twitter2',
+    def login_with_google(user)
+      OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
+        provider: 'google_oauth2',
         uid: user.uid,
-        info: { name: user.name }
+        info: { name: user.name, email: user.email }
       )
 
       visit root_path
-      click_button 'X（旧Twitter）でログイン'
+      click_button 'Googleでログインする'
       assert_text 'ログインしました'
     end
 end
