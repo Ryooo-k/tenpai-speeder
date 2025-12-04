@@ -30,7 +30,7 @@
     <div class="mt-3">
       <div class="flex justify-center flex-wrap" data-result-card-role="hands">
         <% player.hands.each do |hand| %>
-          <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.tile.aka?, class_name: "w-[18px]" } %>
+          <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.tile.aka?, class_name: "w-[18px]", data: { result_hand_id: hand.id } } %>
         <% end %>
       </div>
     </div>

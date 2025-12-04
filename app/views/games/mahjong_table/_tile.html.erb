@@ -2,6 +2,8 @@
   rotated_prefix = local_assigns[:rotated] ? "rotated_" : ""
   red_suffix = local_assigns[:red] ? "_red" : ""
   is_back_board = local_assigns[:back_board] || !tile.present?
+  class_name = local_assigns[:class_name]
+  data = local_assigns[:data]
 
   image_name =
     if is_back_board
@@ -10,4 +12,4 @@
       "tiles/#{rotated_prefix}#{tile.suit}_#{tile.number}#{red_suffix}.gif"
     end
 %>
-<%= image_tag(image_name, class: class_name) %>
+<%= image_tag(image_name, class: class_name, data: data.presence) %>
