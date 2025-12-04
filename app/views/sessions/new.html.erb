@@ -1,3 +1,7 @@
+<% content_for :title, 'ログイン｜Tenpai Speeder' %>
+<% content_for :meta_description, 'Tenpai Speederへのログインページです。Googleアカウントでログインして麻雀練習を再開できます。' %>
+<% content_for :meta_keywords, 'ログイン,サインイン,麻雀,テンパイスピーダー,Google' %>
+
 <%= form_tag('/auth/google_oauth2', method: 'post', data: { turbo: false }) do %>
   <button type='submit'>Login with Developer</button>
 <% end %>
