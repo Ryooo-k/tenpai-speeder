@@ -1195,5 +1195,4 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :tsumogiri
     end
   end
-
 end
