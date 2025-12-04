@@ -10,7 +10,7 @@ class FavoritesTest < ApplicationSystemTestCase
   end
 
   test 'user adds favorite from game play page and sees it on favorites gage' do
-    login_with_twitter @member
+    login_with_google @member
 
     visit game_play_path(@game)
     click_button 'お気に入りに追加する'
@@ -24,7 +24,7 @@ class FavoritesTest < ApplicationSystemTestCase
   test 'user removes favorites page and empty state appears' do
     @member.favorites.create!(game: @game)
 
-    login_with_twitter @member
+    login_with_google @member
 
     visit favorites_path
     assert_text @game.game_mode.name
@@ -45,7 +45,7 @@ class FavoritesTest < ApplicationSystemTestCase
   end
 
   test 'user toggles favorite on play page without reload' do
-    login_with_twitter @member
+    login_with_google @member
     visit game_play_path(@game)
 
     assert_button 'お気に入りに追加する'

@@ -3,6 +3,6 @@ guest:
 
 ryo:
   name: ryo
-  provider: twitter2
+  provider: google_oauth2
   uid: "1245678"
   email: ryo@example.com

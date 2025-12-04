@@ -20,7 +20,7 @@ gem 'thruster', require: false
 gem 'tailwindcss-rails', '~> 4.3'
 gem 'omniauth'
 gem 'omniauth-rails_csrf_protection'
-gem 'omniauth-twitter2'
+gem 'omniauth-google-oauth2'
 gem 'dotenv-rails'
 
 group :torch do
