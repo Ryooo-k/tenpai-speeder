@@ -73,7 +73,7 @@ class GameFlow
         @payloads[:ryukyoku] = false
         next_event = 'result'
       else
-        next_event = 'choose'
+        next_event = @game.current_player.riichi? ? 'tsumogiri' : 'choose'
       end
 
       @payloads[:next_event] = next_event
