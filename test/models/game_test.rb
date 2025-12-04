@@ -904,4 +904,11 @@ class GameTest < ActiveSupport::TestCase
 
     assert @game.showing_uradora_necessary?
   end
+
+  test '#add_new_dora increments kan_count on latest_honba' do
+    assert_equal 0, @game.latest_honba.kan_count
+
+    @game.add_new_dora
+    assert_equal 1, @game.latest_honba.kan_count
+  end
 end
