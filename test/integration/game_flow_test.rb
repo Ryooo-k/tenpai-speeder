@@ -1179,4 +1179,20 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'input[type=hidden][name=?][value=?]', 'chosen_hand_id', drawn_hand_id
     end
   end
+
+  test 'riichi player is passes tsumo moves to tsumogiri event' do
+    user = @game.user_player
+    set_player_turn(@game, user)
+    set_hands('m123456789 p111 s11', user, drawn: false)
+    user.current_state.update!(riichi: true)
+
+    post game_play_command_path(@game), params: { event: 'confirm_tsumo', tsumo: false }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :tsumogiri
+    end
+  end
 end
