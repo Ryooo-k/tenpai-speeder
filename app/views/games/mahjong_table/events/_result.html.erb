@@ -11,11 +11,7 @@
             <div class="flex items-center">
               <% @game.dora_indicator_tiles.each do |tile| %>
                 <div class="w-6 sm:w-7">
-                  <% if tile %>
-                    <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "block w-full h-auto") %>
-                  <% else %>
-                    <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
-                  <% end %>
+                  <%= render partial: "games/mahjong_table/tile", locals: { tile:, red: tile.aka?, class_name: "block w-full h-auto" } %>
                 </div>
               <% end %>
             </div>
@@ -26,11 +22,7 @@
               <div class="flex items-center">
                 <% @game.uradora_indicator_tiles.each do |tile| %>
                   <div class="w-6 sm:w-7">
-                    <% if tile %>
-                      <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "block w-full h-auto") %>
-                    <% else %>
-                      <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
-                    <% end %>
+                    <%= render partial: "games/mahjong_table/tile", locals: { tile:, red: tile.aka?, class_name: "block w-full h-auto" } %>
                   </div>
                 <% end %>
               </div>

@@ -6,7 +6,7 @@
           <% image_name = river.riichi? ? "tiles/rotated_#{river.suit}_#{river.number}.gif" : "tiles/#{river.suit}_#{river.number}.gif" %>
           <% width_class = river.riichi? ? 'w-[4.48cqw]' : 'w-[3.2cqw]' %>
           <div class="<%= width_class %> h-full flex items-center">
-            <%= image_tag(image_name, class: "block h-auto max-h-full w-full") %>
+            <%= render partial: "games/mahjong_table/tile", locals: { tile: river, red: river.tile.aka?, rotated: river.riichi?, class_name: "block w-full h-auto" } %>
           </div>
         <% end %>
       </div>
