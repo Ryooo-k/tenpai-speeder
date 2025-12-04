@@ -1,3 +1,7 @@
+<% content_for :title, "対局中｜Tenpai Speeder" %>
+<% content_for :meta_description, 'ブラウザだけで麻雀対局の練習。牌効率や有効牌を確認しながらリーチ判断・終盤判断をテンポ良くシミュレーションできます。' %>
+<% content_for :meta_keywords, '麻雀,対局,シミュレーター,牌効率,テンパイスピーダー' %>
+
 <div class="min-h-screen w-full bg-slate-950 text-slate-100">
   <div class="mx-auto w-full space-y-6 p-4 sm:px-6 lg:px-8">
     <%= turbo_frame_tag dom_id(@game, :header) do %>
