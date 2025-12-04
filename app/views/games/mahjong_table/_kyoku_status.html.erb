@@ -21,11 +21,7 @@
         <div class="flex justify-center">
           <% @game.dora_indicator_tiles.each do |tile| %>
             <div class="w-[3.2cqw]">
-              <% if tile %>
-                <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: "block w-full h-auto") %>
-              <% else %>
-                <%= image_tag("tiles/back_board.gif", class: "block w-full h-auto") %>
-              <% end %>
+              <%= render partial: "games/mahjong_table/tile", locals: { tile:, red: tile&.aka?, class_name: "w-block w-full h-auto" } %>
             </div>
           <% end %>
         </div>

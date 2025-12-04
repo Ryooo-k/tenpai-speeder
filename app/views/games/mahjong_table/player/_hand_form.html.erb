@@ -1,7 +1,7 @@
 <div class="relative w-[4cqw] <%= 'ml-3' if hand.drawn? %>">
   <%= form.radio_button :chosen_hand_id, hand.id, class: "hidden peer" %>
   <%= form.label :chosen_hand_id, value: hand.id, class: "block peer-checked:-translate-y-2" do %>
-    <%= image_tag("tiles/#{hand.suit}_#{hand.number}.gif", class: "block w-full h-auto") %>
+    <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.tile.aka?, class_name: "block w-full h-auto" } %>
   <% end %>
   <%= form.submit "", class: "absolute inset-0 hidden peer-checked:block" %>
 </div>

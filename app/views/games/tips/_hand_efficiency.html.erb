@@ -40,7 +40,7 @@
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2">
                 <span class="text-xs tracking-[0.4em] text-emerald-300">打</span>
-                <%= image_tag("tiles/#{hand.tile.suit}_#{hand.tile.number}.gif", class: 'w-8') %>
+                <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, class_name: "w-8" } %>
               </div>
               <div class="text-right">
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-400/80">有効牌</p>
@@ -52,7 +52,7 @@
                 <% grouped_outs.each_value do |tiles| %>
                   <% tile = tiles.first %>
                   <div class="flex items-center gap-1 rounded border border-emerald-500/30 bg-slate-950/50 px-2 py-1">
-                    <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: 'w-5') %>
+                    <%= render partial: "games/mahjong_table/tile", locals: { tile:, class_name: "w-5" } %>
                     <span class="text-xs font-semibold text-emerald-100">x<%= tiles.size %></span>
                   </div>
                 <% end %>
@@ -87,7 +87,7 @@
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">
                 <span class="text-xs tracking-[0.4em] text-emerald-300">打</span>
-                <%= image_tag("tiles/#{hand.tile.suit}_#{hand.tile.number}.gif", class: 'w-8') %>
+                <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, class_name: "w-8" } %>
               </div>
               <div class="text-right">
                 <p class="text-xs uppercase tracking-[0.3em] text-emerald-400/80">有効牌</p>
@@ -99,7 +99,7 @@
                 <% grouped_outs.each_value do |tiles| %>
                   <% tile = tiles.first %>
                   <div class="flex items-center gap-1 rounded border border-emerald-500/30 bg-slate-950/50 px-2 py-1">
-                    <%= image_tag("tiles/#{tile.suit}_#{tile.number}.gif", class: 'w-5') %>
+                    <%= render partial: "games/mahjong_table/tile", locals: { tile:, class_name: "w-5" } %>
                     <span class="text-xs font-semibold text-emerald-100">x<%= tiles.size %></span>
                   </div>
                 <% end %>
