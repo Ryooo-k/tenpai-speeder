@@ -163,6 +163,8 @@ class GameFlow
       if params[:furo]
         @game.apply_furo(params[:furo_type], params[:furo_ids], params[:discarded_tile_id])
         @game.advance_to_player!(@game.user_player)
+        @game.add_new_dora if [ 'ankan', 'kakan', 'daiminkan' ].include?(params[:furo_type])
+
         next_event = 'choose'
         @game.current_step.update!(next_event:)
       else

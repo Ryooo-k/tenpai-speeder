@@ -194,6 +194,31 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'kan adds new dora on confirm_furo with daiminkan' do
+    ai = @game.ais.first
+    user = @game.user_player
+    set_player_turn(@game, ai)
+
+    # ユーザーに1萬を3枚持たせ、AIに1萬を含む手牌をセットしてカン可能な状況にする
+    set_hands('m111234567 p1234', user)
+    set_hands('m1 p234567 s23456 z1', ai)
+
+    kan_count_before = @game.latest_honba.kan_count
+    discarded_hand = ai.hands.detect { |hand| hand.name == '1萬' }
+
+    furo_ids = user.hands.select { |hand| hand.name == '1萬' }.map(&:id)
+    post game_play_command_path(@game), params: {
+      event: 'confirm_furo',
+      furo: true,
+      furo_type: :daiminkan,
+      discarded_tile_id: discarded_hand.tile.id,
+      furo_ids:
+    }
+    follow_redirect!
+
+    assert_equal kan_count_before + 1, @game.reload.latest_honba.kan_count
+  end
+
   test 'confirm_ron triggers result when ron player exist' do
     ai = @game.ais.first
     set_player_turn(@game, ai)

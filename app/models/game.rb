@@ -324,6 +324,10 @@ class Game < ApplicationRecord
     players.any? { |player| player.riichi? && player.point.positive? }
   end
 
+  def add_new_dora
+    latest_honba.increment!(:kan_count)
+  end
+
   private
 
     def create_tiles_and_round
