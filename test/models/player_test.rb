@@ -1363,4 +1363,26 @@ class PlayerTest < ActiveSupport::TestCase
 
     assert_not @user_player.waiting_wining_tile?
   end
+
+  test 'riichi river stays sideways even after being stolen' do
+    discarder = @game.user_player
+    set_hands('m12345', discarder)
+    discarder.current_state.update!(riichi: true)
+
+    step_after_discard = @game.latest_honba.steps.create!(number: @game.current_step_number + 1)
+    @game.update!(current_step_number: step_after_discard.number)
+    riichi_hand = discarder.hands.first
+    discarder.discard(riichi_hand.id, step_after_discard)
+
+    riichi_river = discarder.current_state.rivers.first
+    assert riichi_river.riichi?
+
+    steal_step = @game.latest_honba.steps.create!(number: step_after_discard.number + 1)
+    @game.update!(current_step_number: steal_step.number)
+    discarder.stolen(riichi_hand.tile.id, steal_step)
+
+    riichi_and_stolen_river = discarder.current_state.rivers.first
+    assert riichi_and_stolen_river.riichi?
+    assert riichi_and_stolen_river.stolen?
+  end
 end

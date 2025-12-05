@@ -412,7 +412,13 @@ class Player < ApplicationRecord
     def create_stolen_rivers(discarded_tile_id)
       rivers.each do |river|
         stolen = river.tile.id == discarded_tile_id || river.stolen?
-        current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, stolen:, created_at: river.created_at)
+        current_state.rivers.create!(
+          tile: river.tile,
+          tsumogiri: river.tsumogiri?,
+          stolen:,
+          riichi: river.riichi,
+          created_at: river.created_at
+        )
       end
     end
 
