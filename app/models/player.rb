@@ -39,6 +39,24 @@ class Player < ApplicationRecord
     base_rivers.reject(&:stolen)
   end
 
+  def rivers_with_rotation
+    return River.none unless base_rivers.present?
+
+    rotate_after_stolen_riichi = false
+
+    base_rivers.map do |river|
+      rotated = river.riichi? || (rotate_after_stolen_riichi && !river.stolen?)
+
+      if river.riichi? && river.stolen?
+        rotate_after_stolen_riichi = true
+      elsif rotate_after_stolen_riichi && !river.stolen?
+        rotate_after_stolen_riichi = false
+      end
+
+      [ river, rotated ]
+    end.reject { |river, _| river.stolen? }
+  end
+
   def melds
     return Meld.none unless base_melds_list.present?
     base_melds_list.map { |melds| melds.sort_by(&:position) }.flatten
@@ -412,7 +430,13 @@ class Player < ApplicationRecord
     def create_stolen_rivers(discarded_tile_id)
       rivers.each do |river|
         stolen = river.tile.id == discarded_tile_id || river.stolen?
-        current_state.rivers.create!(tile: river.tile, tsumogiri: river.tsumogiri?, stolen:, created_at: river.created_at)
+        current_state.rivers.create!(
+          tile: river.tile,
+          tsumogiri: river.tsumogiri?,
+          stolen:,
+          riichi: river.riichi,
+          created_at: river.created_at
+        )
       end
     end
 

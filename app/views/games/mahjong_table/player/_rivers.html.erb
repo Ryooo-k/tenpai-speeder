@@ -1,12 +1,11 @@
 <div class="absolute origin-top-left <%= build_river_position_class(player) %>">
   <div class="flex flex-col gap-[0.1cqw] justify-start">
-    <% player.rivers.each_slice(6) do |row_tiles| %>
+    <% player.rivers_with_rotation.each_slice(6) do |row_tiles| %>
       <div class="flex justify-start items-center gap-[0.1cqw] h-[4.48cqw]">
-        <% row_tiles.each do |river| %>
-          <% image_name = river.riichi? ? "tiles/rotated_#{river.suit}_#{river.number}.gif" : "tiles/#{river.suit}_#{river.number}.gif" %>
-          <% width_class = river.riichi? ? 'w-[4.48cqw]' : 'w-[3.2cqw]' %>
+        <% row_tiles.each do |river, rotated| %>
+          <% width_class = rotated ? 'w-[4.48cqw]' : 'w-[3.2cqw]' %>
           <div class="<%= width_class %> h-full flex items-center">
-            <%= render partial: "games/mahjong_table/tile", locals: { tile: river, red: river.tile.aka?, rotated: river.riichi?, class_name: "block w-full h-auto" } %>
+            <%= render partial: "games/mahjong_table/tile", locals: { tile: river, red: river.tile.aka?, rotated:, class_name: "block w-full h-auto" } %>
           </div>
         <% end %>
       </div>
