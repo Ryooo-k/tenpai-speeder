@@ -44,12 +44,6 @@
     <main class="flex-1">
       <%= yield %>
     </main>
-    <footer class="bg-slate-950 py-5 text-xs text-center text-white">
-      <div class="flex justify-center gap-10">
-        <%= link_to '利用規約', terms_path %>
-        <%= link_to 'プライバシーポリシー', privacy_path %>
-        <%= link_to 'お気に入り一覧', favorites_path %>
-      </div>
-    </footer>
+    <%= render "layouts/footer" %>
   </body>
 </html>
