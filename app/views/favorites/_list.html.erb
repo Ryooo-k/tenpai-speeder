@@ -2,11 +2,11 @@
   <div class='space-y-4'>
     <% @favorites.each do |favorite| %>
       <% game = favorite.game %>
-      <section class='flex flex-col gap-4 rounded-3xl border border-white/15 bg-white/10 p-5 shadow-lg shadow-emerald-900/30 backdrop-blur sm:flex-row sm:items-center sm:justify-between'>
+      <section class='flex flex-col gap-4 rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/80 p-5 shadow-lg shadow-cyan-500/10 backdrop-blur sm:flex-row sm:items-center sm:justify-between'>
         <div>
-          <p class='text-xs text-emerald-200'>Game Mode</p>
+          <p class='text-xs text-cyan-200'>Game Mode</p>
           <p class='text-xl font-semibold text-white'><%= game.game_mode.name %></p>
-          <p class='mt-2 text-xs text-emerald-100/80'>
+          <p class='mt-2 text-xs text-slate-200/80'>
             追加日: <%= l(favorite.created_at, format: '%Y/%-m/%d %H:%M') %>
           </p>
         </div>
@@ -14,11 +14,11 @@
           <%= link_to 'プレイ画面へ',
                       game_play_path(game),
                       target: "_top",
-                      class: 'inline-flex items-center rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-300 px-4 py-2 text-sm font-semibold text-emerald-900/80 shadow-lg transition hover:text-emerald-950' %>
+                      class: 'inline-flex items-center rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:text-slate-900 hover:shadow-[0_0px_30px_rgba(56,189,248,0.35)]' %>
           <%= button_to 'お気に入りを解除する',
                         favorite_path(game, context: 'index'),
                         method: :delete,
-                        class: 'inline-flex items-center rounded-2xl border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/50',
+                        class: 'inline-flex items-center rounded-2xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:border-cyan-300/60 hover:text-cyan-100',
                         data: { turbo_confirm: '削除してもよろしいですか？' } %>
         </div>
       </section>
@@ -27,6 +27,6 @@
 <% else %>
   <div class='rounded-3xl border border-dashed border-white/20 bg-white/5 p-8 text-center'>
     <p class='text-lg font-semibold text-white'>お気に入りはまだありません</p>
-    <p class='mt-2 text-sm text-emerald-100/80'>ゲームプレイ画面から「お気に入りに追加する」を押すと登録できます。</p>
+    <p class='mt-2 text-sm text-slate-200/80'>ゲームプレイ画面から「お気に入りに追加する」を押すと登録できます。</p>
   </div>
 <% end %>

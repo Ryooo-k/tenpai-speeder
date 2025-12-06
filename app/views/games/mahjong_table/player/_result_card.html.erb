@@ -1,12 +1,12 @@
 <div class="<%= wrapper_classes %>" data-player-result-card-id="<%= player.id %>">
-  <div class="flex items-center justify-between text-[11px] font-semibold text-emerald-600 sm:text-xs">
+  <div class="flex items-center justify-between text-[11px] font-semibold text-cyan-200 sm:text-xs">
     <span><%= player.wind_name %></span>
     <span><%= @game.rankings[player.id] %>位</span>
   </div>
-  <p class="mt-1 text-sm font-bold text-slate-900 text-center truncate sm:text-base" title="<%= player.name %>">
+  <p class="mt-1 text-sm font-bold text-slate-50 text-center truncate sm:text-base" title="<%= player.name %>">
     <%= player.name %>
   </p>
-  <p class="text-xl font-black text-center tracking-wide text-slate-950 sm:text-2xl">
+  <p class="text-xl font-black text-center tracking-wide text-slate-50 sm:text-2xl">
     <%= number_with_delimiter(player.final_score) %>
   </p>
   <p class="text-xs font-semibold text-center <%= point_class %>">
@@ -15,7 +15,7 @@
 
   <% if point_delta.positive? %>
     <% if winner_statements %>
-      <div class="mt-2 rounded-xl bg-emerald-50/80 p-2 text-[11px] text-emerald-800">
+      <div class="mt-2 rounded-xl bg-cyan-50/80 p-2 text-[11px] text-cyan-900">
         <p class="text-center font-semibold tracking-wide">
           <%= winner_statements[:han_total] %>飜 <%= winner_statements[:fu_total] %>符
         </p>
