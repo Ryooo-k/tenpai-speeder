@@ -1,13 +1,16 @@
 <% player = @game.user_player %>
 
-<section class="rounded-3xl border border-slate-900 bg-slate-900/70 p-6 shadow-xl shadow-emerald-500/10">
-  <div class="flex flex-col gap-2">
-    <h2 class="text-lg font-semibold text-emerald-300">TIPS</h2>
-    <p class="text-xs text-slate-400">
+<section class="relative overflow-hidden rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/85 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur">
+  <div class="pointer-events-none absolute inset-0">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(56,189,248,0.12),transparent_400px),radial-gradient(circle_at_80%_90%,rgba(14,165,233,0.12),transparent_200px)]"></div>
+  </div>
+  <div class="relative flex flex-col gap-2">
+    <h2 class="text-lg font-semibold text-cyan-200">TIPS</h2>
+    <p class="text-xs text-slate-300/80">
       現在の手牌状況、向聴数を減らすためのヒントなどを表示します。
     </p>
   </div>
-  <div class="mt-4 space-y-4">
+  <div class="relative mt-4 space-y-4">
     <% if player.waiting_wining_tile? %>
       <%= render partial: "games/tips/tenpai_summary" %>
     <% else %>
