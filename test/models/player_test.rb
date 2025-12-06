@@ -116,6 +116,47 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal [], @user_player.rivers
   end
 
+  test '#rivers_with_rotation rotates riichi tile and first non-stolen tile after stolen riichi' do
+    player = @user_player
+    player.current_state.rivers.delete_all
+    set_hands('m12345', player)
+
+    # リーチ宣言打牌
+    step = @game.latest_honba.steps.create!(number: @game.current_step_number + 1)
+    player.game.update!(current_step_number: step.number)
+    player.current_state.update!(riichi: true)
+    riichi_and_stolen_hand = player.hands.first
+    player.discard(riichi_and_stolen_hand.id, step)
+
+    # リーチ宣言牌が鳴かれる
+    steal_step = @game.latest_honba.steps.create!(number: step.number + 1)
+    player.game.update!(current_step_number: steal_step.number)
+    player.stolen(riichi_and_stolen_hand.tile.id, steal_step)
+
+    # その後の非stolen捨て牌（横向き）
+    next_step = @game.latest_honba.steps.create!(number: steal_step.number + 1)
+    player.game.update!(current_step_number: next_step.number)
+    rotated_hand = player.hands.first
+    player.discard(rotated_hand.id, next_step)
+
+    # ２つ目の非stolen捨て牌（縦向き）
+    next_next_step = @game.latest_honba.steps.create!(number: steal_step.number + 1)
+    player.game.update!(current_step_number: next_next_step.number)
+    discard_hand = player.hands.first
+    player.discard(discard_hand.id, next_next_step)
+
+    riichi_entry = player.rivers_with_rotation.find { |river, _| river.tile.id == riichi_and_stolen_hand.tile.id }
+    assert_not riichi_entry, 'リーチ宣言牌は鳴かれているため、河に存在しないこと'
+
+    rotated_entry = player.rivers_with_rotation.find { |river, _| river.tile.id == rotated_hand.tile.id && !river.stolen }
+    assert rotated_entry, 'リーチ宣言後の最初の非stolen捨て牌が河に存在すること'
+    assert rotated_entry[1], 'リーチ宣言牌が鳴かれた場合、その次の非stolen捨て牌が横向きであること'
+
+    normal_entry = player.rivers_with_rotation.find { |river, _| river.tile.id == discard_hand.tile.id && !river.stolen }
+    assert normal_entry, 'リーチ宣言後の2つ目の非stolen捨て牌が河に存在すること'
+    assert_not normal_entry[1], 'リーチ宣言後の2つ目の非stolen捨て牌が横向きでないこと'
+  end
+
   test '#melds returns ordered melds from latest state with melds(kamicha -> chi)' do
     manzu_2, manzu_1, manzu_3 = set_melds('m12+3', @user_player)
     assert_equal [ manzu_2, manzu_1, manzu_3 ], @user_player.melds
