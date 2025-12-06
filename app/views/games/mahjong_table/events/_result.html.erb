@@ -1,12 +1,12 @@
-<div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6 sm:py-10">
-  <div role="dialog" aria-modal="true" class="w-full max-w-[960px] rounded-3xl bg-white/95 shadow-2xl text-slate-900">
+<div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 py-6 sm:py-10">
+  <div role="dialog" aria-modal="true" class="w-full max-w-[960px] rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/95 shadow-[0_30px_120px_rgba(0,0,0,0.65)] text-slate-100">
     <div class="flex h-full flex-col max-h-[90vh]">
       <div class="px-4 pt-6 sm:px-6 lg:px-8">
         <div class="text-center mb-4 space-y-0.5">
-          <p class="text-xs font-semibold tracking-[0.3em] text-emerald-600 sm:text-sm">RESULT</p>
-          <h2 class="text-xl font-bold text-slate-900 sm:text-2xl">対局結果</h2>
-          <p class="text-xs text-gray-500 sm:text-sm">各プレイヤーのスコアとポイント変動</p>
-          <div class="mt-2 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-800 sm:text-xs">
+          <p class="text-xs font-semibold tracking-[0.3em] text-cyan-300 sm:text-sm">RESULT</p>
+          <h2 class="text-xl font-bold text-slate-50 sm:text-2xl">対局結果</h2>
+          <p class="text-xs text-slate-400 sm:text-sm">各プレイヤーのスコアとポイント変動</p>
+          <div class="mt-2 inline-flex items-center gap-2 rounded-lg border border-cyan-500/20 bg-white/5 px-3 py-1 text-[11px] font-semibold text-cyan-100 sm:text-xs">
             <span>ドラ表示牌</span>
             <div class="flex items-center">
               <% @game.dora_indicator_tiles.each do |tile| %>
@@ -17,7 +17,7 @@
             </div>
           </div>
           <% if @game.showing_uradora_necessary? %>
-            <div class="mt-1 inline-flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1 text-[11px] font-semibold text-amber-800 sm:text-xs">
+            <div class="mt-1 inline-flex items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-50/10 px-3 py-1 text-[11px] font-semibold text-amber-100 sm:text-xs">
               <span>裏ドラ</span>
               <div class="flex items-center">
                 <% @game.uradora_indicator_tiles.each do |tile| %>
@@ -39,9 +39,9 @@
             <% winner_statements = result_score_statement_for(player, @score_statements) %>
             <% point_class =
                 if point_delta.positive?
-                  'text-emerald-600'
+                  'text-cyan-300'
                 elsif point_delta.negative?
-                  'text-rose-500'
+                  'text-rose-400'
                 else
                   'text-transparent'
                 end %>
@@ -52,7 +52,7 @@
                 point_delta:,
                 point_class:,
                 winner_statements:,
-                wrapper_classes: "absolute #{position_class} w-[min(38vw,280px)] rounded-2xl bg-white/95 p-4 shadow-lg shadow-emerald-200/40"
+                wrapper_classes: "absolute #{position_class} w-[min(38vw,280px)] rounded-2xl border border-cyan-500/15 bg-[#0c1018]/95 p-4 shadow-lg shadow-cyan-500/20 text-slate-100"
               } %>
           <% end %>
         </div>
@@ -63,11 +63,11 @@
             <% winner_statements = result_score_statement_for(player, @score_statements) %>
             <% point_class =
                 if point_delta.positive?
-                  'text-emerald-600'
+                  'text-cyan-300'
                 elsif point_delta.negative?
-                  'text-rose-500'
+                  'text-rose-400'
                 else
-                  'text-slate-500'
+                  'text-slate-400'
                 end %>
 
             <%= render partial: "games/mahjong_table/player/result_card",
@@ -76,14 +76,14 @@
                 point_delta:,
                 point_class:,
                 winner_statements:,
-                wrapper_classes: "w-full rounded-2xl bg-white shadow shadow-slate-200 p-4"
+                wrapper_classes: "w-full rounded-2xl border border-cyan-500/15 bg-[#0c1018] shadow shadow-cyan-500/10 p-4 text-slate-100"
               } %>
           <% end %>
         </div>
       </div>
 
-      <div class="border-t border-slate-200 px-4 py-4 sm:px-6">
-        <div class="text-xs text-gray-600 text-center sm:text-sm">
+      <div class="border-t border-slate-800 px-4 py-4 sm:px-6">
+        <div class="text-xs text-slate-400 text-center sm:text-sm">
           本場: <%= @game.latest_honba.number %>  /  供託リーチ棒: <%= @game.latest_honba.riichi_stick_count %>
         </div>
 
@@ -92,7 +92,7 @@
                         data: { testid: "result" } do |form| %>
             <%= form.hidden_field :event, value: "result" %>
             <%= form.hidden_field :ryukyoku, value: @ryukyoku %>
-            <%= submit_tag "次へ", class: "px-4 py-2 rounded-2xl bg-emerald-600 text-white text-sm font-semibold shadow-lg shadow-emerald-500/40 transition hover:bg-emerald-500 sm:px-6 sm:py-2.5 sm:text-base" %>
+            <%= submit_tag "次へ", class: "px-4 py-2 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 text-slate-950 text-sm font-semibold shadow-lg shadow-cyan-500/30 transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(56,189,248,0.35)] sm:px-6 sm:py-2.5 sm:text-base" %>
           <% end %>
         </div>
       </div>
