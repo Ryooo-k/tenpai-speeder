@@ -919,4 +919,54 @@ class GameTest < ActiveSupport::TestCase
     @game.add_new_dora
     assert_equal 1, @game.latest_honba.kan_count
   end
+
+  test 'tonpuu mode: starts at 東一局・25000点で、東四局で終了判定' do
+    game = Game.create!(game_mode: game_modes(:tonpuu))
+    game.setup_players(@user, @ai)
+
+    game.apply_game_mode
+
+    assert_equal '東一局', game.latest_round.name
+    assert_equal [ 25_000 ] * 4, game.players.map { |player| player.game_records.last.score }
+    assert_not game.game_end?
+
+    game.latest_round.update!(number: 3)
+    assert game.game_end?
+  end
+
+  test 'tonnan mode: starts at 東一局・25000点で、南四局で終了判定' do
+    game = Game.create!(game_mode: game_modes(:tonnan))
+    game.setup_players(@user, @ai)
+
+    game.apply_game_mode
+
+    assert_equal '東一局', game.latest_round.name
+    assert_equal [ 25_000 ] * 4, game.players.map { |player| player.game_records.last.score }
+    assert_not game.game_end?
+
+    game.latest_round.update!(number: 7)
+    assert game.game_end?
+  end
+
+  test '1局戦:  東一局開始で即ゲーム終了判定' do
+    game = Game.create!(game_mode: game_modes(:single_game))
+    game.setup_players(@user, @ai)
+
+    assert_equal '東一局', game.latest_round.name
+    assert_equal [ 25_000 ] * 4, game.players.map { |player| player.game_records.last.score }
+    assert game.game_end?
+  end
+
+  test '着順UP練習: オーラス開始でランダムスコアかつ即ゲーム終了判定' do
+    game = Game.create!(game_mode: game_modes(:all_last))
+    game.setup_players(@user, @ai)
+
+    game.stub(:rand, 100) do
+      game.apply_game_mode
+    end
+
+    assert_equal '南四局', game.latest_round.name
+    assert_not_equal [ 25_000 ] * 4, game.players.map { |player| player.game_records.last.score }
+    assert game.game_end?
+  end
 end
