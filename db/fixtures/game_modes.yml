@@ -1,11 +1,23 @@
-final_round:
+tonpuu:
+  name: 東風戦
+  description: 赤あり東風戦の実践モードです。
+  round_count: 3
+  mode_type: 1
+
+tonnan:
+  name: 東南戦
+  description: 赤あり東南戦の実践モードです。
+  round_count: 7
+  mode_type: 1
+
+single_game:
+  name: 1局戦
+  description: 1局のみ練習ができるモードです。
+  round_count: 0
+  mode_type: 0
+
+all_last:
   name: 着順UP練習
   description: オーラス、ランダムなスコアで着順UPの練習ができるモードです。
   round_count: 0
   mode_type: 0
-
-tonnan:
-  name: 実践
-  description: 赤あり東南戦の実践モードです。
-  round_count: 7
-  mode_type: 1
