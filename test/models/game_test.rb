@@ -42,7 +42,7 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test 'is valid with game_mode' do
-    game_mode = game_modes(:match)
+    game_mode = game_modes(:tonnan)
     game = Game.new(game_mode:)
     assert game.valid?
   end
@@ -53,19 +53,19 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test 'current_seat_number default to 0' do
-    game_mode = game_modes(:match)
+    game_mode = game_modes(:tonnan)
     game = Game.new(game_mode:)
     assert_equal 0, game.current_seat_number
   end
 
   test 'current_step_number default to 0' do
-    game_mode = game_modes(:match)
+    game_mode = game_modes(:tonnan)
     game = Game.new(game_mode:)
     assert_equal 0, game.current_step_number
   end
 
   test 'creates first round and 136 tiles when after_create calls create_tiles_and_round' do
-    game = Game.new(game_mode: game_modes(:match))
+    game = Game.new(game_mode: game_modes(:tonnan))
     assert_equal 0, game.rounds.count
     assert_equal 0, game.tiles.count
 
@@ -84,7 +84,7 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#setup_players creates 4 players and game_record' do
-    game = Game.new(game_mode: game_modes(:match))
+    game = Game.new(game_mode: game_modes(:tonnan))
     assert_equal 0, game.players.count
 
     game.save
@@ -102,7 +102,7 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test 'create aka_dora tiles with correct aka flag' do
-    game = Game.new(game_mode: game_modes(:match))
+    game = Game.new(game_mode: game_modes(:tonnan))
     game.save
 
     game.tiles.each do |tile|
@@ -111,20 +111,28 @@ class GameTest < ActiveSupport::TestCase
     end
   end
 
-  test '#apply_game_mode assign 25_000 score and first round when game mode is not final_found' do
-    game = Game.new(game_mode: game_modes(:match))
-    game.save
+  test '#apply_game_mode keeps default scores and first round' do
+    game = Game.create!(game_mode: game_modes(:tonnan))
+    game.setup_players(@user, @ai)
+
     game.apply_game_mode
+
     assert_equal '東一局', game.latest_round.name
-    assert game.players.all? { |player| player.score == 25_000 }
+    assert_equal [ 25_000 ] * 4, game.players.map { |player| player.game_records.last.score }
   end
 
-  test '#apply_game_mode assign random score and final round when game mode is final_found' do
-    game = Game.new(game_mode: game_modes(:final_round))
-    game.save
-    game.apply_game_mode
-    assert_equal '南四局', game.latest_round.name
-    assert game.players.all? { |player| player.score != 25_000 }
+  test '#apply_game_mode sets final round and random scores for 着順UP練習' do
+    game = Game.create!(game_mode: game_modes(:all_last))
+    game.setup_players(@user, @ai)
+
+    game.stub(:rand, 100) do
+      game.apply_game_mode
+    end
+
+    scores = game.players.map { |player| player.game_records.last.score }.sort
+    assert_equal Game::FINAL_ROUND_NUMBER, game.latest_round.number
+    assert_equal [ 10_000, 10_000, 40_000, 40_000 ], scores
+    assert_equal 100_000, scores.sum
   end
 
   test '#deal_initial_hands creates 13 hands for each player' do
@@ -780,7 +788,7 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_count, honba.steps.count
   end
 
-  test '#sync_current_seat updates seat number to match current step player' do
+  test '#sync_current_seat updates seat number to tonnan current step player' do
     current_player = @game.current_player
     other_player = @game.players.where.not(id: current_player.id).first
     @game.update!(current_seat_number: other_player.seat_order)

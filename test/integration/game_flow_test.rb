@@ -7,14 +7,14 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
   def setup
     post '/guest_login'
-    post games_path, params: { game_mode_id: game_modes(:match).id }
+    post games_path, params: { game_mode_id: game_modes(:tonnan).id }
     @game = find_game_from_url
-    create_random_hands
+    set_random_hands
     follow_redirect!
   end
 
   # テストの安定化のため、各プレイヤーの初期手配をロン、ツモ、ポン、チー、カンができない配牌に設定する
-  def create_random_hands
+  def set_random_hands
     @game.players.each { |player| set_hands('m159 p159 s159 z1234', player) }
   end
 
