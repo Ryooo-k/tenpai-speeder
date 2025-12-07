@@ -1,4 +1,4 @@
-<div class='group relative flex flex-col overflow-hidden rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/70 p-6 text-left shadow-lg shadow-cyan-500/10 transition-transform duration-300 hover:-translate-y-2 hover:border-cyan-400/30 hover:shadow-cyan-400/20'>
+<li class='group relative flex flex-col overflow-hidden rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/70 p-6 text-left shadow-lg shadow-cyan-500/10 transition-transform duration-300 hover:-translate-y-2 hover:border-cyan-400/30 hover:shadow-cyan-400/20'>
   <span class='relative z-10 inline-flex items-center gap-2 self-start rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-cyan-100'>
     Mode
   </span>
@@ -10,6 +10,8 @@
 
   <%= form_with url: games_path, method: :post, class: 'relative z-10 mt-6' do |f| %>
     <%= f.hidden_field :game_mode_id, value: game_mode_card.id %>
-    <%= f.submit 'このモードで始める', class: 'mx-auto block w-fit max-w-full min-w-[12rem] rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg transition group-hover:-translate-y-0.5 group-hover:text-slate-900 group-hover:shadow-[0_0px_30px_rgba(56,189,248,0.35)]' %>
+    <%= f.submit 'このモードで始める',
+      aria: { label: "#{game_mode_card.name}モードでゲームを開始する" },
+      class: 'mx-auto block w-fit max-w-full min-w-[12rem] rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg transition group-hover:-translate-y-0.5 group-hover:text-slate-900 group-hover:shadow-[0_0px_30px_rgba(56,189,248,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
   <% end %>
-</div>
+</li>

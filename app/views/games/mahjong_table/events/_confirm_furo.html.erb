@@ -1,5 +1,5 @@
 <div class="absolute bottom-1/8 right-1/10">
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2" aria-label="副露の選択肢">
     <% @game.user_player.furo_candidates.each do |furo_name, furo_combinations| %>
       <% case furo_name.to_sym %>
       <% when :chi %>
@@ -13,7 +13,7 @@
                           furo_ids: chi_combinations.map(&:id)
                           },
                         form: { data: { testid: "furo_combinations" } },
-                        class: "inline-flex items-end gap-1 rounded border px-2 py-1" do %>
+                        class: "inline-flex items-end gap-1 rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" do %>
             <% chi_combinations.each do |hand| %>
               <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.tile.aka?, class_name: "w-[3.0cqw]" } %>
             <% end %>
@@ -29,7 +29,7 @@
                         furo_ids: furo_combinations.map(&:id)
                         },
                         form: { data: { testid: "furo_combinations" } },
-                      class: "inline-flex items-end gap-1 rounded border px-2 py-1" do %>
+                      class: "inline-flex items-end gap-1 rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" do %>
           <% furo_combinations.each do |hand| %>
             <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.tile.aka?, class_name: "w-[3.0cqw]" } %>
           <% end %>
@@ -44,6 +44,6 @@
                     furo: false
                   },
                   form: { data: { testid: "through" } },
-                  class: "rounded border px-2 py-1" %>
+                  class: "rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" %>
   </div>
 </div>
