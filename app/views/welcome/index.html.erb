@@ -4,13 +4,17 @@
 
 <% content_for :logo_link_path, root_path %>
 <div class='relative min-h-screen overflow-hidden bg-[#04060b] text-slate-100'>
-  <div class='pointer-events-none absolute inset-0'>
+  <a href='#main-content' class='sr-only absolute left-4 top-4 z-20 rounded-md bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 shadow focus-visible:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#04060b]'>
+    コンテンツへスキップ
+  </a>
+
+  <div class='pointer-events-none absolute inset-0' aria-hidden='true'>
     <div class='absolute -top-40 -left-32 h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl'></div>
     <div class='absolute bottom-0 right-0 h-96 w-96 rounded-full bg-sky-500/12 blur-3xl'></div>
     <div class='absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.12),transparent_35%),radial-gradient(circle_at_75%_10%,rgba(14,165,233,0.12),transparent_32%)]'></div>
   </div>
 
-  <div class='relative mx-auto max-w-5xl px-6 py-10'>
+  <main id='main-content' class='relative mx-auto max-w-5xl px-6 py-10' tabindex='-1'>
     <header class='mx-auto max-w-3xl text-center'>
       <h1 class='mt-3 text-3xl font-black tracking-tight sm:text-4xl'>
         <span class='block text-rose-500 font-serif'>Tenpai Speeder</span>
@@ -22,42 +26,44 @@
     </header>
 
     <div class='mt-8 grid gap-6 lg:grid-cols-[1.2fr,0.8fr]'>
-      <section class='rounded-3xl border border-cyan-500/10 bg-white/5 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur'>
-        <div class='font-semibold tracking-[0.1em] text-cyan-200'>Why Tenpai Speeder</div>
-        <div class='mt-6 grid gap-4 sm:grid-cols-2'>
-          <div class='rounded-2xl border border-white/5 bg-white/5 p-5 text-left shadow-lg shadow-cyan-500/10'>
+      <section aria-labelledby='why-title' class='rounded-3xl border border-cyan-500/10 bg-white/5 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur'>
+        <h2 id='why-title' class='font-semibold tracking-[0.1em] text-cyan-200'>Why Tenpai Speeder</h2>
+        <ul class='mt-6 grid gap-4 sm:grid-cols-2'>
+          <li class='rounded-2xl border border-white/5 bg-white/5 p-5 text-left shadow-lg shadow-cyan-500/10'>
             <p class='text-lg font-semibold text-white'>登録不要ですぐ開始</p>
             <p class='mt-2 text-sm text-slate-200/80'>ゲストログインで利用が可能です。セットアップなしでテンポ良く練習できます。</p>
-          </div>
-          <div class='rounded-2xl border border-white/5 bg-white/5 p-5 text-left shadow-lg shadow-cyan-500/10'>
+          </li>
+          <li class='rounded-2xl border border-white/5 bg-white/5 p-5 text-left shadow-lg shadow-cyan-500/10'>
             <p class='text-lg font-semibold text-white'>牌効率を自動判定</p>
             <p class='mt-2 text-sm text-slate-200/80'>有効牌や向聴数の変化をリアルタイムに可視化します。</p>
-          </div>
-          <div class='rounded-2xl border border-white/5 bg-white/5 p-5 text-left shadow-lg shadow-cyan-500/10'>
+          </li>
+          <li class='rounded-2xl border border-white/5 bg-white/5 p-5 text-left shadow-lg shadow-cyan-500/10'>
             <p class='text-lg font-semibold text-white'>巻き戻し機能</p>
             <p class='mt-2 text-sm text-slate-200/80'>ミスした局面まで戻り、やり直すことが可能です。</p>
-          </div>
-          <div class='rounded-2xl border border-white/5 bg-white/5 p-5 text-left shadow-lg shadow-cyan-500/10'>
+          </li>
+          <li class='rounded-2xl border border-white/5 bg-white/5 p-5 text-left shadow-lg shadow-cyan-500/10'>
             <p class='text-lg font-semibold text-white'>ゲームモード</p>
             <p class='mt-2 text-sm text-slate-200/80'>トレーニングしたい能力に応じてモードを選択しましょう。</p>
-          </div>
-        </div>
+          </li>
+        </ul>
       </section>
 
-      <aside class='flex flex-col rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/80 p-4 text-center shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur'>
-        <h2 class='mt-3 text-xl font-bold text-white'>今すぐ開始する</h2>
-        <p class='mt-3 text-sm text-slate-200/80'>
+      <aside aria-labelledby='start-now-title' class='flex flex-col rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/80 p-4 text-center shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur'>
+        <h2 id='start-now-title' class='mt-3 text-xl font-bold text-white'>今すぐ開始する</h2>
+        <p id='login-options-description' class='mt-3 text-sm text-slate-200/80'>
           ログイン方法を選択してゲームを始めましょう。
         </p>
         <div class='mt-6 space-y-4'>
           <%= button_to '登録せずに利用開始する', '/guest_login',
             method: :post, data: { turbo: false },
-            class: 'mx-auto block w-fit max-w-full min-w-[16rem] rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg transition hover:-translate-y-1 hover:text-slate-900 hover:shadow-[0_0px_30px_rgba(56,189,248,0.35)]' %>
+            aria: { label: '登録不要ですぐにTenpai Speederを始める' },
+            class: 'mx-auto block w-fit max-w-full min-w-[16rem] rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg transition hover:-translate-y-1 hover:text-slate-900 hover:shadow-[0_0px_30px_rgba(56,189,248,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
           <%= button_to 'Googleでログインする', @login_path,
             method: :post, data: { turbo: false },
-            class: 'mx-auto block w-fit max-w-full min-w-[16rem] rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-[0_0px_30px_rgba(56,189,248,0.25)]' %>
+            aria: { label: 'GoogleアカウントでTenpai Speederにログインする', describedby: 'login-options-description' },
+            class: 'mx-auto block w-fit max-w-full min-w-[16rem] rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-[0_0px_30px_rgba(56,189,248,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
         </div>
       </aside>
     </div>
-  </div>
+  </main>
 </div>
