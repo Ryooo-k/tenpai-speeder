@@ -7,15 +7,88 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
   def setup
     post '/guest_login'
-    post games_path, params: { game_mode_id: game_modes(:match).id }
+    post games_path, params: { game_mode_id: game_modes(:tonnan).id }
     @game = find_game_from_url
-    create_random_hands
+    set_random_hands
     follow_redirect!
   end
 
   # テストの安定化のため、各プレイヤーの初期手配をロン、ツモ、ポン、チー、カンができない配牌に設定する
-  def create_random_hands
+  def set_random_hands
     @game.players.each { |player| set_hands('m159 p159 s159 z1234', player) }
+  end
+
+  def start_game(mode_fixture)
+    post games_path, params: { game_mode_id: game_modes(mode_fixture).id }
+    assert_response :redirect
+    game = find_game_from_url
+    follow_redirect!
+    game
+  end
+
+  test '東南戦モードは、東一局・25000点・南四局で終了' do
+    game = start_game(:tonnan)
+    assert_equal '東一局', @game.latest_round.name
+    assert_equal [ 25_000 ] * 4, @game.players.map { |player| player.game_records.last.score }
+    assert_not @game.game_end?
+
+    @game.latest_round.update!(number: @game.game_mode.round_count)
+    assert_equal '南四局', @game.latest_round.name
+    assert @game.game_end?
+
+    payloads = nil
+    @game.stub(:host_winner?, false) do
+      payloads = GameFlow.new(@game).run({ event: :result, ryukyoku: false })
+    end
+
+    assert_equal 'game_end', payloads[:next_event]
+  end
+
+  test '東風戦モードは、東一局・25000点・東四局で終了' do
+    game = start_game(:tonpuu)
+    assert_equal '東一局', game.latest_round.name
+    assert_equal [ 25_000 ] * 4, game.players.map { |player| player.game_records.last.score }
+    assert_not game.game_end?
+
+    game.latest_round.update!(number: game.game_mode.round_count)
+    assert_equal '東四局', game.latest_round.name
+    assert game.game_end?
+
+    payloads = nil
+    game.stub(:host_winner?, false) do
+      payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
+    end
+
+    assert_equal 'game_end', payloads[:next_event]
+  end
+
+  test '1局戦モードは、東一局・25000点・東一局で終了' do
+    game = start_game(:single_game)
+    assert_equal '東一局', game.latest_round.name
+    assert_equal [ 25_000 ] * 4, game.players.map { |player| player.game_records.last.score }
+    assert game.game_end?
+
+    payloads = nil
+    game.stub(:host_winner?, false) do
+      payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
+    end
+
+    assert_equal 'game_end', payloads[:next_event]
+  end
+
+  test '着順UP練習モードは、オーラス開始・合計10万点・南4局で終了' do
+    game = start_game(:all_last)
+    assert_equal '南四局', game.latest_round.name
+    assert_not_equal [ 25_000 ] * 4, game.players.map { |player| player.game_records.last.score }
+    assert_equal 100_000, game.players.sum { |player| player.game_records.last.score }
+    assert game.game_end?
+
+    payloads = nil
+    game.stub(:host_winner?, false) do
+      payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
+    end
+
+    assert_equal 'game_end', payloads[:next_event]
   end
 
   test 'redirects to home with alert on unknown event' do
