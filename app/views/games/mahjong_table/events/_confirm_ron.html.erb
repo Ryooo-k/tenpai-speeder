@@ -1,6 +1,6 @@
 <% if @ron_eligible_players_ids.include?(@game.user_player.id) %>
   <div class="absolute bottom-1/8 right-1/10">
-    <div class="flex gap-2">
+    <div class="flex gap-2" aria-label="ロンの選択肢">
       <%= button_to "ロン",
                     game_play_command_path(@game),
                     params: {
@@ -9,7 +9,7 @@
                       ron_player_ids: @ron_eligible_players_ids
                     },
                     form: { data: { testid: "ron" } },
-                    class: "rounded border px-2 py-1" %>
+                    class: "rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" %>
 
       <%= button_to "スルー",
                     game_play_command_path(@game),
@@ -19,7 +19,7 @@
                       ron_player_ids: (@ron_eligible_players_ids - [ @game.user_player.id ]).presence || [ "" ]
                     },
                     form: { data: { testid: "through" } },
-                    class: "rounded border px-2 py-1" %>
+                    class: "rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" %>
     </div>
   </div>
 <% else %>

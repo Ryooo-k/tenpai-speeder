@@ -1,6 +1,6 @@
 <% if @game.current_player.user? %>
   <div class="absolute bottom-1/8 right-1/10">
-    <div class="flex gap-2">
+    <div class="flex gap-2" aria-label="ツモの選択肢">
       <%= button_to "ツモ",
                     game_play_command_path(@game),
                     params: {
@@ -8,7 +8,7 @@
                       tsumo: true
                     },
                     form: { data: { testid: "tsumo" } },
-                    class: "rounded border px-2 py-1" %>
+                    class: "rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" %>
 
       <%= button_to "パス",
                     game_play_command_path(@game),
@@ -17,7 +17,7 @@
                       tsumo: false
                     },
                     form: { data: { testid: "pass" } },
-                    class: "rounded border px-2 py-1" %>
+                    class: "rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" %>
     </div>
   </div>
 

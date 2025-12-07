@@ -9,5 +9,14 @@
       "tiles/back_board.gif"
     else
       "tiles/#{rotated_prefix}#{tile.suit}_#{tile.number}#{red_suffix}.gif"
+    end
+
+  alt_text =
+    if is_back_board
+      "牌の裏面"
+    elsif red_suffix.present?
+      "#{tile.suit}#{tile.number}の赤牌"
+    else
+      "#{tile.suit}#{tile.number}の牌"
     end %>
-<%= image_tag(image_name, class: class_name, data: data.presence) %>
+<%= image_tag(image_name, class: class_name, data: data.presence, alt: alt_text) %>

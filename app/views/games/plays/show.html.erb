@@ -3,11 +3,15 @@
 <% content_for :meta_keywords, '麻雀,対局,シミュレーター,牌効率,テンパイスピーダー' %>
 
 <div class="relative min-h-screen w-full overflow-hidden bg-[#040507] text-slate-100">
-  <div class="pointer-events-none absolute inset-0">
+  <a href="#main-content" class="sr-only absolute left-4 top-4 z-20 rounded-md bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 shadow focus-visible:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#040507]">
+    コンテンツへスキップ
+  </a>
+
+  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
     <div class="absolute inset-0 opacity-70 bg-[radial-gradient(circle_at_15%_20%,rgba(56,189,248,0.16),transparent_32%),radial-gradient(circle_at_85%_12%,rgba(59,130,246,0.12),transparent_28%),radial-gradient(circle_at_45%_80%,rgba(16,185,129,0.12),transparent_26%)]"></div>
     <div class="absolute inset-0 opacity-30 bg-[linear-gradient(120deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(-120deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:120px_120px]"></div>
   </div>
-  <div class="relative mx-auto w-full max-w-screen-2xl space-y-6 p-4 sm:px-6 lg:px-8">
+  <main id="main-content" class="relative mx-auto w-full max-w-screen-2xl space-y-6 p-4 sm:px-6 lg:px-8" tabindex="-1">
     <%= turbo_frame_tag dom_id(@game, :header) do %>
       <%= render "header" %>
     <% end %>
@@ -15,11 +19,11 @@
       <%= turbo_frame_tag dom_id(@game, :mahjong_table) do %>
         <%= render "mahjong_table" %>
       <% end %>
-      <aside class="space-y-6">
+      <aside class="space-y-6" aria-label="ヒント">
         <%= turbo_frame_tag dom_id(@game, :tips) do %>
           <%= render "tips" %>
         <% end %>
       </aside>
     </div>
-  </div>
+  </main>
 </div>

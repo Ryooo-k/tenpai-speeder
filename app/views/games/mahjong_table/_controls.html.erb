@@ -32,6 +32,7 @@
     <%= form.hidden_field :event, value: @event %>
     <%= form.button "▶︎",
                     class: playback_button_classes,
+                    aria: { label: "再生" },
                     disabled: !@can_playback %>
   <% end %>
 
