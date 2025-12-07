@@ -68,16 +68,16 @@
 
   <div class="space-y-4 rounded-lg border border-emerald-700/40 bg-slate-900/90 px-4 py-3">
     <div class="flex items-center justify-between">
-      <p class="font-semibold tracking-[0.35em] text-emerald-300">受入枚数トップ3</p>
+      <p class="font-semibold tracking-[0.35em] text-emerald-300">受入枚数</p>
     </div>
     <% if hands_to_same_shanten_outs.present? %>
-      <p class="text-xs text-slate-400">向聴数が変わらない打牌候補から受入枚数の多い順に表示します。</p>
+      <p class="text-xs text-slate-400">向聴数が変わらない打牌候補から受入枚数の多い順に最大5枚表示します。</p>
       <% top_three_normal = hands_to_same_shanten_outs.sort_by do |hand, outs|
           grouped = outs.group_by(&:code)
           total_count = grouped.values.sum(&:size)
           total_kind = grouped.keys.size
           [ -total_count, -total_kind, hand.code ]
-        end.first(3) %>
+        end.first(5) %>
       <div class="space-y-3">
         <% top_three_normal.each do |hand, outs| %>
           <% grouped_outs = outs.group_by(&:code) %>
