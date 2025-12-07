@@ -3,24 +3,28 @@
 <% content_for :meta_keywords, '麻雀,お気に入り,ブックマーク,練習,テンパイスピーダー' %>
 
 <div class='relative min-h-screen overflow-hidden bg-[#04060b] text-slate-100'>
-  <div class='pointer-events-none absolute inset-0'>
+  <a href='#main-content' class='sr-only absolute left-4 top-4 z-20 rounded-md bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 shadow focus-visible:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#04060b]'>
+    コンテンツへスキップ
+  </a>
+
+  <div class='pointer-events-none absolute inset-0' aria-hidden='true'>
     <div class='absolute -top-32 -left-24 h-72 w-72 rounded-full bg-cyan-400/15 blur-3xl'></div>
     <div class='absolute bottom-0 right-0 h-80 w-80 rounded-full bg-sky-500/12 blur-3xl'></div>
     <div class='absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(56,189,248,0.12),transparent_38%),radial-gradient(circle_at_80%_8%,rgba(14,165,233,0.12),transparent_34%)]'></div>
   </div>
 
-  <div class='relative mx-auto max-w-5xl px-4 py-10 text-slate-100 sm:px-6 lg:px-8'>
+  <main id='main-content' class='relative mx-auto max-w-5xl px-4 py-10 text-slate-100 sm:px-6 lg:px-8' tabindex='-1'>
     <div class='mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
       <div>
         <h1 class='text-3xl font-bold text-slate-50'>お気に入り一覧</h1>
       </div>
       <%= link_to 'ホームへ戻る',
                   home_path,
-                  class: 'inline-flex items-center rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300/60 hover:text-cyan-100' %>
+                  class: 'inline-flex items-center rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300/60 hover:text-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#04060b]' %>
     </div>
 
     <%= turbo_frame_tag 'favorites_list' do %>
       <%= render 'favorites/list' %>
     <% end %>
-  </div>
+  </main>
 </div>
