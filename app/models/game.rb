@@ -44,9 +44,9 @@ class Game < ApplicationRecord
   end
 
   def apply_game_mode
-    if game_mode.mode_type == 'final_round'
-      assign_random_scores!
+    if game_mode.name == '着順UP練習'
       latest_round.update!(number: FINAL_ROUND_NUMBER)
+      assign_random_scores!
     end
   end
 
