@@ -1,6 +1,11 @@
 <% content_for :title, 'モード一覧｜Tenpai Speeder' %>
 <% content_for :meta_description, '目的別に選べる麻雀練習モード一覧。牌効率トレーニングや終盤判断など、Tenpai Speederで好みのモードを選んで練習を開始できます。' %>
 <% content_for :meta_keywords, '麻雀,モード選択,牌効率,テンパイスピーダー' %>
+<% mode_type_labels = { 'final_round' => 'オーラス特化', 'match' => '対局形式' } %>
+<% mode_type_descriptions = {
+    'final_round' => 'オーラスから始まる練習など、終盤判断に集中するモードです。',
+    'match' => '通常の対局形式で基礎力を磨くモードです。'
+  } %>
 
 <div class='relative min-h-screen overflow-hidden bg-[#04060b] text-slate-100'>
   <a href='#main-content' class='sr-only absolute left-4 top-4 z-20 rounded-md bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 shadow focus-visible:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#04060b]'>
@@ -28,24 +33,38 @@
           <span class='text-cyan-200'>モード数</span>
           <span class='text-base font-bold text-white'><%= @game_modes.size %></span>
         </span>
-        <% mode_type_labels = { 'final_round' => 'オーラス特化', 'match' => '対局形式' } %>
-        <% @game_modes.map(&:mode_type).uniq.sort.each do |mode_type| %>
+        <% mode_type_labels.each do |mode_type, label| %>
+          <% next unless @game_modes_by_type[mode_type]&.any? %>
           <span class='inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2'>
             <span class='h-2 w-2 rounded-full bg-cyan-300'></span>
-            <%= mode_type_labels[mode_type] || mode_type.to_s.humanize %>
+            <span><%= label %>（<%= @game_modes_by_type[mode_type].size %>）</span>
           </span>
         <% end %>
       </div>
     </header>
 
-    <section aria-labelledby='mode-list-heading' class='mt-10 rounded-3xl border border-cyan-500/10 bg-white/5 p-8 backdrop-blur'>
-      <div class='flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm text-slate-200/80'>
-        <h2 id='mode-list-heading' class='font-semibold tracking-[0.3em] text-cyan-200'>モードを選択</h2>
-      </div>
+    <div class='mt-10 space-y-8'>
+      <% mode_type_labels.each do |mode_type, label| %>
+        <% modes = @game_modes_by_type[mode_type] || [] %>
+        <% next if modes.empty? %>
 
-      <ul class='mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-        <%= render partial: 'game_mode_card', collection: @game_modes %>
-      </ul>
-    </section>
+        <section aria-labelledby="mode-list-heading-<%= mode_type %>" data-mode-type="<%= mode_type %>" class='rounded-3xl border border-cyan-500/10 bg-white/5 p-8 backdrop-blur'>
+          <div class='flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm text-slate-200/80'>
+            <div>
+              <h2 id="mode-list-heading-<%= mode_type %>" class='text-lg font-semibold tracking-[0.2em] text-cyan-200'><%= label %></h2>
+              <p class='mt-2 text-[0.9rem] text-slate-200/80'><%= mode_type_descriptions[mode_type] %></p>
+            </div>
+            <span class='inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-cyan-100'>
+              <span class='h-2 w-2 rounded-full bg-cyan-300'></span>
+              <span><%= modes.size %> モード</span>
+            </span>
+          </div>
+
+          <ul class='mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            <%= render partial: 'game_mode_card', collection: modes %>
+          </ul>
+        </section>
+      <% end %>
+    </div>
   </main>
 </div>
