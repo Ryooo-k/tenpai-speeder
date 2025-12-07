@@ -1,6 +1,6 @@
-<div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-  <div role="dialog" aria-modal="true" class="w-[min(90vw,400px)] rounded-2xl bg-white p-5 shadow-xl text-slate-900">
-    <h2 class="text-xl font-bold mb-1">対局終了</h2>
+<div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div role="dialog" aria-modal="true" class="w-[min(90vw,400px)] rounded-2xl border border-cyan-500/15 bg-[#0a0d14]/95 p-5 shadow-[0_30px_120px_rgba(0,0,0,0.65)] text-slate-100">
+    <h2 class="text-xl font-bold mb-1 text-slate-50">対局終了</h2>
 
     <table class="w-full text-sm mb-6 table-fixed">
       <colgroup>
@@ -9,25 +9,25 @@
         <col class="w-1/3">
       </colgroup>
       <thead>
-        <tr class="border-b">
-          <th class="py-2 text-center">順位</th>
-          <th class="py-2 text-center">プレイヤー</th>
-          <th class="py-2 text-center">最終スコア</th>
+        <tr class="border-b border-slate-800">
+          <th class="py-2 text-center text-slate-200">順位</th>
+          <th class="py-2 text-center text-slate-200">プレイヤー</th>
+          <th class="py-2 text-center text-slate-200">最終スコア</th>
         </tr>
       </thead>
       <tbody>
         <% @game.ranked_players.each_with_index do |player, index| %>
-          <tr class="border-b last:border-b-0 <%= 'bg-emerald-50' if index.zero? %>">
-            <td class="py-2 text-center font-semibold text-emerald-700"><%= index + 1 %>位</td>
+          <tr class="border-b border-slate-800 last:border-b-0 <%= 'bg-cyan-950/20' if index.zero? %>">
+            <td class="py-2 text-center font-semibold text-cyan-200"><%= index + 1 %>位</td>
             <td class="py-2">
               <div class="flex flex-col items-center gap-0.5 text-center">
-                <div class="font-semibold text-slate-900"><%= player.name %></div>
+                <div class="font-semibold text-slate-100"><%= player.name %></div>
                 <% if player.ai_version.present? %>
-                  <div class="text-xs text-gray-500">AI <%= player.ai_version %></div>
+                  <div class="text-xs text-slate-500">AI <%= player.ai_version %></div>
                 <% end %>
               </div>
             </td>
-            <td class="py-2 text-center font-semibold text-slate-900"><%= number_with_delimiter(player.final_score) %></td>
+            <td class="py-2 text-center font-semibold text-slate-50"><%= number_with_delimiter(player.final_score) %></td>
           </tr>
         <% end %>
       </tbody>
@@ -37,7 +37,7 @@
       <%= link_to "ホームに戻る",
                   home_path,
                   data: { turbo: false },
-                  class: "px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-500" %>
+                  class: "px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 text-slate-950 text-sm font-semibold shadow-lg shadow-cyan-500/30 transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(56,189,248,0.35)]" %>
     </div>
   </div>
 </div>

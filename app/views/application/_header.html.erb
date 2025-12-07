@@ -1,8 +1,11 @@
-<header class="relative z-998 bg-slate-950 text-white px-5 py-2">
-  <div class="relative flex items-center justify-between backdrop-blur">
+<header class="relative z-998 h-14 bg-[#04060b] text-slate-100 px-5 shadow-[0_12px_30px_rgba(0,0,0,0.45)]">
+  <div class="pointer-events-none absolute inset-0">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_10%_40%,rgba(56,189,248,0.15),transparent_45%),radial-gradient(circle_at_90%_-10%,rgba(59,130,246,0.12),transparent_40%)]"></div>
+  </div>
+  <div class="relative flex h-full items-center justify-between">
     <%= link_to local_assigns[:logo_link_path], class: "flex items-center", data: { test_id: 'logo' } do %>
-      <%= image_tag "/logo.svg", alt: "Tenpai Speeder", class: "h-8 w-auto" %>
-      <span class="text-lg font-semibold tracking-tight text-red-600">Tenpai Speeder</span>
+      <%= image_tag "/logo.svg", alt: "Tenpai Speeder", class: "h-8 w-auto drop-shadow" %>
+      <span class="text-lg font-semibold tracking-tight text-rose-500/80 font-serif">Tenpai Speeder</span>
     <% end %>
     <%= render "application/hamburger_menu" %>
   </div>
