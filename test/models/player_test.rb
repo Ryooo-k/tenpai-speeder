@@ -888,6 +888,40 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#ankan_and_kakan_candidates returns both when hand has quad and pon+' do
+    set_melds('p555=', @user_player) # pon for kakan
+    quad = set_hands('m1111 p5 s2345 z1111', @user_player)
+
+    candidates = @user_player.ankan_and_kakan_candidates
+    assert_equal 2, candidates[:ankan].size
+    assert %w[1萬 1萬 1萬 1萬], candidates[:ankan].first.map(&:name)
+    assert %w[東 東 東 東], candidates[:ankan].second.map(&:name)
+    assert_equal 1, candidates[:kakan].size
+    assert %w[5筒 5筒 5筒 5筒], candidates[:kakan].first.map(&:name)
+  end
+
+  test '#ankan_and_kakan_candidates returns only ankan when no pon' do
+    set_melds([], @user_player)
+    candidates = @user_player.ankan_and_kakan_candidates
+    assert_equal [], candidates[:kakan]
+
+    set_hands('m2222 p123 s789 z1234', @user_player)
+    candidates = @user_player.ankan_and_kakan_candidates
+    assert_equal 1, candidates[:ankan].size
+    assert %w[2萬 2萬 2萬 2萬], candidates[:ankan].first.map(&:name)
+    assert_equal [], candidates[:kakan]
+  end
+
+  test '#ankan_and_kakan_candidates returns only kakan when no quad in hand' do
+    set_melds('m333=', @user_player)
+    set_hands('m3 p123 s789 z12345', @user_player)
+    candidates = @user_player.ankan_and_kakan_candidates
+
+    assert_equal [], candidates[:ankan]
+    assert_equal 1, candidates[:kakan].size
+    assert %w[3萬 3萬 3萬 3萬], candidates[:kakan].first.map(&:name)
+  end
+
   test '#furo_candidates return {} when current_player is user' do
     set_player_turn(@user_player.game, @user_player)
     assert_equal({}, @user_player.furo_candidates)

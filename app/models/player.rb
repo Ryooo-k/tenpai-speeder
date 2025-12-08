@@ -215,6 +215,13 @@ class Player < ApplicationRecord
     can_ankan? || can_kakan?
   end
 
+  def ankan_and_kakan_candidates
+    {
+      ankan: find_ankan_candidates,
+      kakan: find_kakan_candidates
+    }.compact
+  end
+
   def can_furo?(target_tile, target_player)
     return false if self == target_player || riichi?
     can_pon?(target_tile) || can_chi?(target_tile, target_player)
@@ -455,6 +462,21 @@ class Player < ApplicationRecord
     def find_daiminkan_candidates(target_tile)
       return unless can_daiminkan?(target_tile)
       hands.select { |hand| hand.code == target_tile.code }
+    end
+
+    def find_ankan_candidates
+      hands.group_by(&:code).values.select { |group| group.size == 4 }
+    end
+
+    def find_kakan_candidates
+      pon_melds = melds.select { |meld| meld.kind == 'pon' }.group_by(&:code)
+
+      hands.each_with_object([]) do |hand, candidates|
+        group = pon_melds[hand.code]
+        next unless group
+
+        candidates << group + [ hand ]
+      end
     end
 
     def can_daiminkan?(target_tile)
