@@ -1,12 +1,33 @@
 <div class="absolute <%= build_melds_position_class(player) %>">
+  <% kakan_by_code = player.melds.select { |m| m.kind == 'kakan' }.group_by(&:code) %>
   <div class="flex gap-[0.1cqw]">
-    <% player.melds.each do |meld| %>
+    <% player.melds.reject(&:kakan?).each do |meld| %>
       <% back_board = meld.kind == 'ankan' && meld.position.in?([1, 2]) %>
-      <div class="flex justify-start items-center gap-[0.1cqw] h-[5.6cqw]">
-        <% width_class = meld.from? ? 'w-[5.6cqw]' : 'w-[4cqw]' %>
+      <% width_class = meld.from? ? 'w-[5.6cqw]' : 'w-[4cqw]' %>
+      <div class="relative flex justify-start items-center h-[5.6cqw]">
         <div class="<%= width_class %> h-full flex items-end">
-          <%= render partial: "games/mahjong_table/tile", locals: { tile: meld, rotated: meld.from?, red: meld.tile.aka?, back_board:, class_name: "block h-auto max-h-full w-full" } %>
+          <%= render partial: "games/mahjong_table/tile",
+                      locals: {
+                        tile: meld,
+                        rotated: meld.from?,
+                        red: meld.tile.aka?,
+                        back_board:,
+                        class_name: "block h-auto max-h-full w-full"
+                      } %>
         </div>
+
+        <% if meld.from? && kakan_by_code[meld.code]&.any? %>
+          <% overlay = kakan_by_code[meld.code].first %>
+          <div class="absolute w-[5.6cqw] h-full flex items-end translate-y-[-4.0cqw]">
+            <%= render partial: "games/mahjong_table/tile",
+                        locals: {
+                          tile: overlay,
+                          rotated: true,
+                          red: overlay.tile.aka?,
+                          class_name: "block h-auto max-h-full w-full"
+                        } %>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </div>
