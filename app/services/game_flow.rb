@@ -203,11 +203,17 @@ class GameFlow
 
     def confirm_furo(params)
       if params[:furo]
-        @game.apply_furo(params[:furo_type], params[:furo_ids], params[:discarded_tile_id])
-        @game.advance_to_player!(@game.user_player)
-        @game.add_new_dora if [ 'ankan', 'kakan', 'daiminkan' ].include?(params[:furo_type])
+        daiminkan_selected = params[:furo_type] == 'daiminkan'
+        discarder = @game.current_player
 
-        next_event = 'choose'
+        @game.add_new_dora if daiminkan_selected
+        @game.advance_to_player!(@game.user_player)
+        next_step = @game.advance_step!
+
+        @game.user_player.steal(discarder, params[:furo_type], params[:furo_ids], params[:discarded_tile_id], next_step)
+        discarder.stolen(params[:discarded_tile_id], next_step)
+
+        next_event = daiminkan_selected ? 'rinshan_draw' : 'choose'
         @game.current_step.update!(next_event:)
       else
         @game.advance_current_player!

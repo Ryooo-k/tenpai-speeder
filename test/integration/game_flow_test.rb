@@ -421,7 +421,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'confirm_furo triggers choose when user played daiminkan' do
+  test 'confirm_furo triggers rinshan_draw when user played daiminkan' do
     ai = @game.ais.first
     set_player_turn(@game, ai)
 
@@ -430,15 +430,14 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     set_hands('m1 z123', ai)
     discarded_tile = ai.hands.first.tile
     kan_ids = @game.user_player.hands.select { |h| h.suit == 'manzu' && h.number == 1 }.map(&:id)
-\
+
     post game_play_command_path(@game), params: { event: 'confirm_furo', furo: true, furo_type: :daiminkan, furo_ids: kan_ids, discarded_tile_id: discarded_tile.id }
     assert_response :redirect
     follow_redirect!
     assert_response :success
 
-    assert_dom 'form[action=?]', game_play_command_path(@game) do
-      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
-      assert_dom 'input[type=radio][name=chosen_hand_id]'
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :rinshan_draw
     end
   end
 
