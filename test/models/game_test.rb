@@ -262,6 +262,18 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_step_number + 1, @game.current_step_number
   end
 
+  test '#advance_step! increments step number and creates new step on latest honba' do
+    before_step_number = @game.current_step_number
+    before_count = @game.latest_honba.steps.count
+
+    new_step = @game.advance_step!
+
+    assert_equal before_step_number + 1, @game.current_step_number
+    assert_equal before_count + 1, @game.latest_honba.steps.count
+    assert_equal new_step.number, @game.current_step_number
+    assert_equal @game.latest_honba, new_step.honba
+  end
+
   test '#latest_round returns round with maximum number' do
     max_number = @game.rounds.maximum(:number)
     expected = @game.rounds.find_by(number: max_number)

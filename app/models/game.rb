@@ -334,6 +334,12 @@ class Game < ApplicationRecord
     latest_honba.increment!(:kan_count)
   end
 
+  def advance_step!
+    next_step_number = current_step_number + 1
+    update!(current_step_number: next_step_number)
+    latest_honba.steps.create!(number: next_step_number)
+  end
+
   private
 
     def create_tiles_and_round
@@ -378,12 +384,6 @@ class Game < ApplicationRecord
 
     def increase_draw_count
       latest_honba.increment!(:draw_count)
-    end
-
-    def advance_step!
-      next_step_number = current_step_number + 1
-      update!(current_step_number: next_step_number)
-      latest_honba.steps.create!(number: next_step_number)
     end
 
     def other_players
