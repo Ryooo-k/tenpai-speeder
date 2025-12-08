@@ -138,6 +138,15 @@ class Games::PlaysController < ApplicationController
           flow_requests[:furo_type] = furo_type.to_s
           flow_requests[:furo_ids] = furo_ids.map(&:to_i)
         end
+      when :confirm_kan
+        kan = params.expect(:kan)
+        flow_requests[:kan] = ActiveModel::Type::Boolean.new.cast(kan)
+
+        if flow_requests[:kan]
+          kan_type, kan_ids = params.expect(:kan_type, kan_ids: [])
+          flow_requests[:kan_type] = kan_type.to_s
+          flow_requests[:kan_ids] = kan_ids.map(&:to_i)
+        end
       when :result
         ryukyoku = params.expect(:ryukyoku)
         flow_requests[:ryukyoku] = ActiveModel::Type::Boolean.new.cast(ryukyoku)
