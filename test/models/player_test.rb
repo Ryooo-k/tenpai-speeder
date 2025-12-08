@@ -852,7 +852,7 @@ class PlayerTest < ActiveSupport::TestCase
     player.current_state.update!(riichi: true)
     assert_not player.can_ankan_or_kakan?, 'リーチ中の場合、カン不可'
   end
-  
+
   test '#can_ankan? denies kan in riichi when winning tiles change2' do
     player = @user_player
     set_hands('m111222 p34556666', player) # 6萬をツモ、カンした場合待ち牌がm2457からm25に変化

@@ -2,7 +2,7 @@
   <% kakan_by_code = player.melds.select { |m| m.kind == 'kakan' }.group_by(&:code) %>
   <div class="flex gap-[0.1cqw]">
     <% player.melds.reject(&:kakan?).each do |meld| %>
-      <% back_board = meld.kind == 'ankan' && meld.position.in?([1, 2]) %>
+      <% back_board = meld.kind == 'ankan' && meld.position.in?([ 1, 2 ]) %>
       <% width_class = meld.from? ? 'w-[5.6cqw]' : 'w-[4cqw]' %>
       <div class="relative flex justify-start items-center h-[5.6cqw]">
         <div class="<%= width_class %> h-full flex items-end">
