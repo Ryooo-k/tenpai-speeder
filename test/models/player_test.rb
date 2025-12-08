@@ -455,6 +455,45 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#kan creates new state and ankan meld with given hands' do
+    player = @game.current_player
+    kan_hands = set_hands('m1111 p234 s789 z1234', player)
+    kan_ids = kan_hands.select { |h| h.name == '1萬' }.map(&:id)
+
+    before_state_count = player.player_states.count
+    before_hand_count = player.hands.count
+
+    player.kan(:ankan, kan_ids, steps(:step_2))
+
+    assert_equal before_state_count + 1, player.player_states.count
+    assert_equal before_hand_count - 4, player.hands.count
+    assert_equal 4, player.melds.size
+    assert player.melds.all? { |meld| meld.kind == 'ankan' }
+    assert player.melds.all? { |meld| meld.name == '1萬' }
+  end
+
+  test '#kan converts pon to kakan and consumes one hand tile' do
+    player = @game.current_player
+    player.current_state.melds.delete_all
+    set_melds('m111=', player)
+    set_hands('m1 p234 s789 z1234', player)
+    kakan_candidate = player.ankan_and_kakan_candidates[:kakan].first
+    kan_ids = kakan_candidate.grep(Hand).map(&:id)
+
+    before_state_count = player.player_states.count
+    before_hand_count = player.hands.count
+
+    player.kan(:kakan, kan_ids, steps(:step_2))
+
+    assert_equal before_state_count + 1, player.player_states.count
+    assert_equal before_hand_count - 1, player.hands.count
+    assert_equal 4, player.melds.size
+    assert player.melds.select { |meld| meld.position != Player::KAKAN_POSITION }.all? { |meld| meld.kind == 'pon' }
+    assert player.melds.select { |meld| meld.position == Player::KAKAN_POSITION }.all? { |meld| meld.kind == 'kakan' }
+    assert_equal 1, player.melds.count { |meld| meld.position == Player::KAKAN_POSITION }
+    assert player.melds.all? { |meld| meld.name == '1萬' }
+  end
+
   test '#ai_version' do
     version_number = @ai_player.ai.version
     assert_equal "v#{version_number}", @ai_player.ai_version

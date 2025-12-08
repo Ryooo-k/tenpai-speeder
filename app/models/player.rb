@@ -12,6 +12,7 @@ class Player < ApplicationRecord
   TOIMEN_SEAT_NUMBER = 2
   KAMICHA_SEAT_NUMBER = 3
   WAITING_TURN_HAND_COUNTS = [ 1, 4, 7, 10, 13 ].freeze
+  KAKAN_POSITION = 4
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -94,6 +95,12 @@ class Player < ApplicationRecord
   def stolen(discarded_tile_id, step)
     player_states.create!(step:)
     create_stolen_rivers(discarded_tile_id)
+  end
+
+  def kan(type, ids, step)
+    player_states.create!(step:)
+    create_kan_melds(type, ids)
+    create_kan_hands(ids)
   end
 
   # ai用 牌選択メソッド
@@ -421,6 +428,27 @@ class Player < ApplicationRecord
       when KAMICHA_SEAT_NUMBER
         [ discarded_tile ] + furo_tiles
       end
+    end
+
+    def create_kan_melds(type, ids)
+      kind = type.to_s
+
+      if kind == 'ankan'
+        ankan_tiles = hands.select { |hand| ids.include?(hand.id) }.map(&:tile)
+        ankan_tiles.each_with_index do |tile, position|
+          current_state.melds.create!(tile:, kind:, position:)
+        end
+      else
+        kakan_hand = hands.detect { |hand| ids.include?(hand.id) }
+        return unless kakan_hand
+
+        current_state.melds.create!(tile: kakan_hand.tile, kind:, position: KAKAN_POSITION)
+      end
+    end
+
+    def create_kan_hands(ids)
+      new_hands = hands.reject { |hand| ids.include?(hand.id) }
+      new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
     end
 
     def create_discarded_rivers(chosen_hand, riichi)
