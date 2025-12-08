@@ -13,6 +13,7 @@ class Player < ApplicationRecord
   KAMICHA_SEAT_NUMBER = 3
   WAITING_TURN_HAND_COUNTS = [ 1, 4, 7, 10, 13 ].freeze
   KAKAN_POSITION = 4
+  KAN_COUNT = 4
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -512,7 +513,22 @@ class Player < ApplicationRecord
     end
 
     def can_ankan?
-      hands.map(&:code).tally.any? { |_, count| count == 4 }
+      if riichi?
+        drawn_hand = hands.detect(&:drawn)
+        ankan_candidates = hands.select { |hand| hand.code == drawn_hand.code }
+        return if ankan_candidates.size != KAN_COUNT
+
+        tiles = game.tiles
+        before_wining_tiles = HandEvaluator.find_wining_tiles(hands_without_drawn, melds, tiles)
+
+        test_hands = hands.reject { |hand| ankan_candidates.include?(hand) }
+        test_melds = melds + ankan_candidates.map { |candidate| Meld.create(tile: candidate.tile, kind: 'ankan') }
+        after_wining_tiles = HandEvaluator.find_wining_tiles(test_hands, test_melds, tiles)
+
+        before_wining_tiles == after_wining_tiles
+      else
+        hands.map(&:code).tally.any? { |_, count| count == 4 }
+      end
     end
 
     def can_kakan?

@@ -836,6 +836,32 @@ class PlayerTest < ActiveSupport::TestCase
     assert_not @user_player.can_ankan_or_kakan?
   end
 
+  test '#can_ankan_or_kakan? allows kan in riichi when winning tiles stay same' do
+    player = @user_player
+    set_hands('m111 p2234 s789 z1111', player)
+    player.current_state.update!(riichi: true)
+
+    assert player.can_ankan_or_kakan?
+  end
+
+  test '#can_ankan? denies kan in riichi when winning tiles change' do
+    player = @user_player
+    set_hands('m1199 p345 s1111234', player) # 4索をツモ、1筒をカンできるか判定
+    assert player.can_ankan_or_kakan?, 'リーチしていない場合、カン可能'
+
+    player.current_state.update!(riichi: true)
+    assert_not player.can_ankan_or_kakan?, 'リーチ中の場合、カン不可'
+  end
+  
+  test '#can_ankan? denies kan in riichi when winning tiles change2' do
+    player = @user_player
+    set_hands('m111222 p34556666', player) # 6萬をツモ、カンした場合待ち牌がm2457からm25に変化
+    assert player.can_ankan_or_kakan?, 'リーチしていない場合、カン可能'
+
+    player.current_state.update!(riichi: true)
+    assert_not player.can_ankan_or_kakan?, 'リーチ中の場合、カン不可'
+  end
+
   test '#can_furo? returns false when target_player is current_player' do
     set_hands('m12', @user_player)
     result = @user_player.can_furo?(@manzu_3, @user_player)
