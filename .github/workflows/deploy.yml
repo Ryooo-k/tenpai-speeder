@@ -43,3 +43,6 @@ jobs:
 
       - name: Deploy with Kamal
         run: bin/kamal deploy
+
+      - name: Seed game_modes on production
+        run: bin/kamal app exec --reuse "RAILS_ENV=production bin/rails db:seed:game_modes && RAILS_ENV=production bin/rails db:seed:ais"
