@@ -844,6 +844,28 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'sukantsu triggers ryukyoku' do
+    game = start_game(:tonnan)
+    player = game.user_player
+    set_player_turn(game, player)
+    chosen_hand_id = player.hands.first.id
+    game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT)
+
+    post game_play_command_path(game), params: { event: 'discard', chosen_hand_id: }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :ryukyoku
+    end
+  end
+
   test 'renders result when someone wins' do
     set_hands('m123456789 p123 s99', @game.host)
 

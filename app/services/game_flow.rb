@@ -168,7 +168,7 @@ class GameFlow
         @payloads[:ron_eligible_players_ids] = ron_eligible_players.map(&:id)
         @payloads[:discarded_tile_id] = discarded_tile.id
         next_event = 'confirm_ron'
-      elsif @game.live_wall_empty?
+      elsif @game.live_wall_empty? || @game.sukantsu_ryukyoku?
         next_event = 'ryukyoku'
       elsif is_user_furo
         @payloads[:discarded_tile_id] = discarded_tile.id
