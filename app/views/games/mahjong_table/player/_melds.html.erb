@@ -2,10 +2,14 @@
   <div class="flex gap-[0.1cqw]">
     <% player.melds.each do |meld| %>
       <div class="flex justify-start items-center gap-[0.1cqw] h-[5.6cqw]">
-        <% width_class = meld.from? ? 'w-[5.6cqw]' : 'w-[4cqw]' %>
-        <div class="<%= width_class %> h-full flex items-end">
-          <%= render partial: "games/mahjong_table/tile", locals: { tile: meld, rotated: meld.from?, red: meld.tile.aka?, class_name: "block h-auto max-h-full w-full" } %>
-        </div>
+        <%= render partial: "games/mahjong_table/tile",
+                  locals: {
+                    tile: meld,
+                    rotated: meld.from?,
+                    red: meld.tile.aka?,
+                    back_board: (meld.kind == 'ankan' && meld.position.in?([1, 2])),
+                    class_name: "block h-auto max-h-full #{meld.from? ? 'w-[5.6cqw]' : 'w-[4cqw]'}"
+                    } %>
       </div>
     <% end %>
   </div>
