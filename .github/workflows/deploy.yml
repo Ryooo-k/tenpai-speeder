@@ -44,5 +44,5 @@ jobs:
       - name: Deploy with Kamal
         run: bin/kamal deploy
 
-      - name: Seed game_modes on production
+      - name: Seed game_modes and ais on production
         run: bin/kamal app exec --reuse "sh -c 'bin/rails db:seed:game_modes && bin/rails db:seed:ais'"
