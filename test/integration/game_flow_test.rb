@@ -743,6 +743,107 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_dom 'input[type=radio][name=chosen_hand_id]'
   end
 
+  test 'renders confirm_kan form when user can ankan' do
+    user = @game.user_player
+    set_player_turn(@game, user)
+
+    # 1筒で暗カンできる状態にセット
+    set_hands('m123456789 p111 s9', user)
+    set_draw_tile('p1', @game)
+
+    post game_play_command_path(@game), params: { event: 'draw' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    @game.reload
+    kan_ids = @game.current_player.ankan_and_kakan_candidates[:ankan].first.grep(Hand).map(&:id)
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ankan_candidate do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_kan
+      assert_dom 'input[type=hidden][name=?][value=?]', :kan, 'true'
+      assert_dom 'input[type=hidden][name=?][value=?]', :kan_type, :ankan
+      kan_ids.each do |id|
+        assert_dom 'input[type=hidden][name=?][value=?]', 'kan_ids[]', id
+      end
+    end
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :kan_pass do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_kan
+      assert_dom 'input[type=hidden][name=?][value=?]', :kan, 'false'
+      assert_dom 'button[type=submit]', text: 'パス', count: 1
+    end
+  end
+
+  test 'renders confirm_kan form when user can kakan' do
+    user = @game.user_player
+    set_player_turn(@game, user)
+
+    # 1筒でカカンできる状態にセット
+    set_hands('m123456789 s9', user)
+    set_melds('p111=', user)
+    set_draw_tile('p1', @game)
+
+    post game_play_command_path(@game), params: { event: 'draw' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    @game.reload
+    kan_ids = @game.current_player.ankan_and_kakan_candidates[:kakan].first.grep(Hand).map(&:id)
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :kakan_candidate do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_kan
+      assert_dom 'input[type=hidden][name=?][value=?]', :kan, 'true'
+      assert_dom 'input[type=hidden][name=?][value=?]', :kan_type, :kakan
+      kan_ids.each do |id|
+        assert_dom 'input[type=hidden][name=?][value=?]', 'kan_ids[]', id
+      end
+    end
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :kan_pass do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_kan
+      assert_dom 'input[type=hidden][name=?][value=?]', :kan, 'false'
+      assert_dom 'button[type=submit]', text: 'パス', count: 1
+    end
+  end
+
+  test 'renders auto-form when ai can ankan' do
+    ai = @game.ais.first
+    set_player_turn(@game, ai)
+
+    # 1筒で暗カンできる状態にセット
+    set_hands('m123456789 p111 s9', ai)
+    set_draw_tile('p1', @game)
+
+    post game_play_command_path(@game), params: { event: 'draw' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :kan_auto_pass do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_kan
+      assert_dom 'input[type=hidden][name=?][value=?]', :kan, 'false'
+    end
+  end
+
+  test 'kan confirmation transitions next_event to rinshan_draw after accepted' do
+    game = start_game(:tonnan)
+    player = game.user_player
+    set_player_turn(game, player)
+    set_hands('m1111 p23456789 z12', player)
+    kan_ids = player.hands.select { |h| h.name == '1萬' }.map(&:id)
+
+    post game_play_command_path(game), params: { event: 'confirm_kan', kan: true, kan_type: :ankan, kan_ids: }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :rinshan_draw
+    end
+  end
+
   test 'renders result when someone wins' do
     set_hands('m123456789 p123 s99', @game.host)
 

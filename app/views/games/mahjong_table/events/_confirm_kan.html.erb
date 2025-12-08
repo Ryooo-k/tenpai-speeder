@@ -37,7 +37,7 @@
 <% else %>
   <%# AIはカンを選択しない %>
   <%= form_with url: game_play_command_path(@game),
-                data: { controller: "auto-submit", testid: "kan-auto-pass" } do |form| %>
+                data: { controller: "auto-submit", testid: "kan_auto_pass" } do |form| %>
     <%= form.hidden_field :event, value: "confirm_kan" %>
     <%= form.hidden_field :kan, value: false %>
   <% end %>
