@@ -2,6 +2,7 @@
 
 class Honba < ApplicationRecord
   MAX_DRAW_COUNT = 122
+  RINSHAN_WALL = (122..125).to_a
   DORA_INDICATOR_ORDER_RANGE = (126..130)
   URADORA_INDICATOR_ORDER_RANGE = (131..135)
 
@@ -20,6 +21,11 @@ class Honba < ApplicationRecord
   def top_tile
     order = draw_count - kan_count
     tile_orders.find_by(order:).tile
+  end
+
+  def rinshan_tile
+    rinshan_order = RINSHAN_WALL[kan_count - 1]
+    tile_orders.find_by(order: rinshan_order).tile
   end
 
   def name
