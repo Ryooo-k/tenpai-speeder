@@ -230,7 +230,7 @@ class Player < ApplicationRecord
     {
       pon: find_pon_candidates(target_tile),
       chi: find_chi_candidates(target_tile, target_player),
-      daiminkan: find_kan_candidates(target_tile)
+      daiminkan: find_daiminkan_candidates(target_tile)
     }.compact
   end
 
@@ -453,12 +453,12 @@ class Player < ApplicationRecord
       game.host.seat_order
     end
 
-    def find_kan_candidates(target_tile)
-      return unless can_kan?(target_tile)
+    def find_daiminkan_candidates(target_tile)
+      return unless can_daiminkan?(target_tile)
       hands.select { |hand| hand.code == target_tile.code }
     end
 
-    def can_kan?(target_tile)
+    def can_daiminkan?(target_tile)
       hands.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
     end
 
