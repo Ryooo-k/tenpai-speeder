@@ -15,6 +15,8 @@ class GameFlow
     when :game_start     then game_start(current_user, ai)
     when :draw           then draw
     when :confirm_tsumo  then confirm_tsumo(params)
+    when :confirm_kan    then confirm_kan(params)
+    when :rinshan_draw   then rinshan_draw
     when :tsumogiri      then tsumogiri
     when :confirm_riichi then confirm_riichi(params)
     when :choose_riichi  then choose_riichi(params)
@@ -50,6 +52,8 @@ class GameFlow
 
       if @game.current_player.can_tsumo?
         next_event = 'confirm_tsumo'
+      elsif @game.current_player.can_ankan_or_kakan?
+        next_event = 'confirm_kan'
       elsif @game.current_player.riichi?
         next_event = 'tsumogiri'
       elsif @game.current_player.can_riichi?
@@ -76,6 +80,44 @@ class GameFlow
         next_event = @game.current_player.riichi? ? 'tsumogiri' : 'choose'
       end
 
+      @payloads[:next_event] = next_event
+    end
+
+    def confirm_kan(params)
+      if params[:kan]
+        @game.add_new_dora
+        next_step = @game.advance_step!
+        @game.current_player.kan(params[:kan_type], params[:kan_ids], next_step)
+        next_event = 'rinshan_draw'
+      elsif @game.current_player.riichi?
+        next_event = 'tsumogiri'
+      elsif @game.current_player.can_riichi?
+        next_event = 'confirm_riichi'
+      else
+        next_event = 'choose'
+      end
+
+      @game.current_step.update!(next_event:)
+      @payloads[:next_event] = next_event
+    end
+
+    def rinshan_draw
+      next_step = @game.advance_step!
+      @game.current_player.draw(@game.rinshan_tile, next_step)
+
+      if @game.current_player.can_tsumo?
+        next_event = 'confirm_tsumo'
+      elsif @game.current_player.can_ankan_or_kakan?
+        next_event = 'confirm_kan'
+      elsif @game.current_player.riichi?
+        next_event = 'tsumogiri'
+      elsif @game.current_player.can_riichi?
+        next_event = 'confirm_riichi'
+      else
+        next_event = 'choose'
+      end
+
+      @game.current_step.update!(next_event:)
       @payloads[:next_event] = next_event
     end
 
