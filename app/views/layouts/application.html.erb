@@ -3,7 +3,7 @@
   <head>
     <% og_title = content_for?(:og_title) ? yield(:og_title) : (content_for?(:title) ? yield(:title) : "Tenpai Speeder") %>
     <% og_description = content_for?(:og_description) ? yield(:og_description) : (content_for?(:meta_description) ? yield(:meta_description) : 'Tenpai Speederは、麻雀中級者以下向けの打牌・牌効率トレーニングサービスです。ブラウザだけでリーチ判断や終盤判断をテンポ良く練習できます。') %>
-    <% og_image = content_for?(:og_image) ? yield(:og_image) : "#{request.base_url}/logo.png" %>
+    <% og_image = content_for?(:og_image) ? yield(:og_image) : "#{request.base_url}/logo.png?v=2" %>
     <% og_url = content_for?(:og_url) ? yield(:og_url) : request.original_url %>
     <title><%= og_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
