@@ -455,6 +455,45 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#kan creates new state and ankan meld with given hands' do
+    player = @game.current_player
+    kan_hands = set_hands('m1111 p234 s789 z1234', player)
+    kan_ids = kan_hands.select { |h| h.name == '1萬' }.map(&:id)
+
+    before_state_count = player.player_states.count
+    before_hand_count = player.hands.count
+
+    player.kan(:ankan, kan_ids, steps(:step_2))
+
+    assert_equal before_state_count + 1, player.player_states.count
+    assert_equal before_hand_count - 4, player.hands.count
+    assert_equal 4, player.melds.size
+    assert player.melds.all? { |meld| meld.kind == 'ankan' }
+    assert player.melds.all? { |meld| meld.name == '1萬' }
+  end
+
+  test '#kan converts pon to kakan and consumes one hand tile' do
+    player = @game.current_player
+    player.current_state.melds.delete_all
+    set_melds('m111=', player)
+    set_hands('m1 p234 s789 z1234', player)
+    kakan_candidate = player.ankan_and_kakan_candidates[:kakan].first
+    kan_ids = kakan_candidate.grep(Hand).map(&:id)
+
+    before_state_count = player.player_states.count
+    before_hand_count = player.hands.count
+
+    player.kan(:kakan, kan_ids, steps(:step_2))
+
+    assert_equal before_state_count + 1, player.player_states.count
+    assert_equal before_hand_count - 1, player.hands.count
+    assert_equal 4, player.melds.size
+    assert player.melds.select { |meld| meld.position != Player::KAKAN_POSITION }.all? { |meld| meld.kind == 'pon' }
+    assert player.melds.select { |meld| meld.position == Player::KAKAN_POSITION }.all? { |meld| meld.kind == 'kakan' }
+    assert_equal 1, player.melds.count { |meld| meld.position == Player::KAKAN_POSITION }
+    assert player.melds.all? { |meld| meld.name == '1萬' }
+  end
+
   test '#ai_version' do
     version_number = @ai_player.ai.version
     assert_equal "v#{version_number}", @ai_player.ai_version
@@ -773,6 +812,56 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#can_ankan_or_kakan? returns true when hand has four identical tiles' do
+    set_melds([], @user_player)
+    set_hands('m1111 p234 s78 z1234', @user_player)
+    assert @user_player.can_ankan_or_kakan?
+  end
+
+  test '#can_ankan_or_kakan? returns true when pon plus same tile in hand' do
+    set_melds('m111=', @user_player)
+    set_hands('m1 p234 s78 z1234', @user_player)
+    assert @user_player.can_ankan_or_kakan?
+  end
+
+  test '#can_ankan_or_kakan? returns false without any four-of-a-kind' do
+    set_melds([], @user_player)
+    set_hands('m123 p456 s789 z1234', @user_player)
+    assert_not @user_player.can_ankan_or_kakan?
+  end
+
+  test '#can_ankan_or_kakan? returns false when no four-of-a-kind in hand or melds' do
+    set_melds('m123+ m123+ m123+', @user_player)
+    set_hands('m123 p12345', @user_player)
+    assert_not @user_player.can_ankan_or_kakan?
+  end
+
+  test '#can_ankan_or_kakan? allows kan in riichi when winning tiles stay same' do
+    player = @user_player
+    set_hands('m111 p2234 s789 z1111', player)
+    player.current_state.update!(riichi: true)
+
+    assert player.can_ankan_or_kakan?
+  end
+
+  test '#can_ankan? denies kan in riichi when winning tiles change' do
+    player = @user_player
+    set_hands('m1199 p345 s1111234', player) # 4索をツモ、1筒をカンできるか判定
+    assert player.can_ankan_or_kakan?, 'リーチしていない場合、カン可能'
+
+    player.current_state.update!(riichi: true)
+    assert_not player.can_ankan_or_kakan?, 'リーチ中の場合、カン不可'
+  end
+
+  test '#can_ankan? denies kan in riichi when winning tiles change2' do
+    player = @user_player
+    set_hands('m111222 p34556666', player) # 6萬をツモ、カンした場合待ち牌がm2457からm25に変化
+    assert player.can_ankan_or_kakan?, 'リーチしていない場合、カン可能'
+
+    player.current_state.update!(riichi: true)
+    assert_not player.can_ankan_or_kakan?, 'リーチ中の場合、カン不可'
+  end
+
   test '#can_furo? returns false when target_player is current_player' do
     set_hands('m12', @user_player)
     result = @user_player.can_furo?(@manzu_3, @user_player)
@@ -862,6 +951,40 @@ class PlayerTest < ActiveSupport::TestCase
         assert_not result_2
       end
     end
+  end
+
+  test '#ankan_and_kakan_candidates returns both when hand has quad and pon+' do
+    set_melds('p555=', @user_player) # pon for kakan
+    quad = set_hands('m1111 p5 s2345 z1111', @user_player)
+
+    candidates = @user_player.ankan_and_kakan_candidates
+    assert_equal 2, candidates[:ankan].size
+    assert %w[1萬 1萬 1萬 1萬], candidates[:ankan].first.map(&:name)
+    assert %w[東 東 東 東], candidates[:ankan].second.map(&:name)
+    assert_equal 1, candidates[:kakan].size
+    assert %w[5筒 5筒 5筒 5筒], candidates[:kakan].first.map(&:name)
+  end
+
+  test '#ankan_and_kakan_candidates returns only ankan when no pon' do
+    set_melds([], @user_player)
+    candidates = @user_player.ankan_and_kakan_candidates
+    assert_equal [], candidates[:kakan]
+
+    set_hands('m2222 p123 s789 z1234', @user_player)
+    candidates = @user_player.ankan_and_kakan_candidates
+    assert_equal 1, candidates[:ankan].size
+    assert %w[2萬 2萬 2萬 2萬], candidates[:ankan].first.map(&:name)
+    assert_equal [], candidates[:kakan]
+  end
+
+  test '#ankan_and_kakan_candidates returns only kakan when no quad in hand' do
+    set_melds('m333=', @user_player)
+    set_hands('m3 p123 s789 z12345', @user_player)
+    candidates = @user_player.ankan_and_kakan_candidates
+
+    assert_equal [], candidates[:ankan]
+    assert_equal 1, candidates[:kakan].size
+    assert %w[3萬 3萬 3萬 3萬], candidates[:kakan].first.map(&:name)
   end
 
   test '#furo_candidates return {} when current_player is user' do

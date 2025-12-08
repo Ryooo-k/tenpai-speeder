@@ -4,6 +4,8 @@ module GamesHelper
   EVENT_PARTIALS = %w[
     draw
     confirm_tsumo
+    confirm_kan
+    rinshan_draw
     tsumogiri
     confirm_riichi
     choose_riichi

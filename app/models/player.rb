@@ -12,6 +12,8 @@ class Player < ApplicationRecord
   TOIMEN_SEAT_NUMBER = 2
   KAMICHA_SEAT_NUMBER = 3
   WAITING_TURN_HAND_COUNTS = [ 1, 4, 7, 10, 13 ].freeze
+  KAKAN_POSITION = 4
+  KAN_COUNT = 4
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -94,6 +96,12 @@ class Player < ApplicationRecord
   def stolen(discarded_tile_id, step)
     player_states.create!(step:)
     create_stolen_rivers(discarded_tile_id)
+  end
+
+  def kan(type, ids, step)
+    player_states.create!(step:)
+    create_kan_melds(type, ids)
+    create_kan_hands(ids)
   end
 
   # ai用 牌選択メソッド
@@ -211,6 +219,17 @@ class Player < ApplicationRecord
     end
   end
 
+  def can_ankan_or_kakan?
+    can_ankan? || can_kakan?
+  end
+
+  def ankan_and_kakan_candidates
+    {
+      ankan: find_ankan_candidates,
+      kakan: find_kakan_candidates
+    }.compact
+  end
+
   def can_furo?(target_tile, target_player)
     return false if self == target_player || riichi?
     can_pon?(target_tile) || can_chi?(target_tile, target_player)
@@ -225,7 +244,7 @@ class Player < ApplicationRecord
     {
       pon: find_pon_candidates(target_tile),
       chi: find_chi_candidates(target_tile, target_player),
-      daiminkan: find_kan_candidates(target_tile)
+      daiminkan: find_daiminkan_candidates(target_tile)
     }.compact
   end
 
@@ -412,6 +431,27 @@ class Player < ApplicationRecord
       end
     end
 
+    def create_kan_melds(type, ids)
+      kind = type.to_s
+
+      if kind == 'ankan'
+        ankan_tiles = hands.select { |hand| ids.include?(hand.id) }.map(&:tile)
+        ankan_tiles.each_with_index do |tile, position|
+          current_state.melds.create!(tile:, kind:, position:)
+        end
+      else
+        kakan_hand = hands.detect { |hand| ids.include?(hand.id) }
+        return unless kakan_hand
+
+        current_state.melds.create!(tile: kakan_hand.tile, kind:, position: KAKAN_POSITION)
+      end
+    end
+
+    def create_kan_hands(ids)
+      new_hands = hands.reject { |hand| ids.include?(hand.id) }
+      new_hands.each { |hand| current_state.hands.create!(tile: hand.tile) }
+    end
+
     def create_discarded_rivers(chosen_hand, riichi)
       if base_rivers.present?
         base_rivers.each do |river|
@@ -448,13 +488,56 @@ class Player < ApplicationRecord
       game.host.seat_order
     end
 
-    def find_kan_candidates(target_tile)
-      return unless can_kan?(target_tile)
+    def find_daiminkan_candidates(target_tile)
+      return unless can_daiminkan?(target_tile)
       hands.select { |hand| hand.code == target_tile.code }
     end
 
-    def can_kan?(target_tile)
+    def find_ankan_candidates
+      hands.group_by(&:code).values.select { |group| group.size == 4 }
+    end
+
+    def find_kakan_candidates
+      pon_melds = melds.select { |meld| meld.kind == 'pon' }.group_by(&:code)
+
+      hands.each_with_object([]) do |hand, candidates|
+        group = pon_melds[hand.code]
+        next unless group
+
+        candidates << group + [ hand ]
+      end
+    end
+
+    def can_daiminkan?(target_tile)
       hands.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
+    end
+
+    def can_ankan?
+      if riichi?
+        drawn_hand = hands.detect(&:drawn)
+        ankan_candidates = hands.select { |hand| hand.code == drawn_hand.code }
+        return if ankan_candidates.size != KAN_COUNT
+
+        tiles = game.tiles
+        before_wining_tiles = HandEvaluator.find_wining_tiles(hands_without_drawn, melds, tiles)
+
+        test_hands = hands.reject { |hand| ankan_candidates.include?(hand) }
+        test_melds = melds + ankan_candidates.map { |candidate| Meld.create(tile: candidate.tile, kind: 'ankan') }
+        after_wining_tiles = HandEvaluator.find_wining_tiles(test_hands, test_melds, tiles)
+
+        before_wining_tiles == after_wining_tiles
+      else
+        hands.map(&:code).tally.any? { |_, count| count == 4 }
+      end
+    end
+
+    def can_kakan?
+      pon_melds = melds.select { |meld| meld.kind == 'pon' }
+
+      return unless pon_melds.present?
+
+      pon_codes = pon_melds.map(&:code).tally.keys
+      hands.any? { |hand| pon_codes.include?(hand.code) }
     end
 
     def find_pon_candidates(target_tile)

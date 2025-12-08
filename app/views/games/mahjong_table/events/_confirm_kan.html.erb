@@ -1,0 +1,44 @@
+<% kan_candidates = @game.current_player.ankan_and_kakan_candidates %>
+
+<% if @game.current_player.user? %>
+  <div class="absolute bottom-1/8 right-1/10">
+    <div class="flex flex-wrap gap-2" aria-label="カンの選択肢">
+      <% kan_candidates.each do |kan_type, candidates| %>
+        <% next if candidates.blank? %>
+
+        <% candidates.each do |kan_set| %>
+          <%= button_to game_play_command_path(@game),
+                        params: {
+                          event: "confirm_kan",
+                          kan: true,
+                          kan_type: kan_type,
+                          kan_ids: kan_set.grep(Hand).map(&:id)
+                        },
+                        form: { data: { testid: "#{kan_type}_candidate" } },
+                        class: "inline-flex items-end rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" do %>
+            <% kan_set.each_with_index do |hand, index| %>
+              <% back_board = kan_type == :ankan && (index == 1 || index == 2) %>
+              <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.tile.aka?, back_board:, class_name: "w-[3.0cqw]" } %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <%= button_to "パス",
+                    game_play_command_path(@game),
+                    params: {
+                      event: "confirm_kan",
+                      kan: false
+                    },
+                    form: { data: { testid: "kan_pass" } },
+                    class: "rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" %>
+    </div>
+  </div>
+<% else %>
+  <%# AIはカンを選択しない %>
+  <%= form_with url: game_play_command_path(@game),
+                data: { controller: "auto-submit", testid: "kan_auto_pass" } do |form| %>
+    <%= form.hidden_field :event, value: "confirm_kan" %>
+    <%= form.hidden_field :kan, value: false %>
+  <% end %>
+<% end %>

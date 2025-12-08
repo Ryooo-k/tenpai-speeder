@@ -227,6 +227,25 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_step_number + 1, @game.current_step_number
   end
 
+  test '#rinshan_tile delegates to latest_honba.rinshan_tile' do
+    honba = @game.latest_honba
+    honba.update!(kan_count: 1)
+    expected = honba.tile_orders.find_by(order: 122).tile
+    assert_equal expected, @game.rinshan_tile
+
+    honba.update!(kan_count: 2)
+    expected = honba.tile_orders.find_by(order: 123).tile
+    assert_equal expected, @game.rinshan_tile
+
+    honba.update!(kan_count: 3)
+    expected = honba.tile_orders.find_by(order: 124).tile
+    assert_equal expected, @game.rinshan_tile
+
+    honba.update!(kan_count: 4)
+    expected = honba.tile_orders.find_by(order: 125).tile
+    assert_equal expected, @game.rinshan_tile
+  end
+
   test '#discard_for_current_player moves tile from hands to rivers' do
     current_player = @game.current_player
     manzu_1, manzu_2 = set_hands('m12', current_player)
@@ -243,6 +262,18 @@ class GameTest < ActiveSupport::TestCase
     before_step_number = @game.current_step_number
     @game.discard_for_current_player(manzu_1.id)
     assert_equal before_step_number + 1, @game.current_step_number
+  end
+
+  test '#advance_step! increments step number and creates new step on latest honba' do
+    before_step_number = @game.current_step_number
+    before_count = @game.latest_honba.steps.count
+
+    new_step = @game.advance_step!
+
+    assert_equal before_step_number + 1, @game.current_step_number
+    assert_equal before_count + 1, @game.latest_honba.steps.count
+    assert_equal new_step.number, @game.current_step_number
+    assert_equal @game.latest_honba, new_step.honba
   end
 
   test '#latest_round returns round with maximum number' do
@@ -918,6 +949,16 @@ class GameTest < ActiveSupport::TestCase
 
     @game.add_new_dora
     assert_equal 1, @game.latest_honba.kan_count
+  end
+
+  test '#sukantsu_ryukyoku? returns true when kan_count reaches max' do
+    @game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT)
+    assert @game.sukantsu_ryukyoku?
+  end
+
+  test '#sukantsu_ryukyoku? returns false when kan_count below max' do
+    @game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT - 1)
+    assert_not @game.sukantsu_ryukyoku?
   end
 
   test 'tonpuu mode: starts at 東一局・25000点で、東四局で終了判定' do

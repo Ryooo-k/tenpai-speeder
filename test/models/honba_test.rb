@@ -160,4 +160,22 @@ class HonbaTest < ActiveSupport::TestCase
     fifth_dora_tile = @honba.tile_orders.find_by(order: fifth_dora_order).tile
     assert_equal [ first_dora_tile, second_dora_tile, third_dora_tile, fourth_dora_tile, fifth_dora_tile ], @honba.uradora_indicator_tiles
   end
+
+  test '#rinshan_tile returns tile corresponding to current kan count' do
+    @honba.kan_count = 1
+    first_rinshan_tile = @honba.tile_orders.find_by(order: 122).tile
+    assert_equal first_rinshan_tile, @honba.rinshan_tile
+
+    @honba.kan_count = 2
+    second_rinshan_tile = @honba.tile_orders.find_by(order: 123).tile
+    assert_equal second_rinshan_tile, @honba.rinshan_tile
+
+    @honba.kan_count = 3
+    third_rinshan_tile = @honba.tile_orders.find_by(order: 124).tile
+    assert_equal third_rinshan_tile, @honba.rinshan_tile
+
+    @honba.kan_count = 4
+    fourth_rinshan_tile = @honba.tile_orders.find_by(order: 125).tile
+    assert_equal fourth_rinshan_tile, @honba.rinshan_tile
+  end
 end

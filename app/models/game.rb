@@ -17,6 +17,7 @@ class Game < ApplicationRecord
   }.freeze
   FINAL_ROUND_NUMBER = 7
   MAX_DORA_COUNT = 5
+  MAX_KAN_COUNT = 4
 
   belongs_to :game_mode
 
@@ -168,6 +169,10 @@ class Game < ApplicationRecord
     increase_draw_count
     next_step = advance_step!
     current_player.draw(top_tile, next_step)
+  end
+
+  def rinshan_tile
+    latest_honba.rinshan_tile
   end
 
   def discard_for_current_player(hand_id)
@@ -328,6 +333,16 @@ class Game < ApplicationRecord
     latest_honba.increment!(:kan_count)
   end
 
+  def advance_step!
+    next_step_number = current_step_number + 1
+    update!(current_step_number: next_step_number)
+    latest_honba.steps.create!(number: next_step_number)
+  end
+
+  def sukantsu_ryukyoku?
+    latest_honba.kan_count == MAX_KAN_COUNT
+  end
+
   private
 
     def create_tiles_and_round
@@ -372,12 +387,6 @@ class Game < ApplicationRecord
 
     def increase_draw_count
       latest_honba.increment!(:draw_count)
-    end
-
-    def advance_step!
-      next_step_number = current_step_number + 1
-      update!(current_step_number: next_step_number)
-      latest_honba.steps.create!(number: next_step_number)
     end
 
     def other_players

@@ -129,7 +129,7 @@ module HandEvaluator
     end
 
     def find_normal_outs(hands, melds, tiles, shanten)
-      hand_and_meld_tiles = hands.map { |hand| hand.tile } + melds.map { |meld| meld.tile }
+      hand_and_meld_tiles = hands.map(&:tile) + melds.map(&:tile)
 
       tiles.select do |tile|
         next if hand_and_meld_tiles.include?(tile)
@@ -141,7 +141,7 @@ module HandEvaluator
     end
 
     def find_wining_tiles(hands, melds, tiles)
-      hand_and_meld_tiles = hands.map { |hand| hand.tile } + melds.map { |meld| meld.tile }
+      hand_and_meld_tiles = hands.map(&:tile) + melds.map(&:tile)
 
       tiles.select do |tile|
         next if hand_and_meld_tiles.include?(tile)
