@@ -212,8 +212,7 @@ class Player < ApplicationRecord
   end
 
   def can_ankan_or_kakan?
-    tallied_tile_codes = (hands + melds).map(&:code).tally
-    tallied_tile_codes.any? { |_, count| count == 4 }
+    can_ankan? || can_kakan?
   end
 
   def can_furo?(target_tile, target_player)
@@ -460,6 +459,19 @@ class Player < ApplicationRecord
 
     def can_daiminkan?(target_tile)
       hands.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
+    end
+
+    def can_ankan?
+      hands.map(&:code).tally.any? { |_, count| count == 4 }
+    end
+
+    def can_kakan?
+      pon_melds = melds.select { |meld| meld.kind == 'pon' }
+
+      return unless pon_melds.present?
+
+      pon_codes = pon_melds.map(&:code).tally.keys
+      hands.any? { |hand| pon_codes.include?(hand.code) }
     end
 
     def find_pon_candidates(target_tile)

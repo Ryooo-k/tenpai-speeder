@@ -791,6 +791,12 @@ class PlayerTest < ActiveSupport::TestCase
     assert_not @user_player.can_ankan_or_kakan?
   end
 
+  test '#can_ankan_or_kakan? returns false when no four-of-a-kind in hand or melds' do
+    set_melds('m123+ m123+ m123+', @user_player)
+    set_hands('m123 p12345', @user_player)
+    assert_not @user_player.can_ankan_or_kakan?
+  end
+
   test '#can_furo? returns false when target_player is current_player' do
     set_hands('m12', @user_player)
     result = @user_player.can_furo?(@manzu_3, @user_player)
