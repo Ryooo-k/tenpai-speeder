@@ -211,6 +211,11 @@ class Player < ApplicationRecord
     end
   end
 
+  def can_ankan_or_kakan?
+    tallied_tile_codes = (hands + melds).map(&:code).tally
+    tallied_tile_codes.any? { |_, count| count == 4 }
+  end
+
   def can_furo?(target_tile, target_player)
     return false if self == target_player || riichi?
     can_pon?(target_tile) || can_chi?(target_tile, target_player)

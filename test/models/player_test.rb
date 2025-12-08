@@ -773,6 +773,24 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#can_ankan_or_kakan? returns true when hand has four identical tiles' do
+    set_melds([], @user_player)
+    set_hands('m1111 p234 s78 z1234', @user_player)
+    assert @user_player.can_ankan_or_kakan?
+  end
+
+  test '#can_ankan_or_kakan? returns true when pon plus same tile in hand' do
+    set_melds('m111=', @user_player)
+    set_hands('m1 p234 s78 z1234', @user_player)
+    assert @user_player.can_ankan_or_kakan?
+  end
+
+  test '#can_ankan_or_kakan? returns false without any four-of-a-kind' do
+    set_melds([], @user_player)
+    set_hands('m123 p456 s789 z1234', @user_player)
+    assert_not @user_player.can_ankan_or_kakan?
+  end
+
   test '#can_furo? returns false when target_player is current_player' do
     set_hands('m12', @user_player)
     result = @user_player.can_furo?(@manzu_3, @user_player)
