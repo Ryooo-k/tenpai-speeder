@@ -951,6 +951,16 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 1, @game.latest_honba.kan_count
   end
 
+  test '#sukantsu_ryukyoku? returns true when kan_count reaches max' do
+    @game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT)
+    assert @game.sukantsu_ryukyoku?
+  end
+
+  test '#sukantsu_ryukyoku? returns false when kan_count below max' do
+    @game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT - 1)
+    assert_not @game.sukantsu_ryukyoku?
+  end
+
   test 'tonpuu mode: starts at 東一局・25000点で、東四局で終了判定' do
     game = Game.create!(game_mode: game_modes(:tonpuu))
     game.setup_players(@user, @ai)
