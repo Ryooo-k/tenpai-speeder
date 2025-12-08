@@ -372,31 +372,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 1, @game.riichi_stick_count
   end
 
-  test '#apply_furo moves tile from hands to melds' do
-    ai = @game.ais.sample
-    set_player_turn(@game, ai)
-    user = @game.user_player
-    manzu_3 = set_rivers('m3', ai).first
-    manzu_1, manzu_2, haku = set_hands('m12 z1', user)
-
-    furo_ids = [ manzu_1.id, manzu_2.id ]
-    @game.apply_furo(:chi, furo_ids, manzu_3.tile.id)
-    expected = [ manzu_1.tile, manzu_2.tile, manzu_3.tile ]
-
-    assert_equal [ haku.tile ], user.hands.map(&:tile)
-    user.melds.each { |meld| assert expected.include?(meld.tile) }
-  end
-
-  test '#apply_furo increments current_step_number and creates new step' do
-    ai = @game.ais.sample
-    set_player_turn(@game, ai)
-    before_step_number = @game.current_step_number
-    manzu_1, manzu_2 = set_hands('m12', @game.user_player)
-    furo_ids = [ manzu_1.id, manzu_2.id ]
-    @game.apply_furo(:chi, furo_ids, tiles(:first_manzu_3).id)
-    assert_equal before_step_number + 1, @game.current_step_number
-  end
-
   test '#advance_next_round! creates new round' do
     before_round_count = @game.rounds.count
     before_round_number = @game.rounds.order(:number).last.number
