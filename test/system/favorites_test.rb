@@ -40,6 +40,12 @@ class FavoritesTest < ApplicationSystemTestCase
     login_as_guest
 
     visit favorites_path
+    assert_current_path home_path
+    assert_text 'SNSログインが必要です'
+  end
+
+  test 'logged-out user is redirected to welcome page when accessing favorites' do
+    visit favorites_path
     assert_current_path root_path
     assert_text 'SNSログインが必要です'
   end
