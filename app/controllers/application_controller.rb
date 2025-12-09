@@ -21,6 +21,6 @@ class ApplicationController < ActionController::Base
 
     def require_oauth_user!
       return if current_user&.provider.present?
-      redirect_to root_path, alert: 'SNSログインが必要です'
+      redirect_to(current_user ? home_path : root_path, alert: 'SNSログインが必要です')
     end
 end
