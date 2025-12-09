@@ -180,12 +180,6 @@ class Game < ApplicationRecord
     current_player.discard(hand_id, next_step)
   end
 
-  def apply_furo(furo_type, furo_ids, discarded_tile_id)
-    next_step = advance_step!
-    current_player.stolen(discarded_tile_id, next_step)
-    user_player.steal(current_player, furo_type, furo_ids, discarded_tile_id, next_step)
-  end
-
   def advance_next_round!(ryukyoku: false)
     next_honba_number = ryukyoku ? latest_honba.number + 1 : 0
     riichi_stick_count = ryukyoku ? latest_honba.riichi_stick_count : 0
