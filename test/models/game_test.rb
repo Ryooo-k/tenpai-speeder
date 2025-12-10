@@ -364,6 +364,26 @@ class GameTest < ActiveSupport::TestCase
     assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.uradora_indicator_tiles.map(&:class)
   end
 
+  test '#dora_tiles returns tiles converted from indicators' do
+    honba = @game.latest_honba
+    honba.update!(kan_count: 0)
+    dora_codes = honba.dora_indicator_tiles.map { |indicator| Game::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+    expected = @game.tiles.select { |tile| dora_codes.include?(tile.code) }
+
+    assert_equal 4, @game.dora_tiles.size
+    assert_equal expected, @game.dora_tiles
+  end
+
+  test '#uradora_tiles returns tiles converted from ura indicators' do
+    honba = @game.latest_honba
+    honba.update!(kan_count: 0)
+    dora_codes = honba.uradora_indicator_tiles.map { |indicator| Game::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+    expected = @game.tiles.select { |tile| dora_codes.include?(tile.code) }
+
+    assert_equal 4, @game.uradora_tiles.size
+    assert_equal expected, @game.uradora_tiles
+  end
+
   test '#riichi_stick_count' do
     @game.latest_honba.update!(riichi_stick_count: 0)
     assert_equal 0, @game.riichi_stick_count
