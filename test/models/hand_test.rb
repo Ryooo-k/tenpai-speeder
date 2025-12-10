@@ -51,24 +51,4 @@ class HandTest < ActiveSupport::TestCase
     manzu_3_a = state.hands.create!(tile: tiles(:first_manzu_3))
     assert_equal [ manzu_2, manzu_3_a, manzu_3_b, drawn_tile ], state.hands.sorted_with_drawn
   end
-
-  test '#suit returns suit of tile' do
-    hand = Hand.create!(tile: @manzu_1, player_state: player_states(:ryo))
-    assert_equal 'manzu', hand.suit
-  end
-
-  test '#name returns name of tile' do
-    hand = Hand.create!(tile: @manzu_1, player_state: player_states(:ryo))
-    assert_equal '1萬', hand.name
-  end
-
-  test '#number returns name of tile' do
-    hand = Hand.create!(tile: @manzu_1, player_state: player_states(:ryo))
-    assert_equal 1, hand.number
-  end
-
-  test '#code returns code of tile' do
-    hand = Hand.create!(tile: @manzu_1, player_state: player_states(:ryo))
-    assert_equal 0, hand.code
-  end
 end

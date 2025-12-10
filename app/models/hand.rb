@@ -22,19 +22,5 @@ class Hand < ApplicationRecord
       .order('tile.kind ASC')
   }
 
-  def suit
-    tile.suit
-  end
-
-  def name
-    tile.name
-  end
-
-  def number
-    tile.number
-  end
-
-  def code
-    tile.code
-  end
+  delegate :suit, :name, :number, :code, :aka?, to: :tile
 end
