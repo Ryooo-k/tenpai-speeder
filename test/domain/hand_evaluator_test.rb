@@ -93,7 +93,7 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     dora_count_list = { dora: 1, ura: 2, aka: 3 }
 
     result = HandEvaluator.get_score_statements(hands, @empty_melds, agari_tile, relation, @round_wind, @player_wind, situational_yaku_list, dora_count_list)
-    expected = [ { name: '門前清自摸和', han: 1 }, { name: 'ドラ', han: 1 }, { name: '裏ドラ', han: 2 }, { name: '赤ドラ', han:3 } ]
+    expected = [ { name: '門前清自摸和', han: 1 }, { name: 'ドラ', han: 1 }, { name: '裏ドラ', han: 2 }, { name: '赤ドラ', han: 3 } ]
 
     assert result[:tsumo]
     assert_equal 40, result[:fu_total]
