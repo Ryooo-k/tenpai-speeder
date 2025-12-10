@@ -260,10 +260,12 @@ class Player < ApplicationRecord
     HandEvaluator.can_ron?(hands, melds, tile, relation_from_current_player, game.round_wind_number, wind_number, situational_yaku_list)
   end
 
-  def score_statements(tile: false)
+  def score_statements(tile: nil)
     target_hands = tile ? hands + [ tile ] : hands
     agari_tile = tile ? tile : hands.detect(&:drawn)
     situational_yaku_list = build_situational_yaku_list(tile:)
+    dora_count_list = build_dora_count_list(tile:, ura: riichi?)
+
     HandEvaluator.get_score_statements(
       target_hands,
       melds,
@@ -271,7 +273,8 @@ class Player < ApplicationRecord
       relation_from_current_player,
       game.round_wind_number,
       wind_number,
-      situational_yaku_list
+      situational_yaku_list,
+      dora_count_list
     )
   end
 
@@ -327,13 +330,22 @@ class Player < ApplicationRecord
     return {} unless waiting_wining_tile?
 
     wining_tiles = HandEvaluator.find_wining_tiles(hands, melds, game.tiles)
+    dora_count_list = build_dora_count_list(ura: false)
+
     wining_tiles.each_with_object({}) do |wining_tile, yaku_map|
       next if yaku_map[wining_tile.base_tile].present?
 
       target_hands = hands + [ wining_tile ]
       situational_yaku_list = build_situational_yaku_list(tile: wining_tile)
       relation = :toimen # self以外になるように設定（役の自摸がつかないようにする）
-      score_statements = HandEvaluator.get_score_statements(target_hands, melds, wining_tile, relation, game.round_wind_number, wind_number, situational_yaku_list)
+      score_statements = HandEvaluator.get_score_statements(
+        target_hands, melds,
+        wining_tile, relation,
+        game.round_wind_number,
+        wind_number,
+        situational_yaku_list,
+        dora_count_list
+        )
       yaku_map[wining_tile.base_tile] = score_statements[:yaku_list]
     end
   end
@@ -614,5 +626,37 @@ class Player < ApplicationRecord
 
     def waiting_turn?
       WAITING_TURN_HAND_COUNTS.include?(hands.size) && hands.all? { |hand| !hand.drawn? }
+    end
+
+    def build_dora_count_list(tile: nil, dora: true, ura: true, aka: true)
+      dora_count = dora ? count_dora(tile) : 0
+      uradora_count = ura ? count_uradora(tile) : 0
+      akadora_count = aka ? count_akadora : 0
+
+      { dora: dora_count, ura: uradora_count, aka: akadora_count }
+    end
+
+    def count_dora(tile)
+      dora_group = game.dora_tiles.group_by(&:id)
+      targets = (hands + melds).map(&:tile)
+      targets << tile if tile
+
+      targets.map do |tile|
+        dora_group.keys.include?(tile.id) ? dora_group[tile.id].size : 0
+      end.sum
+    end
+
+    def count_uradora(tile)
+      uradora_group = game.uradora_tiles.group_by(&:id)
+      targets = (hands + melds).map(&:tile)
+      targets << tile if tile
+
+      targets.map do |tile|
+        uradora_group.keys.include?(tile.id) ? uradora_group[tile.id].size : 0
+      end.sum
+    end
+
+    def count_akadora
+      (hands + melds).count { |tile| tile.aka? }
     end
 end

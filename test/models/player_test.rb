@@ -1530,6 +1530,56 @@ class PlayerTest < ActiveSupport::TestCase
     assert_not @user_player.waiting_wining_tile?
   end
 
+  test '#count_dora counts dora tiles in hand and melds' do
+    player = @user_player
+    hands = set_hands('m1', player)
+    dora_tile = hands.first.tile
+
+    player.stub(:melds, []) do
+      player.game.stub(:dora_tiles, [ dora_tile ]) do
+        assert_equal 1, player.send(:count_dora, nil)
+      end
+    end
+  end
+
+  test '#count_dora counts winning tile as well' do
+    player = @user_player
+    pinzu_1 = tiles(:first_pinzu_1)
+
+    set_hands('m2', player)
+
+    player.stub(:melds, []) do
+      player.game.stub(:dora_tiles, [ pinzu_1 ]) do
+        assert_equal 1, player.send(:count_dora, pinzu_1)
+      end
+    end
+  end
+
+  test '#count_uradora counts dora tiles in hand and melds' do
+    player = @user_player
+    hands = set_hands('m1', player)
+    uradora_tile = hands.first.tile
+
+    player.stub(:melds, []) do
+      player.game.stub(:uradora_tiles, [ uradora_tile ]) do
+        assert_equal 1, player.send(:count_uradora, nil)
+      end
+    end
+  end
+
+  test '#count_uradora counts winning tile as well' do
+    player = @user_player
+    pinzu_1 = tiles(:first_pinzu_1)
+
+    set_hands('m2', player)
+
+    player.stub(:melds, []) do
+      player.game.stub(:uradora_tiles, [ pinzu_1 ]) do
+        assert_equal 1, player.send(:count_uradora, pinzu_1)
+      end
+    end
+  end
+
   test 'riichi river stays sideways even after being stolen' do
     discarder = @game.user_player
     set_hands('m12345', discarder)
