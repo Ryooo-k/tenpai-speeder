@@ -1141,7 +1141,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
     # ホストを4筒でロン和了できる状態にセット
     # 4筒ロンで親萬 12000点の加点
-    set_hands('m234567 p23 s23455', host, drawn: false)
+    set_hands('m234678 p23 s23488', host, drawn: false)
     pinzu_4_id = set_hands('p4', loser).first.tile.id
 
     assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
@@ -1181,7 +1181,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
     # ホストを4筒でツモ和了できる状態にセット
     # 親萬 12000点の加点
-    set_hands('m234567 p234 s23455', ai)
+    set_hands('m234678 p234 s23488', ai)
     set_rivers('m1', ai) # 天和対策（河に捨て牌がない状態でツモすると役満となるため）
 
     @game.players.each do |player|

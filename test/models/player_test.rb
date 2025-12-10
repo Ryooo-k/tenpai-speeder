@@ -1497,10 +1497,12 @@ class PlayerTest < ActiveSupport::TestCase
     yaku_map_a = [ { name: '平和', han: 1 }, { name: '三色同順', han: 2 } ]
     yaku_map_b = [ { name: '平和', han: 1 } ]
 
-    result = @user_player.yaku_map_by_waiting_wining_tile
+    @user_player.stub(:build_dora_count_list, {}) do
+      result = @user_player.yaku_map_by_waiting_wining_tile
 
-    assert_equal yaku_map_a, result[wining_tile_a]
-    assert_equal yaku_map_b, result[wining_tile_b]
+      assert_equal yaku_map_a, result[wining_tile_a]
+      assert_equal yaku_map_b, result[wining_tile_b]
+    end
   end
 
   test '#yaku_map_by_waiting_wining_tile returns empty hash when not tenpai' do

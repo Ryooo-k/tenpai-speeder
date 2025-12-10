@@ -80,7 +80,7 @@ module HandEvaluator
       yaku_list.present?
     end
 
-    def get_score_statements(hands, melds, agari_tile, relation, round_wind, player_wind, situational_yaku_list)
+    def get_score_statements(hands, melds, agari_tile, relation, round_wind, player_wind, situational_yaku_list, dora_count_list)
       normalized_hands, normalized_melds, normalized_agari_tile = ScoreInputNormalizer.normalize(hands, melds, agari_tile, relation)
       agari_all_patterns = build_agari_all_patters(normalized_hands, normalized_melds, normalized_agari_tile)
 
@@ -88,7 +88,7 @@ module HandEvaluator
 
       scoring_state_table = agari_all_patterns.map { |agari_patterns| build_scoring_states(agari_patterns, round_wind, player_wind) }
       all_score_statements = scoring_state_table.map do |scoring_states|
-        yaku_list = build_yaku_list(scoring_states, situational_yaku_list)
+        yaku_list = build_yaku_list(scoring_states, situational_yaku_list, dora_count_list:)
         han_total = yaku_list.empty? ? 0 : yaku_list.sum { |yaku| yaku[:han].to_i }
 
         {
@@ -368,11 +368,11 @@ module HandEvaluator
         bonus_yaku_list
       end
 
-      def build_dora_yaku_list(dora_count, ura_dora_count, aka_dora_count)
+      def build_dora_yaku_list(dora_count_list)
         dora_yaku_list = []
-        dora_yaku_list << { name: 'ドラ',  han: dora_count } if dora_count.positive?
-        dora_yaku_list << { name: '赤ドラ', han: aka_dora_count } if aka_dora_count.positive?
-        dora_yaku_list << { name: '裏ドラ', han: ura_dora_count } if ura_dora_count.positive?
+        dora_yaku_list << { name: 'ドラ',  han: dora_count_list[:dora] } if dora_count_list[:dora].positive?
+        dora_yaku_list << { name: '裏ドラ', han: dora_count_list[:ura] } if dora_count_list[:ura].positive?
+        dora_yaku_list << { name: '赤ドラ', han: dora_count_list[:aka] } if dora_count_list[:aka].positive?
         dora_yaku_list
       end
 
@@ -733,7 +733,7 @@ module HandEvaluator
         { name: '九蓮宝燈', han: 13 }
       end
 
-      def build_yaku_list(scoring_states, situational_yaku_list)
+      def build_yaku_list(scoring_states, situational_yaku_list, dora_count_list: {})
         bonus_yaku_list = build_bonus_yaku_list(situational_yaku_list)
         yakuman_list = situational_yaku_list[:tenhou] || situational_yaku_list[:chiihou] ? bonus_yaku_list : []
         yakuman_list << build_kokushi_yaku(scoring_states)
@@ -769,6 +769,7 @@ module HandEvaluator
         yaku_list << build_zyunchan_yaku(scoring_states)
         yaku_list << build_ryanpeikou_yaku(scoring_states)
         yaku_list << build_chinitsu_yaku(scoring_states)
+        yaku_list << build_dora_yaku_list(dora_count_list) if dora_count_list.present?
         yaku_list.flatten
       end
 
