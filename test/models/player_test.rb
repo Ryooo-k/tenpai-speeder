@@ -1580,6 +1580,22 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#count_akadora counts dora tiles in hand and melds' do
+    player = @user_player
+    hands = set_hands('m5', player)
+    akadora_tile = hands.first.tile
+
+    assert_equal 1, player.send(:count_akadora, nil)
+  end
+
+  test '#count_akadora counts winning tile as well' do
+    akadora_tile = set_hands('m5', @ai_player).first.tile
+    hands = set_hands('m34', @user_player)
+
+    assert_equal 1, @user_player.send(:count_akadora, akadora_tile)
+  end
+
+
   test 'riichi river stays sideways even after being stolen' do
     discarder = @game.user_player
     set_hands('m12345', discarder)

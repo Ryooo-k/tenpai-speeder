@@ -631,7 +631,7 @@ class Player < ApplicationRecord
     def build_dora_count_list(tile: nil, dora: true, ura: true, aka: true)
       dora_count = dora ? count_dora(tile) : 0
       uradora_count = ura ? count_uradora(tile) : 0
-      akadora_count = aka ? count_akadora : 0
+      akadora_count = aka ? count_akadora(tile) : 0
 
       { dora: dora_count, ura: uradora_count, aka: akadora_count }
     end
@@ -656,7 +656,9 @@ class Player < ApplicationRecord
       end.sum
     end
 
-    def count_akadora
-      (hands + melds).count { |tile| tile.aka? }
+    def count_akadora(tile)
+      targets = (hands + melds)
+      targets << tile if tile
+      targets.count { |tile| tile.aka? }
     end
 end
