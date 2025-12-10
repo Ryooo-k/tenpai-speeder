@@ -12,19 +12,6 @@ class River < ApplicationRecord
 
   scope :not_stolen, -> { where(stolen: false) }
 
-  def suit
-    tile.suit
-  end
+  delegate :suit, :name, :number, :code, :aka?, to: :tile
 
-  def name
-    tile.name
-  end
-
-  def number
-    tile.number
-  end
-
-  def code
-    tile.code
-  end
 end
