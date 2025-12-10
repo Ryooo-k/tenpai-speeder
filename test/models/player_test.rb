@@ -1110,7 +1110,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:haitei_tsumo?, true) do
+        @user_player.stub(:build_situational_yaku_list, build_situational_yaku_list(haitei: true)) do
           result = @user_player.can_tsumo?
           assert result
         end
@@ -1124,7 +1124,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:rinshan_tsumo?, true) do
+        @user_player.stub(:build_situational_yaku_list, build_situational_yaku_list(rinshan: true)) do
           result = @user_player.can_tsumo?
           assert result
         end
@@ -1182,7 +1182,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:houtei_ron?, true) do
+        @user_player.stub(:build_situational_yaku_list, build_situational_yaku_list(houtei: true)) do
           result = @user_player.can_ron?(tiles(:first_pinzu_1))
           assert result
         end
@@ -1196,7 +1196,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:chankan?, true) do
+        @user_player.stub(:build_situational_yaku_list, build_situational_yaku_list(chankan: true)) do
           result = @user_player.can_ron?(tiles(:first_pinzu_1))
           assert result
         end
