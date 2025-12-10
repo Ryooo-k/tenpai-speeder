@@ -364,6 +364,26 @@ class GameTest < ActiveSupport::TestCase
     assert_equal [ Tile, Tile, Tile, Tile, Tile ], @game.uradora_indicator_tiles.map(&:class)
   end
 
+  test '#dora_tiles returns tiles converted from indicators' do
+    honba = @game.latest_honba
+    honba.update!(kan_count: 0)
+    dora_codes = honba.dora_indicator_tiles.map { |indicator| Game::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+    expected = @game.tiles.select { |tile| dora_codes.include?(tile.code) }
+
+    assert_equal 4, @game.dora_tiles.size
+    assert_equal expected, @game.dora_tiles
+  end
+
+  test '#uradora_tiles returns tiles converted from ura indicators' do
+    honba = @game.latest_honba
+    honba.update!(kan_count: 0)
+    dora_codes = honba.uradora_indicator_tiles.map { |indicator| Game::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+    expected = @game.tiles.select { |tile| dora_codes.include?(tile.code) }
+
+    assert_equal 4, @game.uradora_tiles.size
+    assert_equal expected, @game.uradora_tiles
+  end
+
   test '#riichi_stick_count' do
     @game.latest_honba.update!(riichi_stick_count: 0)
     assert_equal 0, @game.riichi_stick_count
@@ -541,10 +561,11 @@ class GameTest < ActiveSupport::TestCase
     player_2_score_statements = score_statements[ron_player_2.id]
 
     assert_equal 30, player_1_score_statements[:fu_total]
-    assert_equal 3, player_1_score_statements[:han_total]
+    assert_equal 4, player_1_score_statements[:han_total]
     assert_equal [
       { name: '平和', han: 1 },
-      { name: '一気通貫', han: 2 }
+      { name: '一気通貫', han: 2 },
+      { name: '赤ドラ', han: 1 }
     ], player_1_score_statements[:yaku_list]
 
     assert_equal 50, player_2_score_statements[:fu_total]

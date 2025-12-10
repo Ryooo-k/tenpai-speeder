@@ -18,6 +18,13 @@ class Game < ApplicationRecord
   FINAL_ROUND_NUMBER = 7
   MAX_DORA_COUNT = 5
   MAX_KAN_COUNT = 4
+  DORA_CONVERSION_MPA = {
+    8 => 0,
+    17 => 9,
+    26 => 18,
+    30 => 27,
+    33 => 31
+  }.freeze
 
   belongs_to :game_mode
 
@@ -117,6 +124,22 @@ class Game < ApplicationRecord
 
   def uradora_indicator_tiles
     latest_honba.uradora_indicator_tiles.values_at(...MAX_DORA_COUNT)
+  end
+
+  def dora_tiles
+    dora_codes = latest_honba.dora_indicator_tiles.map { |indicator| DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+
+    dora_codes.each_with_object([]) do |dora_code, dora_tiles|
+      dora_tiles << tiles.select { |tile| dora_code == tile.code }
+    end.flatten
+  end
+
+  def uradora_tiles
+    uradora_codes = latest_honba.uradora_indicator_tiles.map { |indicator| DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+
+    uradora_codes.each_with_object([]) do |dora_code, dora_tiles|
+      dora_tiles << tiles.select { |tile| dora_code == tile.code }
+    end.flatten
   end
 
   def latest_round

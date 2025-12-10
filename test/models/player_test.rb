@@ -1110,7 +1110,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:haitei_tsumo?, true) do
+        @user_player.stub(:build_situational_yaku_list, build_situational_yaku_list(haitei: true)) do
           result = @user_player.can_tsumo?
           assert result
         end
@@ -1124,7 +1124,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:rinshan_tsumo?, true) do
+        @user_player.stub(:build_situational_yaku_list, build_situational_yaku_list(rinshan: true)) do
           result = @user_player.can_tsumo?
           assert result
         end
@@ -1182,7 +1182,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:houtei_ron?, true) do
+        @user_player.stub(:build_situational_yaku_list, build_situational_yaku_list(houtei: true)) do
           result = @user_player.can_ron?(tiles(:first_pinzu_1))
           assert result
         end
@@ -1196,7 +1196,7 @@ class PlayerTest < ActiveSupport::TestCase
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
-        @user_player.stub(:chankan?, true) do
+        @user_player.stub(:build_situational_yaku_list, build_situational_yaku_list(chankan: true)) do
           result = @user_player.can_ron?(tiles(:first_pinzu_1))
           assert result
         end
@@ -1497,10 +1497,12 @@ class PlayerTest < ActiveSupport::TestCase
     yaku_map_a = [ { name: '平和', han: 1 }, { name: '三色同順', han: 2 } ]
     yaku_map_b = [ { name: '平和', han: 1 } ]
 
-    result = @user_player.yaku_map_by_waiting_wining_tile
+    @user_player.stub(:build_dora_count_list, {}) do
+      result = @user_player.yaku_map_by_waiting_wining_tile
 
-    assert_equal yaku_map_a, result[wining_tile_a]
-    assert_equal yaku_map_b, result[wining_tile_b]
+      assert_equal yaku_map_a, result[wining_tile_a]
+      assert_equal yaku_map_b, result[wining_tile_b]
+    end
   end
 
   test '#yaku_map_by_waiting_wining_tile returns empty hash when not tenpai' do
@@ -1527,6 +1529,72 @@ class PlayerTest < ActiveSupport::TestCase
 
     assert_not @user_player.waiting_wining_tile?
   end
+
+  test '#count_dora counts dora tiles in hand and melds' do
+    player = @user_player
+    hands = set_hands('m1', player)
+    dora_tile = hands.first.tile
+
+    player.stub(:melds, []) do
+      player.game.stub(:dora_tiles, [ dora_tile ]) do
+        assert_equal 1, player.send(:count_dora, nil)
+      end
+    end
+  end
+
+  test '#count_dora counts winning tile as well' do
+    player = @user_player
+    pinzu_1 = tiles(:first_pinzu_1)
+
+    set_hands('m2', player)
+
+    player.stub(:melds, []) do
+      player.game.stub(:dora_tiles, [ pinzu_1 ]) do
+        assert_equal 1, player.send(:count_dora, pinzu_1)
+      end
+    end
+  end
+
+  test '#count_uradora counts dora tiles in hand and melds' do
+    player = @user_player
+    hands = set_hands('m1', player)
+    uradora_tile = hands.first.tile
+
+    player.stub(:melds, []) do
+      player.game.stub(:uradora_tiles, [ uradora_tile ]) do
+        assert_equal 1, player.send(:count_uradora, nil)
+      end
+    end
+  end
+
+  test '#count_uradora counts winning tile as well' do
+    player = @user_player
+    pinzu_1 = tiles(:first_pinzu_1)
+
+    set_hands('m2', player)
+
+    player.stub(:melds, []) do
+      player.game.stub(:uradora_tiles, [ pinzu_1 ]) do
+        assert_equal 1, player.send(:count_uradora, pinzu_1)
+      end
+    end
+  end
+
+  test '#count_akadora counts dora tiles in hand and melds' do
+    player = @user_player
+    hands = set_hands('m5', player)
+    akadora_tile = hands.first.tile
+
+    assert_equal 1, player.send(:count_akadora, nil)
+  end
+
+  test '#count_akadora counts winning tile as well' do
+    akadora_tile = set_hands('m5', @ai_player).first.tile
+    hands = set_hands('m34', @user_player)
+
+    assert_equal 1, @user_player.send(:count_akadora, akadora_tile)
+  end
+
 
   test 'riichi river stays sideways even after being stolen' do
     discarder = @game.user_player

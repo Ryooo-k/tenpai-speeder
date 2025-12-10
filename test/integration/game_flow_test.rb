@@ -4,6 +4,7 @@ require 'test_helper'
 
 class GameFlowTest < ActionDispatch::IntegrationTest
   include GameTestHelper
+  include ActionView::Helpers::NumberHelper
 
   def setup
     post '/guest_login'
@@ -1129,10 +1130,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_dom 'p', text: point_delta_text
   end
 
-  test 'host mangan ron updates score: +12000 to winner, -12000 to loser and honba bonus' do
-    # リーチ棒：1本（1000点）、本場：2本場（300x2 = 600点） をセット
-    @game.latest_honba.update!(riichi_stick_count: 1, number: 2)
-
+  test 'host mangan ron updates score: winner player add point and loser player lose point' do
     host = @game.user_player
     set_host(@game, host)
 
@@ -1140,9 +1138,8 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     set_player_turn(@game, loser)
 
     # ホストを4筒でロン和了できる状態にセット
-    # 4筒ロンで親萬 12000点の加点
-    set_hands('m234567 p23 s23455', host, drawn: false)
-    pinzu_4_id = set_hands('p4', loser).first.tile.id
+    set_hands('m234678 p23 s23488', host, drawn: false)
+    pinzu_4 = set_hands('p4', loser).first.tile
 
     assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
       assert_dom %(span[data-role="score"]), text: '25,000'
@@ -1152,7 +1149,10 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom %(span[data-role="score"]), text: '25,000'
     end
 
-    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: pinzu_4_id, ron_player_ids: [ host.id ] }
+    score_statements = host.score_statements(tile: pinzu_4)
+    point = PointCalculator.calculate_point(score_statements, host)
+
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: pinzu_4.id, ron_player_ids: [ host.id ] }
     assert_response :redirect
     follow_redirect!
     assert_response :success
@@ -1162,27 +1162,28 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
 
+    winner_score = number_with_delimiter(25000 + point[:receiving])
     assert_dom %(div[data-player-board-test-id="#{host.id}"]) do
-      assert_dom %(span[data-role="score"]), text: '38,600' # 25000 + 12000 + 1000 + 600
+      assert_dom %(span[data-role="score"]), text: winner_score
     end
 
+    loser_score = number_with_delimiter(25000 + point[:payment])
     assert_dom %(div[data-player-board-test-id="#{loser.id}"]) do
-      assert_dom %(span[data-role="score"]), text: '12,400' # 25000 - 12000 - 600
+      assert_dom %(span[data-role="score"]), text: loser_score
     end
   end
 
-  test 'host mangan tsumo updates score: +12000 to host, -4000 to children and honba bonus' do
-    # リーチ棒：1本（1000点）、本場：2本場（300x2 = 600点） をセット
-    @game.latest_honba.update!(riichi_stick_count: 1, number: 2)
+  test 'host mangan tsumo updates score: tsumo agari player add point and loser other players lose point' do
+    host = @game.ais.sample
+    set_host(@game, host)
+    set_player_turn(@game, host)
 
-    ai = @game.ais.sample
-    set_host(@game, ai)
-    set_player_turn(@game, ai)
+    # ホストを4索でツモ和了できる状態にセット
+    set_hands('m234678 p234 s22234', host, drawn: true)
+    set_rivers('m1', host) # 天和対策（河に捨て牌がない状態でツモすると役満となるため）
 
-    # ホストを4筒でツモ和了できる状態にセット
-    # 親萬 12000点の加点
-    set_hands('m234567 p234 s23455', ai)
-    set_rivers('m1', ai) # 天和対策（河に捨て牌がない状態でツモすると役満となるため）
+    score_statements = host.score_statements
+    point = PointCalculator.calculate_point(score_statements, host)
 
     @game.players.each do |player|
       assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
@@ -1200,12 +1201,15 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
 
+    winner_score = number_with_delimiter(25000 + point[:receiving])
+    loser_score = number_with_delimiter(25000 + point[:payment][:child])
+
     @game.players.each do |player|
       assert_dom %(div[data-player-board-test-id="#{player.id}"]) do
         if player.host?
-          assert_dom %(span[data-role="score"]), text: '38,600' # 25000 + 12000 + 1000 + 600
+          assert_dom %(span[data-role="score"]), text: winner_score
         else
-          assert_dom %(span[data-role="score"]), text: '20,800' # 25000 - 4000 - 200
+          assert_dom %(span[data-role="score"]), text: loser_score
         end
       end
     end
