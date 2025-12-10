@@ -184,7 +184,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
   end
 
   test 'chankan? returns true on kakan meld with winning hand' do
-    meld = Meld.create!(tile: tiles(:fourth_souzu_1), kind: :kakan, player_state: @player.current_state, position: 0, from: :self)
+    meld = Meld.create!(tile: tiles(:fourth_souzu_1), kind: :kakan, player_state: @game.ais.sample.current_state, position: 4)
     set_hands('m123456789 p99 s23', @player)
 
     situational = SituationalYakuListBuilder.new(@player).build(meld)
@@ -192,15 +192,15 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
   end
 
   test 'chankan? returns false when meld is not kakan' do
-    meld = Meld.create!(tile: tiles(:fourth_souzu_1), kind: :daiminkan, player_state: @player.current_state, position: 0, from: :self)
+    meld = Meld.create!(tile: tiles(:fourth_souzu_1), kind: :daiminkan, player_state: @game.ais.sample.current_state, position: 0, from: :self)
     set_hands('m123456789 p99 s23', @player)
 
     situational = SituationalYakuListBuilder.new(@player).build(meld)
     assert_not situational[:chankan]
   end
 
-  test 'chankan? returns false on not kakan meld' do
-    meld = Meld.create!(tile: tiles(:fourth_souzu_9), kind: :kakan, player_state: @player.current_state, position: 0, from: :self)
+  test 'chankan? returns false on not wining of kakan meld' do
+    meld = Meld.create!(tile: tiles(:fourth_souzu_9), kind: :kakan, player_state: @game.ais.sample.current_state, position: 4)
     set_hands('m123456789 p99 s23', @player)
 
     situational = SituationalYakuListBuilder.new(@player).build(meld)
