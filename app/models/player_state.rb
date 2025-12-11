@@ -25,4 +25,5 @@ class PlayerState < ApplicationRecord
     .where(steps: { number: range })
   }
   scope :with_melds, -> { where.associated(:melds) }
+  scope :with_rivers, -> { where.associated(:rivers) }
 end

@@ -1061,7 +1061,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns true：メンゼン聴牌の場合' do
-    hands = set_hands('m111 p222 s333 z444 m99', players(:ryo))
+    hands = set_hands('m111 p222 s333 z444 m99', @user_player)
 
     @user_player.stub(:hands, hands) do
       result = @user_player.can_tsumo?
@@ -1070,7 +1070,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns false：ノーテンの場合' do
-    hands = set_hands('m123456789 p19 s19', players(:ryo))
+    hands = set_hands('m123456789 p19 s19', @user_player)
 
     @user_player.stub(:hands, hands) do
       result = @user_player.can_tsumo?
@@ -1079,8 +1079,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns false：役無しの形式聴牌 + 状況役が鳴い場合' do
-    hands = set_hands('m123 p222 s333 m99', players(:ryo))
-    melds = set_melds('m888-', players(:ryo))
+    hands = set_hands('m123 p222 s333 m99', @user_player)
+    melds = set_melds('m888-', @user_player)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -1091,8 +1091,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns true：役無し聴牌 + 状況役（立直）がある場合' do
-    hands = set_hands('m123 p222 s333 m99', players(:ryo))
-    melds = set_melds('m888-', players(:ryo))
+    hands = set_hands('m123 p222 s333 m99', @user_player)
+    melds = set_melds('m888-', @user_player)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -1105,8 +1105,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns true：役無し聴牌 + 状況役（海底摸月）がある場合' do
-    hands = set_hands('m123 p222 s333 m99', players(:ryo))
-    melds = set_melds('m888-', players(:ryo))
+    hands = set_hands('m123 p222 s333 m99', @user_player)
+    melds = set_melds('m888-', @user_player)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -1119,8 +1119,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_tsumo? returns true：役無し聴牌 + 状況役（嶺上開花）がある場合' do
-    hands = set_hands('m123 p222 s333 m99', players(:ryo))
-    melds = set_melds('m888-', players(:ryo))
+    hands = set_hands('m123 p222 s333 m99', @user_player)
+    melds = set_melds('m888-', @user_player)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -1133,7 +1133,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：役ありメンゼン聴牌の場合' do
-    hands = set_hands('m123456789 p23 z33', players(:ryo))
+    hands = set_hands('m123456789 p23 z33', @user_player)
 
     @user_player.stub(:hands, hands) do
       result = @user_player.can_ron?(tiles(:first_pinzu_1))
@@ -1142,7 +1142,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns false：役無しメンゼン形式聴牌の場合' do
-    hands = set_hands('m111456789 p23 z33', players(:ryo))
+    hands = set_hands('m111456789 p23 z33', @user_player)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:relation_from_current_player, :toimen) do
@@ -1153,8 +1153,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：副露役あり聴牌の場合' do
-    hands = set_hands('p23 z33', players(:ryo))
-    melds = set_melds('m123+ m456+ m789+', players(:ryo))
+    hands = set_hands('p23 z33', @user_player)
+    melds = set_melds('m123+ m456+ m789+', @user_player)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -1165,8 +1165,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns false：副露役無し聴牌の場合' do
-    hands = set_hands('p23 z33', players(:ryo))
-    melds = set_melds('m111+ m456+ m789+', players(:ryo))
+    hands = set_hands('p23 z33', @user_player)
+    melds = set_melds('m111+ m456+ m789+', @user_player)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -1177,8 +1177,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：役無し聴牌 + 状況役（河底撈魚）がある場合' do
-    hands = set_hands('p23 z33', players(:ryo))
-    melds = set_melds('m111+ m456+ m789+', players(:ryo))
+    hands = set_hands('p23 z33', @user_player)
+    melds = set_melds('m111+ m456+ m789+', @user_player)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -1191,8 +1191,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#can_ron? returns true：役無し聴牌 + 状況役（搶槓）がある場合' do
-    hands = set_hands('p23 z33', players(:ryo))
-    melds = set_melds('m111+ m456+ m789+', players(:ryo))
+    hands = set_hands('p23 z33', @user_player)
+    melds = set_melds('m111+ m456+ m789+', @user_player)
 
     @user_player.stub(:hands, hands) do
       @user_player.stub(:melds, melds) do
@@ -1200,6 +1200,18 @@ class PlayerTest < ActiveSupport::TestCase
           result = @user_player.can_ron?(tiles(:first_pinzu_1))
           assert result
         end
+      end
+    end
+  end
+
+  test '#can_ron? returns false：フリテンの場合' do
+    hands = set_hands('m12345678 p111 s99', @user_player) # 369萬待ち
+    set_rivers('m3', @user_player)
+
+    @user_player.stub(:hands, hands) do
+      @user_player.stub(:melds, []) do
+        result = @user_player.can_ron?(tiles(:first_manzu_9))
+        assert_not result
       end
     end
   end
@@ -1616,5 +1628,115 @@ class PlayerTest < ActiveSupport::TestCase
     riichi_and_stolen_river = discarder.current_state.rivers.first
     assert riichi_and_stolen_river.riichi?
     assert riichi_and_stolen_river.stolen?
+  end
+
+  test '#furiten_on_my_river? returns true when my river has winning tile' do
+    set_rivers('m19', @user_player)
+    wining_codes = [ tiles(:first_manzu_1).code ]
+
+    assert @user_player.send(:furiten_on_my_river?, wining_codes)
+  end
+
+  test '#furiten_on_my_river? returns false when my river has no winning tile' do
+    set_rivers('z12345', @user_player)
+    wining_codes = [ tiles(:first_manzu_1).code ]
+
+    assert_not @user_player.send(:furiten_on_my_river?, wining_codes)
+  end
+
+  test '#furiten_on_my_river? returns false when no rivers' do
+    @user_player.current_state.rivers.delete_all
+    wining_codes = [ tiles(:first_manzu_1).code ]
+
+    assert_not @user_player.send(:furiten_on_my_river?, wining_codes)
+  end
+
+  test '#furiten_on_other_rivers? ignores tiles discarded before riichi' do
+    wining_codes = [ tiles(:first_manzu_1).code ]
+    assert_not @user_player.send(:furiten_on_other_rivers?, wining_codes)
+
+    set_rivers('m1', @ai_player)
+    @user_player.current_state.update!(riichi: true)
+
+    assert_not @user_player.send(:furiten_on_other_rivers?, wining_codes)
+  end
+
+  test '#furiten_on_other_rivers? returns true when wining tiles discarded second after riichi' do
+    manzu_1_a = tiles(:first_manzu_1)
+    manzu_1_b = tiles(:second_manzu_1)
+    manzu_1_c = tiles(:third_manzu_1)
+    wining_codes = [ manzu_1_a.code ]
+    tenpai_player = @game.user_player
+    discarder_1 = @game.ais.first
+    discarder_2 = @game.ais.second
+
+    discarder_1.current_state.rivers.create!(tile: manzu_1_a, tsumogiri: false)
+    tenpai_player.current_state.update!(riichi: true)
+
+    # リーチ前に他のプレイヤーが和了牌を切ってもfuriten_on_other_rivers?の判定はfalse
+    assert_not tenpai_player.send(:furiten_on_other_rivers?, wining_codes)
+
+    next_step_number = @game.current_step_number + 1
+    @game.update!(current_step_number: next_step_number)
+    next_step = @game.latest_honba.steps.create!(number: next_step_number)
+    state_1 = discarder_1.player_states.create!(step: next_step)
+    state_1.rivers.create!(tile: manzu_1_b, tsumogiri: false)
+
+    # 和了牌が１枚切られている段階はフリテンではない。
+    # １枚切られた段階でロンしなかった場合、次の和了牌でロンできなくなる。(リーチ状態のみ)
+    assert_not tenpai_player.send(:furiten_on_other_rivers?, wining_codes)
+
+    next_next_step_number = @game.current_step_number + 1
+    @game.update!(current_step_number: next_next_step_number)
+    next_next_step = @game.latest_honba.steps.create!(number: next_next_step_number)
+    state_2 = discarder_2.player_states.create!(step: next_next_step)
+    state_2.rivers.create!(tile: manzu_1_c, tsumogiri: false)
+
+    # 2枚目の和了牌はフリテンとなる。
+    assert tenpai_player.send(:furiten_on_other_rivers?, wining_codes)
+  end
+
+  test '#furiten_on_same_turn? returns true when latest rivers contain winning tile' do
+    manzu_1_a = tiles(:first_manzu_1)
+    manzu_1_b = tiles(:second_manzu_1)
+    manzu_1_c = tiles(:third_manzu_1)
+    wining_codes = [ tiles(:first_manzu_1).code ]
+    tenpai_player = @game.user_player
+    discarder_1 = @game.ais.first
+    discarder_2 = @game.ais.second
+
+    tenpai_player.current_state.rivers.create!(tile: tiles(:first_ton), tsumogiri: false)
+
+    next_step_number = @game.current_step_number + 1
+    @game.update!(current_step_number: next_step_number)
+    next_step = @game.latest_honba.steps.create!(number: next_step_number)
+    state_1 = discarder_1.player_states.create!(step: next_step)
+    state_1.rivers.create!(tile: manzu_1_a, tsumogiri: false)
+
+    # 和了牌が１枚切られている段階はフリテンではない。
+    # １枚切られた段階でロンしなかった場合、次の打牌まで和了牌でロンできなくなる。
+    assert_not tenpai_player.send(:furiten_on_same_turn?, wining_codes)
+
+    next_next_step_number = @game.current_step_number + 1
+    @game.update!(current_step_number: next_next_step_number)
+    next_next_step = @game.latest_honba.steps.create!(number: next_next_step_number)
+    state_2 = discarder_2.player_states.create!(step: next_next_step)
+    state_2.rivers.create!(tile: manzu_1_b, tsumogiri: false)
+
+    # 2枚目の和了牌のため、ロンできない。
+    assert tenpai_player.send(:furiten_on_same_turn?, wining_codes)
+
+    # 次の打牌をセット
+    tenpai_latest_state = tenpai_player.player_states.create!(step: next_next_step)
+    tenpai_latest_state.rivers.create!(tile: tiles(:second_ton), tsumogiri: false)
+
+    next_next_next_step_number = @game.current_step_number + 1
+    @game.update!(current_step_number: next_next_next_step_number)
+    next_next_next_step = @game.latest_honba.steps.create!(number: next_next_next_step_number)
+    state_3 = discarder_1.player_states.create!(step: next_next_next_step)
+    state_3.rivers.create!(tile: manzu_1_c, tsumogiri: false)
+
+    # 打牌後のため、フリテンが解消される。
+    assert_not tenpai_player.send(:furiten_on_same_turn?, wining_codes)
   end
 end
