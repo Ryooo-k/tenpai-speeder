@@ -250,12 +250,14 @@ class Player < ApplicationRecord
 
   def can_tsumo?
     return false unless complete?
+
     situational_yaku_list = build_situational_yaku_list
     HandEvaluator.can_tsumo?(hands, melds, game.round_wind_number, wind_number, situational_yaku_list)
   end
 
   def can_ron?(tile)
-    return false unless tenpai?
+    return false if !tenpai? || furiten?
+
     situational_yaku_list = build_situational_yaku_list(tile:)
     HandEvaluator.can_ron?(hands, melds, tile, relation_from_current_player, game.round_wind_number, wind_number, situational_yaku_list)
   end
@@ -660,5 +662,49 @@ class Player < ApplicationRecord
       targets = (hands + melds)
       targets << tile if tile
       targets.count { |tile| tile.aka? }
+    end
+
+    def furiten?
+      wining_codes = HandEvaluator.find_wining_tiles(hands, melds, game.tiles).group_by(&:code).keys
+
+      if riichi?
+        furiten_on_my_river?(wining_codes) || furiten_on_other_rivers?(wining_codes)
+      else
+        furiten_on_my_river?(wining_codes) || furiten_on_same_turn?(wining_codes)
+      end
+    end
+
+    def furiten_on_my_river?(wining_codes)
+      rivers.any? { |river| wining_codes.include?(river.code) }
+    end
+
+    def furiten_on_other_rivers?(wining_codes)
+      riichi_step_number = base_states.detect(&:riichi)&.step&.number
+
+      discarded_wining_tile = game.players.select do |player|
+        next if player.id == id
+
+        out_of_scope_tiles = player.player_states.up_to_step(riichi_step_number).with_rivers&.last&.rivers&.map(&:tile)
+
+        target_rivers = out_of_scope_tiles.present? ? player.rivers.select { |river| !out_of_scope_tiles.include?(river.tile) } : player.rivers
+        target_rivers.any? { |river| wining_codes.include?(river.code) }
+      end
+
+      discarded_wining_tile.size >= 2
+    end
+
+    def furiten_on_same_turn?(wining_codes)
+      discarded_step_number = rivers.present? ? rivers.last.step_number : game.current_step_number
+
+      discarded_wining_tile = game.players.select do |player|
+        next if player.id == id
+
+        out_of_scope_tiles = player.player_states.up_to_step(discarded_step_number).with_rivers&.last&.rivers&.map(&:tile)
+
+        target_rivers = out_of_scope_tiles.present? ? player.rivers.select { |river| !out_of_scope_tiles.include?(river.tile) } : player.rivers
+        target_rivers.any? { |river| wining_codes.include?(river.code) }
+      end
+
+      discarded_wining_tile.size >= 2
     end
 end
