@@ -1419,6 +1419,33 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_not_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron
   end
 
+  test 'furiten flow：和了牌が鳴かれて自分の河にない状態であるが、フリテンの判定となる' do
+    user = @game.user_player
+    ai_1 = @game.ais.first
+    ai_2 = @game.ais.second
+    ai_3 = @game.ais.last
+
+    # 平和の369萬待ち
+    set_hands('m12345678 p123 s11', user, drawn: false)
+    set_rivers('m3', user, stolen: true) # 3萬を自分で切っているが他のプレイヤーから泣かれて自分の河にない状態（フリテン）
+
+    set_player_turn(@game, ai_1)
+    manzu_9 = set_hands('m99', ai_1).first
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: manzu_9.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # 9萬は和了牌かつ自分の河にない状態であるが、フリテンのためronイベントは発火しない。
+    assert_not_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron
+  end
+
   test 'furiten flow：1枚目の和了牌はロン可能、同じ順目の2枚目以降の和了牌はロン不可、1巡後、牌を切った後は同順内フリテンが解消されロン可能となる' do
     user = @game.user_player
     ai_1 = @game.ais.first
