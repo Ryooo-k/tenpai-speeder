@@ -38,7 +38,7 @@ class Player < ApplicationRecord
 
   def rivers
     return River.none unless base_rivers.present?
-    base_rivers.reject(&:stolen)
+    base_rivers
   end
 
   def rivers_with_rotation
@@ -467,16 +467,14 @@ class Player < ApplicationRecord
     end
 
     def create_discarded_rivers(chosen_hand, riichi)
-      if base_rivers.present?
-        base_rivers.each do |river|
-          current_state.rivers.create!(
-            tile: river.tile,
-            tsumogiri: river.tsumogiri?,
-            stolen: river.stolen,
-            riichi: river.riichi,
-            created_at: river.created_at
-          )
-        end
+      rivers.each do |river|
+        current_state.rivers.create!(
+          tile: river.tile,
+          tsumogiri: river.tsumogiri?,
+          stolen: river.stolen,
+          riichi: river.riichi,
+          created_at: river.created_at
+        )
       end
       current_state.rivers.create!(tile: chosen_hand.tile, tsumogiri: chosen_hand.drawn?, riichi:)
     end

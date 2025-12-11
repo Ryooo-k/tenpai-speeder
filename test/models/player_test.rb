@@ -97,23 +97,23 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#rivers returns ordered rivers from latest state with rivers' do
-    @user_player.current_state.rivers.create!(tile: @manzu_2, tsumogiri: false)
-    assert_equal [ @manzu_2 ], @user_player.rivers.map(&:tile)
+    river_1 = @user_player.current_state.rivers.create!(tile: @manzu_2, tsumogiri: false)
+    assert_equal [ river_1 ], @user_player.rivers
 
-    @user_player.current_state.rivers.create!(tile: @manzu_1, tsumogiri: false)
-    assert_equal [ @manzu_2, @manzu_1 ], @user_player.rivers.map(&:tile)
+    river_2 = @user_player.current_state.rivers.create!(tile: @manzu_1, tsumogiri: false)
+    assert_equal [ river_1, river_2 ], @user_player.rivers
 
     @user_player.player_states.create!(step: steps(:step_2))
     assert_not_equal [], @user_player.rivers
-    assert_equal [ @manzu_2, @manzu_1 ], @user_player.rivers.map(&:tile)
+    assert_equal [ river_1, river_2 ], @user_player.rivers
   end
 
-  test '#rivers not includes stolen river' do
+  test '#rivers includes stolen river' do
     @user_player.current_state.rivers.delete_all
     assert_equal [], @user_player.rivers
 
-    @user_player.current_state.rivers.create!(tile: @manzu_2, tsumogiri: false, stolen: true)
-    assert_equal [], @user_player.rivers
+    river = @user_player.current_state.rivers.create!(tile: @manzu_1, tsumogiri: false, stolen: true)
+    assert_equal [ river ], @user_player.rivers
   end
 
   test '#rivers_with_rotation rotates riichi tile and first non-stolen tile after stolen riichi' do
