@@ -5,7 +5,7 @@
 
   <% undo_button_classes = [
     base_button_class,
-    (@can_undo ? hover_class : disabled_class)
+    (@game.can_undo? ? hover_class : disabled_class)
     ].compact.join(" ") %>
 
   <% playback_button_classes = [
@@ -15,7 +15,7 @@
 
   <% redo_button_classes = [
     base_button_class,
-    (@can_redo ? hover_class : disabled_class)
+    (@game.can_redo? ? hover_class : disabled_class)
     ].compact.join(" ") %>
 
   <%= form_with url: game_play_undo_path(@game),
@@ -23,7 +23,7 @@
                 data: { testid: "undo" } do |form| %>
     <%= form.button "戻る",
                     class: undo_button_classes,
-                    disabled: !@can_undo %>
+                    disabled: !@game.can_undo? %>
   <% end %>
 
   <%= form_with url: game_play_playback_path(@game),
@@ -41,6 +41,6 @@
                 data: { testid: "redo" } do |form| %>
     <%= form.button "進む",
                     class: redo_button_classes,
-                    disabled: !@can_redo %>
+                    disabled: !@game.can_redo? %>
   <% end %>
 </div>
