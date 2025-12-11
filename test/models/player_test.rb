@@ -1664,18 +1664,23 @@ class PlayerTest < ActiveSupport::TestCase
   test '#furiten_on_other_rivers? returns true when wining tiles discarded second after riichi' do
     manzu_1_a = tiles(:first_manzu_1)
     manzu_1_b = tiles(:second_manzu_1)
+    manzu_1_c = tiles(:third_manzu_1)
     wining_codes = [ manzu_1_a.code ]
     tenpai_player = @game.user_player
     discarder_1 = @game.ais.first
     discarder_2 = @game.ais.second
 
+    discarder_1.current_state.rivers.create!(tile: manzu_1_a, tsumogiri: false)
     tenpai_player.current_state.update!(riichi: true)
+
+    # リーチ前に他のプレイヤーが和了牌を切ってもfuriten_on_other_rivers?の判定はfalse
+    assert_not tenpai_player.send(:furiten_on_other_rivers?, wining_codes)
 
     next_step_number = @game.current_step_number + 1
     @game.update!(current_step_number: next_step_number)
     next_step = @game.latest_honba.steps.create!(number: next_step_number)
     state_1 = discarder_1.player_states.create!(step: next_step)
-    state_1.rivers.create!(tile: manzu_1_a, tsumogiri: false)
+    state_1.rivers.create!(tile: manzu_1_b, tsumogiri: false)
 
     # 和了牌が１枚切られている段階はフリテンではない。
     # １枚切られた段階でロンしなかった場合、次の和了牌でロンできなくなる。(リーチ状態のみ)
@@ -1685,8 +1690,9 @@ class PlayerTest < ActiveSupport::TestCase
     @game.update!(current_step_number: next_next_step_number)
     next_next_step = @game.latest_honba.steps.create!(number: next_next_step_number)
     state_2 = discarder_2.player_states.create!(step: next_next_step)
-    state_2.rivers.create!(tile: manzu_1_b, tsumogiri: false)
+    state_2.rivers.create!(tile: manzu_1_c, tsumogiri: false)
 
+    # 2枚目の和了牌はフリテンとなる。
     assert tenpai_player.send(:furiten_on_other_rivers?, wining_codes)
   end
 

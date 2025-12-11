@@ -1394,4 +1394,186 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :tsumogiri
     end
   end
+
+  test 'furiten flow：自分の捨て牌に和了牌があるとフリテンとなりロンができない' do
+    user = @game.user_player
+    ai = @game.ais.first
+
+    set_hands('m12345678 p123 s11', user, drawn: false) # 369萬待ち
+    set_rivers('m3', user) # 3萬を自分で切っている（フリテン）
+
+    set_player_turn(@game, ai)
+    manzu_9_a = set_hands('m999', ai).first
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: manzu_9_a.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # 9萬は和了牌であるが、フリテンのためronイベントは発火されない。
+    assert_not_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron
+  end
+
+  test 'furiten flow：1枚目の和了牌はロン可能、同じ順目の2枚目以降の和了牌はロン不可、1巡後、牌を切った後は同順内フリテンが解消されロン可能となる' do
+    user = @game.user_player
+    ai_1 = @game.ais.first
+    ai_2 = @game.ais.second
+    ai_3 = @game.ais.last
+
+    # 平和の369萬待ち
+    set_hands('m12345678 p123 s11', user, drawn: false)
+
+    set_player_turn(@game, ai_1)
+    manzu_9 = set_hands('m99', ai_1).first
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: manzu_9.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # 9萬は和了牌のため、ronイベントが発火されるが見逃す。（同順内フリテンの状態）
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron
+
+    @game.reload
+    set_player_turn(@game, ai_2)
+    manzu_6 = set_hands('m66', ai_2).last
+
+    # 他のプレイヤーが同じ和了牌を切る。
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: manzu_6.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # 和了牌を一度、見逃しているためronイベントが発火されない。
+    assert_not_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron
+
+    @game.reload
+    set_player_turn(@game, user)
+    hands = set_hands('m12345678 p123 s11 z1', user, drawn: false) # 手番となり東を引いた状態
+    ton = hands.last
+
+    # userが東を切り、同順内フリテンが解消される。
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: ton.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    @game.reload
+    set_player_turn(@game, ai_3)
+    manzu_3 = set_hands('m33', ai_3).last
+
+    # 他のプレイヤーが和了牌を切る。
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: manzu_3.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # 同順内フリテンが解消されronイベントが発火される。
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron
+  end
+
+  test 'furiten flow：リーチ後に和了牌を見逃すとそれ以降ロンできない' do
+    user = @game.user_player
+    ai_1 = @game.ais.first
+    ai_2 = @game.ais.second
+    ai_3 = @game.ais.last
+
+    # 平和の369萬待ち
+    set_hands('m12345678 p123 s11', user, drawn: false)
+    set_rivers('z1', user)
+    user.current_state.update!(riichi: true) # 東を切ってリーチ
+
+    set_player_turn(@game, ai_1)
+    manzu_9 = set_hands('m99', ai_1).first
+
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: manzu_9.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # 9萬は和了牌のため、ronイベントが発火されるが見逃す。
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron
+
+    @game.reload
+    set_player_turn(@game, ai_2)
+    manzu_6 = set_hands('m66', ai_2).last
+
+    # 他のプレイヤーが同じ和了牌を切る。
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: manzu_6.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # 和了牌を一度、見逃しているためronイベントが発火されない。
+    assert_not_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron
+
+    @game.reload
+    set_player_turn(@game, user)
+    hands = set_hands('m12345678 p123 s11 z1', user, drawn: false) # 手番となり東を引いた状態
+    ton = hands.last
+
+    # userが東を切り、同順内フリテンは解消される。
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: ton.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    @game.reload
+    set_player_turn(@game, ai_3)
+    manzu_3 = set_hands('m33', ai_3).last
+
+    # 他のプレイヤーが和了牌を切る。
+    post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: manzu_3.id }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # 同順内フリテンが解消されたが、リーチ後に和了牌を見逃しているため、ronイベントは発火されない。
+    assert_not_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), :ron
+  end
 end
