@@ -694,7 +694,7 @@ class Player < ApplicationRecord
     end
 
     def furiten_on_same_turn?(wining_codes)
-      discarded_step_number = rivers.present? ? rivers.last.step_number : game.current_step_number
+      discarded_step_number = rivers.present? ? rivers.last.step_number : 0
 
       discarded_wining_tile = game.players.select do |player|
         next if player.id == id
