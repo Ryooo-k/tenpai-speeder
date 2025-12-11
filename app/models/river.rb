@@ -14,4 +14,5 @@ class River < ApplicationRecord
 
   delegate :suit, :name, :number, :code, :aka?, to: :tile
 
+  def step_number = player_state.step.number
 end
