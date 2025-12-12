@@ -23,7 +23,7 @@ class SituationalYakuListBuilder
 
     attr_reader :player
 
-    delegate :hands, :melds, :game, :current_state, to: :player
+    delegate :hands, :melds, :rivers, :game, :current_state, to: :player
 
     def double_riichi?
       riichi_state = base_states.detect(&:riichi)
@@ -36,13 +36,11 @@ class SituationalYakuListBuilder
 
     def ippatsu?
       riichi_state = base_states.detect(&:riichi)
-      return false unless riichi_state
+      return false if riichi_state.blank? || rivers.blank? || !rivers.any?(&:riichi) || !rivers.last.riichi?
 
-      is_first_tsumo = (base_rivers.size - riichi_state.rivers.size).zero?
-      range = riichi_state.step.number..current_state.step.number
-      range_states = PlayerState.for_honba(game.latest_honba).in_step_range(range)
-      is_nobody_furo = range_states.with_melds.empty?
-      is_first_tsumo && is_nobody_furo
+      range_after_riichi = riichi_state.step.number..current_state.step.number
+      states_after_riichi = PlayerState.for_honba(game.latest_honba).in_step_range(range_after_riichi)
+      states_after_riichi.with_melds.empty?
     end
 
     def tenhou?

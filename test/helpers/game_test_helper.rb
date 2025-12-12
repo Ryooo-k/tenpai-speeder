@@ -59,7 +59,7 @@ module GameTestHelper
     player.hands
   end
 
-  def set_rivers(pattern, player, tsumogiri: false, stolen: false)
+  def set_rivers(pattern, player, tsumogiri: false, stolen: false, riichi: false)
     player.current_state.rivers.delete_all
     game = player.game
 
@@ -72,6 +72,7 @@ module GameTestHelper
         player.current_state.rivers.create!(tile:, tsumogiri:, stolen:)
       end
     end
+    player.rivers.last.update!(riichi: riichi)
     player.rivers
   end
 

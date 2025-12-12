@@ -50,11 +50,26 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     hands = set_hands('m123456789 s123 p9', @player)
     wining_tile = hands.last.tile
     @player.current_state.update!(riichi: true)
+    set_rivers('z1', @player, riichi: true)
 
     next_step = @game.advance_step!
     @player.draw(wining_tile, next_step)
 
     situational = SituationalYakuListBuilder.new(@player).build(nil)
+    assert situational[:ippatsu]
+  end
+
+  test 'ippatsu? returns true ' do
+    set_rivers('m1', @player)
+    hands = set_hands('m123456789 s123 p9', @player)
+    wining_tile = hands.last.tile
+    @player.current_state.update!(riichi: true)
+    set_rivers('z1', @player, riichi: true)
+
+    @game.advance_step!
+    discarded_tile = set_hands('m999', @game.ais.sample).first.tile
+
+    situational = SituationalYakuListBuilder.new(@player).build(discarded_tile)
     assert situational[:ippatsu]
   end
 

@@ -1219,7 +1219,7 @@ class PlayerTest < ActiveSupport::TestCase
   test '#score_statements：4飜40符（ダブル立直、一発、門前清自摸和）' do
     player = @game.current_player
     set_hands('m123789 p111456 s1', player)
-    set_rivers('z1', player)
+    set_rivers('z1', player, riichi: true)
     player.current_state.update!(riichi: true)
 
     set_draw_tile('s1', @game)
