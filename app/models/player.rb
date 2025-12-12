@@ -38,7 +38,7 @@ class Player < ApplicationRecord
 
   def rivers
     return River.none unless base_rivers.present?
-    base_rivers
+    base_rivers.sort_by(&:created_at)
   end
 
   def rivers_with_rotation
