@@ -148,11 +148,18 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'redirects to home with alert on unknown event' do
-    post game_play_command_path(@game, params: { event: 'unknown_event' })
-    assert_redirected_to home_path
-    follow_redirect!
-    assert_response :success
-    assert_includes @response.body, '不明なイベント名です：unknown_event'
+    logs = []
+    unknown_event = 'unknown_event'
+
+    Rails.logger.stub(:warn, ->(msg) { logs << msg }) do
+      post game_play_command_path(@game), params: { event: unknown_event }
+      assert_redirected_to game_play_path(@game)
+      follow_redirect!
+      assert_response :success
+    end
+
+    assert_includes @response.body, "不明なイベントです：#{unknown_event}"
+    assert "[GameFlow] UnknownEvent: 不明なイベントです：#{unknown_event} (game_id=#{@game.id}, event=#{unknown_event})", logs.first
   end
 
   test 'first visit renders draw event with auto-submit form' do
