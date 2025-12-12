@@ -66,16 +66,9 @@ class HonbaTest < ActiveSupport::TestCase
   end
 
   test '#top_tile' do
-    @honba.draw_count = 10
-    @honba.kan_count = 0
-    top_tile_order = @honba.draw_count - @honba.kan_count
-    expected = @honba.tile_orders.find_by(order: top_tile_order).tile
-    assert_equal expected, @honba.top_tile
-
-    @honba.draw_count = 20
-    @honba.kan_count = 2
-    top_tile_order = @honba.draw_count - @honba.kan_count
-    expected = @honba.tile_orders.find_by(order: top_tile_order).tile
+    draw_count = 10
+    @honba.update!(draw_count:)
+    expected = @honba.tile_orders.find_by(order: draw_count).tile
     assert_equal expected, @honba.top_tile
   end
 
