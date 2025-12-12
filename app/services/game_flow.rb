@@ -31,7 +31,7 @@ class GameFlow
       when :result         then result(params)
       when :stop           then @payloads
       else
-        raise UnknownEvent, "不明なイベント名です：#{event}"
+        raise UnknownEvent, "不明なイベントです：#{event}"
       end
     end
 
