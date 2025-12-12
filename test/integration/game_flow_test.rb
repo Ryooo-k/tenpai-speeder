@@ -27,6 +27,61 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     game
   end
 
+  test 'create redirects home with alert when SaveError is raised on game start' do
+    failing_flow = GameFlow.new(@game)
+
+    failing_flow.stub(:run, ->(*) { raise GameFlow::SaveError }) do
+      GameFlow.stub(:new, failing_flow) do
+        post games_path, params: { game_mode_id: game_modes(:tonnan).id }
+        assert_redirected_to home_path
+        follow_redirect!
+
+        assert_includes @response.body, 'ゲームの保存に失敗しました。時間をおいて再度お試しください。'
+      end
+    end
+  end
+
+  test 'rolls back and raises SaveError when db update fails' do
+    current_player = @game.current_player
+    chosen_hand_id = current_player.hands.sample.id
+    before_hand = current_player.hands
+    before_river = set_rivers('m123', current_player)
+
+    step = @game.current_step
+    failing_step = step.tap do |s|
+      def s.update!(*)
+        raise ActiveRecord::StatementInvalid
+      end
+    end
+
+    error = assert_raises(GameFlow::SaveError) do
+      @game.stub(:current_step, failing_step) do
+        GameFlow.new(@game).run({ event: :discard, chosen_hand_id: })
+      end
+    end
+
+    assert_equal 'ゲーム状態の保存に失敗しました。', error.message
+    assert_kind_of ActiveRecord::ActiveRecordError, error.cause
+
+    @game.reload
+    assert_equal before_hand, @game.current_player.hands
+    assert_equal before_river, @game.current_player.rivers
+  end
+
+  test 'play command redirects with alert when SaveError is raised' do
+    failing_flow = GameFlow.new(@game)
+
+    failing_flow.stub(:run, ->(*) { raise GameFlow::SaveError }) do
+      GameFlow.stub(:new, failing_flow) do
+        post game_play_command_path(@game), params: { event: 'draw' }
+        assert_redirected_to game_play_path(@game)
+        follow_redirect!
+
+        assert_includes @response.body, 'ゲームの保存に失敗しました。時間をおいて再度お試しください。'
+      end
+    end
+  end
+
   test '東南戦モードは、東一局・25000点・南四局で終了' do
     game = start_game(:tonnan)
     assert_equal '東一局', @game.latest_round.name
