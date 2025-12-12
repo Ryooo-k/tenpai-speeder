@@ -19,8 +19,7 @@ class Honba < ApplicationRecord
   after_create :create_tile_orders_and_step
 
   def top_tile
-    order = draw_count - kan_count
-    tile_orders.find_by(order:).tile
+    tile_orders.find_by(order: draw_count).tile
   end
 
   def rinshan_tile
