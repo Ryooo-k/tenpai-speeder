@@ -14,5 +14,9 @@ class GamesController < ApplicationController
     else
       render :home
     end
+
+  rescue GameFlow::SaveError => e
+    Rails.logger.error("[GameFlow] SaveError while starting game: #{e.message} (#{e.cause&.class})")
+    redirect_to home_path, alert: 'ゲームの保存に失敗しました。時間をおいて再度お試しください。'
   end
 end

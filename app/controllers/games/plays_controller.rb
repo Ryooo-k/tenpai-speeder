@@ -16,6 +16,12 @@ class Games::PlaysController < ApplicationController
       format.html { redirect_to game_play_path(@game), flash: payloads }
     end
 
+  rescue GameFlow::SaveError => e
+    Rails.logger.error("[GameFlow] SaveError: #{e.message} (#{e.cause&.class})")
+    respond_to do |format|
+      format.turbo_stream { redirect_to game_play_path(@game), alert: 'ゲームの保存に失敗しました。時間をおいて再度お試しください。' }
+      format.html { redirect_to game_play_path(@game), alert: 'ゲームの保存に失敗しました。時間をおいて再度お試しください。' }
+    end
   rescue GameFlow::UnknownEvent => e
     respond_to do |format|
       format.turbo_stream { redirect_to home_path, alert: e.message }
