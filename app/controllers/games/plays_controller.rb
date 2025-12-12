@@ -60,6 +60,7 @@ class Games::PlaysController < ApplicationController
   def playback
     @game.destroy_future_steps
     @game.reset_point
+    @game.reset_riichi_state
     payloads = { next_event: @game.current_step.next_event }
 
     respond_to do |format|
