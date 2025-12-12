@@ -815,6 +815,15 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_count, honba.steps.count
   end
 
+  test '#reset_riichi_state resets current player riichi flag' do
+    player = @game.current_player
+    player.current_state.update!(riichi: true)
+
+    @game.reset_riichi_state
+
+    assert_not player.current_state.riichi?
+  end
+
   test '#sync_current_seat updates seat number to tonnan current step player' do
     current_player = @game.current_player
     other_player = @game.players.where.not(id: current_player.id).first

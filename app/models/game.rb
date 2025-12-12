@@ -305,6 +305,10 @@ class Game < ApplicationRecord
     future_steps.destroy_all
   end
 
+  def reset_riichi_state
+    current_player.current_state.update!(riichi: false)
+  end
+
   def sync_current_seat
     target_seat_number = current_step.player_states.first.player.seat_order
     update!(current_seat_number: target_seat_number)
