@@ -232,6 +232,20 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#draw sets rinshan false by default' do
+    step_1 = steps(:step_1)
+    @user_player.stub(:current_step_number, step_1.number) do
+      @user_player.draw(@manzu_3, step_1)
+      assert_not @user_player.hands.first.rinshan?
+    end
+
+    step_2 = steps(:step_2)
+    @user_player.stub(:current_step_number, step_2.number) do
+      @user_player.draw(@manzu_1, step_2, rinshan: true)
+      assert @user_player.hands.last.rinshan?
+    end
+  end
+
   test '#draw creates player_state' do
     before_state_count = @user_player.player_states.count
 

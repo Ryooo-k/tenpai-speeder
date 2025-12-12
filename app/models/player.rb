@@ -72,9 +72,9 @@ class Player < ApplicationRecord
     current_state.hands.create!(tile:)
   end
 
-  def draw(drawn_tile, step)
+  def draw(drawn_tile, step, rinshan: false)
     player_states.create!(step:)
-    create_drawn_hands(drawn_tile)
+    create_drawn_hands(drawn_tile, rinshan)
   end
 
   def discard(chosen_hand_id, step)
@@ -405,9 +405,9 @@ class Player < ApplicationRecord
         .map(&:melds)
     end
 
-    def create_drawn_hands(drawn_tile)
+    def create_drawn_hands(drawn_tile, rinshan)
       hands.each { |hand| current_state.hands.create!(tile_id: hand.tile_id) }
-      current_state.hands.create!(tile: drawn_tile, drawn: true)
+      current_state.hands.create!(tile: drawn_tile, drawn: true, rinshan:)
     end
 
     def create_discarded_hands(chosen_hand)
