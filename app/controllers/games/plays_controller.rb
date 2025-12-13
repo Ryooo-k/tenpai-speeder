@@ -45,6 +45,13 @@ class Games::PlaysController < ApplicationController
       format.turbo_stream { render_play_update(payloads) }
       format.html { redirect_to game_play_path(@game), flash: payloads }
     end
+
+  rescue ActiveRecord::ActiveRecordError => e
+    Rails.logger.error("[GameFlow] UndoError: #{e.message} (#{e.class})")
+    respond_to do |format|
+      format.turbo_stream { redirect_to game_play_path(@game), alert: 'ゲームの復元に失敗しました。時間をおいて再度お試しください。' }
+      format.html { redirect_to game_play_path(@game), alert: 'ゲームの復元に失敗しました。時間をおいて再度お試しください。' }
+    end
   end
 
   def redo
@@ -62,6 +69,13 @@ class Games::PlaysController < ApplicationController
       format.turbo_stream { render_play_update(payloads) }
       format.html { redirect_to game_play_path(@game), flash: payloads }
     end
+
+  rescue ActiveRecord::ActiveRecordError => e
+    Rails.logger.error("[GameFlow] RedoError: #{e.message} (#{e.class})")
+    respond_to do |format|
+      format.turbo_stream { redirect_to game_play_path(@game), alert: 'ゲームの復元に失敗しました。時間をおいて再度お試しください。' }
+      format.html { redirect_to game_play_path(@game), alert: 'ゲームの復元に失敗しました。時間をおいて再度お試しください。' }
+    end
   end
 
   def playback
@@ -73,6 +87,13 @@ class Games::PlaysController < ApplicationController
     respond_to do |format|
       format.turbo_stream { render_play_update(payloads) }
       format.html { redirect_to game_play_path(@game), flash: payloads }
+    end
+
+  rescue ActiveRecord::ActiveRecordError => e
+    Rails.logger.error("[GameFlow] PlayBackError: #{e.message} (#{e.class})")
+    respond_to do |format|
+      format.turbo_stream { redirect_to game_play_path(@game), alert: 'ゲームの復元に失敗しました。時間をおいて再度お試しください。' }
+      format.html { redirect_to game_play_path(@game), alert: 'ゲームの復元に失敗しました。時間をおいて再度お試しください。' }
     end
   end
 

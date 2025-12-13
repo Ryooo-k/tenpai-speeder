@@ -82,6 +82,89 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'redirects to play screen with alert on unknown event' do
+    log = ''
+    unknown_event = 'unknown_event'
+
+    Rails.logger.stub(:warn, ->(message) { log = message }) do
+      post game_play_command_path(@game), params: { event: unknown_event }
+      assert_redirected_to game_play_path(@game)
+      follow_redirect!
+      assert_response :success
+    end
+
+    assert_includes @response.body, "不明なイベントです：#{unknown_event}"
+    assert_equal "[GameFlow] UnknownEvent: 不明なイベントです：#{unknown_event} (game_id=#{@game.id}, event=#{unknown_event})", log
+  end
+
+  test 'undo redirects to play screen with alert when ActiveRecord error occurs' do
+    log = ''
+    failing_game = @game
+    def failing_game.can_undo? = true
+    def failing_game.undo_step = raise ActiveRecord::StatementInvalid
+
+    relation_double = Struct.new(:game) do
+      def find(*) = game
+    end.new(failing_game)
+
+    Rails.logger.stub(:error, ->(message) { log = message }) do
+      Game.stub(:includes, ->(*) { relation_double }) do
+        post game_play_undo_path(@game)
+        assert_redirected_to game_play_path(@game)
+        follow_redirect!
+        assert_response :success
+      end
+    end
+
+    assert_includes @response.body, 'ゲームの復元に失敗しました。時間をおいて再度お試しください。'
+    assert_includes log, '[GameFlow] UndoError:'
+  end
+
+  test 'redo redirects to play screen with alert when ActiveRecord error occurs' do
+    log = ''
+    failing_game = @game
+    def failing_game.can_redo? = true
+    def failing_game.redo_step = raise ActiveRecord::StatementInvalid
+
+    relation_double = Struct.new(:game) do
+      def find(*) = game
+    end.new(failing_game)
+
+    Rails.logger.stub(:error, ->(message) { log = message }) do
+      Game.stub(:includes, ->(*) { relation_double }) do
+        post game_play_redo_path(@game)
+        assert_redirected_to game_play_path(@game)
+        follow_redirect!
+        assert_response :success
+      end
+    end
+
+    assert_includes @response.body, 'ゲームの復元に失敗しました。時間をおいて再度お試しください。'
+    assert_includes log, '[GameFlow] RedoError:'
+  end
+
+  test 'playback redirects to play screen with alert when ActiveRecord error occurs' do
+    log = ''
+    failing_game = @game
+    def failing_game.reset_riichi_state = raise ActiveRecord::StatementInvalid
+
+    relation_double = Struct.new(:game) do
+      def find(*) = game
+    end.new(failing_game)
+
+    Rails.logger.stub(:error, ->(message) { log = message }) do
+      Game.stub(:includes, ->(*) { relation_double }) do
+        post game_play_playback_path(@game)
+        assert_redirected_to game_play_path(@game)
+        follow_redirect!
+        assert_response :success
+      end
+    end
+
+    assert_includes @response.body, 'ゲームの復元に失敗しました。時間をおいて再度お試しください。'
+    assert_includes log, '[GameFlow] PlayBackError:'
+  end
+
   test '東南戦モードは、東一局・25000点・南四局で終了' do
     game = start_game(:tonnan)
     assert_equal '東一局', @game.latest_round.name
@@ -145,21 +228,6 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
 
     assert_equal 'game_end', payloads[:next_event]
-  end
-
-  test 'redirects to home with alert on unknown event' do
-    logs = []
-    unknown_event = 'unknown_event'
-
-    Rails.logger.stub(:warn, ->(msg) { logs << msg }) do
-      post game_play_command_path(@game), params: { event: unknown_event }
-      assert_redirected_to game_play_path(@game)
-      follow_redirect!
-      assert_response :success
-    end
-
-    assert_includes @response.body, "不明なイベントです：#{unknown_event}"
-    assert "[GameFlow] UnknownEvent: 不明なイベントです：#{unknown_event} (game_id=#{@game.id}, event=#{unknown_event})", logs.first
   end
 
   test 'first visit renders draw event with auto-submit form' do
