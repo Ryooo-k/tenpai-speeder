@@ -38,7 +38,7 @@ class GameFlow
     @payloads
 
   rescue ActiveRecord::ActiveRecordError => e
-    raise SaveError.new('ゲーム状態の保存に失敗しました。'), cause: e
+    raise SaveError, 'ゲーム状態の保存に失敗しました。', cause: e
   end
 
   private
