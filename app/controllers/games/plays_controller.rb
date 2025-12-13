@@ -31,13 +31,7 @@ class Games::PlaysController < ApplicationController
   end
 
   def undo
-    if @game.can_undo?
-      @game.undo_step
-      @game.sync_current_seat
-      @game.sync_draw_count
-      @game.sync_kan_count
-      @game.sync_riichi_count
-    end
+    @game.undo_with_sync! if @game.can_undo?
 
     payloads = { next_event: 'stop' }
 
@@ -55,13 +49,7 @@ class Games::PlaysController < ApplicationController
   end
 
   def redo
-    if @game.can_redo?
-      @game.redo_step
-      @game.sync_current_seat
-      @game.sync_draw_count
-      @game.sync_kan_count
-      @game.sync_riichi_count
-    end
+    @game.redo_with_sync! if @game.can_redo?
 
     payloads = { next_event: 'stop' }
 
@@ -79,9 +67,8 @@ class Games::PlaysController < ApplicationController
   end
 
   def playback
-    @game.destroy_future_steps
-    @game.reset_point
-    @game.reset_riichi_state
+    @game.playback_with_sync!
+
     payloads = { next_event: @game.current_step.next_event }
 
     respond_to do |format|
