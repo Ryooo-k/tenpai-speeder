@@ -27,6 +27,18 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     game
   end
 
+  test 'redirects to home with alert when game creation fails' do
+    failing_game = Game.allocate
+    def failing_game.save = false
+
+    Game.stub(:new, ->(*) { failing_game }) do
+      post games_path, params: { game_mode_id: game_modes(:tonnan).id }
+      assert_redirected_to home_path
+      follow_redirect!
+      assert_includes @response.body, 'ゲームの作成に失敗しました。時間をおいて再度お試しください。'
+    end
+  end
+
   test 'create redirects home with alert when SaveError is raised on game start' do
     failing_flow = GameFlow.new(@game)
 

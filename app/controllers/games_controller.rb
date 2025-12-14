@@ -12,7 +12,7 @@ class GamesController < ApplicationController
       payloads = game_flow.run({ event: 'game_start' }, current_user:, ai:)
       redirect_to game_play_path(game), flash: payloads
     else
-      render :home
+      redirect_to home_path, alert: 'ゲームの作成に失敗しました。時間をおいて再度お試しください。'
     end
 
   rescue GameFlow::SaveError => e
