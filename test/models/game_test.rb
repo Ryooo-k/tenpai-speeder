@@ -852,7 +852,7 @@ class GameTest < ActiveSupport::TestCase
     before_kan_count = @game.latest_honba.kan_count
     before_riichi_count = @game.latest_honba.riichi_stick_count
 
-    @game.stub(:redo_step!, -> { calls << :redo_step! } ) do
+    @game.stub(:redo_step!, -> { calls << :redo_step! }) do
       @game.stub(:sync_current_seat!, -> { calls << :sync_current_seat! }) do
         @game.stub(:sync_draw_count!, -> { calls << :sync_draw_count! }) do
           @game.stub(:sync_kan_count!, -> { calls << :sync_kan_count! }) do
