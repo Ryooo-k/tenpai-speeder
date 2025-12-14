@@ -2,6 +2,7 @@
 
 class GameFlow
   class UnknownEvent < StandardError; end
+  class SaveError < StandardError; end
 
   def initialize(game)
     @game = game
@@ -11,28 +12,33 @@ class GameFlow
   def run(params, current_user: nil, ai: nil)
     event = params[:event].to_sym
 
-    case event
-    when :game_start     then game_start(current_user, ai)
-    when :draw           then draw
-    when :confirm_tsumo  then confirm_tsumo(params)
-    when :confirm_kan    then confirm_kan(params)
-    when :rinshan_draw   then rinshan_draw
-    when :tsumogiri      then tsumogiri
-    when :confirm_riichi then confirm_riichi(params)
-    when :choose_riichi  then choose_riichi(params)
-    when :choose         then choose
-    when :discard        then discard(params)
-    when :switch_event   then switch_event
-    when :confirm_ron    then confirm_ron(params)
-    when :confirm_furo   then confirm_furo(params)
-    when :ryukyoku       then ryukyoku
-    when :result         then result(params)
-    when :stop           then return @payloads
-    else
-      raise UnknownEvent, "不明なイベント名です：#{event}"
+    ActiveRecord::Base.transaction do
+      case event
+      when :game_start     then game_start(current_user, ai)
+      when :draw           then draw
+      when :confirm_tsumo  then confirm_tsumo(params)
+      when :confirm_kan    then confirm_kan(params)
+      when :rinshan_draw   then rinshan_draw
+      when :tsumogiri      then tsumogiri
+      when :confirm_riichi then confirm_riichi(params)
+      when :choose_riichi  then choose_riichi(params)
+      when :choose         then choose
+      when :discard        then discard(params)
+      when :switch_event   then switch_event
+      when :confirm_ron    then confirm_ron(params)
+      when :confirm_furo   then confirm_furo(params)
+      when :ryukyoku       then ryukyoku
+      when :result         then result(params)
+      when :stop           then @payloads
+      else
+        raise UnknownEvent, "不明なイベントです：#{event}"
+      end
     end
 
     @payloads
+
+  rescue ActiveRecord::ActiveRecordError => e
+    raise SaveError, 'ゲーム状態の保存に失敗しました。', cause: e
   end
 
   private
