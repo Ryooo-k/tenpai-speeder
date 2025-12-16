@@ -61,7 +61,12 @@ class Player < ApplicationRecord
 
   def melds
     return Meld.none unless base_melds_list.present?
-    base_melds_list.map { |melds| melds.sort_by(&:position) }.flatten
+    base_melds_list.reverse.map { |melds| melds.sort_by(&:position) }.flatten
+  end
+
+  def latest_meld
+    return unless base_melds_list.present?
+    base_melds_list.flatten.sort_by(&:created_at).last
   end
 
   def current_state
@@ -401,7 +406,7 @@ class Player < ApplicationRecord
     def base_melds_list
       base_states
         .select { |bs| bs.melds.present? }
-        .sort_by { |bs| bs.step.number }.reverse
+        .sort_by { |bs| bs.step.number }
         .map(&:melds)
     end
 

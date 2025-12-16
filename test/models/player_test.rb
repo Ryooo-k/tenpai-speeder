@@ -175,6 +175,23 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal [ manzu_1_a, stone_manzu_1, manzu_1_b ], @user_player.melds
   end
 
+  test '#latest_meld returns nil when no melds exist' do
+    @user_player.current_state.melds.delete_all
+    assert_nil @user_player.latest_meld
+  end
+
+  test '#latest_meld returns meld from the latest state' do
+    first_melds = set_melds('m1+23', @user_player)
+    assert_equal first_melds.last, @user_player.latest_meld
+
+    next_step = steps(:step_2)
+    @user_player.game.update!(current_step_number: next_step.number)
+    @user_player.player_states.create!(step: next_step)
+
+    second_meld = @user_player.current_state.melds.create!(tile: tiles(:first_ton), kind: 'kakan', position: 3)
+    assert_equal second_meld, @user_player.latest_meld
+  end
+
   test '#current_state returns state of current_step_number' do
     @user_player.player_states.delete_all
 
