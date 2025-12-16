@@ -16,7 +16,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_rivers('m1', @player)
     @player.current_state.update!(riichi: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert situational[:riichi]
   end
 
@@ -24,7 +24,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_rivers('m1', @player) # 最初の捨て牌でリーチ宣言
     @player.current_state.update!(riichi: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert situational[:double_riichi]
   end
 
@@ -32,7 +32,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_rivers('m12', @player) # 2巡目でリーチにするとダブル立直ではない
     @player.current_state.update!(riichi: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:double_riichi]
   end
 
@@ -41,7 +41,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_rivers('m1', @player) # 最初の捨て牌でリーチ宣言
     @player.current_state.update!(riichi: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:double_riichi]
   end
 
@@ -55,7 +55,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     next_step = @game.advance_step!
     @player.draw(wining_tile, next_step)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert situational[:ippatsu]
   end
 
@@ -69,7 +69,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     @game.advance_step!
     discarded_tile = set_hands('m999', @game.ais.sample).first.tile
 
-    situational = SituationalYakuListBuilder.new(@player).build(discarded_tile)
+    situational = SituationalYakuListBuilder.new(@player).build(tile: discarded_tile)
     assert situational[:ippatsu]
   end
 
@@ -83,7 +83,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_melds('m999=', @game.ais.sample)
     @player.draw(wining_tile, next_step)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:ippatsu]
   end
 
@@ -101,14 +101,14 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     next_next_step = @game.advance_step!
     @player.draw(wining_tile, next_next_step)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:ippatsu]
   end
 
   test 'tenhou? returns true when no discards and no furo' do
     set_hands('m123456789 p99 s123', @player, drawn: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert situational[:tenhou]
   end
 
@@ -116,7 +116,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_rivers('m1', @game.ais.sample)
     set_hands('m123456789 p99 s123', @player, drawn: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:tenhou]
   end
 
@@ -124,7 +124,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_melds('m111=', @game.ais.sample)
     set_hands('m123456789 p99 s123', @player, drawn: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:tenhou]
   end
 
@@ -132,7 +132,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_rivers('m1', @game.ais.sample) # 他のプライヤーのみ捨てている状態
     set_hands('m123456789 p99 s123', @player, drawn: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert situational[:chiihou]
   end
 
@@ -140,7 +140,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_rivers('m1', @player)
     set_hands('m123456789 p99 s123', @player, drawn: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:chiihou]
   end
 
@@ -148,7 +148,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     set_melds('m111=', @game.ais.sample)
     set_hands('m123456789 p99 s123', @player, drawn: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:chiihou]
   end
 
@@ -156,7 +156,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     @game.latest_honba.update!(draw_count: 122)
     set_hands('m123456789 p99 s123', @player, drawn: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert situational[:haitei]
   end
 
@@ -164,7 +164,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     @game.latest_honba.update!(draw_count: 50)
     set_hands('m123456789 p99 s123', @player, drawn: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:haitei]
   end
 
@@ -172,7 +172,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     @game.latest_honba.update!(draw_count: 122)
     wining_tile = set_hands('m123456789 p123 s9', @player).last.tile
 
-    situational = SituationalYakuListBuilder.new(@player).build(wining_tile)
+    situational = SituationalYakuListBuilder.new(@player).build(tile: wining_tile)
     assert situational[:houtei]
   end
 
@@ -180,21 +180,21 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     @game.latest_honba.update!(draw_count: 50)
     wining_tile = set_hands('m123456789 p123 s9', @player).last.tile
 
-    situational = SituationalYakuListBuilder.new(@player).build(wining_tile)
+    situational = SituationalYakuListBuilder.new(@player).build(tile: wining_tile)
     assert_not situational[:houtei]
   end
 
   test 'rinshan_tsumo? returns true when drawn tile is rinshan' do
     set_hands('m123456789 p123 s99', @player, drawn: true, rinshan: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert situational[:rinshan]
   end
 
   test 'rinshan_tsumo? returns false when drawn tile is not rinshan' do
     set_hands('m123456789 p123 s99', @player, drawn: true)
 
-    situational = SituationalYakuListBuilder.new(@player).build(nil)
+    situational = SituationalYakuListBuilder.new(@player).build
     assert_not situational[:rinshan]
   end
 
@@ -202,7 +202,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     meld = Meld.create!(tile: tiles(:fourth_souzu_1), kind: :kakan, player_state: @game.ais.sample.current_state, position: 4)
     set_hands('m123456789 p99 s23', @player)
 
-    situational = SituationalYakuListBuilder.new(@player).build(meld)
+    situational = SituationalYakuListBuilder.new(@player).build(tile: meld)
     assert situational[:chankan]
   end
 
@@ -210,7 +210,7 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     meld = Meld.create!(tile: tiles(:fourth_souzu_1), kind: :daiminkan, player_state: @game.ais.sample.current_state, position: 0, from: :self)
     set_hands('m123456789 p99 s23', @player)
 
-    situational = SituationalYakuListBuilder.new(@player).build(meld)
+    situational = SituationalYakuListBuilder.new(@player).build(tile: meld)
     assert_not situational[:chankan]
   end
 
@@ -218,7 +218,23 @@ class SituationalYakuListBuilderTest < ActiveSupport::TestCase
     meld = Meld.create!(tile: tiles(:fourth_souzu_9), kind: :kakan, player_state: @game.ais.sample.current_state, position: 4)
     set_hands('m123456789 p99 s23', @player)
 
-    situational = SituationalYakuListBuilder.new(@player).build(meld)
+    situational = SituationalYakuListBuilder.new(@player).build(tile: meld)
+    assert_not situational[:chankan]
+  end
+
+  test 'chankan? returns true with winning tile and kakan' do
+    set_hands('m123456789 p99 s23', @player)
+    wining_tile = tiles(:first_souzu_1)
+
+    situational = SituationalYakuListBuilder.new(@player).build(tile: wining_tile, kakan: true)
+    assert situational[:chankan]
+  end
+
+  test 'chankan? returns false when winning tile and not kakan' do
+    set_hands('m123456789 p99 s23', @player)
+    wining_tile = tiles(:first_souzu_1)
+
+    situational = SituationalYakuListBuilder.new(@player).build(tile: wining_tile, kakan: false)
     assert_not situational[:chankan]
   end
 end
