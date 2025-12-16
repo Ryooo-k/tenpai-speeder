@@ -267,10 +267,10 @@ class Player < ApplicationRecord
     HandEvaluator.can_ron?(hands, melds, tile, relation_from_current_player, game.round_wind_number, wind_number, situational_yaku_list)
   end
 
-  def score_statements(tile: nil)
+  def score_statements(tile: nil, kakan: false)
     target_hands = tile ? hands + [ tile ] : hands
     agari_tile = tile ? tile : hands.detect(&:drawn)
-    situational_yaku_list = build_situational_yaku_list(tile:)
+    situational_yaku_list = build_situational_yaku_list(tile:, kakan:)
     dora_count_list = build_dora_count_list(tile:, ura: riichi?)
 
     HandEvaluator.get_score_statements(
@@ -611,8 +611,8 @@ class Player < ApplicationRecord
       shanten.negative?
     end
 
-    def build_situational_yaku_list(tile: nil)
-      SituationalYakuListBuilder.new(self).build(tile)
+    def build_situational_yaku_list(tile: nil, kakan: false)
+      SituationalYakuListBuilder.new(self).build(tile:, kakan:)
     end
 
     def unique_hands

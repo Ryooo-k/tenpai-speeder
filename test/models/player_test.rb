@@ -1349,6 +1349,20 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#score_statements：役無し聴牌で、kakanがtrueの時、槍槓の役が付与される' do
+    set_hands('m123789 p222 s23 z11', @user_player, drawn: false)
+    winning_tile = tiles(:fourth_souzu_1)
+
+    @user_player.stub(:relation_from_current_player, :toimen) do
+      score_statements = @user_player.score_statements(tile: winning_tile, kakan: true)
+      assert_equal 40, score_statements[:fu_total]
+      assert_equal 1,  score_statements[:han_total]
+      assert_equal [
+        { name: '槍槓', han: 1 }
+      ], score_statements[:yaku_list]
+    end
+  end
+
   test '#final_score returns combined score and point' do
     assert_equal @user_player.score + @user_player.point, @user_player.final_score
 
