@@ -154,8 +154,9 @@ class Games::PlaysController < ApplicationController
         chosen_hand_id = params.expect(:chosen_hand_id)
         flow_requests[:chosen_hand_id] = chosen_hand_id.to_i
       when :confirm_ron
-        discarded_tile_id, ron_player_ids = params.expect(:discarded_tile_id, ron_player_ids: [])
+        discarded_tile_id, kakan, ron_player_ids = params.expect(:discarded_tile_id, :kakan, ron_player_ids: [])
         flow_requests[:discarded_tile_id] = discarded_tile_id
+        flow_requests[:kakan] = ActiveModel::Type::Boolean.new.cast(kakan)
         flow_requests[:ron_player_ids] = ron_player_ids.reject(&:blank?).map(&:to_i)
       when :confirm_furo
         furo = params.expect(:furo)

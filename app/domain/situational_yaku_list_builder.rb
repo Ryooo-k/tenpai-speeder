@@ -5,7 +5,7 @@ class SituationalYakuListBuilder
     @player = player
   end
 
-  def build(tile)
+  def build(tile: nil, kakan: false)
     {
       riichi:        player.riichi?,
       double_riichi: double_riichi?,
@@ -15,7 +15,7 @@ class SituationalYakuListBuilder
       haitei:        haitei_tsumo?,
       houtei:        houtei_ron?(tile),
       rinshan:       rinshan_tsumo?,
-      chankan:       chankan?(tile)
+      chankan:       chankan?(tile, kakan)
     }
   end
 
@@ -68,12 +68,17 @@ class SituationalYakuListBuilder
       hands.any? { |hand| hand.drawn && hand.rinshan }
     end
 
-    def chankan?(meld)
-      return false unless meld.is_a?(Meld)
+    def chankan?(tile, kakan)
+      return false unless tile
 
-      test_hands = hands + [ meld ]
+      test_hands = hands + [ tile ]
       shanten = HandEvaluator.calculate_shanten(test_hands, melds)
-      meld.kind == 'kakan' && shanten.negative?
+
+      if tile.is_a?(Meld)
+        tile.kind == 'kakan' && shanten.negative?
+      else
+        kakan && shanten.negative?
+      end
     end
 
     def nobody_furo?

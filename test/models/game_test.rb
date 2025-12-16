@@ -555,17 +555,18 @@ class GameTest < ActiveSupport::TestCase
     set_hands('m123456789 p22 s45', ron_player_1, drawn: false)
     set_hands('m111222333 p22 s33', ron_player_2, drawn: false)
     discarded_tile = tiles(:first_souzu_3)
+    kakan = false
 
-    score_statements = @game.build_ron_score_statements(discarded_tile.id, [ ron_player_1.id, ron_player_2.id ])
+    score_statements = @game.build_ron_score_statements(discarded_tile.id, [ ron_player_1.id, ron_player_2.id ], kakan)
     player_1_score_statements = score_statements[ron_player_1.id]
     player_2_score_statements = score_statements[ron_player_2.id]
 
     assert_equal 30, player_1_score_statements[:fu_total]
-    assert_equal 4, player_1_score_statements[:han_total]
+    assert_equal 5, player_1_score_statements[:han_total]
     assert_equal [
       { name: '平和', han: 1 },
       { name: '一気通貫', han: 2 },
-      { name: '赤ドラ', han: 1 }
+      { name: '赤ドラ', han: 2 }
     ], player_1_score_statements[:yaku_list]
 
     assert_equal 50, player_2_score_statements[:fu_total]
@@ -1046,6 +1047,51 @@ class GameTest < ActiveSupport::TestCase
     @game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT - 1)
     assert_not @game.sukantsu_ryukyoku?
   end
+
+  test '#kakan_turn? returns true when latest meld is kakan on current step' do
+    player = @game.current_player
+    step = @game.latest_honba.steps.create!(number: @game.current_step_number + 1)
+    @game.update!(current_step_number: step.number)
+
+    player_state = player.player_states.create!(step:)
+    player_state.melds.create!(tile: @game.tiles.first, kind: :kakan, position: 0)
+
+    assert @game.kakan_turn?
+  end
+
+  test '#kakan_turn? returns false when latest meld step is not current step' do
+    player = @game.current_player
+    step = @game.latest_honba.steps.create!(number: @game.current_step_number + 1)
+    player_state = player.player_states.create!(step:)
+    player_state.melds.create!(tile: @game.tiles.first, kind: :kakan, position: 0)
+
+    @game.update!(current_step_number: step.number + 1)
+
+    assert_not @game.kakan_turn?
+  end
+
+  test '#ankan_turn? returns true when latest meld is ankan on current step' do
+    player = @game.current_player
+    step = @game.latest_honba.steps.create!(number: @game.current_step_number + 1)
+    @game.update!(current_step_number: step.number)
+
+    player_state = player.player_states.create!(step:)
+    player_state.melds.create!(tile: @game.tiles.second, kind: :ankan, position: 0)
+
+    assert @game.ankan_turn?
+  end
+
+  test '#ankan_turn? returns false when latest meld step is not current step' do
+    player = @game.current_player
+    step = @game.latest_honba.steps.create!(number: @game.current_step_number + 1)
+    player_state = player.player_states.create!(step:)
+    player_state.melds.create!(tile: @game.tiles.second, kind: :ankan, position: 0)
+
+    @game.update!(current_step_number: step.number + 1)
+
+    assert_not @game.ankan_turn?
+  end
+
 
   test 'tonpuu mode: starts at 東一局・25000点で、東四局で終了判定' do
     game = Game.create!(game_mode: game_modes(:tonpuu))

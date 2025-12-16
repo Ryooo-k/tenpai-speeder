@@ -18,6 +18,7 @@ class GameFlow
       when :draw           then draw
       when :confirm_tsumo  then confirm_tsumo(params)
       when :confirm_kan    then confirm_kan(params)
+      when :switch_event_after_kan then switch_event_after_kan
       when :rinshan_draw   then rinshan_draw
       when :tsumogiri      then tsumogiri
       when :confirm_riichi then confirm_riichi(params)
@@ -90,10 +91,33 @@ class GameFlow
     end
 
     def confirm_kan(params)
+      next_event = 'switch_event_after_kan'
+
       if params[:kan]
-        @game.add_new_dora
         next_step = @game.advance_step!
         @game.current_player.kan(params[:kan_type], params[:kan_ids], next_step)
+        @game.current_step.update!(next_event:)
+      end
+
+      @payloads[:next_event] = next_event
+    end
+
+    def switch_event_after_kan
+      if @game.kakan_turn?
+        kakan_meld = @game.current_player.latest_meld
+        ron_eligible_players = @game.find_ron_players(kakan_meld)
+
+        if ron_eligible_players.present?
+          @payloads[:ron_eligible_players_ids] = ron_eligible_players.map(&:id)
+          @payloads[:discarded_tile_id] = kakan_meld.tile.id
+          @payloads[:kakan] = true
+          next_event = 'confirm_ron'
+        else
+          @game.add_new_dora
+          next_event = 'rinshan_draw'
+        end
+      elsif @game.ankan_turn?
+        @game.add_new_dora
         next_event = 'rinshan_draw'
       elsif @game.current_player.riichi?
         next_event = 'tsumogiri'
@@ -103,7 +127,6 @@ class GameFlow
         next_event = 'choose'
       end
 
-      @game.current_step.update!(next_event:)
       @payloads[:next_event] = next_event
     end
 
@@ -190,9 +213,10 @@ class GameFlow
 
     def confirm_ron(params)
       ron_player_ids = params[:ron_player_ids]
+      kakan = params[:kakan]
 
       if ron_player_ids.present?
-        score_statements = @game.build_ron_score_statements(params[:discarded_tile_id], ron_player_ids)
+        score_statements = @game.build_ron_score_statements(params[:discarded_tile_id], ron_player_ids, kakan)
         @game.give_ron_point(score_statements)
         @game.give_bonus_point(ron_player_ids:)
 
@@ -200,6 +224,7 @@ class GameFlow
         @payloads[:ryukyoku] = false
         next_event = 'result'
       else
+        @game.add_new_dora if kakan
         @game.advance_current_player!
         next_event = 'draw'
       end

@@ -98,7 +98,7 @@ first_manzu_5:
   base_tile: manzu_5
   game: tonnan
   kind: 0
-  aka: false
+  aka: true
 
 second_manzu_5:
   base_tile: manzu_5
@@ -116,7 +116,7 @@ fourth_manzu_5:
   base_tile: manzu_5
   game: tonnan
   kind: 3
-  aka: true
+  aka: false
 
 first_manzu_6:
   base_tile: manzu_6
@@ -314,7 +314,7 @@ first_pinzu_5:
   base_tile: pinzu_5
   game: tonnan
   kind: 0
-  aka: false
+  aka: true
 
 second_pinzu_5:
   base_tile: pinzu_5
@@ -332,7 +332,7 @@ fourth_pinzu_5:
   base_tile: pinzu_5
   game: tonnan
   kind: 3
-  aka: true
+  aka: false
 
 first_pinzu_6:
   base_tile: pinzu_6
@@ -530,7 +530,7 @@ first_souzu_5:
   base_tile: souzu_5
   game: tonnan
   kind: 0
-  aka: false
+  aka: true
 
 second_souzu_5:
   base_tile: souzu_5
@@ -548,7 +548,7 @@ fourth_souzu_5:
   base_tile: souzu_5
   game: tonnan
   kind: 3
-  aka: true
+  aka: false
 
 first_souzu_6:
   base_tile: souzu_6

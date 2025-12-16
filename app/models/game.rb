@@ -233,13 +233,13 @@ class Game < ApplicationRecord
     end.compact
   end
 
-  def build_ron_score_statements(discarded_tile_id, ron_player_ids)
+  def build_ron_score_statements(discarded_tile_id, ron_player_ids, kakan)
     ron_players = where_players(ron_player_ids)
     tile = find_tile(discarded_tile_id)
     score_statement_table = {}
 
     ron_players.each do |player|
-      score_statements = player.score_statements(tile:)
+      score_statements = player.score_statements(tile:, kakan:)
       score_statement_table[player.id] = score_statements
     end
     score_statement_table
@@ -352,6 +352,14 @@ class Game < ApplicationRecord
       reset_point!
       reset_riichi_state!
     end
+  end
+
+  def kakan_turn?
+    current_player.latest_meld&.kind == 'kakan' && current_player.latest_meld&.player_state&.step&.number == current_step_number
+  end
+
+  def ankan_turn?
+    current_player.latest_meld&.kind == 'ankan' && current_player.latest_meld&.player_state&.step&.number == current_step_number
   end
 
   private

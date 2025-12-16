@@ -5,6 +5,7 @@ module GamesHelper
     draw
     confirm_tsumo
     confirm_kan
+    switch_event_after_kan
     rinshan_draw
     tsumogiri
     confirm_riichi
