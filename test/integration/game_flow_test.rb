@@ -705,7 +705,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     post game_play_command_path(@game), params: {
       event: 'confirm_ron',
       kakan: true,
-      ron_player_ids: [""],
+      ron_player_ids: [ '' ],
       discarded_tile_id: kakan_hand.tile.id
     }
     assert_response :redirect
