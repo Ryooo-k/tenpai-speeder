@@ -562,11 +562,11 @@ class GameTest < ActiveSupport::TestCase
     player_2_score_statements = score_statements[ron_player_2.id]
 
     assert_equal 30, player_1_score_statements[:fu_total]
-    assert_equal 4, player_1_score_statements[:han_total]
+    assert_equal 5, player_1_score_statements[:han_total]
     assert_equal [
       { name: '平和', han: 1 },
       { name: '一気通貫', han: 2 },
-      { name: '赤ドラ', han: 1 }
+      { name: '赤ドラ', han: 2 }
     ], player_1_score_statements[:yaku_list]
 
     assert_equal 50, player_2_score_statements[:fu_total]

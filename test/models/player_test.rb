@@ -391,15 +391,18 @@ class PlayerTest < ActiveSupport::TestCase
 
   test '#steal daiminkan from toimen removes hands and sets melds' do
     manzu_1, ton_1, ton_2, ton_3 = set_hands('m1 z111', @user_player)
+
     toimen_player = @ai_player
-    discarded_tile = @ton_3
+    ton_4 = @user_player.game.tiles.joins(:base_tile).find_by!(kind: 3, base_tile: { suit: 'zihai', number: 1 })
+    toimen_player.current_state.hands.create!(tile: ton_4)
+    discarded_tile = toimen_player.hands.first.tile
     step_2 = steps(:step_2)
 
     toimen_player.stub(:seat_order, 2) do
       @user_player.stub(:seat_order, 0) do
         @user_player.stub(:current_step_number, step_2.number) do
           furo_ids = [ ton_1.id, ton_2.id, ton_3.id ]
-          @user_player.steal(toimen_player, :daiminkan, furo_ids, discarded_tile.id, steps(:step_2))
+          @user_player.steal(toimen_player, :daiminkan, furo_ids, discarded_tile.id, step_2)
 
           assert_equal [ ton_1.tile, discarded_tile, ton_2.tile, ton_3.tile ], @user_player.melds.map(&:tile)
           assert_equal [ nil, 'toimen', nil, nil ], @user_player.melds.map(&:from)
@@ -1249,7 +1252,7 @@ class PlayerTest < ActiveSupport::TestCase
 
   test '#score_statements：4飜40符（ダブル立直、一発、門前清自摸和）' do
     player = @game.current_player
-    set_hands('m123789 p111456 s1', player)
+    set_hands('m123789 p111234 s1', player)
     set_rivers('z1', player, riichi: true)
     player.current_state.update!(riichi: true)
 
@@ -1461,7 +1464,7 @@ class PlayerTest < ActiveSupport::TestCase
       '7筒', '7筒', '7筒', '7筒',
       '8筒', '8筒', '8筒', '8筒',
       '9筒', '9筒', '9筒',
-      '1索', '1索', '1索'
+      '1索', '1索'
     ], hands_to_lower_shanten_and_normal_outs[pinzu_1].map(&:name)
 
     # 5筒を捨てた時の有効牌
@@ -1473,7 +1476,7 @@ class PlayerTest < ActiveSupport::TestCase
       '7筒', '7筒', '7筒', '7筒',
       '8筒', '8筒', '8筒', '8筒',
       '9筒', '9筒', '9筒',
-      '1索', '1索', '1索'
+      '1索', '1索'
     ], hands_to_lower_shanten_and_normal_outs[pinzu_5].map(&:name)
 
     # 9筒を捨てた時の有効牌
@@ -1486,7 +1489,7 @@ class PlayerTest < ActiveSupport::TestCase
       '5筒', '5筒', '5筒',
       '6筒', '6筒', '6筒', '6筒',
       '7筒', '7筒', '7筒', '7筒',
-      '1索', '1索', '1索'
+      '1索', '1索'
     ], hands_to_lower_shanten_and_normal_outs[pinzu_9].map(&:name)
   end
 
@@ -1506,7 +1509,7 @@ class PlayerTest < ActiveSupport::TestCase
       '7萬', '7萬', '7萬', '7萬',
       '8萬', '8萬', '8萬', '8萬',
       '9萬', '9萬', '9萬',
-      '東', '東', '東'
+      '東', '東'
     ], hands_to_same_shanten_outs[ton].map(&:name)
 
     # 南を捨てた時の有効牌
@@ -1518,7 +1521,7 @@ class PlayerTest < ActiveSupport::TestCase
       '7萬', '7萬', '7萬', '7萬',
       '8萬', '8萬', '8萬', '8萬',
       '9萬', '9萬', '9萬',
-      '南', '南', '南'
+      '南', '南'
     ], hands_to_same_shanten_outs[nan].map(&:name)
 
     # 西を捨てた時の有効牌
@@ -1530,7 +1533,7 @@ class PlayerTest < ActiveSupport::TestCase
       '7萬', '7萬', '7萬', '7萬',
       '8萬', '8萬', '8萬', '8萬',
       '9萬', '9萬', '9萬',
-      '西', '西', '西'
+      '西', '西'
     ], hands_to_same_shanten_outs[sha].map(&:name)
 
     # 北を捨てた時の有効牌
@@ -1542,7 +1545,7 @@ class PlayerTest < ActiveSupport::TestCase
       '7萬', '7萬', '7萬', '7萬',
       '8萬', '8萬', '8萬', '8萬',
       '9萬', '9萬', '9萬',
-      '北', '北', '北'
+      '北', '北'
     ], hands_to_same_shanten_outs[pei].map(&:name)
   end
 
@@ -1639,14 +1642,17 @@ class PlayerTest < ActiveSupport::TestCase
 
   test '#count_akadora counts dora tiles in hand and melds' do
     player = @user_player
-    hands = set_hands('m5', player)
-    akadora_tile = hands.first.tile
+    tile = player.game.tiles.joins(:base_tile).find_by!(aka: true, base_tile: { suit: 'manzu', number: 5 })
+    player.current_state.hands.create!(tile:)
+    akadora_tile = player.hands.first.tile
 
     assert_equal 1, player.send(:count_akadora, nil)
   end
 
   test '#count_akadora counts winning tile as well' do
-    akadora_tile = set_hands('m5', @ai_player).first.tile
+    tile = @ai_player.game.tiles.joins(:base_tile).find_by!(aka: true, base_tile: { suit: 'manzu', number: 5 })
+    @ai_player.current_state.hands.create!(tile:)
+    akadora_tile = @ai_player.hands.first.tile
     hands = set_hands('m34', @user_player)
 
     assert_equal 1, @user_player.send(:count_akadora, akadora_tile)
