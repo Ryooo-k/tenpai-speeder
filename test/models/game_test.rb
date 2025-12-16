@@ -555,8 +555,9 @@ class GameTest < ActiveSupport::TestCase
     set_hands('m123456789 p22 s45', ron_player_1, drawn: false)
     set_hands('m111222333 p22 s33', ron_player_2, drawn: false)
     discarded_tile = tiles(:first_souzu_3)
+    kakan = false
 
-    score_statements = @game.build_ron_score_statements(discarded_tile.id, [ ron_player_1.id, ron_player_2.id ])
+    score_statements = @game.build_ron_score_statements(discarded_tile.id, [ ron_player_1.id, ron_player_2.id ], kakan)
     player_1_score_statements = score_statements[ron_player_1.id]
     player_2_score_statements = score_statements[ron_player_2.id]
 
