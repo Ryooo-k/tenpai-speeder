@@ -410,6 +410,313 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'kan advances to switch_event_after_kan' do
+    player = @game.current_player
+    kan_hands = set_hands('m1111', player)
+
+    post game_play_command_path(@game), params: {
+      event: 'confirm_kan',
+      kan: true,
+      kan_type: 'ankan',
+      kan_ids: kan_hands.map(&:id)
+    }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :switch_event_after_kan
+    end
+  end
+
+  test 'switch_event_after_kan renders tsumogiri when player is riichi and declines kan' do
+    player = @game.current_player
+    kan_hands = set_hands('m1111', player)
+    player.current_state.update!(riichi: true)
+
+    post game_play_command_path(@game), params: {
+      event: 'confirm_kan',
+      kan: false
+    }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :tsumogiri
+    end
+  end
+
+  test 'switch_event_after_kan renders confirm_riichi when user player can riichi and declines kan' do
+    user_player = @game.user_player
+    set_hands('m111123456 s12345', user_player)
+    set_player_turn(@game, user_player)
+
+    post game_play_command_path(@game), params: { event: 'confirm_kan', kan: false }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), 'riichi' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_riichi
+    end
+  end
+
+  test 'switch_event_after_kan renders auto-submit confirm_riichi when ai player can riichi and declines kan' do
+    ai_player = @game.ais.sample
+    set_hands('m111123456 s12345', ai_player)
+    set_player_turn(@game, ai_player)
+
+    post game_play_command_path(@game), params: { event: 'confirm_kan', kan: false }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_riichi
+    end
+  end
+
+  test 'switch_event_after_kan renders choose_event(manual) + discard_event when user player is not riichi and declines kan' do
+    user = @game.user_player
+    set_hands('m111123456 s159 z12', user)
+    set_player_turn(@game, user)
+
+    post game_play_command_path(@game), params: { event: 'confirm_kan', kan: false }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_not_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit'
+    assert_dom 'form[action=?]', game_play_command_path(@game) do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :discard
+      assert_dom 'input[type=radio][name=chosen_hand_id]'
+    end
+  end
+
+  test 'switch_event_after_kan renders auto-submit choose when ai player is not riichi and declines kan' do
+    ai_player = @game.ais.sample
+    set_hands('m111123456 z12345', ai_player)
+    set_player_turn(@game, ai_player)
+
+    post game_play_command_path(@game), params: { event: 'confirm_kan', kan: false }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :choose
+    end
+  end
+
+  test 'switch_event_after_kan renders auto-submit confirm_ron when ai player can ron kakan tile' do
+    loser = @game.user_player
+    winner = @game.ais.first
+
+    set_player_turn(@game, loser)
+    set_melds('m111=', loser)
+    kakan_hand = set_hands('m19', loser).first
+    set_hands('m23456789 p123 s55', winner) # 1萬で和了できる状態にセット
+
+    post game_play_command_path(@game), params: {
+      event: 'confirm_kan',
+      kan: true,
+      kan_type: 'kakan',
+      kan_ids: [ kakan_hand.id ]
+    }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_ron
+      assert_dom 'input[type=hidden][name=?][value=?]', :discarded_tile_id, kakan_hand.tile.id
+      assert_dom 'input[type=hidden][name=?][value=?]', 'ron_player_ids[]', winner.id
+    end
+  end
+
+  test 'switch_event_after_kan renders confirm_ron when user player can ron kakan tile' do
+    winner_user = @game.user_player
+    winner_ai = @game.ais.first
+    loser = @game.ais.second
+
+    before_dora_count = @game.dora_indicator_tiles.compact.size
+
+    set_player_turn(@game, loser)
+    set_melds('m111=', loser)
+    kakan_hand = set_hands('m19', loser).first
+    set_hands('m23456789 p123 s55', winner_user) # 1萬で和了できる状態にセット
+    set_hands('m23456789 p123 s55', winner_ai)   # AIも和了できる形にしておく
+
+    post game_play_command_path(@game), params: {
+      event: 'confirm_kan',
+      kan: true,
+      kan_type: 'kakan',
+      kan_ids: [ kakan_hand.id ]
+    }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), 'ron' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_ron
+      assert_dom 'input[type=hidden][name=?][value=?]', :discarded_tile_id, kakan_hand.tile.id
+      assert_dom 'input[type=hidden][name=?][value=?]', 'ron_player_ids[]', winner_user.id
+      assert_dom 'input[type=hidden][name=?][value=?]', 'ron_player_ids[]', winner_ai.id
+    end
+
+    assert_dom 'form[action=?][data-testid=?]', game_play_command_path(@game), 'through' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :confirm_ron
+      assert_dom 'input[type=hidden][name=?][value=?]', :discarded_tile_id, kakan_hand.tile.id
+      assert_dom 'input[type=hidden][name=?][value=?]', 'ron_player_ids[]', winner_ai.id
+    end
+
+    # カカンした時にロン可能なプレイヤーが存在する場合、switch_event_after_kanイベント内ではドラを追加しない
+    @game.reload
+    assert_equal before_dora_count, @game.dora_indicator_tiles.compact.size
+  end
+
+  test 'switch_event_after_kan renders rinshan_draw and add dora when player can not ron kakan tile' do
+    player = @game.user_player
+
+    set_player_turn(@game, player)
+    set_melds('m111=', player)
+    kakan_hand = set_hands('m19', player).first
+
+    before_dora_count = @game.dora_indicator_tiles.compact.size
+
+    post game_play_command_path(@game), params: {
+      event: 'confirm_kan',
+      kan: true,
+      kan_type: 'kakan',
+      kan_ids: [ kakan_hand.id ]
+    }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :rinshan_draw
+    end
+
+    # カカンした時にロン可能なプレイヤーが存在しない場合、switch_event_after_kanイベント内でドラを追加する
+    @game.reload
+    assert_equal before_dora_count + 1, @game.dora_indicator_tiles.compact.size
+  end
+
+  test 'switch_event_after_kan renders rinshan_draw and add dora when ankan' do
+    player = @game.user_player
+
+    set_player_turn(@game, player)
+    ankan_hands = set_hands('m1111', player)
+
+    before_dora_count = @game.dora_indicator_tiles.compact.size
+
+    post game_play_command_path(@game), params: {
+      event: 'confirm_kan',
+      kan: true,
+      kan_type: 'ankan',
+      kan_ids: ankan_hands.map(&:id)
+    }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    assert_dom 'form[action=?][data-controller=?]', game_play_command_path(@game), 'auto-submit' do
+      assert_dom 'input[type=hidden][name=?][value=?]', :event, :rinshan_draw
+    end
+
+    # カカンした時にロン可能なプレイヤーが存在しない場合、switch_event_after_kanイベント内でドラを追加する
+    @game.reload
+    assert_equal before_dora_count + 1, @game.dora_indicator_tiles.compact.size
+  end
+
+  test 'switch_event_after_kan renders auto-submit confirm_ron when ai player can ron kakan' do
+    loser = @game.user_player
+    winner = @game.ais.first
+
+    set_player_turn(@game, loser)
+    set_melds('m111=', loser)
+    kakan_hand = set_hands('m19', loser).first
+    set_hands('m23456789 p123 s55', winner) # 1萬で和了できる状態にセット
+
+    before_dora_count = @game.dora_indicator_tiles.compact.size
+
+    post game_play_command_path(@game), params: {
+      event: 'confirm_kan',
+      kan: true,
+      kan_type: 'kakan',
+      kan_ids: [ kakan_hand.id ]
+    }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    post game_play_command_path(@game), params: {
+      event: 'confirm_ron',
+      kakan: true,
+      ron_player_ids: [""],
+      discarded_tile_id: kakan_hand.tile.id
+    }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
+    # カカンした時にロン可能なプレイヤーが存在するが、ロンしなかった場合、confirm_ronイベント内で新ドラを追加する
+    @game.reload
+    assert_equal before_dora_count + 1, @game.dora_indicator_tiles.compact.size
+  end
+
   test 'kan adds new dora on confirm_furo with daiminkan' do
     ai = @game.ais.first
     user = @game.user_player
@@ -445,7 +752,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     discarded_tile_id = ai.hands.first.tile.id
     ron_player_id = @game.user_player.id
 
-    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id:, ron_player_ids: [ ron_player_id ] }
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id:, ron_player_ids: [ ron_player_id ], kakan: false }
     assert_response :redirect
     follow_redirect!
     assert_response :success
@@ -478,7 +785,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # スルー＝ユーザーを除外し、AIだけロンさせる
-    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: discarded_tile.tile.id, ron_player_ids: [ ai_ronner.id ] }
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: discarded_tile.tile.id, ron_player_ids: [ ai_ronner.id ], kakan: false }
     assert_response :redirect
     follow_redirect!
     assert_response :success
@@ -510,7 +817,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # スルー押下時は自身を除外し、空配列（空文字入り）で送る想定
-    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: discarded_tile.id, ron_player_ids: [ '' ] }
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: discarded_tile.id, ron_player_ids: [ '' ], kakan: false }
     assert_response :redirect
     follow_redirect!
     assert_response :success
@@ -981,6 +1288,11 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
 
+    post game_play_command_path(game), params: { event: 'switch_event_after_kan' }
+    assert_response :redirect
+    follow_redirect!
+    assert_response :success
+
     assert_dom 'form[action=?][data-controller=?]', game_play_command_path(game), 'auto-submit' do
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :rinshan_draw
     end
@@ -1122,7 +1434,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert_dom 'span', text: '東一局'
     assert_dom 'span', text: '〇本場'
 
-    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id:, ron_player_ids: [ @game.host.id ] }
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id:, ron_player_ids: [ @game.host.id ], kakan: false }
     assert_response :redirect
     follow_redirect!
     assert_response :success
@@ -1246,7 +1558,12 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     expected_meld_count = winner.melds.count
     winning_tile = set_hands('p555', loser).first.tile
 
-    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: winning_tile.id, ron_player_ids: [ winner.id ] }
+    post game_play_command_path(@game), params: {
+      event: 'confirm_ron',
+      discarded_tile_id: winning_tile.id,
+      ron_player_ids: [ winner.id ],
+      kakan: false
+    }
     assert_response :redirect
     follow_redirect!
     assert_response :success
@@ -1294,7 +1611,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     score_statements = host.score_statements(tile: pinzu_4)
     point = PointCalculator.calculate_point(score_statements, host)
 
-    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: pinzu_4.id, ron_player_ids: [ host.id ] }
+    post game_play_command_path(@game), params: { event: 'confirm_ron', discarded_tile_id: pinzu_4.id, ron_player_ids: [ host.id ], kakan: false }
     assert_response :redirect
     follow_redirect!
     assert_response :success
