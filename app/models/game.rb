@@ -354,6 +354,14 @@ class Game < ApplicationRecord
     end
   end
 
+  def kakan_turn?
+    current_player.latest_meld&.kind == 'kakan' && current_player.latest_meld&.player_state&.step&.number == current_step_number
+  end
+
+  def ankan_turn?
+    current_player.latest_meld&.kind == 'ankan' && current_player.latest_meld&.player_state&.step&.number == current_step_number
+  end
+
   private
 
     def create_tiles_and_round
