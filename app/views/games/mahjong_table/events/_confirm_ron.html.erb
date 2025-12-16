@@ -6,7 +6,8 @@
                     params: {
                       event: "confirm_ron",
                       discarded_tile_id: @discarded_tile_id,
-                      ron_player_ids: @ron_eligible_players_ids
+                      ron_player_ids: @ron_eligible_players_ids,
+                      kakan: defined?(@kakan)
                     },
                     form: { data: { testid: "ron" } },
                     class: "rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" %>
