@@ -39,7 +39,9 @@
   </head>
 
   <body>
-    <%= render "application/header", logo_link_path: (content_for?(:logo_link_path) ? yield(:logo_link_path) : home_path) %>
+    <% if current_path != root_path %>
+      <%= render "application/header", logo_link_path: (content_for?(:logo_link_path) ? yield(:logo_link_path) : home_path) %>
+    <% end %>
     <div id="flash">
       <%= render 'application/flash' %>
     </div>
