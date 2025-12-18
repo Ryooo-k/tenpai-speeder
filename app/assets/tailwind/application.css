@@ -5,10 +5,21 @@
   --font-chela-one: "Chela One", sans-serif;
 }
 
+@layer base {
+  a {
+    cursor: pointer;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
 @layer utilities {
   /* Recolor monochrome PNG icons to an emerald hue */
   .icon-emerald {
-    filter: invert(60%) sepia(29%) saturate(734%) hue-rotate(108deg) brightness(96%) contrast(92%);
+    filter: invert(60%) sepia(29%) saturate(734%) hue-rotate(108deg)
+      brightness(96%) contrast(92%);
   }
 
   .tips-scroll {
