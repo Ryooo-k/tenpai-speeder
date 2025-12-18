@@ -4,7 +4,7 @@
 
 <% content_for :logo_link_path, root_path %>
 <div class='relative min-h-screen overflow-hidden bg-[#04060b] text-slate-100'>
-  <a href='#main-content' class='sr-only absolute left-4 top-4 z-20 rounded-md bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 shadow focus-visible:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#04060b]'>
+  <a href='#main-content' class='sr-only absolute left-4 top-4 z-20 rounded-md bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 focus-visible:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#04060b]'>
     コンテンツへスキップ
   </a>
 
@@ -17,7 +17,7 @@
 
   <main id='main-content' class='relative mx-auto max-w-5xl px-6 py-10' tabindex='-1'>
     <header class='mx-auto max-w-3xl text-center'>
-      <%= image_tag "/logo.svg", alt: "Tenpai Speeder", class: "mx-auto h-18 w-auto drop-shadow" %>
+      <%= image_tag "/logo.svg", alt: "Tenpai Speeder", class: "mx-auto h-18 w-auto" %>
       <h1 class='mt-3 text-3xl font-black tracking-tight'>
         <span class='block text-rose-500 font-tapestry'>Tenpai Speeder</span>
       </h1>
@@ -36,11 +36,11 @@
           <%= button_to '登録せずに利用開始する', '/guest_login',
             method: :post, data: { turbo: false },
             aria: { label: '登録不要ですぐにTenpai Speederを始める' },
-            class: 'mx-auto block w-fit max-w-full min-w-[16rem] rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg transition hover:-translate-y-1 hover:text-slate-900 hover:shadow-[0_0px_30px_rgba(56,189,248,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
+            class: 'mx-auto block w-fit max-w-full min-w-[16rem] rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:-translate-y-1 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
           <%= button_to 'Googleでログインする', @login_path,
             method: :post, data: { turbo: false },
             aria: { label: 'GoogleアカウントでTenpai Speederにログインする', describedby: 'login-options-description' },
-            class: 'mx-auto block w-fit max-w-full min-w-[16rem] rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-[0_0px_30px_rgba(56,189,248,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
+            class: 'mx-auto block w-fit max-w-full min-w-[16rem] rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-1 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
         </div>
       </section>
 
