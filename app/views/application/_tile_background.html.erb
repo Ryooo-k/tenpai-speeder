@@ -1,0 +1,30 @@
+<% tile_paths = %w[
+  tiles/manzu_1.gif tiles/manzu_2.gif tiles/manzu_3.gif tiles/manzu_4.gif tiles/manzu_5.gif tiles/manzu_6.gif tiles/manzu_7.gif tiles/manzu_8.gif tiles/manzu_9.gif
+  tiles/pinzu_1.gif tiles/pinzu_2.gif tiles/pinzu_3.gif tiles/pinzu_4.gif tiles/pinzu_5.gif tiles/pinzu_6.gif tiles/pinzu_7.gif tiles/pinzu_8.gif tiles/pinzu_9.gif
+  tiles/souzu_1.gif tiles/souzu_2.gif tiles/souzu_3.gif tiles/souzu_4.gif tiles/souzu_5.gif tiles/souzu_6.gif tiles/souzu_7.gif tiles/souzu_8.gif tiles/souzu_9.gif
+  tiles/zihai_1.gif tiles/zihai_2.gif tiles/zihai_3.gif tiles/zihai_4.gif tiles/zihai_5.gif tiles/zihai_6.gif tiles/zihai_7.gif
+].map { |path| asset_path(path) } %>
+<% tile_width = 96 %>
+<% tile_height = 128 %>
+<% tile_cols = 7 %>
+<% tile_rows = 5 %>
+<% pattern_width = tile_cols * tile_width %>
+<% pattern_height = tile_rows * tile_height %>
+<% tile_grid = tile_paths.shuffle %>
+<% if tile_grid.length < tile_cols * tile_rows %>
+  <% tile_grid += tile_paths.sample(tile_cols * tile_rows - tile_grid.length) %>
+<% end %>
+<% tile_grid = tile_grid.take(tile_cols * tile_rows) %>
+
+<svg class='absolute inset-0 h-full w-full opacity-7' xmlns='http://www.w3.org/2000/svg'>
+  <defs>
+    <pattern id='tile-pattern' x='0' y='0' width='<%= pattern_width %>' height='<%= pattern_height %>' patternUnits='userSpaceOnUse'>
+      <% tile_grid.each_with_index do |path, index| %>
+        <% x = (index % tile_cols) * tile_width %>
+        <% y = (index / tile_cols) * tile_height %>
+        <image href="<%= path %>" x="<%= x %>" y="<%= y %>" width="<%= tile_width %>" height="<%= tile_height %>" />
+      <% end %>
+    </pattern>
+  </defs>
+  <rect x='0' y='0' width='100%' height='100%' fill='url(#tile-pattern)' />
+</svg>

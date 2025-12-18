@@ -33,13 +33,19 @@
     <link rel="icon" href="/logo.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/logo.png">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chela+One&family=Great+Vibes&family=Tapestry&display=swap" rel="stylesheet">
+
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
-    <%= render "application/header", logo_link_path: (content_for?(:logo_link_path) ? yield(:logo_link_path) : home_path) %>
+    <% if current_path != root_path %>
+      <%= render "application/header", logo_link_path: (content_for?(:logo_link_path) ? yield(:logo_link_path) : home_path) %>
+    <% end %>
     <div id="flash">
       <%= render 'application/flash' %>
     </div>

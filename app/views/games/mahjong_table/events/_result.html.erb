@@ -1,5 +1,5 @@
 <div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 py-6 sm:py-10">
-  <div role="dialog" aria-modal="true" class="w-full max-w-[960px] rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/95 shadow-[0_30px_120px_rgba(0,0,0,0.65)] text-slate-100">
+  <div role="dialog" aria-modal="true" class="w-full max-w-[960px] rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/95 text-slate-100">
     <div class="flex h-full flex-col max-h-[90vh]">
       <div class="px-4 pt-6 sm:px-6 lg:px-8">
         <div class="text-center mb-4 space-y-0.5">
@@ -52,7 +52,7 @@
                 point_delta:,
                 point_class:,
                 winner_statements:,
-                wrapper_classes: "absolute #{position_class} w-[min(38vw,280px)] rounded-2xl border border-cyan-500/15 bg-[#0c1018]/95 p-4 shadow-lg shadow-cyan-500/20 text-slate-100"
+                wrapper_classes: "absolute #{position_class} w-[min(38vw,280px)] rounded-2xl border border-cyan-500/15 bg-[#0c1018]/95 p-4 text-slate-100"
               } %>
           <% end %>
         </div>
@@ -76,7 +76,7 @@
                 point_delta:,
                 point_class:,
                 winner_statements:,
-                wrapper_classes: "w-full rounded-2xl border border-cyan-500/15 bg-[#0c1018] shadow shadow-cyan-500/10 p-4 text-slate-100"
+                wrapper_classes: "w-full rounded-2xl border border-cyan-500/15 bg-[#0c1018] p-4 text-slate-100"
               } %>
           <% end %>
         </div>
@@ -92,7 +92,7 @@
                         data: { testid: "result" } do |form| %>
             <%= form.hidden_field :event, value: "result" %>
             <%= form.hidden_field :ryukyoku, value: @ryukyoku %>
-            <%= submit_tag "次へ", class: "px-4 py-2 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 text-slate-950 text-sm font-semibold shadow-lg shadow-cyan-500/30 transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(56,189,248,0.35)] sm:px-6 sm:py-2.5 sm:text-base" %>
+            <%= submit_tag "次へ", class: "px-4 py-2 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 text-slate-950 text-sm font-semibold transition hover:-translate-y-0.5 sm:px-6 sm:py-2.5 sm:text-base" %>
           <% end %>
         </div>
       </div>

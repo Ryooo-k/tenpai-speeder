@@ -1,5 +1,5 @@
 <div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-  <div role="dialog" aria-modal="true" class="w-[min(90vw,400px)] rounded-2xl border border-cyan-500/15 bg-[#0a0d14]/95 p-5 shadow-[0_30px_120px_rgba(0,0,0,0.65)] text-slate-100">
+  <div role="dialog" aria-modal="true" class="w-[min(90vw,400px)] rounded-2xl border border-cyan-500/15 bg-[#0a0d14]/95 p-5 text-slate-100">
     <h2 class="text-xl font-bold mb-1 text-slate-50">対局終了</h2>
 
     <table class="w-full text-sm mb-6 table-fixed">
@@ -37,7 +37,7 @@
       <%= link_to "ホームに戻る",
                   home_path,
                   data: { turbo: false },
-                  class: "px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 text-slate-950 text-sm font-semibold shadow-lg shadow-cyan-500/30 transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(56,189,248,0.35)]" %>
+                  class: "px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 text-slate-950 text-sm font-semibold transition hover:-translate-y-0.5" %>
     </div>
   </div>
 </div>

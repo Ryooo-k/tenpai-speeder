@@ -3,11 +3,11 @@
     <%= button_to 'お気に入りを解除する',
                   favorite_path(@game),
                   method: :delete,
-                  class: 'inline-flex items-center gap-2 rounded-full border border-cyan-400/40 bg-white/5 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-300/70 hover:text-cyan-50 hover:shadow-[0_0px_32px_rgba(56,189,248,0.25)]' %>
+                  class: 'inline-flex items-center gap-2 rounded-full border border-cyan-400/40 bg-white/5 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-300/70 hover:text-cyan-50' %>
   <% else %>
     <%= button_to 'お気に入りに追加する',
                   favorites_path,
                   params: { game_id: @game.id },
-                  class: 'inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5 hover:shadow-[0_0px_40px_rgba(56,189,248,0.35)]' %>
+                  class: 'inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5' %>
   <% end %>
 <% end %>

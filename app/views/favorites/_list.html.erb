@@ -2,7 +2,7 @@
   <ul class='space-y-4' aria-label='お気に入りのゲーム一覧'>
     <% @favorites.each do |favorite| %>
       <% game = favorite.game %>
-      <li class='flex flex-col gap-4 rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/80 p-5 shadow-lg shadow-cyan-500/10 backdrop-blur sm:flex-row sm:items-center sm:justify-between'>
+      <li class='flex flex-col gap-4 rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/80 p-5 backdrop-blur sm:flex-row sm:items-center sm:justify-between'>
         <div>
           <p class='text-xs text-cyan-200'>Game Mode</p>
           <p class='text-xl font-semibold text-white'><%= game.game_mode.name %></p>
@@ -14,8 +14,8 @@
           <%= link_to 'プレイ画面へ',
                       game_play_path(game),
                       target: "_top",
-                      class: 'inline-flex items-center rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:text-slate-900 hover:shadow-[0_0px_30px_rgba(56,189,248,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
-          <%= button_to 'お気に入りを解除する',
+                      class: 'inline-flex items-center rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
+          <%= button_to '削除する',
                         favorite_path(game, context: 'index'),
                         method: :delete,
                         class: 'inline-flex items-center rounded-2xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:border-cyan-300/60 hover:text-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]',

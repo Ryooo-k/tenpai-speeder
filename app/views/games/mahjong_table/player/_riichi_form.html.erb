@@ -3,10 +3,10 @@
   <% if @riichi_candidate_ids.include?(hand.id) %>
     <% tile_label = "#{tile.suit}#{tile.number}#{tile.aka? ? '（赤）' : ''}でリーチを宣言" %>
     <%= form.radio_button :chosen_hand_id, hand.id, class: "sr-only peer", aria: { label: tile_label } %>
-    <%= form.label :chosen_hand_id, value: hand.id, class: "block peer-checked:-translate-y-2" do %>
+    <%= form.label :chosen_hand_id, value: hand.id, class: "block cursor-pointer peer-checked:-translate-y-2" do %>
       <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.tile.aka?, class_name: "block w-full h-auto" } %>
     <% end %>
-    <%= form.submit "", class: "absolute inset-0 hidden peer-checked:block" %>
+    <%= form.submit "", class: "absolute inset-0 hidden cursor-pointer peer-checked:block" %>
 
   <% else %>
     <div class="relative w-full">

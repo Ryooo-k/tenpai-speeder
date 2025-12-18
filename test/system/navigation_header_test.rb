@@ -56,12 +56,4 @@ class NavigationHeaderTest < ApplicationSystemTestCase
 
     assert_current_path home_path
   end
-
-  test 'clicking the logo navigates to root when current page is root' do
-    visit root_path
-
-    find("header a[data-test-id='logo']").click
-
-    assert_current_path root_path
-  end
 end

@@ -1,21 +1,17 @@
 <% mode = @game.game_mode %>
 
-<header class="relative overflow-hidden rounded-2xl border border-slate-800/70 bg-[#0b0d12]/80 p-5 shadow-[0_25px_70px_rgba(0,0,0,0.55)] ring-1 ring-cyan-500/10 backdrop-blur">
-  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_5%_5%,rgba(56,189,248,0.12),transparent_20%),radial-gradient(circle_at_88%_0%,rgba(59,130,246,0.09),transparent_42%)]"></div>
-    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-20"></div>
-  </div>
+<header class="relative overflow-hidden">
   <div class="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
     <div class="flex items-start gap-3">
       <span class="hidden h-12 w-[3px] rounded-full bg-gradient-to-b from-cyan-400 via-sky-400 to-emerald-400 md:block"></span>
       <div class="space-y-1">
-        <p class="text-xs font-semibold tracking-[0.2em] text-cyan-200/80">ROUND</p>
+        <p class="text-xs font-semibold tracking-[0.15em] text-cyan-200/80">ROUND</p>
         <div class="flex flex-wrap items-baseline gap-3">
-          <span class="text-xl font-semibold text-slate-50"><%= @game.current_round_name %></span>
-          <span class="text-lg font-medium tracking-wide text-slate-400"><%= @game.current_honba_name %></span>
+          <span class="text-xl font-semibold text-slate-50 tracking-[0.2em]"><%= @game.current_round_name %></span>
+          <span class="text-lg font-medium text-slate-400 tracking-[0.12em]"><%= @game.current_honba_name %></span>
         </div>
         <p class="text-xs text-slate-400">
-          <span class="font-semibold text-slate-200"><%= mode&.name || "Game Mode" %></span>
+          <span class="font-semibold text-slate-200 tracking-[0.12em]"><%= mode&.name || "Game Mode" %></span>
           <% if mode&.description.present? %>
             ： <%= mode.description %>
           <% end %>
