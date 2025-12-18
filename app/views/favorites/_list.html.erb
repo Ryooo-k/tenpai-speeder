@@ -15,7 +15,7 @@
                       game_play_path(game),
                       target: "_top",
                       class: 'inline-flex items-center rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]' %>
-          <%= button_to 'お気に入りを解除する',
+          <%= button_to '削除する',
                         favorite_path(game, context: 'index'),
                         method: :delete,
                         class: 'inline-flex items-center rounded-2xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:border-cyan-300/60 hover:text-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0d14]',
