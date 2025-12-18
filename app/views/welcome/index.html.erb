@@ -50,19 +50,31 @@
         </h2>
         <ul class='mt-6 grid gap-4 sm:grid-cols-2'>
           <li class='rounded-lg border border-white/5 bg-white/5 p-5 text-left'>
-            <p class='text-lg font-semibold text-white'>登録不要ですぐ開始</p>
+            <p class='text-lg font-semibold text-white flex items-center gap-2'>
+              <%= image_tag 'pictograms/麻雀.png', alt: '麻雀のピクトグラム', class: 'h-6 w-6 icon-emerald' %>
+              登録不要ですぐ開始
+            </p>
             <p class='mt-2 text-sm text-slate-200/80'>ゲストログインで利用が可能です。セットアップなしでテンポ良く練習できます。</p>
           </li>
           <li class='rounded-lg border border-white/5 bg-white/5 p-5 text-left'>
-            <p class='text-lg font-semibold text-white'>牌効率を自動判定</p>
+            <p class='text-lg font-semibold text-white flex items-center gap-2'>
+              <%= image_tag 'pictograms/考える人.png', alt: '考える人のピクトグラム', class: 'h-6 w-6 icon-emerald' %>
+              牌効率を自動判定
+            </p>
             <p class='mt-2 text-sm text-slate-200/80'>有効牌や向聴数の変化をリアルタイムに可視化します。</p>
           </li>
           <li class='rounded-lg border border-white/5 bg-white/5 p-5 text-left'>
-            <p class='text-lg font-semibold text-white'>巻き戻し機能</p>
+            <p class='text-lg font-semibold text-white flex items-center gap-2'>
+              <%= image_tag 'pictograms/戻る.png', alt: '戻るのピクトグラム', class: 'h-6 w-6 icon-emerald' %>
+              巻き戻し機能
+            </p>
             <p class='mt-2 text-sm text-slate-200/80'>ミスした局面まで戻り、やり直すことが可能です。</p>
           </li>
           <li class='rounded-lg border border-white/5 bg-white/5 p-5 text-left'>
-            <p class='text-lg font-semibold text-white'>ゲームモード</p>
+            <p class='text-lg font-semibold text-white flex items-center gap-2'>
+              <%= image_tag 'pictograms/ゲーム.png', alt: 'ゲームのピクトグラム', class: 'h-6 w-6 icon-emerald' %>
+              ゲームモード
+            </p>
             <p class='mt-2 text-sm text-slate-200/80'>トレーニングしたい能力に応じてモードを選択しましょう。</p>
           </li>
         </ul>

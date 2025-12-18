@@ -6,6 +6,11 @@
 }
 
 @layer utilities {
+  /* Recolor monochrome PNG icons to an emerald hue */
+  .icon-emerald {
+    filter: invert(60%) sepia(29%) saturate(734%) hue-rotate(108deg) brightness(96%) contrast(92%);
+  }
+
   .tips-scroll {
     scrollbar-width: thin;
     scrollbar-color: rgba(56, 189, 248, 0.3) rgba(10, 13, 20, 0.55);
