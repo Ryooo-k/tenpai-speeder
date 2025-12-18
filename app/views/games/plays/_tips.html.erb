@@ -1,9 +1,6 @@
 <% player = @game.user_player %>
 
-<section class="relative overflow-hidden rounded-3xl border border-cyan-500/15 bg-[#0a0d14]/85 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur" aria-labelledby="tips-heading">
-  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(56,189,248,0.12),transparent_400px),radial-gradient(circle_at_80%_90%,rgba(14,165,233,0.12),transparent_200px)]"></div>
-  </div>
+<section class="relative h-[calc(100dvh-200px)] overflow-y-auto pr-3 tips-scroll aria-labelledby="tips-heading">
   <div class="relative flex flex-col gap-2">
     <h2 id="tips-heading" class="text-lg font-semibold text-cyan-200">TIPS</h2>
     <p class="text-xs text-slate-300/80">
