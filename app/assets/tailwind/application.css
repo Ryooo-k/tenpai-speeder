@@ -2,7 +2,7 @@
 @source not "../../domain/agari_distance_map.json";
 
 @theme {
-  --font-tapestry: "Tapestry", sans-serif;
+  --font-chela-one: "Chela One", sans-serif;
 }
 
 @layer utilities {
