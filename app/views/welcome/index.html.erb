@@ -8,11 +8,12 @@
     コンテンツへスキップ
   </a>
 
-  <div class='pointer-events-none absolute inset-0' aria-hidden='true'>
-    <div class='absolute -top-40 -left-32 h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl'></div>
-    <div class='absolute bottom-0 right-0 h-96 w-96 rounded-full bg-sky-500/12 blur-3xl'></div>
-    <div class='absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.12),transparent_35%),radial-gradient(circle_at_75%_10%,rgba(14,165,233,0.12),transparent_32%)]'></div>
-  </div>
+<div class='pointer-events-none absolute inset-0' aria-hidden='true'>
+  <%= render "application/tile_background" %>
+  <div class='absolute -top-40 -left-32 h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl'></div>
+  <div class='absolute bottom-0 right-0 h-96 w-96 rounded-full bg-sky-500/12 blur-3xl'></div>
+  <div class='absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.12),transparent_35%),radial-gradient(circle_at_75%_10%,rgba(14,165,233,0.12),transparent_32%)]'></div>
+</div>
 
   <main id='main-content' class='relative mx-auto max-w-5xl px-6 py-10' tabindex='-1'>
     <header class='mx-auto max-w-3xl text-center'>
