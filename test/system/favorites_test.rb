@@ -30,7 +30,7 @@ class FavoritesTest < ApplicationSystemTestCase
     assert_text @game.game_mode.name
 
     accept_confirm '削除してもよろしいですか？' do
-      click_button 'お気に入りを解除する'
+      click_button '削除する'
     end
 
     assert_text 'お気に入りはまだありません'
