@@ -5,13 +5,13 @@
     <div class="flex items-start gap-3">
       <span class="hidden h-12 w-[3px] rounded-full bg-gradient-to-b from-cyan-400 via-sky-400 to-emerald-400 md:block"></span>
       <div class="space-y-1">
-        <p class="text-xs font-semibold tracking-[0.2em] text-cyan-200/80">ROUND</p>
+        <p class="text-xs font-semibold tracking-[0.15em] text-cyan-200/80">ROUND</p>
         <div class="flex flex-wrap items-baseline gap-3">
-          <span class="text-xl font-semibold text-slate-50"><%= @game.current_round_name %></span>
-          <span class="text-lg font-medium tracking-wide text-slate-400"><%= @game.current_honba_name %></span>
+          <span class="text-xl font-semibold text-slate-50 tracking-[0.2em]"><%= @game.current_round_name %></span>
+          <span class="text-lg font-medium text-slate-400 tracking-[0.12em]"><%= @game.current_honba_name %></span>
         </div>
         <p class="text-xs text-slate-400">
-          <span class="font-semibold text-slate-200"><%= mode&.name || "Game Mode" %></span>
+          <span class="font-semibold text-slate-200 tracking-[0.12em]"><%= mode&.name || "Game Mode" %></span>
           <% if mode&.description.present? %>
             ： <%= mode.description %>
           <% end %>
