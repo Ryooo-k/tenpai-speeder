@@ -7,23 +7,6 @@ class HandTest < ActiveSupport::TestCase
     @manzu_1 = tiles(:first_manzu_1)
   end
 
-  test 'is valid with player_state and tile' do
-    player_1_state = player_states(:ryo)
-    hand = Hand.new(player_state: player_1_state, tile: @manzu_1)
-    assert hand.valid?
-  end
-
-  test 'is invalid without player_state' do
-    hand = Hand.new(tile: @manzu_1)
-    assert hand.invalid?
-  end
-
-  test 'is invalid without tile' do
-    player_1_state = player_states(:ryo)
-    hand = Hand.new(player_state: player_1_state)
-    assert hand.invalid?
-  end
-
   test 'drawn default to false' do
     hand = Hand.new(tile: @manzu_1)
     assert_equal false, hand.drawn

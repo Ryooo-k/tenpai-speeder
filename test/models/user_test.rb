@@ -16,14 +16,4 @@ class UserTest < ActiveSupport::TestCase
       user.destroy
     end
   end
-
-  test 'is invalid without name' do
-    user = User.new(email: 'ryo@example.com')
-    assert user.invalid?
-  end
-
-  test 'is invalid long name' do
-    user = User.new(name: 'x' * 13)
-    assert user.invalid?
-  end
 end

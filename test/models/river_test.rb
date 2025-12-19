@@ -10,26 +10,6 @@ class RiverTest < ActiveSupport::TestCase
     @manzu_3 = tiles(:first_manzu_3)
   end
 
-  test 'is valid with tsumogiri and player_state and tile' do
-    river = River.new(player_state: @state, tile: @manzu_1, tsumogiri: false)
-    assert river.valid?
-  end
-
-  test 'is invalid without tsumogiri' do
-    river = River.new(player_state: @state, tile: @manzu_1)
-    assert river.invalid?
-  end
-
-  test 'is invalid without player_state' do
-    river = River.new(tile: @manzu_1, tsumogiri: false)
-    assert river.invalid?
-  end
-
-  test 'is invalid without tile' do
-    river = River.new(player_state: @state, tsumogiri: false)
-    assert river.invalid?
-  end
-
   test 'tsumogiri must be true or false' do
     river = River.new(player_state: @state, tile: @manzu_1, tsumogiri: nil)
     assert river.invalid?

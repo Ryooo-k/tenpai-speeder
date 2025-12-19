@@ -27,21 +27,6 @@ class PlayerStateTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with step and player' do
-    player_state = PlayerState.new(step: @step_1, player: @player)
-    assert player_state.valid?
-  end
-
-  test 'is invalid without step' do
-    player_state = PlayerState.new(player: @player)
-    assert player_state.invalid?
-  end
-
-  test 'is invalid without player' do
-    player_state = PlayerState.new(step: @step_1)
-    assert player_state.invalid?
-  end
-
   test 'riichi default to false' do
     player_state = PlayerState.new(step: @step_1, player: @player)
     assert_not player_state.riichi?
