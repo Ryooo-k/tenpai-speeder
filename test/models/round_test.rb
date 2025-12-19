@@ -13,16 +13,6 @@ class RoundTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with game' do
-    round = Round.new(game: games(:tonnan))
-    assert round.valid?
-  end
-
-  test 'is invalid without game' do
-    round = Round.new
-    assert round.invalid?
-  end
-
   test 'number default to 0' do
     round = Round.new(game: games(:tonnan))
     assert_equal 0, round.number

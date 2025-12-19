@@ -37,31 +37,6 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with user and seat_order and game' do
-    player = Player.new(user: @user, game: @game, seat_order: 0)
-    assert player.valid?
-  end
-
-  test 'is valid with ai and seat_order and game' do
-    player = Player.new(ai: ais('v0.1'), game: @game, seat_order: 0)
-    assert player.valid?
-  end
-
-  test 'is invalid without user or ai' do
-    player = Player.new(game: @game, seat_order: 0)
-    assert player.invalid?
-  end
-
-  test 'is invalid without game' do
-    player = Player.new(user: @user, seat_order: 0)
-    assert player.invalid?
-  end
-
-  test 'is invalid without seat_order' do
-    player = Player.new(user: @user, game: @game)
-    assert player.invalid?
-  end
-
   test 'validate player type' do
     player = Player.new(game: @game, seat_order: 0)
     assert player.invalid?

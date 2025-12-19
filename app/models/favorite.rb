@@ -4,9 +4,6 @@ class Favorite < ApplicationRecord
   belongs_to :user
   belongs_to :game
 
-  validates :user, presence: true
-  validates :game, presence: true
-
   validate :user_must_be_oauth
 
   private

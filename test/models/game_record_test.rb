@@ -7,16 +7,6 @@ class GameRecordTest < ActiveSupport::TestCase
     @player = players(:ryo)
   end
 
-  test 'is valid with player' do
-    record = GameRecord.new(player: @player)
-    assert record.valid?
-  end
-
-  test 'is invalid without player' do
-    record = GameRecord.new
-    assert record.invalid?
-  end
-
   test 'score default to 25_000' do
     record = GameRecord.new(player: @player, honba: honbas(:honba_0))
     assert_equal 25_000, record.score

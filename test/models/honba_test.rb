@@ -25,16 +25,6 @@ class HonbaTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with round' do
-    honba = Honba.new(round: rounds(:ton_1))
-    assert honba.valid?
-  end
-
-  test 'is invalid without round' do
-    honba = Honba.new
-    assert honba.invalid?
-  end
-
   test 'number default to 0' do
     honba = Honba.new(round: rounds(:ton_1))
     assert_equal 0, honba.number

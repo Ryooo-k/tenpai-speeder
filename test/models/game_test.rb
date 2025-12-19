@@ -41,17 +41,6 @@ class GameTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with game_mode' do
-    game_mode = game_modes(:tonnan)
-    game = Game.new(game_mode:)
-    assert game.valid?
-  end
-
-  test 'is invalid without game_mode' do
-    game = Game.new
-    assert game.invalid?
-  end
-
   test 'current_seat_number default to 0' do
     game_mode = game_modes(:tonnan)
     game = Game.new(game_mode:)

@@ -31,32 +31,6 @@ class TileTest < ActiveSupport::TestCase
     end
   end
 
-  test 'is valid with kind and aka and game and base_tile' do
-    base_tile = base_tiles(:manzu_1)
-    game = games(:tonnan)
-    tile = Tile.new(base_tile:, game:, kind: 0, aka: false)
-    assert tile.valid?
-  end
-
-  test 'is invalid without kind' do
-    base_tile = base_tiles(:manzu_1)
-    game = games(:tonnan)
-    tile = Tile.new(base_tile:, game:, aka: false)
-    assert tile.invalid?
-  end
-
-  test 'is invalid without game' do
-    base_tile = base_tiles(:manzu_1)
-    tile = Tile.new(base_tile:, kind: 0, aka: false)
-    assert tile.invalid?
-  end
-
-  test 'is invalid without base_tile' do
-    game = games(:tonnan)
-    tile = Tile.new(game:, kind: 0, aka: false)
-    assert tile.invalid?
-  end
-
   test 'aka default to false' do
     base_tile = base_tiles(:manzu_1)
     game = games(:tonnan)

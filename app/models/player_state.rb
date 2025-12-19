@@ -9,8 +9,6 @@ class PlayerState < ApplicationRecord
   has_many :melds, dependent: :destroy
 
   validates :riichi, inclusion: { in: [ true, false ] }
-  validates :player, presence: true
-  validates :step, presence: true
 
   scope :for_honba, ->(honba) {
     joins(step: :honba)

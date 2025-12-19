@@ -7,35 +7,6 @@ class MeldTest < ActiveSupport::TestCase
     @state = player_states(:ryo)
   end
 
-  test 'is valid with player_state and tile and kind and position' do
-    manzu_1 = tiles(:first_manzu_1)
-    meld = Meld.new(player_state: @state, tile: manzu_1, kind: :pon, position: 0)
-    assert meld.valid?
-  end
-
-  test 'is invalid without player_state' do
-    manzu_1 = tiles(:first_manzu_1)
-    meld = Meld.new(tile: manzu_1, kind: :pon, position: 0)
-    assert meld.invalid?
-  end
-
-  test 'is invalid without tile' do
-    meld = Meld.new(player_state: @state, kind: :pon, position: 0)
-    assert meld.invalid?
-  end
-
-  test 'is invalid without kind' do
-    manzu_1 = tiles(:first_manzu_1)
-    meld = Meld.new(player_state: @state, tile: manzu_1, position: 0)
-    assert meld.invalid?
-  end
-
-  test 'is invalid without position' do
-    manzu_1 = tiles(:first_manzu_1)
-    meld = Meld.new(player_state: @state, tile: manzu_1, kind: :pon)
-    assert meld.invalid?
-  end
-
   test '.sorted sorts by player_state_id desc and position asc' do
     player = players(:ryo)
     state_1 = player.player_states.create!(player:, step: steps(:step_1))

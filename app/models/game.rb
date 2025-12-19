@@ -34,8 +34,6 @@ class Game < ApplicationRecord
   has_many :rounds, -> { order(:number) }, dependent: :destroy
   has_many :tiles, dependent: :destroy
 
-  validates :game_mode, presence: true
-
   after_create :create_tiles_and_round
 
   def setup_players(user, ai)

@@ -11,8 +11,6 @@ class Tile < ApplicationRecord
 
   validates :kind, presence: true
   validates :aka, inclusion: { in: [ true, false ] }
-  validates :game, presence: true
-  validates :base_tile, presence: true
 
   def suit
     base_tile.suit
