@@ -5,6 +5,4 @@ class TileOrder < ApplicationRecord
   belongs_to :tile
 
   validates :order, presence: true
-  validates :honba, presence: true
-  validates :tile, presence: true
 end

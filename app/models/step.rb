@@ -7,7 +7,6 @@ class Step < ApplicationRecord
 
   before_validation :snapshot_honba_counters, on: :create
 
-  validates :honba, presence: true
   validates :number, presence: true
 
   private

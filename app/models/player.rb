@@ -23,7 +23,6 @@ class Player < ApplicationRecord
   has_many :game_records, -> { order(honba_id: :desc) }, dependent: :destroy
   has_many :player_states, -> { order(:step_id) }, dependent: :destroy
 
-  validates :game, presence: true
   validates :seat_order, presence: true
 
   validate :validate_player_type

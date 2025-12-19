@@ -9,7 +9,6 @@ class Round < ApplicationRecord
 
   has_many :honbas, -> { order(:number) }, dependent: :destroy
 
-  validates :game, presence: true
   validates :number, presence: true
 
   after_create :create_honba

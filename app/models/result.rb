@@ -6,6 +6,4 @@ class Result < ApplicationRecord
 
   validates :score, presence: true
   validates :rank, presence: true
-  validates :game, presence: true
-  validates :player, presence: true
 end
