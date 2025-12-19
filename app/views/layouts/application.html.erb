@@ -3,7 +3,7 @@
   <head>
     <% og_title = content_for?(:og_title) ? yield(:og_title) : (content_for?(:title) ? yield(:title) : "Tenpai Speeder") %>
     <% og_description = content_for?(:og_description) ? yield(:og_description) : (content_for?(:meta_description) ? yield(:meta_description) : 'Tenpai Speederは、麻雀中級者以下向けの打牌・牌効率トレーニングサービスです。ブラウザだけでリーチ判断や終盤判断をテンポ良く練習できます。') %>
-    <% og_image = content_for?(:og_image) ? yield(:og_image) : "#{request.base_url}/logo.png?v=2" %>
+    <% og_image = content_for?(:og_image) ? yield(:og_image) : "#{request.base_url}/logo.png?v=3" %>
     <% og_url = content_for?(:og_url) ? yield(:og_url) : request.original_url %>
     <title><%= og_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -29,9 +29,9 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="/logo.png" type="image/png">
+    <link rel="icon" href="/logo.png?v=3" type="image/png">
     <link rel="icon" href="/logo.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png?v=3">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
