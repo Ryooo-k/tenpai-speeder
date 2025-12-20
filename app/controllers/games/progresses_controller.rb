@@ -15,7 +15,7 @@ class Games::ProgressesController < ApplicationController
       format.html { redirect_to game_play_path(@game), flash: payloads }
     end
   rescue ActiveRecord::ActiveRecordError => e
-    Rails.logger.error("[GameFlow] ProgressesError: #{e.message} (#{e.class})")
+    Rails.logger.error("[GameFlow] ProgressError: #{e.message} (#{e.class})")
     respond_to do |format|
       format.turbo_stream do
         flash.now[:alert] = 'ゲームの復元に失敗しました。時間をおいて再度お試しください。'
