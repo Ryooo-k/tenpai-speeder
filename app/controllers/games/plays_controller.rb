@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Games::PlaysController < ApplicationController
+  include Games::PlaySupport
+
   before_action :set_game
   before_action :set_instance_variable, only: :show
 
@@ -36,105 +38,7 @@ class Games::PlaysController < ApplicationController
     end
   end
 
-  def undo
-    @game.undo_with_sync! if @game.can_undo?
-
-    payloads = { next_event: 'stop' }
-
-    respond_to do |format|
-      format.turbo_stream { render_play_update(payloads) }
-      format.html { redirect_to game_play_path(@game), flash: payloads }
-    end
-
-  rescue ActiveRecord::ActiveRecordError => e
-    Rails.logger.error("[GameFlow] UndoError: #{e.message} (#{e.class})")
-    respond_to do |format|
-      format.turbo_stream do
-        flash.now[:alert] = 'ゲームの復元に失敗しました。時間をおいて再度お試しください。'
-        render :error
-      end
-      format.html { redirect_to game_play_path(@game), alert: 'ゲームの復元に失敗しました。時間をおいて再度お試しください。' }
-    end
-  end
-
-  def redo
-    @game.redo_with_sync! if @game.can_redo?
-
-    payloads = { next_event: 'stop' }
-
-    respond_to do |format|
-      format.turbo_stream { render_play_update(payloads) }
-      format.html { redirect_to game_play_path(@game), flash: payloads }
-    end
-
-  rescue ActiveRecord::ActiveRecordError => e
-    Rails.logger.error("[GameFlow] RedoError: #{e.message} (#{e.class})")
-    respond_to do |format|
-      format.turbo_stream do
-        flash.now[:alert] = 'ゲームの復元に失敗しました。時間をおいて再度お試しください。'
-        render :error
-      end
-      format.html { redirect_to game_play_path(@game), alert: 'ゲームの復元に失敗しました。時間をおいて再度お試しください。' }
-    end
-  end
-
-  def playback
-    @game.playback_with_sync!
-
-    payloads = { next_event: @game.current_step.next_event }
-
-    respond_to do |format|
-      format.turbo_stream { render_play_update(payloads) }
-      format.html { redirect_to game_play_path(@game), flash: payloads }
-    end
-
-  rescue ActiveRecord::ActiveRecordError => e
-    Rails.logger.error("[GameFlow] PlayBackError: #{e.message} (#{e.class})")
-    respond_to do |format|
-      format.turbo_stream do
-        flash.now[:alert] = 'ゲームの復元に失敗しました。時間をおいて再度お試しください。'
-        render :error
-      end
-      format.html { redirect_to game_play_path(@game), alert: 'ゲームの復元に失敗しました。時間をおいて再度お試しください。' }
-    end
-  end
-
   private
-
-    def set_game
-      @game = Game.includes(
-        :game_mode,
-        { tiles: :base_tile },
-        { players: [
-          :user, :ai,
-          { game_records: :honba },
-          { player_states: [
-            { step: :honba },
-            { hands: { tile: :base_tile } },
-            { melds:  [ { tile: :base_tile } ] },
-            { rivers: { tile: :base_tile } }
-          ] }
-        ] },
-        { rounds: [
-            honbas: [
-              { tile_orders: { tile: :base_tile } },
-              :steps
-            ]
-        ] }
-      ).find(params[:game_id])
-    end
-
-    def set_instance_variable(payloads = nil)
-      data = payloads || flash.to_hash
-
-      data.each do |key, value|
-        name = key.to_s == 'next_event' ? 'event' : key
-        instance_variable_set("@#{name}", value)
-      end
-
-      @favorite = current_user&.favorites&.find_by(game: @game)
-      @can_playback = @event == 'stop' || @event.blank?
-    end
 
     def game_flow_params
       event = params.expect(:event)
@@ -183,10 +87,5 @@ class Games::PlaysController < ApplicationController
       end
 
       flow_requests
-    end
-
-    def render_play_update(payloads)
-      set_instance_variable(payloads)
-      render :update
     end
 end
