@@ -121,7 +121,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
     Rails.logger.stub(:error, ->(message) { log = message }) do
       Game.stub(:includes, ->(*) { relation_double }) do
-        post game_play_undo_path(@game)
+        patch game_play_backward_path(@game)
         assert_redirected_to game_play_path(@game)
         follow_redirect!
         assert_response :success
@@ -129,7 +129,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
 
     assert_includes @response.body, 'ゲームの復元に失敗しました。時間をおいて再度お試しください。'
-    assert_includes log, '[GameFlow] UndoError:'
+    assert_includes log, '[GameFlow] BackwardError:'
   end
 
   test 'redo redirects to play screen with alert when ActiveRecord error occurs' do
@@ -144,7 +144,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
     Rails.logger.stub(:error, ->(message) { log = message }) do
       Game.stub(:includes, ->(*) { relation_double }) do
-        post game_play_redo_path(@game)
+        patch game_play_progress_path(@game)
         assert_redirected_to game_play_path(@game)
         follow_redirect!
         assert_response :success
@@ -152,7 +152,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     end
 
     assert_includes @response.body, 'ゲームの復元に失敗しました。時間をおいて再度お試しください。'
-    assert_includes log, '[GameFlow] RedoError:'
+    assert_includes log, '[GameFlow] ProgressError:'
   end
 
   test 'playback redirects to play screen with alert when ActiveRecord error occurs' do
@@ -166,7 +166,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
 
     Rails.logger.stub(:error, ->(message) { log = message }) do
       Game.stub(:includes, ->(*) { relation_double }) do
-        post game_play_playback_path(@game)
+        patch game_play_playback_path(@game)
         assert_redirected_to game_play_path(@game)
         follow_redirect!
         assert_response :success
@@ -921,7 +921,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   end
 
   test 'play screen shows undo, playback, and redo disabled buttons' do
-    assert_dom 'form[action=?][data-testid=?]', game_play_undo_path(@game), 'undo' do
+    assert_dom 'form[action=?][data-testid=?]', game_play_backward_path(@game), 'undo' do
       assert_dom 'button[type=submit][disabled]', { text: '戻る', count: 1 }
     end
 
@@ -929,7 +929,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'button[type=submit][disabled]', { text: '▶︎', count: 1 }
     end
 
-    assert_dom 'form[action=?][data-testid=?]', game_play_redo_path(@game), 'redo' do
+    assert_dom 'form[action=?][data-testid=?]', game_play_progress_path(@game), 'redo' do
       assert_dom 'button[type=submit][disabled]', { text: '進む', count: 1 }
     end
   end
@@ -941,7 +941,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
 
-    assert_dom 'form[action=?][data-testid=?]', game_play_undo_path(@game), 'undo' do
+    assert_dom 'form[action=?][data-testid=?]', game_play_backward_path(@game), 'undo' do
       assert_dom 'button[type=submit]:not([disabled])', { text: '戻る', count: 1 }
     end
 
@@ -949,7 +949,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'button[type=submit][disabled]', { text: '▶︎', count: 1 }
     end
 
-    assert_dom 'form[action=?][data-testid=?]', game_play_redo_path(@game), 'redo' do
+    assert_dom 'form[action=?][data-testid=?]', game_play_progress_path(@game), 'redo' do
       assert_dom 'button[type=submit][disabled]', { text: '進む', count: 1 }
     end
   end
@@ -961,7 +961,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
 
-    post game_play_undo_path(@game)
+    patch game_play_backward_path(@game)
     assert_response :redirect
 
     follow_redirect!
@@ -971,7 +971,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'button[type=submit]:not([disabled])', { text: '▶︎', count: 1 }
     end
 
-    assert_dom 'form[action=?][data-testid=?]', game_play_redo_path(@game), 'redo' do
+    assert_dom 'form[action=?][data-testid=?]', game_play_progress_path(@game), 'redo' do
       assert_dom 'button[type=submit]:not([disabled])', { text: '進む', count: 1 }
     end
   end
@@ -1021,7 +1021,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     honba.steps.create!(number: 2)
     @game.update!(current_step_number: 0)
 
-    post game_play_playback_path(@game), params: { event: 'draw' }
+    patch game_play_playback_path(@game), params: { event: 'draw' }
     assert_redirected_to game_play_path(@game)
     @game.reload
 
