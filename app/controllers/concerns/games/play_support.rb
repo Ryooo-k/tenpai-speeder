@@ -44,4 +44,53 @@ module Games::PlaySupport
       set_instance_variable(payloads)
       render 'games/plays/update'
     end
+
+    def game_flow_params
+      event = params.expect(:event)
+      flow_requests = { event: }
+
+      case event.to_sym
+      when :confirm_tsumo
+        tsumo = params.expect(:tsumo)
+        flow_requests[:tsumo] = ActiveModel::Type::Boolean.new.cast(tsumo)
+      when :confirm_riichi
+        riichi = params.expect(:riichi)
+        flow_requests[:riichi] = ActiveModel::Type::Boolean.new.cast(riichi)
+      when :choose_riichi
+        riichi_candidate_ids = params.expect(riichi_candidate_ids: [])
+        flow_requests[:riichi_candidate_ids] = riichi_candidate_ids.map(&:to_i)
+      when :discard
+        chosen_hand_id = params.expect(:chosen_hand_id)
+        flow_requests[:chosen_hand_id] = chosen_hand_id.to_i
+      when :confirm_ron
+        discarded_tile_id, kakan, ron_player_ids = params.expect(:discarded_tile_id, :kakan, ron_player_ids: [])
+        flow_requests[:discarded_tile_id] = discarded_tile_id
+        flow_requests[:kakan] = ActiveModel::Type::Boolean.new.cast(kakan)
+        flow_requests[:ron_player_ids] = ron_player_ids.reject(&:blank?).map(&:to_i)
+      when :confirm_furo
+        furo = params.expect(:furo)
+        flow_requests[:furo] = ActiveModel::Type::Boolean.new.cast(furo)
+
+        if flow_requests[:furo]
+          discarded_tile_id, furo_type, furo_ids = params.expect(:discarded_tile_id, :furo_type, furo_ids: [])
+          flow_requests[:discarded_tile_id] = discarded_tile_id.to_i
+          flow_requests[:furo_type] = furo_type.to_s
+          flow_requests[:furo_ids] = furo_ids.map(&:to_i)
+        end
+      when :confirm_kan
+        kan = params.expect(:kan)
+        flow_requests[:kan] = ActiveModel::Type::Boolean.new.cast(kan)
+
+        if flow_requests[:kan]
+          kan_type, kan_ids = params.expect(:kan_type, kan_ids: [])
+          flow_requests[:kan_type] = kan_type.to_s
+          flow_requests[:kan_ids] = kan_ids.map(&:to_i)
+        end
+      when :result
+        ryukyoku = params.expect(:ryukyoku)
+        flow_requests[:ryukyoku] = ActiveModel::Type::Boolean.new.cast(ryukyoku)
+      end
+
+      flow_requests
+    end
 end
