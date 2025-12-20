@@ -18,9 +18,9 @@ Rails.application.routes.draw do
     scope module: :games do
       get  'play', to: 'plays#show',    as: :play
       post 'play', to: 'plays#command', as: :play_command
-      post 'play/undo', to: 'plays#undo', as: :play_undo
-      post 'play/redo', to: 'plays#redo', as: :play_redo
-      post 'play/playback', to: 'plays#playback', as: :play_playback
+      resource :backward, only: :update, path: 'play/backward', as: :play_backward
+      resource :progress, only: :update, path: 'play/progress', as: :play_progress
+      resource :playback, only: :update, path: 'play/playback', as: :play_playback
     end
   end
 end
