@@ -1,6 +1,6 @@
 <% if @refresh_header %>
   <%= turbo_stream.update dom_id(@game, :header) do %>
-    <%= render "header" %>
+    <%= render "games/plays/header" %>
   <% end %>
 <% end %>
 
@@ -14,10 +14,10 @@
   <% end %>
 <% else %>
   <%= turbo_stream.update dom_id(@game, :mahjong_table) do %>
-    <%= render "mahjong_table" %>
+    <%= render "games/plays/mahjong_table" %>
   <% end %>
 <% end %>
 
 <%= turbo_stream.update dom_id(@game, :tips) do %>
-  <%= render "tips" %>
+  <%= render "games/plays/tips" %>
 <% end %>
