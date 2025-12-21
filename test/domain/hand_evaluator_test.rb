@@ -906,6 +906,12 @@ class HandEvaluatorTest < ActiveSupport::TestCase
     assert_equal 0, result
   end
 
+  test '#calculate_shanten：雀頭候補が複数あるパターン' do
+    hands = set_hands('m1177 p778 s23334 z11', players(:ryo))
+    result = HandEvaluator.calculate_shanten(hands, @empty_melds)
+    assert_equal 2, result
+  end
+
   test '#calculate_shanten：槓子の副露面子を面子候補に使わず判定（面子3 雀頭無し 面子候補0）の向聴数 → 2' do
     hands = set_hands('m234 p259 z1', players(:ryo))
     melds = set_melds('m111- m2222-', players(:ryo))
