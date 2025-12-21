@@ -3,6 +3,10 @@
   is_back_board = local_assigns[:back_board] || !tile.present?
   class_name = local_assigns[:class_name]
   data = local_assigns[:data]
+  data_attrs = data.present? ? data.dup : {}
+  data_attrs[:rotated] = true if local_assigns[:rotated]
+  data_attrs[:kind] = local_assigns[:kind] if local_assigns[:kind]
+  data_attrs[:overlay] = true if local_assigns[:overlay]
 
   image_name =
     if is_back_board
@@ -19,4 +23,4 @@
     else
       "#{tile.suit}#{tile.number}の牌"
     end %>
-<%= image_tag(image_name, class: class_name, data: data.presence, alt: alt_text) %>
+<%= image_tag(image_name, class: class_name, data: data_attrs.presence, alt: alt_text) %>

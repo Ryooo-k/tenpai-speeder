@@ -1,4 +1,8 @@
-<div class="absolute <%= build_melds_position_class(player) %>">
+<div class="absolute <%= build_melds_position_class(player) %>"
+    data-testid="player-melds"
+    data-player-id="<%= player.id %>"
+    data-player-relation="<%= player.relation_from_user %>"
+    aria-label="副露">
   <% kakan_by_code = player.melds.select { |m| m.kind == 'kakan' }.group_by(&:code) %>
   <div class="flex gap-[0.1cqw]">
     <% player.melds.reject(&:kakan?).each do |meld| %>
@@ -12,7 +16,8 @@
                         rotated: meld.from?,
                         red: meld.tile.aka?,
                         back_board:,
-                        class_name: "block h-auto max-h-full w-full"
+                        class_name: "block h-auto max-h-full w-full",
+                        data: { meld_id: meld.id, kind: meld.kind }
                       } %>
         </div>
 
@@ -24,7 +29,9 @@
                           tile: overlay,
                           rotated: true,
                           red: overlay.tile.aka?,
-                          class_name: "block h-auto max-h-full w-full"
+                          class_name: "block h-auto max-h-full w-full",
+                          data: { meld_id: overlay.id, kind: overlay.kind },
+                          overlay: true
                         } %>
           </div>
         <% end %>

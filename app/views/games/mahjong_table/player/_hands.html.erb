@@ -1,4 +1,7 @@
-<div class="absolute origin-top-left <%= build_hand_position_class(player) %>">
+<div class="absolute origin-top-left <%= build_hand_position_class(player) %>"
+    data-testid="player-hands"
+    data-player-id="<%= player.id %>"
+    data-player-relation="<%= player.relation_from_user %>">
   <% needs_form = discard_form_needed?(@event, player) %>
   <% partial_path = build_hand_partial_path(@event, @game, player) %>
   <% row_classes = build_hand_row_classes(player, needs_form) %>
