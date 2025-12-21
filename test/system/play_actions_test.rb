@@ -9,7 +9,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     login_with_google users(:ryo)
     visit home_path
     find("button[aria-label*='1局戦']").click
-    assert_text 'ROUND'
+    assert_current_path(%r{/games/\d+/play})
 
     page.refresh # イベント発火を停止し、ゲームを一時停止状態にする。
 
@@ -87,6 +87,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     assert_selector hands_selector, count: 13
 
     click_button '▶︎'
+    assert_selector 'div[aria-label="副露の選択肢"]'
     click_button 'スルー'
 
     assert_selector hands_selector, count: 14
@@ -195,6 +196,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     assert_selector hands_selector, count: 13
 
     click_button '▶︎'
+    assert_selector 'div[aria-label="副露の選択肢"]'
     click_button 'スルー'
 
     assert_selector hands_selector, count: 14
@@ -314,6 +316,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     assert_selector hands_selector, count: 13
 
     click_button '▶︎'
+    assert_selector 'div[aria-label="副露の選択肢"]'
     click_button 'スルー'
 
     assert_selector hands_selector, count: 14
@@ -433,6 +436,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     assert_selector hands_selector, count: 13
 
     click_button '▶︎'
+    assert_selector 'div[aria-label="副露の選択肢"]'
     click_button 'スルー'
 
     assert_selector hands_selector, count: 14
@@ -522,6 +526,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     assert_selector hands_selector, count: 13
 
     click_button '▶︎'
+    assert_selector 'div[aria-label="ロンの選択肢"]'
     click_button 'スルー'
 
     hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
