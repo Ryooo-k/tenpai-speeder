@@ -16,7 +16,8 @@
                         rotated: meld.from?,
                         red: meld.tile.aka?,
                         back_board:,
-                        class_name: "block h-auto max-h-full w-full"
+                        class_name: "block h-auto max-h-full w-full",
+                        data: { meld_id: meld.id, kind: meld.kind }
                       } %>
         </div>
 
@@ -28,7 +29,9 @@
                           tile: overlay,
                           rotated: true,
                           red: overlay.tile.aka?,
-                          class_name: "block h-auto max-h-full w-full"
+                          class_name: "block h-auto max-h-full w-full",
+                          data: { meld_id: overlay.id, kind: overlay.kind },
+                          overlay: true
                         } %>
           </div>
         <% end %>
