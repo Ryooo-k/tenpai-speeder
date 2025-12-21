@@ -12,7 +12,14 @@
                           furo_type: furo_name,
                           furo_ids: chi_combinations.map(&:id)
                           },
-                        form: { data: { testid: "furo_combinations" } },
+                        form: {
+                          id: "furo-#{furo_name}-#{chi_combinations.map(&:id).join('-')}",
+                          data: {
+                            testid: "furo_combinations",
+                            furo_type: furo_name,
+                            furo_ids: chi_combinations.map(&:id).join('-')
+                          }
+                        },
                         class: "inline-flex items-end gap-1 rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" do %>
             <% chi_combinations.each do |hand| %>
               <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.tile.aka?, class_name: "w-[3.0cqw]" } %>
@@ -21,14 +28,21 @@
         <% end %>
       <% when :pon, :daiminkan %>
         <%= button_to game_play_command_path(@game),
-                      params: {
-                        event: "confirm_furo",
-                        discarded_tile_id: @discarded_tile_id,
-                        furo: true,
-                        furo_type: furo_name,
-                        furo_ids: furo_combinations.map(&:id)
+                        params: {
+                          event: "confirm_furo",
+                          discarded_tile_id: @discarded_tile_id,
+                          furo: true,
+                          furo_type: furo_name,
+                          furo_ids: furo_combinations.map(&:id)
+                          },
+                        form: {
+                          id: "furo-#{furo_name}-#{furo_combinations.map(&:id).join('-')}",
+                          data: {
+                            testid: "furo_combinations",
+                            furo_type: furo_name,
+                            furo_ids: furo_combinations.map(&:id).join('-')
+                          }
                         },
-                        form: { data: { testid: "furo_combinations" } },
                       class: "inline-flex items-end gap-1 rounded border px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" do %>
           <% furo_combinations.each do |hand| %>
             <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.tile.aka?, class_name: "w-[3.0cqw]" } %>
