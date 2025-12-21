@@ -50,6 +50,8 @@ module HandEvaluator
         end
       end
     end
+    # [5, 2, 2, 5]などのあり得ない和了形が残ってしまうため、雀頭が一つの配列のみ残す。
+    patterns.delete_if { |numbers| numbers.map { |number| number % 3 }.sum != 2 }
     patterns.freeze
   end
 
