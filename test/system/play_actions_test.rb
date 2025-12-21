@@ -72,7 +72,7 @@ class PlayActionsTest < ApplicationSystemTestCase
       meld_tiles = all('img', minimum: 3)
       assert_equal 'manzu1の牌', meld_tiles.first[:alt]
       assert_equal 'true', meld_tiles.first['data-rotated']
-      assert_equal ['manzu2の牌', 'manzu3の牌'], meld_tiles[1..2].map { |img| img[:alt] }
+      assert_equal [ 'manzu2の牌', 'manzu3の牌' ], meld_tiles[1..2].map { |img| img[:alt] }
     end
   end
 
@@ -130,7 +130,7 @@ class PlayActionsTest < ApplicationSystemTestCase
       meld_tiles = all('img', minimum: 3)
       assert_equal 'pinzu1の牌', meld_tiles.first[:alt]
       assert_equal 'true', meld_tiles.first['data-rotated']
-      assert_equal ['pinzu1の牌', 'pinzu1の牌'], meld_tiles[1..2].map { |img| img[:alt] }
+      assert_equal [ 'pinzu1の牌', 'pinzu1の牌' ], meld_tiles[1..2].map { |img| img[:alt] }
     end
   end
 
@@ -180,7 +180,7 @@ class PlayActionsTest < ApplicationSystemTestCase
       meld_tiles = all('img', minimum: 4)
       assert_equal 'pinzu1の牌', meld_tiles.first[:alt]
       assert_equal 'true', meld_tiles.first['data-rotated']
-      assert_equal ['pinzu1の牌', 'pinzu1の牌', 'pinzu1の牌'], meld_tiles[1..3].map { |img| img[:alt] }
+      assert_equal [ 'pinzu1の牌', 'pinzu1の牌', 'pinzu1の牌' ], meld_tiles[1..3].map { |img| img[:alt] }
     end
   end
 
@@ -249,7 +249,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     within "div[data-testid=\"player-melds\"][data-player-id=\"#{@user.id}\"]" do
       meld_tiles = all('img', minimum: 3)
-      assert_equal ['pinzu1の牌', 'pinzu1の牌', 'pinzu1の牌'], meld_tiles.map { |img| img[:alt] }
+      assert_equal [ 'pinzu1の牌', 'pinzu1の牌', 'pinzu1の牌' ], meld_tiles.map { |img| img[:alt] }
       assert_equal 'true', meld_tiles[1]['data-rotated']
     end
   end
@@ -347,7 +347,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     pon_form_id = "furo-pon-#{pinzu_1_a.id}-#{pinzu_1_b.id}"
     within "form##{pon_form_id}" do
-      assert_selector 'img[alt="pinzu1の牌"]' , count: 2
+      assert_selector 'img[alt="pinzu1の牌"]', count: 2
     end
     assert_text 'スルー'
   end
@@ -368,7 +368,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     within "div[data-testid=\"player-melds\"][data-player-id=\"#{@user.id}\"]" do
       meld_tiles = all('img', minimum: 3)
-      assert_equal ['pinzu1の牌', 'pinzu1の牌', 'pinzu1の牌'], meld_tiles.map { |img| img[:alt] }
+      assert_equal [ 'pinzu1の牌', 'pinzu1の牌', 'pinzu1の牌' ], meld_tiles.map { |img| img[:alt] }
       assert_equal 'true', meld_tiles.last['data-rotated']
     end
   end
