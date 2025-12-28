@@ -29,13 +29,13 @@ end
 
 group :development, :test do
   gem 'debug', platforms: %i[ mri windows ], require: 'debug/prelude'
-  gem 'brakeman', '~> 7.1.0', require: false
-  gem 'rubocop-rails-omakase', require: false
 end
 
 group :development do
   gem 'web-console'
   gem 'erb_lint', require: false
+  gem 'brakeman', '~> 7.1.0', require: false
+  gem 'rubocop-rails-omakase', require: false
 end
 
 group :test do
