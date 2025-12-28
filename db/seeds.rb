@@ -2,11 +2,11 @@
 
 require 'active_record/fixtures'
 
-normal_fixtures = %i[
+fixture_names = %i[
   ais
   users
   game_modes
   base_tiles
 ]
 
-ActiveRecord::FixtureSet.create_fixtures 'db/fixtures', normal_fixtures
+ActiveRecord::FixtureSet.create_fixtures 'db/fixtures', fixture_names
