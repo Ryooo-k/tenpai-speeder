@@ -20,11 +20,16 @@ class PlayActionsTest < ApplicationSystemTestCase
     @kamicha  = @game.ais.detect { |ai| ai.relation_from_user == :kamicha }
 
     # AIの choose を手牌からのランダム選択に差し替える
+    @original_choose = Player.instance_method(:choose)
     Player.class_eval do
       def choose
         hands.sample
       end
     end
+  end
+
+  def teardown
+    Player.define_method(:choose, @original_choose) if @original_choose
   end
 
   def find_game
