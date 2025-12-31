@@ -6,23 +6,23 @@ Tenpai Speederは、聴牌に近づくための切り方を視覚的に学べる
 
 1. 遊びたいゲームモードを選択します。
 
-![ゲームモード選択画面](game_mode.png)
+![ゲームモード選択画面](.github/images/game_mode.png)
 
 2. ゲームが開始されますので、打牌選択、ポン、チー、カンを駆使して和了を目指しましょう。
 
-![プレイ中](game_play.png)
+![プレイ中](.github/images/game_play.png)
 
 3. 特定の局面まで戻りたい場合、「戻る」ボタンを押してゲームを巻き戻しすることも可能です。
 
-![戻る](undo.png)
+![戻る](.github/images/undo.png)
 
 4. 戻りたい局面まで戻せたら「▶︎」ボタンを押してゲームを再開しましょう。
 
-![再生](playback.png)
+![再生](.github/images/playback.png)
 
 5. SNSログインの場合、お気に入りに追加することができます。気になった対局があれば、お気に入りに追加しましょう。
 
-![お気に入りに追加](favorite.png)
+![お気に入りに追加](.github/images/favorite.png)
 
 
 ## セットアップ
