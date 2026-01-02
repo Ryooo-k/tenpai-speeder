@@ -4,7 +4,7 @@ module GameTestHelper
   RELATION_BY_MARK = { '-' => :shimocha, '=' => :toimen, '+' => :kamicha, '_' => :self }.freeze
   NORMAL_RELATION_INDEX = { shimocha: 0, toimen: 1, kamicha: 2 }.freeze
   ABNORMAL_RELATION_INDEX = { shimocha: 0, toimen: 1, kamicha: 3 }.freeze
-  SUIT_NAMES  = { 'm' => 'manzu', 'p' => 'pinzu', 's' => 'souzu', 'z' => 'zihai' }.freeze
+  SUIT_NAMES = { 'm' => 'manzu', 'p' => 'pinzu', 's' => 'souzu', 'z' => 'zihai' }.freeze
   CHI_RE = /\A([mps])(?:[1-9]\+[1-9]{2}|[1-9]{2}\+[1-9]|[1-9]{3}\+)\z/
   MPS_TRIPLET_OR_QUAD_RE = /\A(?<suit>[mps])(?<number>[1-9])\k<number>{2,3}(?<rel>[+=-])?\z/
   Z_TRIPLET_OR_QUAD_RE   = /\A(?<suit>z)(?<number>[1-7])\k<number>{2,3}(?<rel>[+=-])?\z/
