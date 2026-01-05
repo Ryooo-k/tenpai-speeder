@@ -8,7 +8,7 @@
         <p class="text-xs font-semibold tracking-[0.15em] text-cyan-200/80">ROUND</p>
         <div class="flex flex-wrap items-baseline gap-3">
           <span class="text-xl font-semibold text-slate-50 tracking-[0.2em]"><%= @game.latest_round.name %></span>
-          <span class="text-lg font-medium text-slate-400 tracking-[0.12em]"><%= @game.current_honba_name %></span>
+          <span class="text-lg font-medium text-slate-400 tracking-[0.12em]"><%= @game.latest_honba.name %></span>
         </div>
         <p class="text-xs text-slate-400">
           <span class="font-semibold text-slate-200 tracking-[0.12em]"><%= mode&.name || "Game Mode" %></span>
