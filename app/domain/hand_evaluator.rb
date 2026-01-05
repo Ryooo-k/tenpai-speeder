@@ -20,15 +20,11 @@ module HandEvaluator
   SUUHAI_SUIT_RE = /[mps]/
   WINDS = %w[東 南 西 北]
   SUUHAI_SUITS = %w[m p s]
-  MANZU_SUIT = 'm'
-  PINZU_SUIT = 'p'
-  SOUZU_SUIT = 's'
   ZIHAI_SUIT = 'z'
   AGARI_DISTANCE_MAP = JSON.parse(Rails.root.join('app/domain', 'agari_distance_map.json').read).freeze
   CHIITOITSU_PAIR_COUNT = 7
   KOKUSHI_TILE_CODES = [ 0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33 ].freeze
   MAX_SHANTEN_COUNT = 13
-  MAX_RIICHI_CANDIDATE_COUNT = 2
 
   # 面子手の向聴数を計算するのに使用するリスト
   # [ manzu, pinzu, souzu, zihai, melds ] の和了枚数テーブル
