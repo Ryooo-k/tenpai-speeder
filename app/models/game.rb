@@ -148,10 +148,6 @@ class Game < ApplicationRecord
     latest_round.latest_honba
   end
 
-  def current_round_name
-    latest_round.name
-  end
-
   def round_wind_number
     latest_round.wind_number
   end

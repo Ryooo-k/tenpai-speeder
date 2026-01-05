@@ -277,17 +277,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal expected, @game.latest_honba
   end
 
-  test '#current_round_name' do
-    @game.latest_round.update!(number: 0)
-    assert_equal '東一局', @game.current_round_name
-
-    @game.latest_round.update!(number: 1)
-    assert_equal '東二局', @game.current_round_name
-
-    @game.latest_round.update!(number: 4)
-    assert_equal '南一局', @game.current_round_name
-  end
-
   test '#current_honba_name' do
     @game.latest_honba.update!(number: 0)
     assert_equal '〇本場', @game.current_honba_name
