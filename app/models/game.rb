@@ -326,29 +326,29 @@ class Game < ApplicationRecord
 
   def undo_with_sync!
     ActiveRecord::Base.transaction do
-      undo_step!
-      sync_current_seat!
-      sync_draw_count!
-      sync_kan_count!
-      sync_riichi_count!
+      update!(current_step_number: current_step_number - 1)
+      update!(current_seat_number: current_step.player_states.first.player.seat_order)
+      latest_honba.update!(draw_count: current_step.draw_count)
+      latest_honba.update!(kan_count: current_step.kan_count)
+      latest_honba.update!(riichi_stick_count: current_step.riichi_stick_count)
     end
   end
 
   def redo_with_sync!
     ActiveRecord::Base.transaction do
-      redo_step!
-      sync_current_seat!
-      sync_draw_count!
-      sync_kan_count!
-      sync_riichi_count!
+      update!(current_step_number: current_step_number + 1)
+      update!(current_seat_number: current_step.player_states.first.player.seat_order)
+      latest_honba.update!(draw_count: current_step.draw_count)
+      latest_honba.update!(kan_count: current_step.kan_count)
+      latest_honba.update!(riichi_stick_count: current_step.riichi_stick_count)
     end
   end
 
   def playback_with_sync!
     ActiveRecord::Base.transaction do
       destroy_future_steps!
-      reset_point!
-      reset_riichi_state!
+      players.each { |player| player.latest_game_record.update!(point: 0) }
+      current_player.current_state.update!(riichi: false)
     end
   end
 
@@ -470,44 +470,11 @@ class Game < ApplicationRecord
       end
     end
 
-    def undo_step!
-      update!(current_step_number: current_step_number - 1)
-    end
-
-    def redo_step!
-      update!(current_step_number: current_step_number + 1)
-    end
-
-    def sync_current_seat!
-      target_seat_number = current_step.player_states.first.player.seat_order
-      update!(current_seat_number: target_seat_number)
-    end
-
-    def sync_draw_count!
-      latest_honba.update!(draw_count: current_step.draw_count)
-    end
-
-    def sync_kan_count!
-      latest_honba.update!(kan_count: current_step.kan_count)
-    end
-
-    def sync_riichi_count!
-      latest_honba.update!(riichi_stick_count: current_step.riichi_stick_count)
-    end
-
     def destroy_future_steps!
       future_steps = latest_honba.steps.where('number > ?', current_step_number)
 
       ActiveRecord::Base.transaction do
         future_steps.find_each { |future_step| future_step.destroy! }
       end
-    end
-
-    def reset_point!
-      players.each { |player| player.latest_game_record.update!(point: 0) }
-    end
-
-    def reset_riichi_state!
-      current_player.current_state.update!(riichi: false)
     end
 end

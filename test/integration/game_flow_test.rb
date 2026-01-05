@@ -158,7 +158,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   test 'playback redirects to play screen with alert when ActiveRecord error occurs' do
     log = ''
     failing_game = @game
-    def failing_game.reset_riichi_state! = raise ActiveRecord::StatementInvalid
+    def failing_game.playback_with_sync! = raise ActiveRecord::StatementInvalid
 
     relation_double = Struct.new(:game) do
       def find(*) = game
