@@ -132,7 +132,7 @@ class GameFlow
 
     def rinshan_draw
       next_step = @game.advance_step!
-      @game.current_player.draw(@game.rinshan_tile, next_step, rinshan: true)
+      @game.current_player.draw(@game.latest_honba.rinshan_tile, next_step, rinshan: true)
 
       if @game.current_player.can_tsumo?
         next_event = 'confirm_tsumo'

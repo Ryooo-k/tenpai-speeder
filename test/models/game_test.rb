@@ -216,25 +216,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_step_number + 1, @game.current_step_number
   end
 
-  test '#rinshan_tile delegates to latest_honba.rinshan_tile' do
-    honba = @game.latest_honba
-    honba.update!(kan_count: 1)
-    expected = honba.tile_orders.find_by(order: 122).tile
-    assert_equal expected, @game.rinshan_tile
-
-    honba.update!(kan_count: 2)
-    expected = honba.tile_orders.find_by(order: 123).tile
-    assert_equal expected, @game.rinshan_tile
-
-    honba.update!(kan_count: 3)
-    expected = honba.tile_orders.find_by(order: 124).tile
-    assert_equal expected, @game.rinshan_tile
-
-    honba.update!(kan_count: 4)
-    expected = honba.tile_orders.find_by(order: 125).tile
-    assert_equal expected, @game.rinshan_tile
-  end
-
   test '#discard_for_current_player moves tile from hands to rivers' do
     current_player = @game.current_player
     manzu_1, manzu_2 = set_hands('m12', current_player)
