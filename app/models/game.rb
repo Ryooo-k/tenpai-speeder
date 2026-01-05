@@ -148,14 +148,6 @@ class Game < ApplicationRecord
     latest_round.latest_honba
   end
 
-  def remaining_tile_count
-    latest_honba.remaining_tile_count
-  end
-
-  def live_wall_empty?
-    remaining_tile_count.zero?
-  end
-
   def draw_count
     latest_honba.draw_count
   end
