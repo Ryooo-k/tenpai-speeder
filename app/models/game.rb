@@ -148,10 +148,6 @@ class Game < ApplicationRecord
     latest_round.latest_honba
   end
 
-  def riichi_stick_count
-    latest_honba.riichi_stick_count
-  end
-
   def remaining_tile_count
     latest_honba.remaining_tile_count
   end
