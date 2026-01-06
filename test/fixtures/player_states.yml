@@ -4,16 +4,16 @@ ryo:
   riichi: false
 
 ai_1:
-  step: step_2
+  step: step_1
   player: ai_1
   riichi: false
 
 ai_2:
-  step: step_3
+  step: step_1
   player: ai_2
   riichi: false
 
 ai_3:
-  step: step_4
+  step: step_1
   player: ai_3
   riichi: false

@@ -52,7 +52,7 @@ class SituationalYakuListBuilder
     end
 
     def haitei_tsumo?
-      game.latest_honba.remaining_tile_count.zero? && complete?
+      game.remaining_tile_count.zero? && complete?
     end
 
     def houtei_ron?(tile)
@@ -60,7 +60,7 @@ class SituationalYakuListBuilder
 
       test_hands = hands + [ tile ]
       shanten = HandEvaluator.calculate_shanten(test_hands, melds)
-      game.latest_honba.remaining_tile_count.zero? && shanten.negative?
+      game.remaining_tile_count.zero? && shanten.negative?
     end
 
     def rinshan_tsumo?
