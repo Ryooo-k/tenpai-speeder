@@ -158,7 +158,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
   test 'playback redirects to play screen with alert when ActiveRecord error occurs' do
     log = ''
     failing_game = @game
-    def failing_game.reset_riichi_state! = raise ActiveRecord::StatementInvalid
+    def failing_game.playback_with_sync! = raise ActiveRecord::StatementInvalid
 
     relation_double = Struct.new(:game) do
       def find(*) = game
@@ -188,9 +188,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert @game.game_end?
 
     payloads = nil
-    @game.stub(:host_winner?, false) do
-      payloads = GameFlow.new(@game).run({ event: :result, ryukyoku: false })
-    end
+    payloads = GameFlow.new(@game).run({ event: :result, ryukyoku: false })
 
     assert_equal 'game_end', payloads[:next_event]
   end
@@ -206,9 +204,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert game.game_end?
 
     payloads = nil
-    game.stub(:host_winner?, false) do
-      payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
-    end
+    payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
 
     assert_equal 'game_end', payloads[:next_event]
   end
@@ -220,9 +216,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert game.game_end?
 
     payloads = nil
-    game.stub(:host_winner?, false) do
-      payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
-    end
+    payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
 
     assert_equal 'game_end', payloads[:next_event]
   end
@@ -235,9 +229,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert game.game_end?
 
     payloads = nil
-    game.stub(:host_winner?, false) do
-      payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
-    end
+    payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
 
     assert_equal 'game_end', payloads[:next_event]
   end
@@ -323,7 +315,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     is_furo = @game.user_player.can_furo?(chosen_hand.tile, @game.current_player)
     assert_not ron_eligible_players.present?
     assert_not is_furo
-    assert_not @game.live_wall_empty?
+    assert_not @game.latest_honba.remaining_tile_count.zero?
 
     @game.reload
     assert_equal next_player, @game.current_player
@@ -1528,7 +1520,6 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     child.game_records.last.update!(point: 1)
 
     @game.reload
-    assert_not @game.host_winner?
     assert @game.game_end?
 
     post game_play_command_path(@game), params: { event: 'result', ryukyoku: false }

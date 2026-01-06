@@ -28,11 +28,11 @@
         <div class="grid grid-cols-2 text-[clamp(0.4rem,1.2cqw,1rem)]">
           <div>
             <p class="text-emerald-300">残</p>
-            <p class="mt-[0.6cqw] text-[clamp(1.0rem,2cqw,1.8rem)] font-semibold"><%= @game.remaining_tile_count %></p>
+            <p class="mt-[0.6cqw] text-[clamp(1.0rem,2cqw,1.8rem)] font-semibold"><%= @game.latest_honba.remaining_tile_count %></p>
           </div>
           <div>
             <p class="text-emerald-300">リーチ棒</p>
-            <p class="mt-[0.6cqw] text-[clamp(1.0rem,2cqw,1.8rem)] font-semibold"><%= @game.riichi_stick_count %></p>
+            <p class="mt-[0.6cqw] text-[clamp(1.0rem,2cqw,1.8rem)] font-semibold"><%= @game.latest_honba.riichi_stick_count %></p>
           </div>
         </div>
       </div>

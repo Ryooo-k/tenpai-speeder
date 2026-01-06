@@ -36,7 +36,7 @@ module MahjongAi
                                   encode_rivers(player.rivers)
                                 end.compact.flatten
 
-          game_states = [ game.remaining_tile_count / NORMALIZATION_DRAW_COUNT ]
+          game_states = [ game.latest_honba.remaining_tile_count / NORMALIZATION_DRAW_COUNT ]
 
           states = main_player_states + other_player_states + game_states
           Torch.tensor(states, dtype: :float32)
