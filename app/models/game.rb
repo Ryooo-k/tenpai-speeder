@@ -164,10 +164,6 @@ class Game < ApplicationRecord
     current_player.draw(top_tile, next_step)
   end
 
-  def rinshan_tile
-    latest_honba.rinshan_tile
-  end
-
   def discard_for_current_player(hand_id)
     next_step = advance_step!
     current_player.discard(hand_id, next_step)
