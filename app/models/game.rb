@@ -148,10 +148,6 @@ class Game < ApplicationRecord
     latest_round.latest_honba
   end
 
-  def draw_count
-    latest_honba.draw_count
-  end
-
   def advance_current_player!
     next_seat_number = (current_seat_number + 1) % PLAYERS_COUNT
     update!(current_seat_number: next_seat_number)

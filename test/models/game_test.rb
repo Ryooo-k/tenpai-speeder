@@ -136,10 +136,10 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#deal_initial_hands increases draw count(13 x 4 = 52)' do
-    assert_equal 0, @game.draw_count
+    assert_equal 0, @game.latest_honba.draw_count
 
     @game.deal_initial_hands
-    assert_equal 52, @game.draw_count
+    assert_equal 52, @game.latest_honba.draw_count
   end
 
   test '#deal_initial_hands creates new state' do
@@ -205,9 +205,9 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#draw_for_current_player increments draw_count' do
-    before_draw_count = @game.draw_count
+    before_draw_count = @game.latest_honba.draw_count
     @game.draw_for_current_player
-    assert_equal before_draw_count + 1, @game.draw_count
+    assert_equal before_draw_count + 1, @game.latest_honba.draw_count
   end
 
   test '#draw_for_current_player increments current_step_number and creates new step' do
