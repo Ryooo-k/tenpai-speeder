@@ -152,10 +152,6 @@ class Game < ApplicationRecord
     latest_round.wind_number
   end
 
-  def current_honba_name
-    latest_honba.name
-  end
-
   def riichi_stick_count
     latest_honba.riichi_stick_count
   end

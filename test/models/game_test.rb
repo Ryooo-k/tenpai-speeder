@@ -277,17 +277,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal expected, @game.latest_honba
   end
 
-  test '#current_honba_name' do
-    @game.latest_honba.update!(number: 0)
-    assert_equal '〇本場', @game.current_honba_name
-
-    @game.latest_honba.update!(number: 1)
-    assert_equal '一本場', @game.current_honba_name
-
-    @game.latest_honba.update!(number: 4)
-    assert_equal '四本場', @game.current_honba_name
-  end
-
   test '#current_step' do
     target_number = 2
     @game.update!(current_step_number: target_number)
