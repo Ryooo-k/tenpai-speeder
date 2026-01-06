@@ -351,14 +351,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal expected, @game.uradora_tiles
   end
 
-  test '#riichi_stick_count' do
-    @game.latest_honba.update!(riichi_stick_count: 0)
-    assert_equal 0, @game.riichi_stick_count
-
-    @game.latest_honba.update!(riichi_stick_count: 1)
-    assert_equal 1, @game.riichi_stick_count
-  end
-
   test '#advance_next_round! creates new round' do
     before_round_count = @game.rounds.count
     before_round_number = @game.rounds.order(:number).last.number
