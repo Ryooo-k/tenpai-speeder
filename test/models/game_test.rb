@@ -285,18 +285,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal expected_step, @game.current_step
   end
 
-  test '#remaining_tile_count' do
-    @game.latest_honba.update!(draw_count: 0)
-    @game.latest_honba.update!(kan_count: 0)
-    assert_equal 122, @game.remaining_tile_count
-
-    @game.latest_honba.update!(draw_count: 10)
-    assert_equal 112, @game.remaining_tile_count
-
-    @game.latest_honba.update!(kan_count: 2)
-    assert_equal 110, @game.remaining_tile_count
-  end
-
   test '#dora_indicator_tiles' do
     @game.latest_honba.update!(kan_count: 0)
     assert_equal [ Tile, NilClass, NilClass, NilClass, NilClass ], @game.dora_indicator_tiles.map(&:class)

@@ -323,7 +323,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     is_furo = @game.user_player.can_furo?(chosen_hand.tile, @game.current_player)
     assert_not ron_eligible_players.present?
     assert_not is_furo
-    assert_not @game.live_wall_empty?
+    assert_not @game.latest_honba.remaining_tile_count.zero?
 
     @game.reload
     assert_equal next_player, @game.current_player
