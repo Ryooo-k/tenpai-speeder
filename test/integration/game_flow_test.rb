@@ -188,9 +188,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert @game.game_end?
 
     payloads = nil
-    @game.stub(:host_winner?, false) do
-      payloads = GameFlow.new(@game).run({ event: :result, ryukyoku: false })
-    end
+    payloads = GameFlow.new(@game).run({ event: :result, ryukyoku: false })
 
     assert_equal 'game_end', payloads[:next_event]
   end
@@ -206,9 +204,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert game.game_end?
 
     payloads = nil
-    game.stub(:host_winner?, false) do
-      payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
-    end
+    payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
 
     assert_equal 'game_end', payloads[:next_event]
   end
@@ -220,9 +216,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert game.game_end?
 
     payloads = nil
-    game.stub(:host_winner?, false) do
-      payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
-    end
+    payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
 
     assert_equal 'game_end', payloads[:next_event]
   end
@@ -235,9 +229,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     assert game.game_end?
 
     payloads = nil
-    game.stub(:host_winner?, false) do
-      payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
-    end
+    payloads = GameFlow.new(game).run({ event: :result, ryukyoku: false })
 
     assert_equal 'game_end', payloads[:next_event]
   end
@@ -1528,7 +1520,6 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     child.game_records.last.update!(point: 1)
 
     @game.reload
-    assert_not @game.host_winner?
     assert @game.game_end?
 
     post game_play_command_path(@game), params: { event: 'result', ryukyoku: false }
