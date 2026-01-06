@@ -256,28 +256,14 @@ class Player < ApplicationRecord
     return false unless complete?
 
     situational_yaku_list = build_situational_yaku_list
-    HandEvaluator.can_tsumo?(
-      hands,
-      melds,
-      game.latest_round.wind_number,
-      wind_number,
-      situational_yaku_list
-    )
+    HandEvaluator.can_tsumo?(hands, melds, game.round_wind_number, wind_number, situational_yaku_list)
   end
 
   def can_ron?(tile)
     return false if !tenpai? || furiten?
 
     situational_yaku_list = build_situational_yaku_list(tile:)
-    HandEvaluator.can_ron?(
-      hands,
-      melds,
-      tile,
-      relation_from_current_player,
-      game.latest_round.wind_number,
-      wind_number,
-      situational_yaku_list
-    )
+    HandEvaluator.can_ron?(hands, melds, tile, relation_from_current_player, game.round_wind_number, wind_number, situational_yaku_list)
   end
 
   def score_statements(tile: nil, kakan: false)
@@ -291,7 +277,7 @@ class Player < ApplicationRecord
       melds,
       agari_tile,
       relation_from_current_player,
-      game.latest_round.wind_number,
+      game.round_wind_number,
       wind_number,
       situational_yaku_list,
       dora_count_list
@@ -361,7 +347,7 @@ class Player < ApplicationRecord
       score_statements = HandEvaluator.get_score_statements(
         target_hands, melds,
         wining_tile, relation,
-        game.latest_round.wind_number,
+        game.round_wind_number,
         wind_number,
         situational_yaku_list,
         dora_count_list
