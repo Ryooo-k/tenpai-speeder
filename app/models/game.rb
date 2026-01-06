@@ -202,13 +202,10 @@ class Game < ApplicationRecord
   def build_ron_score_statements(discarded_tile_id, ron_player_ids, kakan)
     ron_players = where_players(ron_player_ids)
     tile = find_tile(discarded_tile_id)
-    score_statement_table = {}
 
-    ron_players.each do |player|
-      score_statements = player.score_statements(tile:, kakan:)
-      score_statement_table[player.id] = score_statements
+    ron_players.to_h do |player|
+      [ player.id, player.score_statements(tile:, kakan:) ]
     end
-    score_statement_table
   end
 
   def give_ron_point(score_statement_table)
