@@ -288,8 +288,8 @@ class Game < ApplicationRecord
     latest_honba.steps.create!(number: next_step_number)
   end
 
-  def sukantsu_ryukyoku?
-    latest_honba.kan_count == MAX_KAN_COUNT
+  def ryukyoku?
+    latest_honba.kan_count == MAX_KAN_COUNT || latest_honba.remaining_tile_count.zero?
   end
 
   def undo_with_sync!

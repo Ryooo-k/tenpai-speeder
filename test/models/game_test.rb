@@ -927,14 +927,22 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 1, @game.latest_honba.kan_count
   end
 
-  test '#sukantsu_ryukyoku? returns true when kan_count reaches max' do
-    @game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT)
-    assert @game.sukantsu_ryukyoku?
+  test '#ryukyoku? returns true when kan_count reaches max' do
+    @game.latest_honba.update!(kan_count: 4)
+    @game.latest_honba.update!(draw_count: 0)
+    assert @game.ryukyoku?
   end
 
-  test '#sukantsu_ryukyoku? returns false when kan_count below max' do
-    @game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT - 1)
-    assert_not @game.sukantsu_ryukyoku?
+  test '#ryukyoku? returns true when remaining_tile_count reaches zero' do
+    @game.latest_honba.update!(kan_count: 0)
+    @game.latest_honba.update!(draw_count: 122)
+    assert @game.ryukyoku?
+  end
+
+  test '#ryukyoku? returns false when kan_count below max and remaining_tile_count above zero' do
+    @game.latest_honba.update!(kan_count: 0)
+    @game.latest_honba.update!(draw_count: 0)
+    assert_not @game.ryukyoku?
   end
 
   test '#kakan_turn? returns true when latest meld is kakan on current step' do
