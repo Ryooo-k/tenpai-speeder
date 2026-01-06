@@ -246,10 +246,6 @@ class Game < ApplicationRecord
     no_ten_players.each { |player| player.add_point(payment) }
   end
 
-  def host_winner?
-    host.point.positive?
-  end
-
   def can_undo?
     current_step_number > 0
   end

@@ -261,7 +261,7 @@ class GameFlow
     end
 
     def result(params)
-      renchan = @game.host_winner?
+      renchan = @game.host.point.positive?
       ryukyoku = params[:ryukyoku]
 
       if renchan
