@@ -37,23 +37,11 @@ class Honba < ApplicationRecord
   end
 
   def dora_indicator_tiles
-    if tile_orders.loaded?
-      dora_tiles = tile_orders[DORA_INDICATOR_ORDER_RANGE].map(&:tile)
-    else
-      dora_tiles = tile_orders.where(order: DORA_INDICATOR_ORDER_RANGE).map(&:tile)
-    end
-
-    dora_tiles[..kan_count]
+    tile_orders.where(order: DORA_INDICATOR_ORDER_RANGE).map(&:tile)[..kan_count]
   end
 
   def uradora_indicator_tiles
-    if tile_orders.loaded?
-      uradora_tiles = tile_orders[URADORA_INDICATOR_ORDER_RANGE].map(&:tile)
-    else
-      uradora_tiles = tile_orders.where(order: URADORA_INDICATOR_ORDER_RANGE).map(&:tile)
-    end
-
-    uradora_tiles[..kan_count]
+    tile_orders.where(order: URADORA_INDICATOR_ORDER_RANGE).map(&:tile)[..kan_count]
   end
 
   private
