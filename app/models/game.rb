@@ -89,11 +89,7 @@ class Game < ApplicationRecord
   end
 
   def current_step
-    if latest_honba.steps.loaded?
-      latest_honba.steps.detect { |step| step.number == current_step_number }
-    else
-      latest_honba.steps.find_by!(number: current_step_number)
-    end
+    cached_steps.detect { |step| step.number == current_step_number }
   end
 
   def dora_indicator_tiles
@@ -461,5 +457,9 @@ class Game < ApplicationRecord
 
     def cached_players
       @cached_players ||= players.to_a
+    end
+
+    def cached_steps
+      @cached_steps ||= latest_honba.steps.to_a
     end
 end
