@@ -6,7 +6,7 @@ class BaseTile < ApplicationRecord
   validates :suit, presence: true
   validates :number, presence: true, inclusion: { in: 1..9 }
   validates :name, presence: true
-  validates :code, presence: true
+  validates :code, presence: true, uniqueness: true
 
   enum :suit, {
     manzu: 0,

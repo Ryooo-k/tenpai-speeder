@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_08_235900) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_07_002548) do
   create_table "ais", force: :cascade do |t|
     t.string "name", null: false
     t.string "version", null: false
@@ -26,6 +26,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_08_235900) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "code", null: false
+    t.index ["code"], name: "index_base_tiles_on_code", unique: true
   end
 
   create_table "favorites", force: :cascade do |t|
