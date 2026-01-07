@@ -69,43 +69,23 @@ class Game < ApplicationRecord
   end
 
   def user_player
-    if players.loaded?
-      players.detect(&:user?)
-    else
-      players.users.first
-    end
+    cached_players.detect(&:user?)
   end
 
   def ais
-    if players.loaded?
-      players.select(&:ai?)
-    else
-      players.ais.to_a
-    end
+    cached_players.select(&:ai?)
   end
 
   def host
-    if players.loaded?
-      players.detect(&:host?)
-    else
-      players.find_by!(seat_order: latest_round.host_seat_number)
-    end
+    cached_players.detect(&:host?)
   end
 
   def children
-    if players.loaded?
-      players.select { |player| !player.host? }
-    else
-      players.where.not(seat_order: latest_round.host_seat_number).to_a
-    end
+    cached_players.select { |player| !player.host? }
   end
 
   def current_player
-    if players.loaded?
-      players.detect { |player| player.seat_order == current_seat_number }
-    else
-      players.find_by!(seat_order: current_seat_number)
-    end
+    cached_players.detect { |player| player.seat_order == current_seat_number }
   end
 
   def current_step
@@ -295,11 +275,7 @@ class Game < ApplicationRecord
   end
 
   def ranked_players
-    if players.loaded?
-      players.sort_by { |player| -(player.score + player.point) }
-    else
-      players.includes(:game_records).to_a.sort_by { |player| -(player.score + player.point) }
-    end
+    cached_players.sort_by { |player| -(player.score + player.point) }
   end
 
   def rankings
@@ -407,11 +383,7 @@ class Game < ApplicationRecord
     end
 
     def other_players
-      if players.loaded?
-        players.select { |player| player.seat_order != current_seat_number }
-      else
-        players.where.not(seat_order: current_seat_number).to_a
-      end
+      cached_players.select { |player| player.seat_order != current_seat_number }
     end
 
     def find_riichi_bonus_winner(ron_player_ids)
@@ -447,19 +419,11 @@ class Game < ApplicationRecord
     end
 
     def find_player(id)
-      if players.loaded?
-        players.detect { |player| player.id == id.to_i }
-      else
-        players.find(id)
-      end
+      cached_players.detect { |player| player.id == id.to_i }
     end
 
     def where_players(ids)
-      if players.loaded?
-        players.select { |player| ids.include?(player.id) }
-      else
-        players.where(id: ids)
-      end
+      cached_players.select { |player| ids.include?(player.id) }
     end
 
     def find_tile(id)
@@ -509,5 +473,9 @@ class Game < ApplicationRecord
 
     def reset_riichi_state!
       current_player.current_state.update!(riichi: false)
+    end
+
+    def cached_players
+      @cached_players ||= players.to_a
     end
 end
