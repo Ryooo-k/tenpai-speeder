@@ -30,7 +30,7 @@ module GameTestHelper
   end
 
   def set_draw_tile(tile_name, game)
-    draw_count = game.draw_count
+    draw_count = game.latest_honba.draw_count
     suit = SUIT_NAMES[tile_name[0]]
     number = tile_name[1].to_i
 

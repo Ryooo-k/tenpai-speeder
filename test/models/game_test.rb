@@ -136,10 +136,10 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#deal_initial_hands increases draw count(13 x 4 = 52)' do
-    assert_equal 0, @game.draw_count
+    assert_equal 0, @game.latest_honba.draw_count
 
     @game.deal_initial_hands
-    assert_equal 52, @game.draw_count
+    assert_equal 52, @game.latest_honba.draw_count
   end
 
   test '#deal_initial_hands creates new state' do
@@ -205,34 +205,15 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#draw_for_current_player increments draw_count' do
-    before_draw_count = @game.draw_count
+    before_draw_count = @game.latest_honba.draw_count
     @game.draw_for_current_player
-    assert_equal before_draw_count + 1, @game.draw_count
+    assert_equal before_draw_count + 1, @game.latest_honba.draw_count
   end
 
   test '#draw_for_current_player increments current_step_number and creates new step' do
     before_step_number = @game.current_step_number
     @game.draw_for_current_player
     assert_equal before_step_number + 1, @game.current_step_number
-  end
-
-  test '#rinshan_tile delegates to latest_honba.rinshan_tile' do
-    honba = @game.latest_honba
-    honba.update!(kan_count: 1)
-    expected = honba.tile_orders.find_by(order: 122).tile
-    assert_equal expected, @game.rinshan_tile
-
-    honba.update!(kan_count: 2)
-    expected = honba.tile_orders.find_by(order: 123).tile
-    assert_equal expected, @game.rinshan_tile
-
-    honba.update!(kan_count: 3)
-    expected = honba.tile_orders.find_by(order: 124).tile
-    assert_equal expected, @game.rinshan_tile
-
-    honba.update!(kan_count: 4)
-    expected = honba.tile_orders.find_by(order: 125).tile
-    assert_equal expected, @game.rinshan_tile
   end
 
   test '#discard_for_current_player moves tile from hands to rivers' do
@@ -277,46 +258,12 @@ class GameTest < ActiveSupport::TestCase
     assert_equal expected, @game.latest_honba
   end
 
-  test '#current_round_name' do
-    @game.latest_round.update!(number: 0)
-    assert_equal '東一局', @game.current_round_name
-
-    @game.latest_round.update!(number: 1)
-    assert_equal '東二局', @game.current_round_name
-
-    @game.latest_round.update!(number: 4)
-    assert_equal '南一局', @game.current_round_name
-  end
-
-  test '#current_honba_name' do
-    @game.latest_honba.update!(number: 0)
-    assert_equal '〇本場', @game.current_honba_name
-
-    @game.latest_honba.update!(number: 1)
-    assert_equal '一本場', @game.current_honba_name
-
-    @game.latest_honba.update!(number: 4)
-    assert_equal '四本場', @game.current_honba_name
-  end
-
   test '#current_step' do
     target_number = 2
     @game.update!(current_step_number: target_number)
     expected_step = @game.latest_honba.steps.find_by!(number: target_number)
 
     assert_equal expected_step, @game.current_step
-  end
-
-  test '#remaining_tile_count' do
-    @game.latest_honba.update!(draw_count: 0)
-    @game.latest_honba.update!(kan_count: 0)
-    assert_equal 122, @game.remaining_tile_count
-
-    @game.latest_honba.update!(draw_count: 10)
-    assert_equal 112, @game.remaining_tile_count
-
-    @game.latest_honba.update!(kan_count: 2)
-    assert_equal 110, @game.remaining_tile_count
   end
 
   test '#dora_indicator_tiles' do
@@ -371,14 +318,6 @@ class GameTest < ActiveSupport::TestCase
 
     assert_equal 4, @game.uradora_tiles.size
     assert_equal expected, @game.uradora_tiles
-  end
-
-  test '#riichi_stick_count' do
-    @game.latest_honba.update!(riichi_stick_count: 0)
-    assert_equal 0, @game.riichi_stick_count
-
-    @game.latest_honba.update!(riichi_stick_count: 1)
-    assert_equal 1, @game.riichi_stick_count
   end
 
   test '#advance_next_round! creates new round' do
@@ -745,12 +684,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 0, tenpai_player_4.point
   end
 
-  test '#host_winner? return true when host get point' do
-    assert_not @game.host_winner?
-    @game.host.add_point(1000)
-    assert @game.host_winner?
-  end
-
   test '#can_undo? returns true when current_step_number > 0' do
     @game.update!(current_step_number: 1)
     assert @game.can_undo?
@@ -774,24 +707,15 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#undo_with_sync! runs sync helpers and rolls back on failure' do
-    calls = []
     before_step_number = @game.current_step_number
     before_seat_number = @game.current_seat_number
     before_draw_count = @game.latest_honba.draw_count
     before_kan_count = @game.latest_honba.kan_count
     before_riichi_count = @game.latest_honba.riichi_stick_count
 
-    @game.stub(:undo_step!, -> { calls << :undo_step! }) do
-      @game.stub(:sync_current_seat!, -> { calls << :sync_current_seat! }) do
-        @game.stub(:sync_draw_count!, -> { calls << :sync_draw_count! }) do
-          @game.stub(:sync_kan_count!, -> { calls << :sync_kan_count! }) do
-            @game.stub(:sync_riichi_count!, -> { raise ActiveRecord::StatementInvalid }) do
-              assert_raises ActiveRecord::StatementInvalid do
-                @game.undo_with_sync!
-              end
-            end
-          end
-        end
+    @game.stub(:update!, ->(*) { raise ActiveRecord::StatementInvalid }) do
+      assert_raises ActiveRecord::StatementInvalid do
+        @game.undo_with_sync!
       end
     end
 
@@ -801,12 +725,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_draw_count, @game.latest_honba.draw_count
     assert_equal before_kan_count, @game.latest_honba.kan_count
     assert_equal before_riichi_count, @game.latest_honba.riichi_stick_count
-    assert_equal [
-      :undo_step!,
-      :sync_current_seat!,
-      :sync_draw_count!,
-      :sync_kan_count!
-    ], calls
   end
 
   test '#undo_with_sync! updates seat and counts from previous step' do
@@ -835,24 +753,15 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#redo_with_sync! runs sync helpers and rolls back on failure' do
-    calls = []
     before_step_number = @game.current_step_number
     before_seat_number = @game.current_seat_number
     before_draw_count = @game.latest_honba.draw_count
     before_kan_count = @game.latest_honba.kan_count
     before_riichi_count = @game.latest_honba.riichi_stick_count
 
-    @game.stub(:redo_step!, -> { calls << :redo_step! }) do
-      @game.stub(:sync_current_seat!, -> { calls << :sync_current_seat! }) do
-        @game.stub(:sync_draw_count!, -> { calls << :sync_draw_count! }) do
-          @game.stub(:sync_kan_count!, -> { calls << :sync_kan_count! }) do
-            @game.stub(:sync_riichi_count!, -> { raise ActiveRecord::StatementInvalid }) do
-              assert_raises ActiveRecord::StatementInvalid do
-                @game.redo_with_sync!
-              end
-            end
-          end
-        end
+    @game.stub(:update!, ->(*) { raise ActiveRecord::StatementInvalid }) do
+      assert_raises ActiveRecord::StatementInvalid do
+        @game.redo_with_sync!
       end
     end
 
@@ -862,12 +771,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_draw_count, @game.latest_honba.draw_count
     assert_equal before_kan_count, @game.latest_honba.kan_count
     assert_equal before_riichi_count, @game.latest_honba.riichi_stick_count
-    assert_equal [
-      :redo_step!,
-      :sync_current_seat!,
-      :sync_draw_count!,
-      :sync_kan_count!
-    ], calls
   end
 
   test '#redo_with_sync! updates seat and counts from next step' do
@@ -896,18 +799,13 @@ class GameTest < ActiveSupport::TestCase
   end
 
   test '#playback_with_sync! runs sync helpers and rolls back on failure' do
-    calls = []
     before_steps = @game.latest_honba.steps
     @game.players.each { |p| p.add_point(1000) }
     @game.players.each { |p| p.current_state.update!(riichi: true) }
 
-    @game.stub(:destroy_future_steps!, -> { calls << :destroy_future_steps! }) do
-      @game.stub(:reset_point!, -> { calls << :reset_point! }) do
-        @game.stub(:reset_riichi_state!, -> { raise ActiveRecord::StatementInvalid }) do
-          assert_raises ActiveRecord::StatementInvalid do
-            @game.playback_with_sync!
-          end
-        end
+    @game.stub(:destroy_future_steps!, -> { raise ActiveRecord::StatementInvalid }) do
+      assert_raises ActiveRecord::StatementInvalid do
+        @game.playback_with_sync!
       end
     end
 
@@ -915,10 +813,6 @@ class GameTest < ActiveSupport::TestCase
     assert_equal before_steps, @game.latest_honba.steps
     assert @game.players.all? { |p| p.point == 1000 }
     assert @game.players.all? { |p| p.riichi? }
-    assert_equal [
-      :destroy_future_steps!,
-      :reset_point!
-    ], calls
   end
 
   test '#playback_with_sync! destroys future steps and resets point/riichi state' do
@@ -1027,14 +921,22 @@ class GameTest < ActiveSupport::TestCase
     assert_equal 1, @game.latest_honba.kan_count
   end
 
-  test '#sukantsu_ryukyoku? returns true when kan_count reaches max' do
-    @game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT)
-    assert @game.sukantsu_ryukyoku?
+  test '#ryukyoku? returns true when kan_count reaches max' do
+    @game.latest_honba.update!(kan_count: 4)
+    @game.latest_honba.update!(draw_count: 0)
+    assert @game.ryukyoku?
   end
 
-  test '#sukantsu_ryukyoku? returns false when kan_count below max' do
-    @game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT - 1)
-    assert_not @game.sukantsu_ryukyoku?
+  test '#ryukyoku? returns true when remaining_tile_count reaches zero' do
+    @game.latest_honba.update!(kan_count: 0)
+    @game.latest_honba.update!(draw_count: 122)
+    assert @game.ryukyoku?
+  end
+
+  test '#ryukyoku? returns false when kan_count below max and remaining_tile_count above zero' do
+    @game.latest_honba.update!(kan_count: 0)
+    @game.latest_honba.update!(draw_count: 0)
+    assert_not @game.ryukyoku?
   end
 
   test '#kakan_turn? returns true when latest meld is kakan on current step' do

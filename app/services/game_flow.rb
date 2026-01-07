@@ -132,7 +132,7 @@ class GameFlow
 
     def rinshan_draw
       next_step = @game.advance_step!
-      @game.current_player.draw(@game.rinshan_tile, next_step, rinshan: true)
+      @game.current_player.draw(@game.latest_honba.rinshan_tile, next_step, rinshan: true)
 
       if @game.current_player.can_tsumo?
         next_event = 'confirm_tsumo'
@@ -197,7 +197,7 @@ class GameFlow
         @payloads[:ron_eligible_players_ids] = ron_eligible_players.map(&:id)
         @payloads[:discarded_tile_id] = discarded_tile.id
         next_event = 'confirm_ron'
-      elsif @game.live_wall_empty? || @game.sukantsu_ryukyoku?
+      elsif @game.ryukyoku?
         next_event = 'ryukyoku'
       elsif is_user_furo
         @payloads[:discarded_tile_id] = discarded_tile.id
@@ -261,7 +261,7 @@ class GameFlow
     end
 
     def result(params)
-      renchan = @game.host_winner?
+      renchan = @game.host.point.positive?
       ryukyoku = params[:ryukyoku]
 
       if renchan
