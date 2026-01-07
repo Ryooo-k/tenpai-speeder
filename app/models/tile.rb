@@ -12,19 +12,5 @@ class Tile < ApplicationRecord
   validates :kind, presence: true
   validates :aka, inclusion: { in: [ true, false ] }
 
-  def suit
-    base_tile.suit
-  end
-
-  def name
-    base_tile.name
-  end
-
-  def number
-    base_tile.number
-  end
-
-  def code
-    base_tile.code
-  end
+  delegate :suit, :name, :number, :code, to: :base_tile
 end
