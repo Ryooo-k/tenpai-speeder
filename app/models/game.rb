@@ -249,11 +249,11 @@ class Game < ApplicationRecord
   end
 
   def give_tenpai_point
-    tenpai_players = players.select { |player| player.tenpai? }
+    tenpai_players = cached_players.select { |player| player.tenpai? }
     point = TENPAI_POINT.fetch(tenpai_players.count)
     tenpai_players.each { |player| player.add_point(point) }
 
-    no_ten_players = players.select { |player| !player.tenpai? }
+    no_ten_players = cached_players.select { |player| !player.tenpai? }
     payment = -TENPAI_POINT.fetch(no_ten_players.count)
     no_ten_players.each { |player| player.add_point(payment) }
   end
@@ -283,7 +283,7 @@ class Game < ApplicationRecord
   end
 
   def showing_uradora_necessary?
-    players.any? { |player| player.riichi? && player.point.positive? }
+    cached_players.any? { |player| player.riichi? && player.point.positive? }
   end
 
   def add_new_dora
@@ -372,7 +372,7 @@ class Game < ApplicationRecord
                         [ random_score_1, random_score_2 ]
                       end.flatten.shuffle
 
-      players.each_with_index do |player, index|
+      cached_players.each_with_index do |player, index|
         random_score = random_scores[index]
         player.game_records.last.update!(score: random_score)
       end
@@ -387,12 +387,12 @@ class Game < ApplicationRecord
     end
 
     def find_riichi_bonus_winner(ron_player_ids)
-      winner_players = players.where(id: ron_player_ids)
+      winner_players = cached_players.select { |player| ron_player_ids.include?(player.id) }
       winner_players.min_by { |player| RELATION_ORDER.fetch(player.relation_from_current_player) }
     end
 
     def create_game_records
-      players.each do |player|
+      cached_players.each do |player|
         score = player.score + player.point
         player.game_records.create!(score:, honba: latest_honba)
       end
@@ -405,7 +405,7 @@ class Game < ApplicationRecord
     end
 
     def give_honba_bonus_point(ron_player_ids)
-      winners = ron_player_ids ? players.where(id: ron_player_ids) : [ current_player ]
+      winners = ron_player_ids ? cached_players.select { |player| ron_player_ids.include?(player.id) } : [ current_player ]
       losers  = ron_player_ids ? [ current_player ] : other_players
       honba_bonus  = latest_honba.number * HONBA_BONUS
       winners.each { |winner| winner.add_point(honba_bonus) }
@@ -460,7 +460,7 @@ class Game < ApplicationRecord
     end
 
     def reset_point!
-      players.each { |player| player.latest_game_record.update!(point: 0) }
+      cached_players.each { |player| player.latest_game_record.update!(point: 0) }
     end
 
     def reset_riichi_state!
