@@ -225,7 +225,7 @@ class Game < ApplicationRecord
 
   def give_ron_point(score_statement_table)
     score_statement_table.each do |ron_player_id, score_statements|
-      player = find_player(ron_player_id)
+      player = cached_players.detect { |player| player.id == ron_player_id.to_i }
       point = PointCalculator.calculate_point(score_statements, player)
       player.add_point(point[:receiving])
       current_player.add_point(point[:payment])
@@ -416,10 +416,6 @@ class Game < ApplicationRecord
 
     def latest_step_number
       latest_honba.steps.maximum(:number)
-    end
-
-    def find_player(id)
-      cached_players.detect { |player| player.id == id.to_i }
     end
 
     def where_players(ids)
