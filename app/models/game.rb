@@ -212,7 +212,7 @@ class Game < ApplicationRecord
   end
 
   def build_ron_score_statements(discarded_tile_id, ron_player_ids, kakan)
-    ron_players = where_players(ron_player_ids)
+    ron_players = cached_players.select { |player| ron_player_ids.include?(player.id) }
     tile = find_tile(discarded_tile_id)
     score_statement_table = {}
 
@@ -416,10 +416,6 @@ class Game < ApplicationRecord
 
     def latest_step_number
       latest_honba.steps.maximum(:number)
-    end
-
-    def where_players(ids)
-      cached_players.select { |player| ids.include?(player.id) }
     end
 
     def find_tile(id)
