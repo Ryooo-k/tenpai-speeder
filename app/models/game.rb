@@ -213,7 +213,7 @@ class Game < ApplicationRecord
 
   def build_ron_score_statements(discarded_tile_id, ron_player_ids, kakan)
     ron_players = cached_players.select { |player| ron_player_ids.include?(player.id) }
-    tile = find_tile(discarded_tile_id)
+    tile = tiles.find(discarded_tile_id)
     score_statement_table = {}
 
     ron_players.each do |player|
@@ -416,14 +416,6 @@ class Game < ApplicationRecord
 
     def latest_step_number
       latest_honba.steps.maximum(:number)
-    end
-
-    def find_tile(id)
-      if tiles.loaded?
-        tiles.detect { |tile| tile.id == id.to_i }
-      else
-        tiles.find(id)
-      end
     end
 
     def undo_step!
