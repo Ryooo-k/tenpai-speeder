@@ -390,16 +390,9 @@ class Player < ApplicationRecord
     end
 
     def base_states
-      if player_states.loaded? && player_states.all? { |ps| ps.association(:step).loaded? }
-        player_states.select do |ps|
-          ps.step.honba_id == game.latest_honba.id &&
-            ps.step.number <= current_step_number
-        end
-      else
-        player_states
-          .for_honba(game.latest_honba)
-          .up_to_step(current_step_number)
-      end.to_a
+      player_states.select do |ps|
+        ps.step.honba_id == game.latest_honba.id && ps.step.number <= current_step_number
+      end
     end
 
     def base_hands
