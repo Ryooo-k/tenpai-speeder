@@ -67,6 +67,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @kamicha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -87,6 +88,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @kamicha)
+    @game.reload
 
     hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@user.id}\"] img"
     assert_selector hands_selector, count: 13
@@ -106,6 +108,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @kamicha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -126,6 +129,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @kamicha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -149,6 +153,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @kamicha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -176,6 +181,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @kamicha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -196,6 +202,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @kamicha)
+    @game.reload
 
     hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@user.id}\"] img"
     assert_selector hands_selector, count: 13
@@ -213,6 +220,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @toimen)
+    @game.reload
 
     click_button '▶︎'
 
@@ -228,6 +236,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @toimen)
+    @game.reload
 
     click_button '▶︎'
 
@@ -248,6 +257,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @toimen)
+    @game.reload
 
     click_button '▶︎'
 
@@ -270,6 +280,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @toimen)
+    @game.reload
 
     click_button '▶︎'
 
@@ -297,6 +308,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @toimen)
+    @game.reload
 
     click_button '▶︎'
 
@@ -316,6 +328,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @toimen)
+    @game.reload
 
     hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@kamicha.id}\"] img"
     assert_selector hands_selector, count: 13
@@ -333,6 +346,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @shimocha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -348,6 +362,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @shimocha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -368,6 +383,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @shimocha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -390,6 +406,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @shimocha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -417,6 +434,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @shimocha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -436,6 +454,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @shimocha)
+    @game.reload
 
     hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
     assert_selector hands_selector, count: 13
@@ -453,6 +472,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     @game.current_step.update!(next_event: 'draw')
     set_player_turn(@game, @user)
     set_draw_tile('s9', @game) # ドロー時にツモ和了とならないようにする
+    @game.reload
 
     click_button '▶︎'
 
@@ -466,14 +486,15 @@ class PlayActionsTest < ApplicationSystemTestCase
     @game.current_step.update!(next_event: 'draw')
     set_player_turn(@game, @user)
     set_draw_tile('s9', @game) # ドロー時にツモ和了とならないようにする
+    @game.reload
 
     click_button '▶︎'
     click_button 'リーチ'
 
-    @game.reload
     radio_selector = 'input[type="radio"][name="chosen_hand_id"]'
     assert_selector radio_selector, count: 1
 
+    @user.reload
     souzu9_hand = @user.hands.find { |hand| hand.suit == 'souzu' && hand.number == 9 }
     radio_values = all(radio_selector).map { |input| input.value.to_i }
     assert_equal [ souzu9_hand.id ], radio_values
@@ -485,11 +506,12 @@ class PlayActionsTest < ApplicationSystemTestCase
     @game.current_step.update!(next_event: 'draw')
     set_player_turn(@game, @user)
     set_draw_tile('s9', @game) # ドロー時にツモ和了とならないようにする
+    @game.reload
 
     click_button '▶︎'
     click_button 'パス'
 
-    @game.reload
+    @user.reload
     radio_selector = 'input[type="radio"][name="chosen_hand_id"]'
     assert_selector radio_selector, count: @user.hands.count
   end
@@ -500,6 +522,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @shimocha)
+    @game.reload
 
     click_button '▶︎'
 
@@ -513,6 +536,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @shimocha)
+    @game.reload
 
     click_button '▶︎'
     click_button 'ロン'
@@ -526,6 +550,7 @@ class PlayActionsTest < ApplicationSystemTestCase
 
     @game.current_step.update!(next_event: 'choose')
     set_player_turn(@game, @shimocha)
+    @game.reload
 
     hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
     assert_selector hands_selector, count: 13
@@ -545,6 +570,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     @game.current_step.update!(next_event: 'draw')
     set_player_turn(@game, @user)
     set_draw_tile('z1', @game) # カカン可能な牌をセット
+    @game.reload
 
     click_button '▶︎'
 
@@ -563,6 +589,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     @game.current_step.update!(next_event: 'draw')
     set_player_turn(@game, @user)
     set_draw_tile('z1', @game) # カカン可能な牌をセット
+    @game.reload
 
     click_button '▶︎'
 

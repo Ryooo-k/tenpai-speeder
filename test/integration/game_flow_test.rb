@@ -986,7 +986,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     post game_play_command_path(@game), params: { event: 'discard', chosen_hand_id: }
     assert_response :redirect
 
-    @game.reload
+    current_player.reload
     assert_equal before_hand_count - 1, current_player.hands.count
   end
 
@@ -1369,6 +1369,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
 
+    @game.reload
     assert_equal before_honbas_count + 1, @game.latest_round.honbas.count
     assert_equal before_honba_number + 1, @game.latest_honba.number
     assert_equal 0, @game.current_step_number
@@ -1402,6 +1403,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
 
+    @game.reload
     assert_equal before_rounds_count + 1, @game.rounds.count
     assert_equal before_round_number + 1, @game.latest_round.number
     assert_equal 0, @game.current_step_number
@@ -1439,6 +1441,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
 
+    @game.reload
     assert_equal before_honbas_count + 1, @game.latest_round.honbas.count
     assert_equal before_honba_number + 1, @game.latest_honba.number
     assert_equal 0, @game.current_step_number
@@ -1473,6 +1476,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
 
+    @game.reload
     assert_equal before_rounds_count + 1, @game.rounds.count
     assert_equal before_round_number + 1, @game.latest_round.number
     assert_equal 0, @game.current_step_number
@@ -1499,6 +1503,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
       assert_dom 'input[type=hidden][name=?][value=?]', :event, :draw
     end
 
+    @game.reload
     assert_equal before_rounds_count + 1, @game.rounds.count
     assert_equal before_round_number + 1, @game.latest_round.number
     assert_equal before_honba_number + 1, @game.latest_honba.number
