@@ -69,51 +69,27 @@ class Game < ApplicationRecord
   end
 
   def user_player
-    if players.loaded?
-      players.detect(&:user?)
-    else
-      players.users.first
-    end
+    players.detect(&:user?)
   end
 
   def ais
-    if players.loaded?
-      players.select(&:ai?)
-    else
-      players.ais.to_a
-    end
+    players.select(&:ai?)
   end
 
   def host
-    if players.loaded?
-      players.detect(&:host?)
-    else
-      players.find_by!(seat_order: latest_round.host_seat_number)
-    end
+    players.detect(&:host?)
   end
 
   def children
-    if players.loaded?
-      players.select { |player| !player.host? }
-    else
-      players.where.not(seat_order: latest_round.host_seat_number).to_a
-    end
+    players.select { |player| !player.host? }
   end
 
   def current_player
-    if players.loaded?
-      players.detect { |player| player.seat_order == current_seat_number }
-    else
-      players.find_by!(seat_order: current_seat_number)
-    end
+    players.detect { |player| player.seat_order == current_seat_number }
   end
 
   def current_step
-    if latest_honba.steps.loaded?
-      latest_honba.steps.detect { |step| step.number == current_step_number }
-    else
-      latest_honba.steps.find_by!(number: current_step_number)
-    end
+    latest_honba.steps.detect { |step| step.number == current_step_number }
   end
 
   def dora_indicator_tiles
@@ -200,8 +176,8 @@ class Game < ApplicationRecord
   end
 
   def build_ron_score_statements(discarded_tile_id, ron_player_ids, kakan)
-    ron_players = where_players(ron_player_ids)
-    tile = find_tile(discarded_tile_id)
+    ron_players = players.select { |player| ron_player_ids.include?(player.id) }
+    tile = tiles.detect { |tile| tile.id == discarded_tile_id.to_i }
 
     ron_players.to_h do |player|
       [ player.id, player.score_statements(tile:, kakan:) ]
@@ -210,7 +186,7 @@ class Game < ApplicationRecord
 
   def give_ron_point(score_statement_table)
     score_statement_table.each do |ron_player_id, score_statements|
-      player = find_player(ron_player_id)
+      player = players.detect { |player| player.id == ron_player_id.to_i }
       point = PointCalculator.calculate_point(score_statements, player)
       player.add_point(point[:receiving])
       current_player.add_point(point[:payment])
@@ -256,11 +232,7 @@ class Game < ApplicationRecord
   end
 
   def ranked_players
-    if players.loaded?
-      players.sort_by { |player| -(player.score + player.point) }
-    else
-      players.includes(:game_records).to_a.sort_by { |player| -(player.score + player.point) }
-    end
+    players.sort_by { |player| -(player.score + player.point) }
   end
 
   def rankings
@@ -368,15 +340,11 @@ class Game < ApplicationRecord
     end
 
     def other_players
-      if players.loaded?
-        players.select { |player| player.seat_order != current_seat_number }
-      else
-        players.where.not(seat_order: current_seat_number).to_a
-      end
+      players.select { |player| player.seat_order != current_seat_number }
     end
 
     def find_riichi_bonus_winner(ron_player_ids)
-      winner_players = players.where(id: ron_player_ids)
+      winner_players = players.select { |player| ron_player_ids.include?(player.id) }
       winner_players.min_by { |player| RELATION_ORDER.fetch(player.relation_from_current_player) }
     end
 
@@ -394,7 +362,7 @@ class Game < ApplicationRecord
     end
 
     def give_honba_bonus_point(ron_player_ids)
-      winners = ron_player_ids ? players.where(id: ron_player_ids) : [ current_player ]
+      winners = ron_player_ids ? players.select { |player| ron_player_ids.include?(player.id) } : [ current_player ]
       losers  = ron_player_ids ? [ current_player ] : other_players
       honba_bonus  = latest_honba.number * HONBA_BONUS
       winners.each { |winner| winner.add_point(honba_bonus) }
@@ -405,30 +373,6 @@ class Game < ApplicationRecord
 
     def latest_step_number
       latest_honba.steps.maximum(:number)
-    end
-
-    def find_player(id)
-      if players.loaded?
-        players.detect { |player| player.id == id.to_i }
-      else
-        players.find(id)
-      end
-    end
-
-    def where_players(ids)
-      if players.loaded?
-        players.select { |player| ids.include?(player.id) }
-      else
-        players.where(id: ids)
-      end
-    end
-
-    def find_tile(id)
-      if tiles.loaded?
-        tiles.detect { |tile| tile.id == id.to_i }
-      else
-        tiles.find(id)
-      end
     end
 
     def destroy_future_steps!
