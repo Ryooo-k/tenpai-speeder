@@ -2,3 +2,8 @@ v0.1:
   name: AI_v0.1
   version: "0.1"
   description: 開発用のAI。麻雀は強くない。
+
+v1.0:
+  name: AI_v1.0
+  version: "1.0"
+  description: 10万回の学習でより洗練された打牌選択ができるようになった。
