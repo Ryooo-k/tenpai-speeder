@@ -5,7 +5,7 @@ class GamesController < ApplicationController
     game_mode_id = params.expect(:game_mode_id)
     game_mode = GameMode.find(game_mode_id)
     game = Game.new(game_mode:)
-    ai = Ai.find_by!(version: '0.1')
+    ai = Ai.find_by!(version: '1.0')
 
     if game.save
       game_flow = GameFlow.new(game)
