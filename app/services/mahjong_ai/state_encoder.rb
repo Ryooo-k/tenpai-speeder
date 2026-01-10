@@ -16,6 +16,7 @@ module MahjongAi
       def call(game, player)
         case player.ai_version
         when 'v0.1' then build_v0_1_states(game, player)
+        when 'v1.0' then build_v0_1_states(game, player)
         else
           raise UnsupportedAi, 'AIバージョンが未対応です'
         end
