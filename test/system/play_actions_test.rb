@@ -605,4 +605,34 @@ class PlayActionsTest < ApplicationSystemTestCase
       assert_equal 'true', kakan_tile['data-overlay']
     end
   end
+
+  test 'aiがロン和了した場合、対局結果画面に遷移する' do
+    winner = @game.ais.first
+    set_hands('m123456789 p23 s11', winner)
+
+    loser = @game.ais.second
+    set_hands('p111', loser)
+    set_player_turn(@game, loser)
+
+    @game.current_step.update!(next_event: 'choose')
+    @game.reload
+
+    click_button '▶︎'
+
+    assert_text '対局結果'
+  end
+
+  test 'aiがツモ和了した場合、対局結果画面に遷移する' do
+    winner = @game.ais.first
+    set_hands('m123456789 p23 s11', winner)
+
+    set_draw_tile('p1', @game)
+    set_player_turn(@game, winner)
+    @game.current_step.update!(next_event: 'draw')
+    @game.reload
+
+    click_button '▶︎'
+
+    assert_text '対局結果'
+  end
 end
