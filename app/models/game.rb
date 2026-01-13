@@ -1,30 +1,7 @@
 # frozen_string_literal: true
 
 class Game < ApplicationRecord
-  TILES_PER_KIND = 4
-  AKA_DORA_TILE_CODES = [ 4, 13, 22 ].freeze # 5萬、5筒、5索の牌コード
-  INITIAL_HAND_SIZE = 13
-  PLAYERS_COUNT = 4
   RELATION_ORDER = { shimocha: 0, toimen: 1, kamicha: 2 }.freeze
-  RIICHI_BONUS = 1000
-  HONBA_BONUS = 300
-  TENPAI_POINT = {
-    0 => 0,
-    1 => 3000,
-    2 => 1500,
-    3 => 1000,
-    4 => 0
-  }.freeze
-  FINAL_ROUND_NUMBER = 7
-  MAX_DORA_COUNT = 5
-  MAX_KAN_COUNT = 4
-  DORA_CONVERSION_MPA = {
-    8 => 0,
-    17 => 9,
-    26 => 18,
-    30 => 27,
-    33 => 31
-  }.freeze
 
   belongs_to :game_mode
 
@@ -51,7 +28,7 @@ class Game < ApplicationRecord
 
   def apply_game_mode
     if game_mode.name == '着順UP練習'
-      latest_round.update!(number: FINAL_ROUND_NUMBER)
+      latest_round.update!(number: Mahjong::Constants::FINAL_ROUND_NUMBER)
       assign_random_scores!
     end
   end
@@ -60,7 +37,7 @@ class Game < ApplicationRecord
     players.each do |player|
       player.player_states.create!(step: current_step)
 
-      INITIAL_HAND_SIZE.times do |_|
+      Mahjong::Constants::INITIAL_HAND_SIZE.times do |_|
         top_tile = latest_honba.top_tile
         player.receive(top_tile)
         increase_draw_count
@@ -93,15 +70,15 @@ class Game < ApplicationRecord
   end
 
   def dora_indicator_tiles
-    latest_honba.dora_indicator_tiles.values_at(...MAX_DORA_COUNT)
+    latest_honba.dora_indicator_tiles.values_at(...Mahjong::Constants::MAX_DORA_COUNT)
   end
 
   def uradora_indicator_tiles
-    latest_honba.uradora_indicator_tiles.values_at(...MAX_DORA_COUNT)
+    latest_honba.uradora_indicator_tiles.values_at(...Mahjong::Constants::MAX_DORA_COUNT)
   end
 
   def dora_tiles
-    dora_codes = latest_honba.dora_indicator_tiles.map { |indicator| DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+    dora_codes = latest_honba.dora_indicator_tiles.map { |indicator| Mahjong::Constants::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
 
     dora_codes.each_with_object([]) do |dora_code, dora_tiles|
       dora_tiles << tiles.select { |tile| dora_code == tile.code }
@@ -109,7 +86,7 @@ class Game < ApplicationRecord
   end
 
   def uradora_tiles
-    uradora_codes = latest_honba.uradora_indicator_tiles.map { |indicator| DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+    uradora_codes = latest_honba.uradora_indicator_tiles.map { |indicator| Mahjong::Constants::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
 
     uradora_codes.each_with_object([]) do |dora_code, dora_tiles|
       dora_tiles << tiles.select { |tile| dora_code == tile.code }
@@ -125,7 +102,7 @@ class Game < ApplicationRecord
   end
 
   def advance_current_player!
-    next_seat_number = (current_seat_number + 1) % PLAYERS_COUNT
+    next_seat_number = (current_seat_number + 1) % Mahjong::Constants::PLAYERS_COUNT
     update!(current_seat_number: next_seat_number)
   end
 
@@ -152,7 +129,7 @@ class Game < ApplicationRecord
     rounds.create!(number: next_round_number)
     latest_honba.update!(number: next_honba_number, riichi_stick_count:)
 
-    next_seat_number = next_round_number % PLAYERS_COUNT
+    next_seat_number = next_round_number % Mahjong::Constants::PLAYERS_COUNT
     update!(current_seat_number: next_seat_number)
     update!(current_step_number: 0)
     create_game_records
@@ -163,7 +140,7 @@ class Game < ApplicationRecord
     riichi_stick_count = ryukyoku ? latest_honba.riichi_stick_count : 0
     latest_round.honbas.create!(number: next_honba_number, riichi_stick_count:)
 
-    seat_number = latest_round.number % PLAYERS_COUNT
+    seat_number = latest_round.number % Mahjong::Constants::PLAYERS_COUNT
     update!(current_seat_number: seat_number)
     update!(current_step_number: 0)
     create_game_records
@@ -211,11 +188,11 @@ class Game < ApplicationRecord
 
   def give_tenpai_point
     tenpai_players = players.select { |player| player.tenpai? }
-    point = TENPAI_POINT.fetch(tenpai_players.count)
+    point = Mahjong::Constants::TENPAI_POINT.fetch(tenpai_players.count)
     tenpai_players.each { |player| player.add_point(point) }
 
     no_ten_players = players.select { |player| !player.tenpai? }
-    payment = -TENPAI_POINT.fetch(no_ten_players.count)
+    payment = -Mahjong::Constants::TENPAI_POINT.fetch(no_ten_players.count)
     no_ten_players.each { |player| player.add_point(payment) }
   end
 
@@ -254,7 +231,7 @@ class Game < ApplicationRecord
   end
 
   def ryukyoku?
-    latest_honba.kan_count == MAX_KAN_COUNT || latest_honba.remaining_tile_count.zero?
+    latest_honba.kan_count == Mahjong::Constants::MAX_KAN_COUNT || latest_honba.remaining_tile_count.zero?
   end
 
   def undo_with_sync!
@@ -305,7 +282,7 @@ class Game < ApplicationRecord
 
       base_tiles.keys.each do |code|
         base_tile = base_tiles[code]
-        TILES_PER_KIND.times do |kind|
+        Mahjong::Constants::TILES_PER_KIND.times do |kind|
           is_aka_dora = aka_dora_tile?(code, kind)
           tiles.create!(kind:, aka: is_aka_dora, base_tile:)
         end
@@ -313,7 +290,7 @@ class Game < ApplicationRecord
     end
 
     def aka_dora_tile?(code, kind)
-      AKA_DORA_TILE_CODES.include?(code) && kind.zero?
+      Mahjong::Constants::AKA_DORA_TILE_CODES.include?(code) && kind.zero?
     end
 
     def assign_random_scores!
@@ -357,14 +334,14 @@ class Game < ApplicationRecord
 
     def give_riichi_bonus_point(ron_player_ids)
       winner = ron_player_ids ? find_riichi_bonus_winner(ron_player_ids) : current_player
-      riichi_bonus = latest_honba.riichi_stick_count * RIICHI_BONUS
+      riichi_bonus = latest_honba.riichi_stick_count * Mahjong::Constants::RIICHI_BONUS
       winner.add_point(riichi_bonus)
     end
 
     def give_honba_bonus_point(ron_player_ids)
       winners = ron_player_ids ? players.select { |player| ron_player_ids.include?(player.id) } : [ current_player ]
       losers  = ron_player_ids ? [ current_player ] : other_players
-      honba_bonus  = latest_honba.number * HONBA_BONUS
+      honba_bonus  = latest_honba.number * Mahjong::Constants::HONBA_BONUS
       winners.each { |winner| winner.add_point(honba_bonus) }
 
       bonus_payment = losers.size == 1 ? -honba_bonus * winners.count : -honba_bonus / losers.count

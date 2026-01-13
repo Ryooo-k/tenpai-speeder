@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 module HandEvaluator
-  HAND_MAX_COUNT = 14
-  TILE_KIND_COUNT = 34
-  NORMAL_AGARI_MENTSU_COUNT = 5
-  CHIITOITSU_AGARI_MENTSU_COUNT = 7
   RON_RE = /[\-\+\=]\!/
   MELDS_RE  = /[-+=](?!!)/
   YAOCHU_RE = /[z19]/
@@ -18,13 +14,9 @@ module HandEvaluator
   PENCHAN_MACHI_RE = /\A[mps](123[\-\+\=\_]\!|7[\-\+\=\_]\!89)\z/
   DRAGON_RE = /\Az[567]/
   SUUHAI_SUIT_RE = /[mps]/
-  WINDS = %w[東 南 西 北]
   SUUHAI_SUITS = %w[m p s]
   ZIHAI_SUIT = 'z'
   AGARI_DISTANCE_MAP = JSON.parse(Rails.root.join('app/domain', 'agari_distance_map.json').read).freeze
-  CHIITOITSU_PAIR_COUNT = 7
-  KOKUSHI_TILE_CODES = [ 0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33 ].freeze
-  MAX_SHANTEN_COUNT = 13
 
   # 面子手の向聴数を計算するのに使用するリスト
   # [ manzu, pinzu, souzu, zihai, melds ] の和了枚数テーブル
@@ -32,7 +24,7 @@ module HandEvaluator
     patterns = []
     allowed = [ 0, 2, 3, 5, 6, 8, 9, 11, 12, 14 ]
     [ 0, 3, 6, 9, 12 ].each do |melds|
-      remaining = HAND_MAX_COUNT - melds
+      remaining = Mahjong::Constants::HAND_MAX_COUNT - melds
       allowed.each do |manzu|
         next if manzu > remaining
         allowed.each do |pinzu|
@@ -268,7 +260,7 @@ module HandEvaluator
       end
 
       def build_chiitoitsu_agari_patterns(hands, agari_tile)
-        return [] if hands.values.flatten.sum != HAND_MAX_COUNT
+        return [] if hands.values.flatten.sum != Mahjong::Constants::HAND_MAX_COUNT
         return [] unless hands.values.flatten.all? { |count| count == 2 || count.zero? }
 
         pairs = []
@@ -291,7 +283,7 @@ module HandEvaluator
       end
 
       def build_kokushi_agari_patterns(hands, agari_tile)
-        return [] if hands.values.flatten.sum != HAND_MAX_COUNT
+        return [] if hands.values.flatten.sum != Mahjong::Constants::HAND_MAX_COUNT
 
         result = []
         core = agari_tile[..1]
@@ -389,7 +381,7 @@ module HandEvaluator
           scoring_states[:yaochu_count] += 1 if mentsu.match?(YAOCHU_RE)
           scoring_states[:zihai_count]  += 1 if mentsu.match?(ZIHAI_RE)
 
-          next if agari_patterns.length != NORMAL_AGARI_MENTSU_COUNT
+          next if agari_patterns.length != Mahjong::Constants::NORMAL_AGARI_MENTSU_COUNT
 
           if mentsu == scoring_states[:jantou]
             scoring_states[:fu_components][:jantou] += 2 if mentsu.match?(round_wind_re) || mentsu.match?(player_wind_re)
@@ -425,7 +417,7 @@ module HandEvaluator
           end
         end
 
-        if scoring_states[:mentsu_count] == CHIITOITSU_AGARI_MENTSU_COUNT
+        if scoring_states[:mentsu_count] == Mahjong::Constants::CHIITOITSU_AGARI_MENTSU_COUNT
           scoring_states[:fu_components][:standard] = 25
           scoring_states[:fu_components][:tanki] = 0
           scoring_states[:fu_raw]   = 25
@@ -499,8 +491,8 @@ module HandEvaluator
         player_wind_index = state[:player_wind]
         zihai_kotsu = state[:kotsu][:z]
 
-        result << { name: "場風 #{WINDS[round_wind_index]}", han: 1 } if !zihai_kotsu[round_wind_index].to_i.zero?
-        result << { name: "自風 #{WINDS[player_wind_index]}", han: 1 } if !zihai_kotsu[player_wind_index].to_i.zero?
+        result << { name: "場風 #{Mahjong::Constants::WINDS[round_wind_index]}", han: 1 } if !zihai_kotsu[round_wind_index].to_i.zero?
+        result << { name: "自風 #{Mahjong::Constants::WINDS[player_wind_index]}", han: 1 } if !zihai_kotsu[player_wind_index].to_i.zero?
         result << { name: '翻牌 白', han: 1 } if !zihai_kotsu[4].to_i.zero?
         result << { name: '翻牌 發', han: 1 } if !zihai_kotsu[5].to_i.zero?
         result << { name: '翻牌 中', han: 1 } if !zihai_kotsu[6].to_i.zero?
@@ -794,7 +786,7 @@ module HandEvaluator
       end
 
       def normalize(tiles)
-        code_map = Array.new(TILE_KIND_COUNT, 0)
+        code_map = Array.new(Mahjong::Constants::TILE_KIND_COUNT, 0)
         tiles.each { |tile| code_map[tile.code] += 1 }
 
         manzu_code  = code_map[0..8].to_s
@@ -809,16 +801,16 @@ module HandEvaluator
         code_counts = hands.map(&:code).tally
         pair_count = 0
         code_counts.each_value { |count| pair_count += 1 if count == 2 }
-        CHIITOITSU_PAIR_COUNT - pair_count - 1
+        Mahjong::Constants::CHIITOITSU_PAIR_COUNT - pair_count - 1
       end
 
       def calculate_kokushi_shanten(hands, melds)
         return 13 if melds.present?
         code_counts = hands.map(&:code).tally
-        used_kokushi_codes = code_counts.select { |code, _| KOKUSHI_TILE_CODES.include?(code) }
+        used_kokushi_codes = code_counts.select { |code, _| Mahjong::Constants::KOKUSHI_TILE_CODES.include?(code) }
         unique_count = used_kokushi_codes.keys.size
         has_head = used_kokushi_codes.values.any? { |count| count >= 2 }
-        MAX_SHANTEN_COUNT - unique_count - (has_head ? 1 : 0)
+        Mahjong::Constants::MAX_SHANTEN_COUNT - unique_count - (has_head ? 1 : 0)
       end
 
       def find_chiitoitsu_outs(hands, melds, tiles)
@@ -835,12 +827,12 @@ module HandEvaluator
       def find_kokushi_outs(hands, melds, tiles)
         return nil if melds.present?
 
-        used_kokushi_codes = hands.map(&:code).select { |code| KOKUSHI_TILE_CODES.include?(code) }
+        used_kokushi_codes = hands.map(&:code).select { |code| Mahjong::Constants::KOKUSHI_TILE_CODES.include?(code) }
         is_head = used_kokushi_codes.tally.values.any? { |count| count >= 2 }
-        kokushi_tiles = tiles.select { |tile| KOKUSHI_TILE_CODES.include?(tile.code) }
+        kokushi_tiles = tiles.select { |tile| Mahjong::Constants::KOKUSHI_TILE_CODES.include?(tile.code) }
 
         if is_head
-          unused_codes = (KOKUSHI_TILE_CODES - used_kokushi_codes)
+          unused_codes = (Mahjong::Constants::KOKUSHI_TILE_CODES - used_kokushi_codes)
           kokushi_tiles.select { |tile| unused_codes.include?(tile.code) }.sort_by(&:code)
         else
           kokushi_tiles.reject { |tile| hands.include?(tile) }.sort_by(&:code)

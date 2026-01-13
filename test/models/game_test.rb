@@ -95,7 +95,7 @@ class GameTest < ActiveSupport::TestCase
     game.save
 
     game.tiles.each do |tile|
-      aka_dora_flag = Game::AKA_DORA_TILE_CODES.include?(tile.code) && tile.kind.zero?
+      aka_dora_flag = Mahjong::Constants::AKA_DORA_TILE_CODES.include?(tile.code) && tile.kind.zero?
       assert_equal aka_dora_flag, tile.aka?
     end
   end
@@ -119,7 +119,7 @@ class GameTest < ActiveSupport::TestCase
     end
 
     scores = game.players.map { |player| player.game_records.last.score }.sort
-    assert_equal Game::FINAL_ROUND_NUMBER, game.latest_round.number
+    assert_equal Mahjong::Constants::FINAL_ROUND_NUMBER, game.latest_round.number
     assert_equal [ 10_000, 10_000, 40_000, 40_000 ], scores
     assert_equal 100_000, scores.sum
   end
@@ -303,7 +303,7 @@ class GameTest < ActiveSupport::TestCase
   test '#dora_tiles returns tiles converted from indicators' do
     honba = @game.latest_honba
     honba.update!(kan_count: 0)
-    dora_codes = honba.dora_indicator_tiles.map { |indicator| Game::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+    dora_codes = honba.dora_indicator_tiles.map { |indicator| Mahjong::Constants::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
     expected = @game.tiles.select { |tile| dora_codes.include?(tile.code) }
 
     assert_equal 4, @game.dora_tiles.size
@@ -313,7 +313,7 @@ class GameTest < ActiveSupport::TestCase
   test '#uradora_tiles returns tiles converted from ura indicators' do
     honba = @game.latest_honba
     honba.update!(kan_count: 0)
-    dora_codes = honba.uradora_indicator_tiles.map { |indicator| Game::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
+    dora_codes = honba.uradora_indicator_tiles.map { |indicator| Mahjong::Constants::DORA_CONVERSION_MPA.fetch(indicator.code, indicator.code + 1) }
     expected = @game.tiles.select { |tile| dora_codes.include?(tile.code) }
 
     assert_equal 4, @game.uradora_tiles.size

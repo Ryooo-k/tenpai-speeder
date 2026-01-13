@@ -1,19 +1,10 @@
 # frozen_string_literal: true
 
 class Player < ApplicationRecord
-  PLAYERS_COUNT = 4
-  TON_TILE_CODE = 27
-  NAN_TILE_CODE = 28
-  SHA_TILE_CODE = 29
-  PEI_TILE_CODE = 30
-  KAN_REQUIRED_HAND_COUNT = 3
-  PON_REQUIRED_HAND_COUNT = 2
   SHIMOCHA_SEAT_NUMBER = 1
   TOIMEN_SEAT_NUMBER = 2
   KAMICHA_SEAT_NUMBER = 3
-  WAITING_TURN_HAND_COUNTS = [ 1, 4, 7, 10, 13 ].freeze
   KAKAN_POSITION = 4
-  KAN_COUNT = 4
 
   belongs_to :user, optional: true
   belongs_to :ai, optional: true
@@ -140,7 +131,7 @@ class Player < ApplicationRecord
   end
 
   def relation_from_user
-    relation_seat_number = (user_seat_number - seat_order) % PLAYERS_COUNT
+    relation_seat_number = (user_seat_number - seat_order) % Mahjong::Constants::PLAYERS_COUNT
 
     case relation_seat_number
     when 0 then :self
@@ -151,7 +142,7 @@ class Player < ApplicationRecord
   end
 
   def relation_from_current_player
-    relation_seat_number = (game.current_player.seat_order - seat_order) % PLAYERS_COUNT
+    relation_seat_number = (game.current_player.seat_order - seat_order) % Mahjong::Constants::PLAYERS_COUNT
 
     case relation_seat_number
     when 0 then :self
@@ -202,24 +193,24 @@ class Player < ApplicationRecord
 
   def wind_number
     wind_number = seat_order - host_seat_number
-    wind_number.positive? || wind_number.zero? ? wind_number : wind_number + PLAYERS_COUNT
+    wind_number.positive? || wind_number.zero? ? wind_number : wind_number + Mahjong::Constants::PLAYERS_COUNT
   end
 
   def wind_name
     case wind_number
-    when 0 then '東'
-    when 1 then '南'
-    when 2 then '西'
-    when 3 then '北'
+    when Mahjong::Constants::TON_WIND_NUMBER then '東'
+    when Mahjong::Constants::NAN_WIND_NUMBER then '南'
+    when Mahjong::Constants::SHA_WIND_NUMBER then '西'
+    when Mahjong::Constants::PEI_WIND_NUMBER then '北'
     end
   end
 
   def wind_code
     case wind_number
-    when 0 then TON_TILE_CODE
-    when 1 then NAN_TILE_CODE
-    when 2 then SHA_TILE_CODE
-    when 3 then PEI_TILE_CODE
+    when Mahjong::Constants::TON_WIND_NUMBER then Mahjong::Constants::TON_TILE_CODE
+    when Mahjong::Constants::NAN_WIND_NUMBER then Mahjong::Constants::NAN_TILE_CODE
+    when Mahjong::Constants::SHA_WIND_NUMBER then Mahjong::Constants::SHA_TILE_CODE
+    when Mahjong::Constants::PEI_WIND_NUMBER then Mahjong::Constants::PEI_TILE_CODE
     end
   end
 
@@ -432,7 +423,7 @@ class Player < ApplicationRecord
     end
 
     def create_stole_melds(target_player, furo_type, furo_hands, discarded_tile_id)
-      relation_seat_number = (target_player.seat_order - seat_order) % PLAYERS_COUNT
+      relation_seat_number = (target_player.seat_order - seat_order) % Mahjong::Constants::PLAYERS_COUNT
       new_melds = build_melds(relation_seat_number, furo_hands, discarded_tile_id)
 
       new_melds.each_with_index do |tile, position|
@@ -532,14 +523,14 @@ class Player < ApplicationRecord
     end
 
     def can_daiminkan?(target_tile)
-      hands.map(&:code).tally[target_tile.code] == KAN_REQUIRED_HAND_COUNT
+      hands.map(&:code).tally[target_tile.code] == Mahjong::Constants::KAN_REQUIRED_HAND_COUNT
     end
 
     def can_ankan?
       if riichi?
         drawn_hand = hands.detect(&:drawn)
         ankan_candidates = hands.select { |hand| hand.code == drawn_hand.code }
-        return if ankan_candidates.size != KAN_COUNT
+        return if ankan_candidates.size != Mahjong::Constants::KAN_COUNT
 
         tiles = game.tiles
         before_wining_tiles = HandEvaluator.find_wining_tiles(hands_without_drawn, melds, tiles)
@@ -571,7 +562,7 @@ class Player < ApplicationRecord
     def can_pon?(target_tile)
       codes = hands.map(&:code)
       return unless codes.include?(target_tile.code)
-      codes.tally[target_tile.code] >= PON_REQUIRED_HAND_COUNT
+      codes.tally[target_tile.code] >= Mahjong::Constants::PON_REQUIRED_HAND_COUNT
     end
 
     def find_chi_candidates(target_tile, target_player)
@@ -592,8 +583,8 @@ class Player < ApplicationRecord
     end
 
     def can_chi?(target_tile, target_player)
-      kamicha_seat_order = (target_player.seat_order + 1) % PLAYERS_COUNT
-      return if seat_order != kamicha_seat_order || target_tile.code >= TON_TILE_CODE
+      kamicha_seat_order = (target_player.seat_order + 1) % Mahjong::Constants::PLAYERS_COUNT
+      return if seat_order != kamicha_seat_order || target_tile.code >= Mahjong::Constants::TON_TILE_CODE
 
       hand_codes = hands.map(&:code)
       possible_chi_table = build_possible_chi_table(target_tile)
@@ -636,7 +627,7 @@ class Player < ApplicationRecord
     end
 
     def waiting_turn?
-      WAITING_TURN_HAND_COUNTS.include?(hands.size) && hands.all? { |hand| !hand.drawn? }
+      Mahjong::Constants::WAITING_TURN_HAND_COUNTS.include?(hands.size) && hands.all? { |hand| !hand.drawn? }
     end
 
     def build_dora_count_list(tile: nil, dora: true, ura: true, aka: true)

@@ -1291,7 +1291,7 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     player = game.user_player
     set_player_turn(game, player)
     chosen_hand_id = player.hands.first.id
-    game.latest_honba.update!(kan_count: Game::MAX_KAN_COUNT)
+    game.latest_honba.update!(kan_count: Mahjong::Constants::MAX_KAN_COUNT)
 
     post game_play_command_path(game), params: { event: 'discard', chosen_hand_id: }
     assert_response :redirect

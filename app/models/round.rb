@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 class Round < ApplicationRecord
-  PLAYERS_COUNT = 4
-  TON_WIND_NUMBER = 0
-  NAN_WIND_NUMBER = 1
-
   belongs_to :game
 
   has_many :honbas, -> { order(:number) }, dependent: :destroy
@@ -28,13 +24,13 @@ class Round < ApplicationRecord
 
   def wind_number
     case number
-    when 0..3 then TON_WIND_NUMBER
-    when 4..7 then NAN_WIND_NUMBER
+    when 0..3 then Mahjong::Constants::TON_WIND_NUMBER
+    when 4..7 then Mahjong::Constants::NAN_WIND_NUMBER
     end
   end
 
   def host_seat_number
-    number % PLAYERS_COUNT
+    number % Mahjong::Constants::PLAYERS_COUNT
   end
 
   def latest_honba

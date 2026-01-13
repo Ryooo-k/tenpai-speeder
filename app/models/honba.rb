@@ -1,11 +1,6 @@
 # frozen_string_literal: true
 
 class Honba < ApplicationRecord
-  MAX_DRAW_COUNT = 122
-  RINSHAN_WALL = (122..125).to_a
-  DORA_INDICATOR_ORDER_RANGE = (126..130)
-  URADORA_INDICATOR_ORDER_RANGE = (131..135)
-
   belongs_to :round
 
   has_many :steps, dependent: :destroy
@@ -22,7 +17,7 @@ class Honba < ApplicationRecord
   end
 
   def rinshan_tile
-    rinshan_order = RINSHAN_WALL[kan_count - 1]
+    rinshan_order = Mahjong::Constants::RINSHAN_WALL[kan_count - 1]
     tile_orders.find_by(order: rinshan_order).tile
   end
 
@@ -33,15 +28,15 @@ class Honba < ApplicationRecord
 
   def remaining_tile_count
     total_draw_count = draw_count + kan_count
-    MAX_DRAW_COUNT - total_draw_count
+    Mahjong::Constants::MAX_DRAW_COUNT - total_draw_count
   end
 
   def dora_indicator_tiles
-    tile_orders[DORA_INDICATOR_ORDER_RANGE].map(&:tile)[..kan_count]
+    tile_orders[Mahjong::Constants::DORA_INDICATOR_ORDER_RANGE].map(&:tile)[..kan_count]
   end
 
   def uradora_indicator_tiles
-    tile_orders[URADORA_INDICATOR_ORDER_RANGE].map(&:tile)[..kan_count]
+    tile_orders[Mahjong::Constants::URADORA_INDICATOR_ORDER_RANGE].map(&:tile)[..kan_count]
   end
 
   private
