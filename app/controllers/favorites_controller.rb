@@ -3,9 +3,9 @@
 class FavoritesController < ApplicationController
   before_action :require_oauth_user!
   before_action :set_game, only: %i[ create destroy ]
-  before_action :load_favorites, only: :index
 
   def index
+    load_favorites
   end
 
   def create
