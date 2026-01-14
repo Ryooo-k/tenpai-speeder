@@ -63,7 +63,7 @@ module ScoreInputNormalizer
         kakan_melds = melds.select { |meld| meld.kind == 'kakan' }
 
         normalized_pon_melds = pon_melds.map do |meld|
-          next unless meld.from.present?
+          next if meld.from.blank?
           suit = meld.tile.suit.first
           number = meld.tile.number
           relation = RELATION_MARK.fetch(meld.from.to_sym)
@@ -114,7 +114,7 @@ module ScoreInputNormalizer
         daiminkan_melds = melds.select { |meld| meld.kind == 'daiminkan' }
 
         daiminkan_melds.map do |meld|
-          next unless meld.from.present?
+          next if meld.from.blank?
           suit = meld.tile.suit.first
           number = meld.tile.number
           relation = RELATION_MARK.fetch(meld.from.to_sym)
