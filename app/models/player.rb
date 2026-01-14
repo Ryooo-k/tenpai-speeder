@@ -197,21 +197,11 @@ class Player < ApplicationRecord
   end
 
   def wind_name
-    case wind_number
-    when Mahjong::Constants::TON_WIND_NUMBER then '東'
-    when Mahjong::Constants::NAN_WIND_NUMBER then '南'
-    when Mahjong::Constants::SHA_WIND_NUMBER then '西'
-    when Mahjong::Constants::PEI_WIND_NUMBER then '北'
-    end
+    Mahjong::Constants::WIND_NAMES[wind_number]
   end
 
   def wind_code
-    case wind_number
-    when Mahjong::Constants::TON_WIND_NUMBER then Mahjong::Constants::TON_TILE_CODE
-    when Mahjong::Constants::NAN_WIND_NUMBER then Mahjong::Constants::NAN_TILE_CODE
-    when Mahjong::Constants::SHA_WIND_NUMBER then Mahjong::Constants::SHA_TILE_CODE
-    when Mahjong::Constants::PEI_WIND_NUMBER then Mahjong::Constants::PEI_TILE_CODE
-    end
+    Mahjong::Constants::WIND_CODES[wind_number]
   end
 
   def can_ankan_or_kakan?

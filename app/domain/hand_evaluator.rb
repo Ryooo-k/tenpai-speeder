@@ -491,8 +491,8 @@ module HandEvaluator
         player_wind_index = state[:player_wind]
         zihai_kotsu = state[:kotsu][:z]
 
-        result << { name: "場風 #{Mahjong::Constants::WINDS[round_wind_index]}", han: 1 } if !zihai_kotsu[round_wind_index].to_i.zero?
-        result << { name: "自風 #{Mahjong::Constants::WINDS[player_wind_index]}", han: 1 } if !zihai_kotsu[player_wind_index].to_i.zero?
+        result << { name: "場風 #{Mahjong::Constants::WIND_NAMES[round_wind_index]}", han: 1 } if !zihai_kotsu[round_wind_index].to_i.zero?
+        result << { name: "自風 #{Mahjong::Constants::WIND_NAMES[player_wind_index]}", han: 1 } if !zihai_kotsu[player_wind_index].to_i.zero?
         result << { name: '翻牌 白', han: 1 } if !zihai_kotsu[4].to_i.zero?
         result << { name: '翻牌 發', han: 1 } if !zihai_kotsu[5].to_i.zero?
         result << { name: '翻牌 中', han: 1 } if !zihai_kotsu[6].to_i.zero?

@@ -22,15 +22,11 @@ module Mahjong
     MAX_KAN_COUNT = 4
     HAND_MAX_COUNT = 14
 
-    WINDS = %w[東 南 西 北].freeze
+    WIND_NAMES = %w[東 南 西 北].freeze
+    WIND_CODES = [ 27, 28, 29, 30 ].freeze
     TON_WIND_NUMBER = 0
     NAN_WIND_NUMBER = 1
-    SHA_WIND_NUMBER = 2
-    PEI_WIND_NUMBER = 3
     TON_TILE_CODE = 27
-    NAN_TILE_CODE = 28
-    SHA_TILE_CODE = 29
-    PEI_TILE_CODE = 30
 
     RIICHI_BONUS = 1000
     HONBA_BONUS = 300
