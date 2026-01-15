@@ -31,17 +31,17 @@ class Player < ApplicationRecord
   scope :ais, -> { where.not(ai_id: nil) }
 
   def hands
-    return Hand.none unless base_hands.present?
+    return Hand.none if base_hands.blank?
     base_hands.sort_by { |hand| [ hand.drawn? ? 1 : 0, hand.code ] }
   end
 
   def rivers
-    return River.none unless base_rivers.present?
+    return River.none if base_rivers.blank?
     base_rivers.sort_by(&:created_at)
   end
 
   def rivers_with_rotation
-    return River.none unless base_rivers.present?
+    return River.none if base_rivers.blank?
 
     rotate_after_stolen_riichi = false
 
@@ -59,12 +59,12 @@ class Player < ApplicationRecord
   end
 
   def melds
-    return Meld.none unless base_melds_list.present?
+    return Meld.none if base_melds_list.blank?
     base_melds_list.reverse.map { |melds| melds.sort_by(&:position) }.flatten
   end
 
   def latest_meld
-    return unless base_melds_list.present?
+    return if base_melds_list.blank?
     base_melds_list.flatten.sort_by(&:created_at).last
   end
 
@@ -557,7 +557,7 @@ class Player < ApplicationRecord
     def can_kakan?
       pon_melds = melds.select { |meld| meld.kind == 'pon' }
 
-      return unless pon_melds.present?
+      return if pon_melds.blank?
 
       pon_codes = pon_melds.map(&:code).tally.keys
       hands.any? { |hand| pon_codes.include?(hand.code) }

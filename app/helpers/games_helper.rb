@@ -111,7 +111,7 @@ module GamesHelper
   end
 
   def result_score_statement_for(player, score_statements)
-    return unless score_statements.present?
+    return if score_statements.blank?
     return unless score_statements.is_a?(Hash)
 
     statement = score_statements[player.id] || score_statements[player.id.to_s]

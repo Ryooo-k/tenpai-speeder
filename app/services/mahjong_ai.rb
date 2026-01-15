@@ -5,7 +5,7 @@ module MahjongAi
 
   class << self
     def infer(game, player)
-      raise UnsupportedAi, 'AIバージョンが未対応です' unless supported_ai_version?(player)
+      raise UnsupportedAi, 'AIバージョンが未対応です' if unsupported_ai_version?(player)
 
       q_net = QNetLoader.fetch(player)
       states = StateEncoder.call(game, player)
@@ -15,9 +15,9 @@ module MahjongAi
 
     private
 
-      def supported_ai_version?(player)
-        return false if player.user?
-        AI_CONFIGS.keys.include?(player.ai_version)
+      def unsupported_ai_version?(player)
+        return true if player.user?
+        !AI_CONFIGS.keys.include?(player.ai_version)
       end
   end
 end
