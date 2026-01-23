@@ -669,32 +669,23 @@ class Player < ApplicationRecord
     end
 
     def furiten_on_other_rivers?(wining_codes)
-      riichi_step_number = base_states.detect(&:riichi)&.step&.number
-
-      discarded_wining_tile = game.players.select do |player|
-        next if player.id == id
-
-        out_of_scope_tiles = player.player_states.up_to_step(riichi_step_number).with_rivers&.last&.rivers&.map(&:tile)
-
-        target_rivers = out_of_scope_tiles.present? ? player.rivers.select { |river| !out_of_scope_tiles.include?(river.tile) } : player.rivers
-        target_rivers.any? { |river| wining_codes.include?(river.code) }
-      end
-
-      discarded_wining_tile.size >= 2
+      furiten_rivers?(wining_codes, base_states.detect(&:riichi)&.step&.number)
     end
 
     def furiten_on_same_turn?(wining_codes)
-      discarded_step_number = rivers.present? ? rivers.last.step_number : 0
+      target_step_number = rivers.present? ? rivers.last.step_number : 0
+      furiten_rivers?(wining_codes, target_step_number)
+    end
 
-      discarded_wining_tile = game.players.select do |player|
-        next if player.id == id
+    def furiten_rivers?(wining_codes, step_number)
+      game.players
+          .reject { |p| p.id == id }
+          .flat_map { |p| filtered_rivers(p, step_number) }
+          .count { |r| wining_codes.include?(r.code) } >= 2
+    end
 
-        out_of_scope_tiles = player.player_states.up_to_step(discarded_step_number).with_rivers&.last&.rivers&.map(&:tile)
-
-        target_rivers = out_of_scope_tiles.present? ? player.rivers.select { |river| !out_of_scope_tiles.include?(river.tile) } : player.rivers
-        target_rivers.any? { |river| wining_codes.include?(river.code) }
-      end
-
-      discarded_wining_tile.size >= 2
+    def filtered_rivers(player, step_number)
+      out_of_scope = player.player_states.up_to_step(step_number).with_rivers&.last&.rivers&.map(&:tile) || []
+      player.rivers.reject { |r| out_of_scope.include?(r.tile) }
     end
 end
