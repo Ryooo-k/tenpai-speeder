@@ -1,0 +1,16 @@
+<div class="relative w-[4cqw]">
+  <% if player.swap_furo_tile_codes.include?(hand.code) %>
+    <div class="relative w-full">
+      <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.aka?, class_name: "block w-full h-auto grayscale" } %>
+      <div class="pointer-events-none absolute inset-0 bg-stone-500/60"></div>
+    </div>
+
+  <% else %>
+    <% tile_label = "#{hand.suit}#{hand.number}#{hand.aka? ? '（赤）' : ''}を選択" %>
+      <%= form.radio_button :chosen_hand_id, hand.id, class: "sr-only peer", aria: { label: tile_label } %>
+      <%= form.label :chosen_hand_id, value: hand.id, class: "block cursor-pointer peer-checked:-translate-y-2" do %>
+        <%= render partial: "games/mahjong_table/tile", locals: { tile: hand, red: hand.aka?, class_name: "block w-full h-auto" } %>
+      <% end %>
+      <%= form.submit "", class: "absolute inset-0 hidden cursor-pointer peer-checked:block" %>
+  <% end %>
+</div>

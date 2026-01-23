@@ -542,6 +542,37 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test '#swap_furo_tile_codes returns empty when no stolen meld' do
+    @user_player.stub(:base_melds_list, [ [] ]) do
+      assert_equal [], @user_player.swap_furo_tile_codes
+    end
+  end
+
+  test '#swap_furo_tile_codes returns stolen code for non-chi' do
+    set_melds('m111=', @user_player)
+    assert_equal [ 0 ], @user_player.swap_furo_tile_codes
+  end
+
+  test '#swap_furo_tile_codes returns swapped code for kanchan chi' do
+    set_melds('m23+4', @user_player)
+    assert_equal [ 2 ], @user_player.swap_furo_tile_codes
+  end
+
+  test '#swap_furo_tile_codes returns swapped code for penchan chi' do
+    set_melds('m123+', @user_player)
+    assert_equal [ 2 ], @user_player.swap_furo_tile_codes
+  end
+
+  test '#swap_furo_tile_codes returns swapped code for ryanmen chi where stolen tile is highest' do
+    set_melds('m234+', @user_player)
+    assert_equal [ 3, 0 ], @user_player.swap_furo_tile_codes
+  end
+
+  test '#swap_furo_tile_codes returns swapped code for ryanmen chi where stolen tile is lowest' do
+    set_melds('m2+34', @user_player)
+    assert_equal [ 1, 4 ], @user_player.swap_furo_tile_codes
+  end
+
   test 'relation_from_user' do
     @ai_player.stub(:user_seat_number, 0) do
       @ai_player.seat_order = 1

@@ -356,6 +356,24 @@ class Player < ApplicationRecord
     shanten_without_drawn.zero? && waiting_turn?
   end
 
+  def swap_furo_tile_codes
+    latest_melds = base_melds_list.last
+    return [] if latest_melds.blank?
+
+    stole_meld = latest_melds.detect(&:from)
+    return [ stole_meld.code ] if stole_meld.kind != 'chi'
+
+    chi_melds = latest_melds.reject(&:from)
+    is_ryanmen_chi = (chi_melds.first.number - chi_melds.second.number).abs == 1 && chi_melds.all? { |meld| meld.number != 1 && meld.number != 9 }
+
+    if is_ryanmen_chi
+      swat_code = latest_melds.map(&:number).max == stole_meld.number ? stole_meld.code - 3 : stole_meld.code + 3
+      [ stole_meld.code, swat_code ]
+    else
+      [ stole_meld.code ]
+    end
+  end
+
   private
 
     def validate_player_type

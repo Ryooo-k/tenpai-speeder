@@ -244,7 +244,7 @@ class GameFlow
         @game.user_player.steal(discarder, params[:furo_type], params[:furo_ids], params[:discarded_tile_id], next_step)
         discarder.stolen(params[:discarded_tile_id], next_step)
 
-        next_event = daiminkan_selected ? 'rinshan_draw' : 'choose'
+        next_event = daiminkan_selected ? 'rinshan_draw' : 'choose_furo_safe_hands'
         @game.current_step.update!(next_event:)
       else
         @game.advance_current_player!
