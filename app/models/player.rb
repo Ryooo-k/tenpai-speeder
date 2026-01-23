@@ -328,15 +328,15 @@ class Player < ApplicationRecord
   end
 
   def yaku_map_by_waiting_wining_tile
-    return {} unless waiting_wining_tile?
+    wining_tiles = HandEvaluator.find_wining_tiles(hands_without_drawn, melds, game.tiles)
+    return {} if wining_tiles.blank?
 
-    wining_tiles = HandEvaluator.find_wining_tiles(hands, melds, game.tiles)
     dora_count_list = build_dora_count_list(dora: false, ura: false, aka: false)
 
     wining_tiles.each_with_object({}) do |wining_tile, yaku_map|
       next if yaku_map[wining_tile.base_tile].present?
 
-      target_hands = hands + [ wining_tile ]
+      target_hands = hands_without_drawn + [ wining_tile ]
       situational_yaku_list = build_situational_yaku_list(tile: wining_tile)
       relation = :toimen # self以外になるように設定（役の自摸がつかないようにする）
       score_statements = HandEvaluator.get_score_statements(

@@ -1541,9 +1541,8 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#yaku_map_by_waiting_wining_tile returns empty hash when not tenpai' do
-    @user_player.stub(:tenpai?, false) do
-      assert_equal({}, @user_player.yaku_map_by_waiting_wining_tile)
-    end
+    set_hands('m123456 p23 s13579', @user_player, drawn: false)
+    assert_equal({}, @user_player.yaku_map_by_waiting_wining_tile)
   end
 
   test '#waiting_wining_tile? returns true when shanten 0 on waiting turn' do

@@ -8,7 +8,7 @@
     </p>
   </div>
   <div class="relative mt-4 space-y-4">
-    <% if player.waiting_wining_tile? %>
+    <% if player.waiting_wining_tile? || player.riichi? %>
       <%= render partial: "games/tips/tenpai_summary" %>
     <% else %>
       <%= render partial: "games/tips/hand_efficiency" %>
