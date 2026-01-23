@@ -65,7 +65,7 @@ module GamesHelper
     case event&.to_sym
     when :choose        then 'games/mahjong_table/player/hand_form'
     when :choose_riichi then 'games/mahjong_table/player/riichi_form'
-    when :choose_furo_safe_hand then 'games/mahjong_table/player/furo_safe_form'
+    when :choose_furo_safe_hands then 'games/mahjong_table/player/furo_safe_form'
     else                     'games/mahjong_table/player/hand_plain'
     end
   end
@@ -97,7 +97,7 @@ module GamesHelper
   end
 
   def discard_form_needed?(event, player)
-    player.user? && event.in?([ 'choose', 'choose_riichi', 'choose_furo_safe_hand' ])
+    player.user? && event.in?([ 'choose', 'choose_riichi', 'choose_furo_safe_hands' ])
   end
 
   def build_hand_row_classes(player, needs_form)
