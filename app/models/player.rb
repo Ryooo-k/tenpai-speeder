@@ -331,7 +331,7 @@ class Player < ApplicationRecord
     return {} unless waiting_wining_tile?
 
     wining_tiles = HandEvaluator.find_wining_tiles(hands, melds, game.tiles)
-    dora_count_list = build_dora_count_list(ura: false)
+    dora_count_list = build_dora_count_list(dora: false, ura: false, aka: false)
 
     wining_tiles.each_with_object({}) do |wining_tile, yaku_map|
       next if yaku_map[wining_tile.base_tile].present?
