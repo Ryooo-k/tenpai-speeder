@@ -463,6 +463,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     assert_selector 'div[aria-label="副露の選択肢"]'
     click_button 'スルー'
 
+    @toimen.reload
     assert_selector hands_selector, count: 14
   end
 
@@ -559,6 +560,7 @@ class PlayActionsTest < ApplicationSystemTestCase
     assert_selector 'div[aria-label="ロンの選択肢"]'
     click_button 'スルー'
 
+    @toimen.reload
     hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
     assert_selector hands_selector, count: 14
   end
@@ -570,10 +572,10 @@ class PlayActionsTest < ApplicationSystemTestCase
     @game.current_step.update!(next_event: 'draw')
     set_player_turn(@game, @user)
     set_draw_tile('z1', @game) # カカン可能な牌をセット
-    @game.reload
 
     click_button '▶︎'
 
+    @game.reload
     assert_selector 'div[aria-label="カンの選択肢"]'
     assert_selector 'form[data-testid="kakan_candidate"]', count: 1
     within 'form[data-testid="kakan_candidate"]' do
@@ -597,6 +599,7 @@ class PlayActionsTest < ApplicationSystemTestCase
       click_button
     end
 
+    @user.reload
     within "div[data-testid=\"player-melds\"][data-player-id=\"#{@user.id}\"]" do
       kakan_tile = all('img[data-kind="kakan"]', minimum: 1).first
       assert_selector 'img[alt="zihai1の牌"][data-kind="kakan"]', count: 1
