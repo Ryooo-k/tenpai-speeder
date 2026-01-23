@@ -543,7 +543,7 @@ class PlayerTest < ActiveSupport::TestCase
   end
 
   test '#swap_furo_tile_codes returns empty when no stolen meld' do
-    @user_player.stub(:base_melds_list, [ [ ] ]) do
+    @user_player.stub(:base_melds_list, [ [] ]) do
       assert_equal [], @user_player.swap_furo_tile_codes
     end
   end
