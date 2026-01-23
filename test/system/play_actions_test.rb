@@ -456,15 +456,16 @@ class PlayActionsTest < ApplicationSystemTestCase
     set_player_turn(@game, @shimocha)
     @game.reload
 
-    hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
-    assert_selector hands_selector, count: 13
+    before_hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
+    assert_selector before_hands_selector, count: 13
 
     click_button '▶︎'
     assert_selector 'div[aria-label="副露の選択肢"]'
     click_button 'スルー'
 
     @toimen.reload
-    assert_selector hands_selector, count: 14
+    after_hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
+    assert_selector after_hands_selector, count: 14
   end
 
   test 'ユーザーがリーチ可能な時、「リーチ」と「パス」のボタンが表示される' do
@@ -553,16 +554,16 @@ class PlayActionsTest < ApplicationSystemTestCase
     set_player_turn(@game, @shimocha)
     @game.reload
 
-    hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
-    assert_selector hands_selector, count: 13
+    before_hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
+    assert_selector before_hands_selector, count: 13
 
     click_button '▶︎'
     assert_selector 'div[aria-label="ロンの選択肢"]'
     click_button 'スルー'
 
     @toimen.reload
-    hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
-    assert_selector hands_selector, count: 14
+    after_hands_selector = "div[data-testid=\"player-hands\"][data-player-id=\"#{@toimen.id}\"] img"
+    assert_selector after_hands_selector, count: 14
   end
 
   test 'ユーザーがカカンできる時、「カカン候補牌」と「パス」ボタンが表示される' do
