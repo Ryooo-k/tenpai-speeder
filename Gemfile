@@ -30,7 +30,7 @@ end
 group :development do
   gem 'web-console'
   gem 'erb_lint', require: false
-  gem 'brakeman', '~> 7.1.0', require: false
+  gem 'brakeman', '~> 8.0', require: false
   gem 'rubocop-rails-omakase', require: false
 end
 
