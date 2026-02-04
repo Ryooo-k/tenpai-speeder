@@ -6,6 +6,8 @@ module Games::PlaySupport
   private
 
     def set_game
+      return handle_missing_game unless current_user
+
       @game = Game.includes(
         :game_mode,
         { tiles: :base_tile },
@@ -25,7 +27,20 @@ module Games::PlaySupport
               :steps
             ]
         ] }
-      ).find(params[:game_id])
+      ).joins(:players).find_by(id: params[:game_id], players: { user_id: current_user.id })
+
+      handle_missing_game unless @game
+    end
+
+    def handle_missing_game
+      respond_to do |format|
+        format.turbo_stream do
+          flash.now[:alert] = 'ゲームが見つかりません。'
+          render 'games/plays/error'
+        end
+        format.html { redirect_back(fallback_location: home_path, alert: 'ゲームが見つかりません。') }
+      end
+      false
     end
 
     def set_instance_variable(payloads = nil)
