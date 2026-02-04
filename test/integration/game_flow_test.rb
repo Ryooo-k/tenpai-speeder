@@ -116,7 +116,8 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     def failing_game.undo_with_sync! = raise ActiveRecord::StatementInvalid
 
     relation_double = Struct.new(:game) do
-      def find(*) = game
+      def joins(*) = self
+      def find_by(*) = game
     end.new(failing_game)
 
     Rails.logger.stub(:error, ->(message) { log = message }) do
@@ -139,7 +140,8 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     def failing_game.redo_with_sync! = raise ActiveRecord::StatementInvalid
 
     relation_double = Struct.new(:game) do
-      def find(*) = game
+      def joins(*) = self
+      def find_by(*) = game
     end.new(failing_game)
 
     Rails.logger.stub(:error, ->(message) { log = message }) do
@@ -161,7 +163,8 @@ class GameFlowTest < ActionDispatch::IntegrationTest
     def failing_game.playback_with_sync! = raise ActiveRecord::StatementInvalid
 
     relation_double = Struct.new(:game) do
-      def find(*) = game
+      def joins(*) = self
+      def find_by(*) = game
     end.new(failing_game)
 
     Rails.logger.stub(:error, ->(message) { log = message }) do
